@@ -69,3 +69,14 @@ See [Architecture](docs/architecture.md), [Roadmap](docs/roadmap.md), [Security]
 ## License
 
 MIT. Findex is an independent project and is not affiliated with Anthropic or the Claude brand.
+
+### Incremental refresh (foundation)
+
+After an initial `findex index`, `findex refresh src\\app.rs` updates **already
+indexed** relative file paths through one SQLite transaction without walking the
+whole project. Deleted or newly binary files lose their indexed entries. Paths
+that are not already indexed are reported as **unknown** and require
+`findex index` to discover them; this is intentional so arbitrary paths cannot
+bypass Git exclusions or secret-file filters. An invalid or escaping path aborts
+the entire batch. Searches still perform a full reconciliation in v0.1: native
+filesystem notifications and watcher overflow recovery remain in issue #6.

@@ -1,6 +1,10 @@
 //! SQLite/FTS5-backed *lexical* code discovery. No embeddings or model calls.
 //! v0.1 reconciles file contents before each search; a native watcher is a planned optimization.
 
+mod refresh;
+
+pub use refresh::{refresh_known_paths, refresh_known_paths_into, RefreshReport};
+
 use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
 use ignore::WalkBuilder;
 use rusqlite::{params, Connection};

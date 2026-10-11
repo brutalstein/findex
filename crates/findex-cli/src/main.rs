@@ -31,6 +31,20 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 stats.indexed, stats.unchanged, stats.removed, stats.skipped, stats.examined
             );
         }
+        "refresh" => {
+            let paths: Vec<PathBuf> = args.map(PathBuf::from).collect();
+            if paths.is_empty() {
+                return Err("usage: findex refresh <known-relative-path> ...".into());
+            }
+            let report = findex_index::refresh_known_paths(&project, &paths)?;
+            println!(
+                "Refreshed {} changed, {} unchanged, {} removed; {} unknown (full index required)",
+                report.sync.indexed,
+                report.sync.unchanged,
+                report.sync.removed,
+                report.unknown_paths
+            );
+        }
         "search" => {
             let query = args
                 .map(|a| a.to_string_lossy().into_owned())
@@ -153,6 +167,7 @@ fn print_help() {
     println!("  findex claude [CLAUDE_ARGS...]  Start official Claude Code in this terminal");
     println!("  findex index                    Reconcile project lexical index");
     println!("  findex search <terms...>        Search matching code and line evidence");
+    println!("  findex refresh <paths...>       Refresh known relative files without a full scan");
     println!("  findex doctor                   Check local integration and system");
     println!("  findex status                   Show current project and index location");
     println!("  findex mcp                      Start MCP stdio server (for Claude plugin)");
