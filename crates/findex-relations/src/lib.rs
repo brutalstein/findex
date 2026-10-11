@@ -660,8 +660,20 @@ mod tests {
         let imported = import_lsp_snapshot(workspace.path(), batch).expect("batch");
         assert_eq!(imported.definitions, 2);
         assert_eq!(imported.references, 2);
-        assert_eq!(impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("a").hits.len(), 1);
-        assert_eq!(impact(workspace.path(), Path::new("c.rs"), 1, 8).expect("c").hits.len(), 1);
+        assert_eq!(
+            impact(workspace.path(), Path::new("a.rs"), 1, 8)
+                .expect("a")
+                .hits
+                .len(),
+            1
+        );
+        assert_eq!(
+            impact(workspace.path(), Path::new("c.rs"), 1, 8)
+                .expect("c")
+                .hits
+                .len(),
+            1
+        );
         assert!(import_lsp_snapshot(workspace.path(), "[]").is_err());
         let duplicate = r#"[{"definition":{"path":"a.rs","line":0,"character":3},"references":[]},{"definition":{"path":"a.rs","line":0,"character":3},"references":[]}]"#;
         assert!(import_lsp_snapshot(workspace.path(), duplicate).is_err());

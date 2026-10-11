@@ -92,7 +92,10 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
             let lengths = line_lengths
                 .get(&loc.path)
                 .ok_or("LSP source line metadata missing")?;
-            if lengths.get(loc.line).is_none_or(|length| loc.character > *length) {
+            if lengths
+                .get(loc.line)
+                .is_none_or(|length| loc.character > *length)
+            {
                 return Err("LSP UTF-16 character offset or source line is out of bounds".into());
             }
         }
