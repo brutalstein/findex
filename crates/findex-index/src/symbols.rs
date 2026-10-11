@@ -67,8 +67,10 @@ pub(crate) fn clear(tx: &Transaction<'_>, path: &str) -> Result<()> {
 /// Returns true only when the supported file was actually parsed.
 /// Unchanged hashes and extractor revisions bypass Tree-sitter entirely.
 pub(crate) fn upsert(tx: &Transaction<'_>, path: &str, hash: &str, source: &str) -> Result<bool> {
+    // Unsupported files cannot have symbol rows: a renamed source changes
+    // its path and is separately removed by reconciliation. Avoid two DELETE
+    // statements for every Markdown/config file on every scan.
     if !findex_syntax::supports_path(Path::new(path)) {
-        clear(tx, path)?;
         return Ok(false);
     }
     let cached: Option<(String, i64)> = tx
