@@ -49,7 +49,13 @@ pub fn synchronize(project: &Path) -> Result<SyncStats> {
 pub fn search(project: &Path, query: &str, limit: usize) -> Result<SearchReport> {
     let sync = synchronize(project)?;
     let directory = storage_dir(project)?;
-    search_in_db(project, &directory.join("index.sqlite3"), query, limit, sync)
+    search_in_db(
+        project,
+        &directory.join("index.sqlite3"),
+        query,
+        limit,
+        sync,
+    )
 }
 
 fn connect(db: &Path) -> Result<Connection> {
@@ -96,7 +102,18 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
         .follow_links(false)
         .filter_entry(|entry| {
             let name = entry.file_name().to_string_lossy().to_ascii_lowercase();
-            !matches!(name.as_str(), ".git" | ".findex" | "node_modules" | "target" | "vendor" | "dist" | "build" | ".venv" | "__pycache__")
+            !matches!(
+                name.as_str(),
+                ".git"
+                    | ".findex"
+                    | "node_modules"
+                    | "target"
+                    | "vendor"
+                    | "dist"
+                    | "build"
+                    | ".venv"
+                    | "__pycache__"
+            )
         })
         .build();
 
@@ -122,7 +139,11 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
         }
         stats.examined += 1;
         if stats.examined > MAX_FILES_PER_SYNC {
-            return Err(format!("project exceeds the {}-file safety budget; index transaction cancelled", MAX_FILES_PER_SYNC).into());
+            return Err(format!(
+                "project exceeds the {}-file safety budget; index transaction cancelled",
+                MAX_FILES_PER_SYNC
+            )
+            .into());
         }
         let metadata = match entry.metadata() {
             Ok(m) => m,
@@ -151,12 +172,18 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
             continue;
         };
         let digest = blake3::hash(&bytes).to_hex().to_string();
-        if existing.get(&rel_string).is_some_and(|old| old.as_str() == digest.as_str()) {
+        if existing
+            .get(&rel_string)
+            .is_some_and(|old| old.as_str() == digest.as_str())
+        {
             stats.unchanged += 1;
             continue;
         }
         tx.execute("DELETE FROM docs WHERE path = ?1", params![rel_string])?;
-        tx.execute("INSERT INTO docs(path, body) VALUES(?1, ?2)", params![rel_string, contents])?;
+        tx.execute(
+            "INSERT INTO docs(path, body) VALUES(?1, ?2)",
+            params![rel_string, contents],
+        )?;
         tx.execute(
             "INSERT INTO files(path, hash, size_bytes) VALUES(?1, ?2, ?3)
              ON CONFLICT(path) DO UPDATE SET hash=excluded.hash, size_bytes=excluded.size_bytes",
@@ -181,11 +208,15 @@ fn is_eligible_file(path: &Path) -> bool {
     if is_sensitive_filename(path) {
         return false;
     }
-    let Ok(meta) = fs::metadata(path) else { return false; };
+    let Ok(meta) = fs::metadata(path) else {
+        return false;
+    };
     if !meta.is_file() || meta.len() > MAX_SOURCE_BYTES {
         return false;
     }
-    let Ok(bytes) = fs::read(path) else { return false; };
+    let Ok(bytes) = fs::read(path) else {
+        return false;
+    };
     !bytes.contains(&0) && std::str::from_utf8(&bytes).is_ok()
 }
 
@@ -221,7 +252,9 @@ pub fn search_in_db(
         stale_results_discarded: 0,
         retrieval: "sqlite-fts5-bm25",
     };
-    let Some((expression, terms)) = fts_query(query) else { return Ok(report); };
+    let Some((expression, terms)) = fts_query(query) else {
+        return Ok(report);
+    };
     let conn = connect(database)?;
     let mut stmt = conn.prepare(
         "SELECT docs.path, docs.body, bm25(docs), files.hash
@@ -230,7 +263,12 @@ pub fn search_in_db(
     )?;
     let count = limit.clamp(1, 32);
     let result_rows = stmt.query_map(params![expression, (count * 4) as i64], |row| {
-        Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, f64>(2)?, row.get::<_, String>(3)?))
+        Ok((
+            row.get::<_, String>(0)?,
+            row.get::<_, String>(1)?,
+            row.get::<_, f64>(2)?,
+            row.get::<_, String>(3)?,
+        ))
     })?;
     for row in result_rows {
         let (path, body, score, indexed_hash) = row?;
@@ -256,7 +294,9 @@ pub fn search_in_db(
             excerpt,
             bm25_score: score,
         });
-        if report.hits.len() >= count { break; }
+        if report.hits.len() >= count {
+            break;
+        }
     }
     Ok(report)
 }
@@ -277,12 +317,14 @@ mod tests {
         let db = state.path().join("db.sqlite3");
         let first = synchronize_into(tmp.path(), &db).expect("sync");
         assert!(first.indexed >= 1);
-        let found = search_in_db(tmp.path(), &db, "validate_token", 5, SyncStats::default()).expect("search");
+        let found = search_in_db(tmp.path(), &db, "validate_token", 5, SyncStats::default())
+            .expect("search");
         assert_eq!(found.hits.len(), 1);
         assert_eq!(found.hits[0].line, 1);
         fs::write(&target, "fn verify_identity() {}\n").expect("edit");
         synchronize_into(tmp.path(), &db).expect("resync");
-        let stale = search_in_db(tmp.path(), &db, "validate_token", 5, SyncStats::default()).expect("search");
+        let stale = search_in_db(tmp.path(), &db, "validate_token", 5, SyncStats::default())
+            .expect("search");
         assert!(stale.hits.is_empty());
         fs::remove_file(&target).expect("remove");
         let after = synchronize_into(tmp.path(), &db).expect("clean");
@@ -298,8 +340,23 @@ mod tests {
         let state = tempdir().expect("state dir");
         let db = state.path().join("index.sqlite3");
         synchronize_into(tmp.path(), &db).expect("sync");
-        assert!(search_in_db(tmp.path(), &db, "password_secret_marker", 5, SyncStats::default()).expect("search").hits.is_empty());
-        assert_eq!(search_in_db(tmp.path(), &db, "nonsecretmarker", 5, SyncStats::default()).expect("search").hits.len(), 1);
+        assert!(search_in_db(
+            tmp.path(),
+            &db,
+            "password_secret_marker",
+            5,
+            SyncStats::default()
+        )
+        .expect("search")
+        .hits
+        .is_empty());
+        assert_eq!(
+            search_in_db(tmp.path(), &db, "nonsecretmarker", 5, SyncStats::default())
+                .expect("search")
+                .hits
+                .len(),
+            1
+        );
     }
 
     #[test]

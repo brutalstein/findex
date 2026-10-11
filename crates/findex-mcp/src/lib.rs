@@ -15,10 +15,15 @@ pub fn serve(project: &Path) -> io::Result<()> {
     loop {
         let mut buffer = Vec::new();
         let count = input.read_until(b'\n', &mut buffer)?;
-        if count == 0 { break; }
+        if count == 0 {
+            break;
+        }
         if buffer.len() > MAX_REQUEST_BYTES {
             // Protocol has no safe way to recover from unbounded requests: fail closed.
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "MCP request exceeded 1 MiB"));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "MCP request exceeded 1 MiB",
+            ));
         }
         let request: Value = match serde_json::from_slice(&buffer) {
             Ok(value) => value,
@@ -56,53 +61,74 @@ pub fn handle(request: &Value, project: &Path) -> Option<Value> {
     let id = request.get("id")?.clone();
     let response = match method {
         "initialize" => {
-            let requested = request.pointer("/params/protocolVersion").and_then(Value::as_str);
+            let requested = request
+                .pointer("/params/protocolVersion")
+                .and_then(Value::as_str);
             let version = match requested {
                 Some("2025-11-25") => "2025-11-25",
                 Some("2025-06-18") => "2025-06-18",
                 Some("2024-11-05") => "2024-11-05",
                 _ => "2025-06-18",
             };
-            success(id, json!({
-                "protocolVersion": version,
-                "capabilities": {"tools": {"listChanged": false}},
-                "serverInfo": {"name":"findex", "version":env!("CARGO_PKG_VERSION")},
-                "instructions": "Use findex_search for lexical evidence-based code discovery. Results are not proof of correctness; verify before editing."
-            }))
+            success(
+                id,
+                json!({
+                    "protocolVersion": version,
+                    "capabilities": {"tools": {"listChanged": false}},
+                    "serverInfo": {"name":"findex", "version":env!("CARGO_PKG_VERSION")},
+                    "instructions": "Use findex_search for lexical evidence-based code discovery. Results are not proof of correctness; verify before editing."
+                }),
+            )
         }
         "ping" => success(id, json!({})),
-        "tools/list" => success(id, json!({
-            "tools": [{
-                "name": "findex_search",
-                "description": "Search the current local project by identifiers and code terms. Returns verified file/line evidence. Keyword/BM25 only in v0.1, not semantic or graph search.",
-                "inputSchema": {
-                    "type":"object",
-                    "properties":{
-                        "query":{"type":"string","minLength":1,"maxLength":500},
-                        "limit":{"type":"integer","minimum":1,"maximum":32,"default":8}
-                    },
-                    "required":["query"],
-                    "additionalProperties":false
-                }
-            }]
-        })),
+        "tools/list" => success(
+            id,
+            json!({
+                "tools": [{
+                    "name": "findex_search",
+                    "description": "Search the current local project by identifiers and code terms. Returns verified file/line evidence. Keyword/BM25 only in v0.1, not semantic or graph search.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{
+                            "query":{"type":"string","minLength":1,"maxLength":500},
+                            "limit":{"type":"integer","minimum":1,"maximum":32,"default":8}
+                        },
+                        "required":["query"],
+                        "additionalProperties":false
+                    }
+                }]
+            }),
+        ),
         "tools/call" => {
             let name = request.pointer("/params/name").and_then(Value::as_str);
             if name != Some("findex_search") {
                 error(id, -32602, "unknown tool")
             } else {
                 let args = request.pointer("/params/arguments");
-                let query = args.and_then(|v|v.get("query")).and_then(Value::as_str).unwrap_or("");
-                let limit = args.and_then(|v|v.get("limit")).and_then(Value::as_u64).unwrap_or(8);
+                let query = args
+                    .and_then(|v| v.get("query"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let limit = args
+                    .and_then(|v| v.get("limit"))
+                    .and_then(Value::as_u64)
+                    .unwrap_or(8);
                 if query.is_empty() || query.len() > 500 || limit == 0 || limit > 32 {
                     error(id, -32602, "query must be 1-500 bytes and limit 1-32")
                 } else {
                     match findex_index::search(project, query, limit as usize) {
                         Ok(found) => {
-                            let payload = serde_json::to_string(&found).unwrap_or_else(|_| "{}".to_string());
-                            success(id, json!({"content":[{"type":"text", "text":payload}], "isError":false}))
+                            let payload =
+                                serde_json::to_string(&found).unwrap_or_else(|_| "{}".to_string());
+                            success(
+                                id,
+                                json!({"content":[{"type":"text", "text":payload}], "isError":false}),
+                            )
                         }
-                        Err(err) => success(id, json!({"content":[{"type":"text", "text":format!("Findex index unavailable: {err}")}], "isError":true}))
+                        Err(err) => success(
+                            id,
+                            json!({"content":[{"type":"text", "text":format!("Findex index unavailable: {err}")}], "isError":true}),
+                        ),
                     }
                 }
             }
@@ -120,12 +146,20 @@ mod tests {
         let project = Path::new(".");
         let init = handle(&json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}), project).expect("init");
         assert_eq!(init["result"]["serverInfo"]["name"], "findex");
-        let tools = handle(&json!({"jsonrpc":"2.0","id":2,"method":"tools/list"}), project).expect("tools");
+        let tools = handle(
+            &json!({"jsonrpc":"2.0","id":2,"method":"tools/list"}),
+            project,
+        )
+        .expect("tools");
         assert_eq!(tools["result"]["tools"][0]["name"], "findex_search");
     }
     #[test]
     fn notifications_produce_no_response() {
-        assert!(handle(&json!({"jsonrpc":"2.0","method":"notifications/initialized"}), Path::new(".")).is_none());
+        assert!(handle(
+            &json!({"jsonrpc":"2.0","method":"notifications/initialized"}),
+            Path::new(".")
+        )
+        .is_none());
     }
     #[test]
     fn disallows_unrecognized_tool_and_unbounded_limits() {

@@ -13,7 +13,10 @@ pub const MAX_FILES_PER_SYNC: usize = 100_000;
 pub fn project_root(working_directory: &Path) -> io::Result<PathBuf> {
     let directory = working_directory.canonicalize()?;
     if !directory.is_dir() {
-        return Err(io::Error::new(io::ErrorKind::InvalidInput, "project path is not a directory"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "project path is not a directory",
+        ));
     }
     for ancestor in directory.ancestors() {
         if ancestor.join(".git").exists() {
@@ -36,7 +39,11 @@ pub fn storage_dir(project: &Path) -> io::Result<PathBuf> {
 /// Skip well-known credentials and key material even when tracked in Git.
 /// This does not guarantee secret-free snippets: secret scanning is a later milestone.
 pub fn is_sensitive_filename(path: &Path) -> bool {
-    let name = path.file_name().unwrap_or_default().to_string_lossy().to_ascii_lowercase();
+    let name = path
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_ascii_lowercase();
     name == ".env"
         || name.starts_with(".env.")
         || name == "id_rsa"
@@ -66,7 +73,10 @@ mod tests {
         let tmp = std::env::temp_dir().join(format!("findex-core-root-{}", std::process::id()));
         std::fs::create_dir_all(tmp.join("sub")).expect("create fixture");
         std::fs::write(tmp.join(".git"), "gitdir: unused").expect("write fixture");
-        assert_eq!(project_root(&tmp.join("sub")).expect("root"), tmp.canonicalize().expect("canonical"));
+        assert_eq!(
+            project_root(&tmp.join("sub")).expect("root"),
+            tmp.canonicalize().expect("canonical")
+        );
         let _ = std::fs::remove_dir_all(tmp);
     }
 }

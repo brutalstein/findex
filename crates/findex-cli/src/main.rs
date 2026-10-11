@@ -26,16 +26,29 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         "claude" => launch_claude(args.collect())?,
         "index" => {
             let stats = findex_index::synchronize(&project)?;
-            println!("Indexed {} changed, {} unchanged, {} removed, {} skipped (examined {})", stats.indexed, stats.unchanged, stats.removed, stats.skipped, stats.examined);
+            println!(
+                "Indexed {} changed, {} unchanged, {} removed, {} skipped (examined {})",
+                stats.indexed, stats.unchanged, stats.removed, stats.skipped, stats.examined
+            );
         }
         "search" => {
-            let query = args.map(|a| a.to_string_lossy().into_owned()).collect::<Vec<_>>().join(" ");
-            if query.trim().is_empty() { return Err("usage: findex search <search terms>".into()); }
+            let query = args
+                .map(|a| a.to_string_lossy().into_owned())
+                .collect::<Vec<_>>()
+                .join(" ");
+            if query.trim().is_empty() {
+                return Err("usage: findex search <search terms>".into());
+            }
             let result = findex_index::search(&project, &query, 10)?;
             for hit in &result.hits {
                 println!("{}:{}  {}", hit.path, hit.line, hit.excerpt);
             }
-            println!("{} hits; {} changed; {} stale discarded", result.hits.len(), result.sync.indexed, result.stale_results_discarded);
+            println!(
+                "{} hits; {} changed; {} stale discarded",
+                result.hits.len(),
+                result.sync.indexed,
+                result.stale_results_discarded
+            );
         }
         "doctor" => doctor(&project),
         "status" | "stats" => {
@@ -44,7 +57,13 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             println!("Token savings: unavailable (requires a measured baseline, not implemented in v0.1)");
         }
         "mcp" => findex_mcp::serve(&project)?,
-        _ => return Err(format!("unknown command: {} (use findex help)", command.to_string_lossy()).into()),
+        _ => {
+            return Err(format!(
+                "unknown command: {} (use findex help)",
+                command.to_string_lossy()
+            )
+            .into())
+        }
     }
     Ok(())
 }
@@ -57,7 +76,9 @@ fn launch_claude(user_args: Vec<OsString>) -> Result<(), Box<dyn std::error::Err
     // Native Claude Code installation with claude.exe on PATH is required in v0.1.
     let directory = env::current_dir()?;
     let project = findex_core::project_root(&directory)?;
-    let native_claude = find_native_claude(&project).ok_or("official native claude.exe not found on PATH outside the project; run findex doctor")?;
+    let native_claude = find_native_claude(&project).ok_or(
+        "official native claude.exe not found on PATH outside the project; run findex doctor",
+    )?;
     let mut command = Command::new(native_claude);
     if let Some(plugin_dir) = bundled_plugin_dir() {
         command.arg("--plugin-dir").arg(plugin_dir);
@@ -83,7 +104,11 @@ fn launch_claude(user_args: Vec<OsString>) -> Result<(), Box<dyn std::error::Err
 fn bundled_plugin_dir() -> Option<std::path::PathBuf> {
     let exe = env::current_exe().ok()?;
     let directory = exe.parent()?.join("plugin");
-    if directory.join(".claude-plugin").join("plugin.json").is_file() {
+    if directory
+        .join(".claude-plugin")
+        .join("plugin.json")
+        .is_file()
+    {
         Some(directory)
     } else {
         None
@@ -93,18 +118,38 @@ fn bundled_plugin_dir() -> Option<std::path::PathBuf> {
 fn doctor(project: &Path) {
     println!("Findex native Windows diagnostics");
     println!("Project root: {}", project.display());
-    println!("Local index storage: {}", findex_core::storage_dir(project).map(|v|v.display().to_string()).unwrap_or_else(|_| "unavailable".into()));
-    println!("Plugin beside executable: {}", if bundled_plugin_dir().is_some() { "present" } else { "missing (Claude runs without Findex tools)" });
+    println!(
+        "Local index storage: {}",
+        findex_core::storage_dir(project)
+            .map(|v| v.display().to_string())
+            .unwrap_or_else(|_| "unavailable".into())
+    );
+    println!(
+        "Plugin beside executable: {}",
+        if bundled_plugin_dir().is_some() {
+            "present"
+        } else {
+            "missing (Claude runs without Findex tools)"
+        }
+    );
     let available = find_native_claude(project).is_some();
-    println!("Native Claude CLI (claude.exe): {}", if available { "found" } else { "not found" });
+    println!(
+        "Native Claude CLI (claude.exe): {}",
+        if available { "found" } else { "not found" }
+    );
     if env::var_os("ANTHROPIC_API_KEY").is_some() {
         eprintln!("WARNING: ANTHROPIC_API_KEY is set and may override subscription authentication. Value intentionally hidden.");
     }
-    println!("Index engine: SQLite/FTS5 lexical; no semantic graph, token accounting, or LSP in v0.1");
+    println!(
+        "Index engine: SQLite/FTS5 lexical; no semantic graph, token accounting, or LSP in v0.1"
+    );
 }
 
 fn print_help() {
-    println!("Findex v{} - native, local-first code retrieval for Claude Code", env!("CARGO_PKG_VERSION"));
+    println!(
+        "Findex v{} - native, local-first code retrieval for Claude Code",
+        env!("CARGO_PKG_VERSION")
+    );
     println!("  findex claude [CLAUDE_ARGS...]  Start official Claude Code in this terminal");
     println!("  findex index                    Reconcile project lexical index");
     println!("  findex search <terms...>        Search matching code and line evidence");
@@ -126,7 +171,9 @@ fn find_native_claude(project: &Path) -> Option<PathBuf> {
             continue;
         }
         let candidate = directory.join("claude.exe");
-        let Ok(resolved) = candidate.canonicalize() else { continue; };
+        let Ok(resolved) = candidate.canonicalize() else {
+            continue;
+        };
         if !resolved.is_file() || resolved.starts_with(&canonical_project) {
             continue;
         }
