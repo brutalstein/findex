@@ -422,6 +422,103 @@ mod tests {
     }
 
     #[test]
+    fn lsp_duplicate_references_are_deduplicated_in_snapshot() {
+        let (workspace, _) = fixture();
+        let json = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[{"path":"b.rs","line":0,"character":18},{"path":"b.rs","line":0,"character":18}]}"#;
+        let report = import_lsp_snapshot(workspace.path(), json).expect("import");
+        assert_eq!(report.definitions, 1);
+        assert_eq!(report.references, 1);
+        assert_eq!(
+            impact(workspace.path(), Path::new("a.rs"), 1, 8)
+                .expect("impact")
+                .hits
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn malformed_lsp_positions_and_unknown_fields_keep_previous_snapshot() {
+        let (workspace, good) = fixture();
+        import_lsp_snapshot(workspace.path(), &good).expect("baseline");
+        let cases = [
+            r#"{"definition":{"path":"a.rs","line":9999,"character":0},"references":[]}"#,
+            r#"{"definition":{"path":"a.rs","line":0,"character":1000001},"references":[]}"#,
+            r#"{"definition":{"path":"a.rs","line":18446744073709551615,"character":0},"references":[]}"#,
+            r#"{"definition":{"path":"a.rs","line":0,"character":0,"extra":true},"references":[]}"#,
+            r#"{"definition":{"path":"a.rs","line":0,"character":0},"references":[{"path":"b.rs","line":500,"character":0}]}"#,
+        ];
+        for malformed in cases {
+            assert!(import_lsp_snapshot(workspace.path(), malformed).is_err());
+            assert_eq!(
+                impact(workspace.path(), Path::new("a.rs"), 1, 8)
+                    .expect("preserved snapshot")
+                    .hits
+                    .len(),
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn import_rejects_sensitive_or_unindexed_paths_without_replacing_snapshot() {
+        let (workspace, baseline) = fixture();
+        import_lsp_snapshot(workspace.path(), &baseline).expect("baseline");
+        fs::write(workspace.path().join("private.key"), "fn secret() {}")
+            .expect("secret fixture");
+        let cases = [
+            r#"{"definition":{"path":"private.key","line":0,"character":0},"references":[]}"#,
+            r#"{"definition":{"path":".gitignore","line":0,"character":0},"references":[]}"#,
+            r#"{"definition":{"path":"a.rs","line":0,"character":0},"references":[{"path":"hidden.rs","line":0,"character":0}]}"#,
+            r#"{"definition":{"path":"/absolute.rs","line":0,"character":0},"references":[]}"#,
+            r#"{"definition":{"path":"a.rs/../b.rs","line":0,"character":0},"references":[]}"#,
+        ];
+        for malicious in cases {
+            assert!(import_lsp_snapshot(workspace.path(), malicious).is_err());
+            assert_eq!(
+                impact(workspace.path(), Path::new("a.rs"), 1, 8)
+                    .expect("preserved snapshot")
+                    .hits
+                    .len(),
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn reimport_replaces_old_reference_snapshot_atomically() {
+        let (workspace, original) = fixture();
+        import_lsp_snapshot(workspace.path(), &original).expect("initial");
+        let no_refs = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[]}"#;
+        let replacement = import_lsp_snapshot(workspace.path(), no_refs).expect("replacement");
+        assert_eq!(replacement.references, 0);
+        assert!(
+            impact(workspace.path(), Path::new("a.rs"), 3, 64)
+                .expect("empty graph")
+                .hits
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn result_limit_does_not_bypass_source_verification() {
+        let (workspace, _) = fixture();
+        fs::write(workspace.path().join("c.rs"), "fn secondary() {}")
+            .expect("third file");
+        let json = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[{"path":"b.rs","line":0,"character":18},{"path":"c.rs","line":0,"character":3}]}"#;
+        import_lsp_snapshot(workspace.path(), json).expect("import");
+        let limited = impact(workspace.path(), Path::new("a.rs"), 1, 1).expect("limited");
+        assert_eq!(limited.hits.len(), 1);
+        assert!(limited.truncated);
+        fs::write(workspace.path().join("b.rs"), "fn edited() {}")
+            .expect("edit");
+        let after = impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("stale check");
+        assert_eq!(after.hits.len(), 1);
+        assert_eq!(after.hits[0].path, "c.rs");
+        assert_eq!(after.stale_evidence_discarded, 1);
+    }
+
+    #[test]
     fn invalid_import_does_not_replace_valid_snapshot() {
         let (workspace, good) = fixture();
         import_lsp_snapshot(workspace.path(), &good).expect("good");
