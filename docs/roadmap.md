@@ -59,3 +59,6 @@ Status means *evidence*, not aspiration. No milestone is considered complete mer
 - [ ] Native watcher-backed persistent symbol lookups without full project walk.
 - [ ] Multi-session consistency, branch awareness, cross-language semantic
   reference graphs, benchmarks and signed production release.
+
+- [x] Native watcher-backed exact-symbol MCP retrieval with a warm-query
+  no-full-scan CI assertion, plus indexed-only AST access controls.

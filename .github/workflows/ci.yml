@@ -98,6 +98,37 @@ jobs:
           if (-not ($result -match 'findex-watch')) { throw "Symbol index lookup missing expected source span" }
           $second = .\\target\\release\\findex.exe find-symbol WatchedIndex
           if ($LASTEXITCODE -ne 0 -or -not ($second -match 'WatchedIndex')) { throw "Cached symbol lookup failed" }
+      - name: Verify warmed MCP persistent symbol lookup avoids full scan
+        shell: pwsh
+        run: |
+          $messages = @(
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}'
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"findex_find_symbol","arguments":{"name":"WatchedIndex","limit":3}}}'
+            '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"findex_find_symbol","arguments":{"name":"WatchedIndex","limit":3}}}'
+            '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"findex_symbols","arguments":{"path":"crates/findex-watch/src/lib.rs"}}}'
+          ) -join "`n"
+          $responses = $messages | .\\target\\release\\findex.exe mcp
+          if ($LASTEXITCODE -ne 0) { throw "MCP process failed" }
+          $parsed = @($responses | ForEach-Object { $_ | ConvertFrom-Json })
+          $firstCall = @($parsed | Where-Object { $_.id -eq 2 })
+          $secondCall = @($parsed | Where-Object { $_.id -eq 3 })
+          $inspectCall = @($parsed | Where-Object { $_.id -eq 4 })
+          if ($firstCall.Count -ne 1 -or $secondCall.Count -ne 1 -or $inspectCall.Count -ne 1) {
+            throw "Expected symbol lookup and AST inspection responses"
+          }
+          $first = $firstCall[0].result.content[0].text | ConvertFrom-Json
+          $second = $secondCall[0].result.content[0].text | ConvertFrom-Json
+          $inspection = $inspectCall[0].result.content[0].text | ConvertFrom-Json
+          if ($first.hits.Count -lt 1 -or $second.hits.Count -lt 1) {
+            throw "Persistent symbol search returned no verified evidence"
+          }
+          if ($second.retrieval -ne 'sqlite-symbol-exact-hash-native-watch' -or $second.sync.examined -ne 0) {
+            throw "Warm exact symbol lookup unexpectedly performed a full project scan"
+          }
+          if ($inspectCall[0].result.isError -or $inspection.symbols.Count -lt 1) {
+            throw "Shared MCP watcher-backed AST inspection failed"
+          }
       - name: Package Findex and bundled Claude plugin
         shell: pwsh
         run: |
