@@ -7,6 +7,7 @@ rust-version.workspace = true
 
 [dependencies]
 findex-index = { path = "../findex-index" }
+findex-relations = { path = "../findex-relations" }
 findex-watch = { path = "../findex-watch" }
 findex-syntax = { path = "../findex-syntax" }
 serde_json = "1"

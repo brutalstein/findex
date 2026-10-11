@@ -6,6 +6,7 @@ members = [
     "crates/findex-watch",
     "crates/findex-syntax",
     "crates/findex-cli",
+    "crates/findex-relations",
 ]
 resolver = "2"
 

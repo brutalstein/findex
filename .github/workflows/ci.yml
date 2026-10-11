@@ -135,6 +135,30 @@ jobs:
           if ($inspectCall[0].result.isError -or $inspection.symbols.Count -lt 1) {
             throw "Shared MCP watcher-backed AST inspection failed"
           }
+      - name: End-to-end reference graph and MCP impact smoke
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force ci-impact-fixture | Out-Null
+          Set-Content ci-impact-fixture/definition.rs 'fn semantic_marker() {}'
+          Set-Content ci-impact-fixture/reference.rs 'fn user() { semantic_marker(); }'
+          $capture = '{"definition":{"path":"ci-impact-fixture/definition.rs","line":0,"character":3},"references":[{"path":"ci-impact-fixture/reference.rs","line":0,"character":12}]}'
+          Set-Content -Path ci-impact-fixture/captured.json -Value $capture
+          .\\target\\release\\findex.exe graph-import-lsp ci-impact-fixture/captured.json
+          if ($LASTEXITCODE -ne 0) { throw "LSP snapshot ingestion failed" }
+          $affected = .\\target\\release\\findex.exe impact ci-impact-fixture/definition.rs
+          if ($LASTEXITCODE -ne 0 -or -not ($affected -match 'ci-impact-fixture/reference.rs')) {
+            throw "Verified semantic impact edge missing"
+          }
+          $call = '{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"findex_impact","arguments":{"path":"ci-impact-fixture/definition.rs","depth":1}}}'
+          $reply = $call | .\\target\\release\\findex.exe mcp | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $reply.result.isError) {
+            throw "MCP graph impact failed"
+          }
+          $result = $reply.result.content[0].text | ConvertFrom-Json
+          if ($result.hits.Count -ne 1 -or $result.hits[0].path -ne 'ci-impact-fixture/reference.rs') {
+            throw "MCP impact emitted unexpected evidence"
+          }
+          Remove-Item -Recurse -Force ci-impact-fixture
       - name: Package Findex and bundled Claude plugin
         shell: pwsh
         run: |
