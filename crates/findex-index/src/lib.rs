@@ -274,6 +274,7 @@ pub fn search_in_db(
          FROM docs JOIN files ON files.path = docs.path
          WHERE docs MATCH ?1 ORDER BY docs.rank ASC, docs.path ASC LIMIT ?2",
     )?;
+    let canonical_root = project.canonicalize()?;
     let count = limit.clamp(1, 32);
     // Collect a bounded but generous window before reranking. An extra
     // candidate makes truncation explicit rather than silently claiming
@@ -295,7 +296,17 @@ pub fn search_in_db(
         }
         let (path, body, score, indexed_hash) = row?;
         // Never return stale cached code if a file changed after synchronization.
-        let full_path: PathBuf = project.join(&path);
+        let full_path: PathBuf = canonical_root.join(&path);
+        let eligible = fs::symlink_metadata(&full_path).ok().is_some_and(|metadata| {
+            metadata.file_type().is_file() && metadata.len() <= MAX_SOURCE_BYTES
+        }) && full_path
+            .canonicalize()
+            .ok()
+            .is_some_and(|resolved| resolved.starts_with(&canonical_root));
+        if !eligible {
+            report.stale_results_discarded += 1;
+            continue;
+        }
         let Ok(current_bytes) = fs::read(&full_path) else {
             report.stale_results_discarded += 1;
             continue;
@@ -415,10 +426,10 @@ mod tests {
         let project = tempdir().expect("project");
         let state = tempdir().expect("state");
         let db = state.path().join("index.sqlite3");
-        fs::write(project.path().join("one.rs"), "fn alpha() {}\\n").expect("first");
+        fs::write(project.path().join("one.rs"), "fn alpha() {}\n").expect("first");
         fs::write(
             project.path().join("both.rs"),
-            "fn alpha() {}\\nfn alpha_beta() {}\\n",
+            "fn alpha() {}\nfn alpha_beta() {}\n",
         )
         .expect("second");
         synchronize_into(project.path(), &db).expect("sync");
@@ -435,7 +446,7 @@ mod tests {
         let state = tempdir().expect("state");
         let db = state.path().join("index.sqlite3");
         for number in 0..35 {
-            fs::write(project.path().join(format!("file_{number}.rs")), "fn marker() {}\\n")
+            fs::write(project.path().join(format!("file_{number}.rs")), "fn marker() {}\n")
                 .expect("fixture");
         }
         synchronize_into(project.path(), &db).expect("sync");

@@ -37,11 +37,11 @@ No source upload or HTTP listener is performed by Findex. Claude Code itself may
 
 ### 1. Index Service
 
-Move from per-query full directory reconciliation to incremental snapshots with Windows file notifications, debouncing, missed-event detection and repair scans. Preserve read-consistent generations, Git branch/worktree identities and crash recovery. USN journal is optional and privilege-dependent. Writes must not block Claude interaction.
+The long-lived MCP process already uses Windows file notifications, targeted updates, bounded queues, and periodic/full-repair scans. Standalone CLI queries and imported graph lookups still reconcile the directory. Next: persistent generation snapshots, Git branch/worktree identity, measured crash recovery, and scheduler budgets for very large workspaces. USN journal remains optional and privilege-dependent.
 
 ### 2. Structural Knowledge
 
-Pluggable Tree-sitter language grammars and LSP/SCIP adapters. Symbol kinds, stable spans, imports, references, calls, runtime uncertainties and provenance. A typed evidence graph relates symbols, files, API endpoints, migrations, schemas and tests. Dynamic dispatch and language-specific constructs are marked uncertain rather than presumed exact.
+Tree-sitter definitions are cached and SCIP/captured-LSP reference evidence is imported with source digests. Captured LSP identities are mergeable. Missing: comprehensive language coverage, live LSP synchronization, precise implementation/call relationships and typed cross-service contracts. Dynamic dispatch and unresolved constructs must remain explicitly uncertain.
 
 ### 3. Adaptive Retrieval
 

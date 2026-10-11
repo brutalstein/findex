@@ -21,8 +21,11 @@ acceptance gate. This is not a live LSP client or a compiler-verified call graph
 `findex-relations` is independently testable. It accepts a bounded (16 MiB)
 user-supplied SCIP protobuf index or a normalized captured-LSP JSON snapshot,
 validates every source against the local repository's existing scanner and its
-BLAKE3 digest, and atomically replaces a dedicated WAL-backed
-`relations.sqlite3` snapshot. A failed import leaves the last valid snapshot.
+BLAKE3 digest, and updates a dedicated WAL-backed `relations.sqlite3` graph transactionally.
+Full SCIP imports replace the graph; individual captured-LSP symbol references
+merge by definition-anchor identity, replacing only that symbol. Changed
+imported files invalidate every older relation involving them before the new
+symbol is recorded. A failed import leaves the last valid snapshot.
 
 The normalized captured LSP JSON has this *explicit* schema:
 
@@ -33,9 +36,10 @@ The normalized captured LSP JSON has this *explicit* schema:
 
 All paths are project-relative, positions are zero-based. Use a trusted language
 server to produce the capture; this feature intentionally does not start,
-download or trust an arbitrary LSP server process. Each LSP capture represents
-**one** symbol's reference response and replaces the previous relations
-snapshot; it is **not** a full-project ingestion API.
+download or trust an arbitrary LSP server process. Each LSP capture represents **one** symbol's reference response. Repeated
+captures for distinct definition anchors accumulate into the same graph, but
+there is still no automated language-server orchestration or full-project
+snapshot scheduling.
 
 For SCIP, only explicit occurrences are imported. Occurrences with the SCIP
 Definition role create definition records; other occurrences are references
@@ -62,6 +66,10 @@ could also have references. Never present this as exact caller chains.
   Modified source evidence is suppressed; modified target causes an error.
 - The index importer reconciles the scanner before validating each file;
   repositories and ignored files have the same admission policy.
+- LSP captured line and UTF-16 character offsets are bounded against the
+  hash-validated actual source; cross-file references retain per-symbol provenance.
+- Graph traversal uses a bounded candidate window, and returns `truncated=true`
+  when the expansion budget may omit lower-ranked witnesses.
 - Source and reference assertions are tested using real serialized SCIP
   Protobuf fixtures and normalized captured LSP snapshots. Untrusted imports
   never overwrite the previous valid snapshot on rejection.

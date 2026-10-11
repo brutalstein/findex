@@ -2,37 +2,37 @@
 
 Status means *evidence*, not aspiration. No milestone is considered complete merely because source files exist.
 
-## F0 — Foundation (initial source tree; pending CI)
+## F0 — Foundation (validated Windows CI)
 
 - [x] Four-crate Rust workspace, separate CLI/core/index/MCP responsibilities.
 - [x] Source for Windows native official Claude CLI forwarding and optional plugin.
 - [x] Source for local SQLite/FTS5 index with transactional updates and stale-hash filtering.
 - [x] Source tests for file edit/removal, secret filename exclusions, MCP calls and project roots.
 - [x] Windows build/test/package workflow checked into source tree.
-- [ ] Compile and unit-test on Windows CI (not yet executed).
+- [x] Compile and unit-test on Windows CI (stable and Rust 1.85 MSRV).
 - [ ] Confirm Claude Code plugin validation and actual MCP tool invocation.
 - [ ] Publish first signed or explicitly unsigned preview artifact on GitHub.
 
 ## F1 — CI + Reliable Bootstrap
 
-- [ ] Include and pin Cargo.lock; dependency license and vulnerability scanning.
-- [ ] CI `cargo fmt`, `clippy`, tests, manual MCP smoke, launcher process passthrough smoke.
+- [x] Include and enforce Cargo.lock in CI; vulnerability and license audit still pending.
+- [x] CI `cargo fmt`, `clippy`, tests and scripted MCP smoke; real Claude launcher integration still pending.
 - [ ] Launch/system tests on Windows 10/11; policy-compatible PATH and legacy shell-shim handling.
 - [ ] CI branch protection, dependency updates, safe release provenance.
 - [ ] End-to-end plugin integration checked against documented Claude Code versions.
 
 ## F2 — Change-Aware Index
 
-- [ ] File watcher + rescan recovery; branch and worktree awareness.
+- [x] Native Windows watcher and full-rescan recovery; branch/worktree stress testing remains pending.
 - [ ] Reconciliation over 100k files without blocking interactive queries.
 - [ ] Atomic generation-based index snapshots and multi-session concurrency tests.
 - [ ] Path traversal, symlink/junction, OneDrive/network volume and Unicode case-fold tests.
 
 ## F3 — Structural Graph
 
-- [ ] Tree-sitter adapter and source-span extraction, language capability registry.
-- [ ] LSP/SCIP adapters with explicit precision/provenance and timeout budgets.
-- [ ] Cross-language and service contract graph with incremental invalidation.
+- [x] Experimental Tree-sitter adapter and bounded definition spans for four language families; capability coverage is not complete.
+- [x] Bounded captured LSP and SCIP import with source-hash verification; live LSP lifecycle is not implemented.
+- [ ] Cross-language and service contract graph; captured-LSP symbol merges and source invalidation are partial building blocks.
 - [ ] Real-data recall@k / line recall comparisons against lexical baseline.
 
 ## F4 — Adaptive Context and Validation
@@ -69,7 +69,7 @@ Status means *evidence*, not aspiration. No milestone is considered complete mer
   admission, source hash, budget and transactional safety controls.
 - [x] Reverse file-impact BFS on exact semantic symbol IDs with bounded depth,
   stale invalidation, cycle handling, source/line provenance and MCP/CLI tools.
-- [ ] Live language server orchestration and document version synchronization.
+- [ ] Live language server orchestration and document version synchronization (captured LSP UTF-16 position bounds are now checked).
 - [ ] SCIP streaming import for very large generated indexes.
 - [ ] Precise type/implementation/call graphs and cross-indexer federation.
 - [ ] Independent real-world correctness and performance benchmarks.

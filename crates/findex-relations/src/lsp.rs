@@ -8,6 +8,7 @@ use super::{
 };
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::fs;
 use std::path::Path;
 
 #[derive(Deserialize)]
@@ -36,6 +37,7 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
     }
     let source_index = prepare(project)?;
     let mut docs = HashMap::<String, Evidence>::new();
+    let mut line_lengths = HashMap::<String, Vec<usize>>::new();
     let mut occurrences = Vec::with_capacity(response.references.len() + 1);
     for loc in std::iter::once(&response.definition).chain(response.references.iter()) {
         if loc.character > 1_000_000 {
@@ -43,10 +45,33 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
         }
         if !docs.contains_key(&loc.path) {
             let checked = admitted(project, &source_index, &loc.path)?;
+            // LSP positions are UTF-16 offsets. Validate against the exact
+            // version admitted by BLAKE3, not a later competing filesystem edit.
+            let bytes = fs::read(project.join(&checked.path))?;
+            if blake3::hash(&bytes).to_hex().as_str() != checked.digest {
+                return Err("LSP source changed during position validation".into());
+            }
+            let text = std::str::from_utf8(&bytes)?;
+            let mut lengths = text
+                .lines()
+                .map(|line| line.encode_utf16().count())
+                .collect::<Vec<_>>();
+            if lengths.is_empty() {
+                lengths.push(0);
+            }
+            line_lengths.insert(loc.path.clone(), lengths);
             docs.insert(loc.path.clone(), checked);
             if docs.len() > MAX_DOCUMENTS {
                 return Err("too many LSP files".into());
             }
+        }
+    }
+    for loc in std::iter::once(&response.definition).chain(response.references.iter()) {
+        let Some(lengths) = line_lengths.get(&loc.path) else {
+            return Err("LSP source line metadata missing".into());
+        };
+        if lengths.get(loc.line).is_none_or(|length| loc.character > *length) {
+            return Err("LSP UTF-16 character offset or source line is out of bounds".into());
         }
     }
     let definition_file = docs

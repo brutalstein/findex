@@ -518,6 +518,7 @@ mod tests {
         let cases = [
             r#"{"definition":{"path":"a.rs","line":9999,"character":0},"references":[]}"#,
             r#"{"definition":{"path":"a.rs","line":0,"character":1000001},"references":[]}"#,
+            r#"{"definition":{"path":"a.rs","line":0,"character":999},"references":[]}"#,
             r#"{"definition":{"path":"a.rs","line":18446744073709551615,"character":0},"references":[]}"#,
             r#"{"definition":{"path":"a.rs","line":0,"character":0,"extra":true},"references":[]}"#,
             r#"{"definition":{"path":"a.rs","line":0,"character":0},"references":[{"path":"b.rs","line":500,"character":0}]}"#,
