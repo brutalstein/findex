@@ -144,3 +144,13 @@ Unindexed, ignored, secret-named, traversal and stale paths cannot bypass
 the repository's ignore policy through direct syntax inspection. CLI
 reconciles before inspection; MCP processes watcher events and reconciles
 periodically. Syntax definitions do **not** guarantee semantic references.
+
+## Windows dependency and build verification
+
+The tracked `Cargo.lock` fixes the resolved Rust dependency graph. Windows
+CI enforces `--locked` for dependency resolution, Clippy, tests and native
+Release builds. A separate runner checks the declared minimum Rust 1.85.0
+compatibility. Release CI provides `findex-windows-x64.zip` alongside its
+SHA-256 checksum file; the ZIP includes the build compiler versions and lock
+file. This is **not** a cryptographically signed or bit-for-bit reproducible
+binary guarantee; see `docs/adr/0005-build-provenance.md`.
