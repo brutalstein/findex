@@ -3,6 +3,7 @@ members = [
     "crates/findex-core",
     "crates/findex-index",
     "crates/findex-mcp",
+    "crates/findex-watch",
     "crates/findex-cli",
 ]
 resolver = "2"

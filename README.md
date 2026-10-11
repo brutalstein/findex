@@ -17,7 +17,7 @@ Findex is designed as a local-first, modular code intelligence engine that helps
 
 ### What is **not** implemented
 
-Tree-sitter AST, LSP/SCIP navigation, dependency and cross-language graphs, active Windows directory watcher, hybrid embeddings, adaptive search planner, verified project memory, source-code secret scanner, token telemetry and A/B benchmarks. Retrieval is currently lexical only. On huge monorepos searches can be slow because each query reconciles the workspace; this is intentional correctness-first bootstrap behavior, not final architecture.
+Tree-sitter AST, LSP/SCIP navigation, dependency and cross-language graphs, hybrid embeddings, adaptive search planner, verified project memory, source-code secret scanner, token telemetry and A/B benchmarks. Retrieval is currently lexical only. CLI searches still reconcile before every query; MCP uses native Windows event-driven refresh with periodic reconciliation and safe fallbacks. This is not yet large-monorepo benchmarked.
 
 ## Build
 
@@ -80,3 +80,23 @@ that are not already indexed are reported as **unknown** and require
 bypass Git exclusions or secret-file filters. An invalid or escaping path aborts
 the entire batch. Searches still perform a full reconciliation in v0.1: native
 filesystem notifications and watcher overflow recovery remain in issue #6.
+
+## Native watcher-backed MCP (development milestone)
+
+The long-lived `findex mcp` process now initializes a Windows directory watcher on
+its first search. Common content edits update known paths through one transaction,
+with duplicate paths collapsed. Creation, deletion, renames, ignore-rule changes,
+watcher errors, overflow and a periodic 120-second deadline force a safe full
+reconciliation. A bounded channel prevents unbounded event-memory growth.
+
+If the native watcher cannot be started, Findex falls back to per-search full
+reconciliation. The CLI `findex search` remains a correctness-first full scan.
+All hits still validate current file hashes before returning evidence. Native
+filesystem notifications can be missing on remote/sync-backed filesystems; Findex
+is *eventually consistent* for newly added/changed matching files between
+reconciliations, not a 100% synchronous snapshot guarantee. Avoid relying on
+this as the sole correctness check when editing critical code.
+
+Windows CI validates event classification, invalidation, protocol negotiation,
+lexical fallback and optimized packaging. Real-world perf and race testing on
+large repositories is a separate milestone; no token savings are claimed.

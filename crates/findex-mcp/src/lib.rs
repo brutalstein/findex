@@ -12,6 +12,8 @@ pub fn serve(project: &Path) -> io::Result<()> {
     let stdout = io::stdout();
     let mut input = BufReader::new(stdin.lock());
     let mut output = stdout.lock();
+    // Created lazily when the first search arrives: no expensive startup scan on initialize.
+    let mut index_session: Option<findex_watch::SearchBackend> = None;
     loop {
         let mut buffer = Vec::new();
         let count = input.read_until(b'\n', &mut buffer)?;
@@ -32,7 +34,10 @@ pub fn serve(project: &Path) -> io::Result<()> {
                 continue;
             }
         };
-        if let Some(response) = handle(&request, project) {
+        if let Some(response) = handle_with_search(&request, project, |root, query, limit| {
+            let engine = index_session.get_or_insert_with(|| findex_watch::SearchBackend::new(root));
+            engine.search(query, limit)
+        }) {
             send(&mut output, &response)?;
         }
     }
@@ -57,6 +62,19 @@ fn success(id: Value, value: Value) -> Value {
 /// Pure protocol dispatch, except for the intentionally bounded tool invocation.
 /// Unknown notifications are ignored; calls receive JSON-RPC errors.
 pub fn handle(request: &Value, project: &Path) -> Option<Value> {
+    handle_with_search(request, project, findex_index::search)
+}
+
+/// MCP protocol logic with an injected retrieval engine. Production keeps a
+/// watcher-backed session alive for the duration of the MCP stdio process.
+pub fn handle_with_search<F>(request: &Value, project: &Path, mut search: F) -> Option<Value>
+where
+    F: FnMut(
+        &Path,
+        &str,
+        usize,
+    ) -> Result<findex_index::SearchReport, Box<dyn std::error::Error + Send + Sync>>,
+{
     let method = request.get("method")?.as_str()?;
     let id = request.get("id")?.clone();
     let response = match method {
@@ -116,7 +134,7 @@ pub fn handle(request: &Value, project: &Path) -> Option<Value> {
                 if query.is_empty() || query.len() > 500 || limit == 0 || limit > 32 {
                     error(id, -32602, "query must be 1-500 bytes and limit 1-32")
                 } else {
-                    match findex_index::search(project, query, limit as usize) {
+                    match search(project, query, limit as usize) {
                         Ok(found) => {
                             let payload =
                                 serde_json::to_string(&found).unwrap_or_else(|_| "{}".to_string());
