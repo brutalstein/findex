@@ -41,6 +41,7 @@ pub struct SearchHit {
     pub excerpt: String,
     /// Lower BM25 numbers mean more relevant lexical matches; not a probability.
     pub bm25_score: f64,
+    pub match_kind: &'static str,
 }
 
 #[derive(Debug, Serialize)]
@@ -71,27 +72,128 @@ pub fn search(project: &Path, query: &str, limit: usize) -> Result<SearchReport>
     )
 }
 
+/// Lexical schema revision kept in `PRAGMA user_version`.
+/// 2: FTS `terms` column with camelCase sub-words and path words.
+const LEXICAL_SCHEMA: i64 = 2;
+
+/// The index is a derived cache: an unreadable database is discarded and
+/// rebuilt from sources instead of leaving search permanently broken.
 fn connect(db: &Path) -> Result<Connection> {
     if let Some(parent) = db.parent() {
         fs::create_dir_all(parent)?;
     }
-    let conn = Connection::open(db)?;
-    conn.busy_timeout(Duration::from_secs(5))?;
+    match open_schema(db) {
+        Err(err) if is_corrupt(err.as_ref()) => {
+            eprintln!("findex: index cache is corrupt ({err}); rebuilding");
+            for suffix in ["", "-wal", "-shm", "-journal"] {
+                let mut path = db.as_os_str().to_owned();
+                path.push(suffix);
+                match fs::remove_file(PathBuf::from(path)) {
+                    Err(err) if err.kind() != std::io::ErrorKind::NotFound => {
+                        return Err(err.into())
+                    }
+                    _ => {}
+                }
+            }
+            open_schema(db)
+        }
+        other => other,
+    }
+}
+
+fn is_corrupt(err: &(dyn Error + Send + Sync + 'static)) -> bool {
+    matches!(
+        err.downcast_ref::<rusqlite::Error>(),
+        Some(rusqlite::Error::SqliteFailure(failure, _))
+            if matches!(
+                failure.code,
+                rusqlite::ErrorCode::NotADatabase | rusqlite::ErrorCode::DatabaseCorrupt
+            )
+    )
+}
+
+fn open_schema(db: &Path) -> Result<Connection> {
+    let mut conn = Connection::open(db)?;
+    conn.busy_timeout(Duration::from_secs(30))?;
     conn.execute_batch(
         "PRAGMA journal_mode=WAL;
          CREATE TABLE IF NOT EXISTS files(
              path TEXT PRIMARY KEY NOT NULL,
              hash TEXT NOT NULL,
              size_bytes INTEGER NOT NULL
-         );
-         CREATE VIRTUAL TABLE IF NOT EXISTS docs USING fts5(
-             path UNINDEXED,
-             body,
-             tokenize='unicode61'
          );",
     )?;
+    let version: i64 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;
+    if version < LEXICAL_SCHEMA {
+        // Rebuild lexical rows under a write lock; forgetting file hashes
+        // makes the next reconciliation re-ingest every admitted source.
+        let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+        let version: i64 = tx.query_row("PRAGMA user_version", [], |row| row.get(0))?;
+        if version < LEXICAL_SCHEMA {
+            tx.execute_batch(&format!(
+                "DROP TABLE IF EXISTS docs;
+                 DELETE FROM files;
+                 CREATE VIRTUAL TABLE docs USING fts5(
+                     path UNINDEXED,
+                     body,
+                     terms,
+                     tokenize='unicode61'
+                 );
+                 PRAGMA user_version = {LEXICAL_SCHEMA};"
+            ))?;
+        }
+        tx.commit()?;
+    }
     symbols::create_schema(&conn)?;
     Ok(conn)
+}
+
+/// Extra searchable words that `unicode61` cannot derive on its own:
+/// camelCase sub-words of identifiers and the words of the file path.
+fn identifier_terms(path: &str, body: &str) -> String {
+    let mut words = std::collections::BTreeSet::new();
+    for token in body.split(|c: char| !c.is_alphanumeric()).filter(|token| {
+        token.chars().any(char::is_uppercase) && token.chars().any(char::is_lowercase)
+    }) {
+        let parts = camel_parts(token);
+        // A single-part identifier is already a body token.
+        if parts.len() > 1 {
+            words.extend(parts.into_iter().filter(|part| part.chars().count() > 1));
+        }
+    }
+    for token in path
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|t| !t.is_empty())
+    {
+        words.insert(token.to_lowercase());
+        words.extend(camel_parts(token));
+    }
+    words.into_iter().collect::<Vec<_>>().join(" ")
+}
+
+/// `parseHTTPResponse2` -> ["parse", "http", "response2"].
+fn camel_parts(identifier: &str) -> Vec<String> {
+    let chars: Vec<char> = identifier.chars().collect();
+    let mut parts = Vec::new();
+    let mut start = 0;
+    for index in 1..chars.len() {
+        let boundary = chars[index].is_uppercase()
+            && (chars[index - 1].is_lowercase()
+                || chars[index - 1].is_ascii_digit()
+                || (chars[index - 1].is_uppercase()
+                    && chars.get(index + 1).is_some_and(|next| next.is_lowercase())));
+        if boundary {
+            parts.push(
+                chars[start..index]
+                    .iter()
+                    .collect::<String>()
+                    .to_lowercase(),
+            );
+            start = index;
+        }
+    }
+    parts.push(chars[start..].iter().collect::<String>().to_lowercase());
+    parts
 }
 
 /// Atomic reconciliation against project files. Paths outside `project` are never indexed.
@@ -106,6 +208,9 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
         rows.collect::<std::result::Result<HashMap<_, _>, _>>()?
     };
     let mut seen = HashSet::new();
+    // Paths that passed every admission check in this walk. Anything else that
+    // was indexed before is removed, without re-reading files a second time.
+    let mut admitted = HashSet::new();
     let mut stats = SyncStats::default();
     let walker = WalkBuilder::new(&project)
         .hidden(true)
@@ -174,6 +279,7 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
             stats.skipped += 1;
             continue;
         };
+        admitted.insert(rel_string.clone());
         let digest = blake3::hash(&bytes).to_hex().to_string();
         if existing
             .get(&rel_string)
@@ -190,11 +296,7 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
         if symbols::upsert(&tx, &rel_string, &digest, contents)? {
             stats.symbols_parsed += 1;
         }
-        tx.execute("DELETE FROM docs WHERE path = ?1", params![rel_string])?;
-        tx.execute(
-            "INSERT INTO docs(path, body) VALUES(?1, ?2)",
-            params![rel_string, contents],
-        )?;
+        replace_document(&tx, &rel_string, contents)?;
         tx.execute(
             "INSERT INTO files(path, hash, size_bytes) VALUES(?1, ?2, ?3)
              ON CONFLICT(path) DO UPDATE SET hash=excluded.hash, size_bytes=excluded.size_bytes",
@@ -205,7 +307,7 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
 
     // Skipped but previously indexed files must be removed to prevent leaking obsolete results.
     for old_path in existing.keys() {
-        if !seen.contains(old_path) || !is_eligible_file(&project.join(old_path)) {
+        if !admitted.contains(old_path) {
             tx.execute("DELETE FROM docs WHERE path = ?1", params![old_path])?;
             tx.execute("DELETE FROM files WHERE path = ?1", params![old_path])?;
             symbols::clear(&tx, old_path)?;
@@ -216,20 +318,18 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
     Ok(stats)
 }
 
-fn is_eligible_file(path: &Path) -> bool {
-    if is_sensitive_filename(path) {
-        return false;
-    }
-    let Ok(meta) = fs::metadata(path) else {
-        return false;
-    };
-    if !meta.is_file() || meta.len() > MAX_SOURCE_BYTES {
-        return false;
-    }
-    let Ok(bytes) = fs::read(path) else {
-        return false;
-    };
-    !bytes.contains(&0) && std::str::from_utf8(&bytes).is_ok()
+/// Replace one file's lexical row, including derived identifier words.
+pub(crate) fn replace_document(
+    tx: &rusqlite::Transaction<'_>,
+    path: &str,
+    contents: &str,
+) -> Result<()> {
+    tx.execute("DELETE FROM docs WHERE path = ?1", params![path])?;
+    tx.execute(
+        "INSERT INTO docs(path, body, terms) VALUES(?1, ?2, ?3)",
+        params![path, contents, identifier_terms(path, contents)],
+    )?;
+    Ok(())
 }
 
 /// Constructs an FTS expression without allowing user input to act as query operators.
@@ -269,13 +369,71 @@ pub fn search_in_db(
         return Ok(report);
     };
     let conn = connect(database)?;
+    let canonical_root = project.canonicalize()?;
+    let count = limit.clamp(1, 32);
+    let mut seen_paths = HashSet::new();
+
+    // Stage 1: verified definitions whose identifier equals the whole query
+    // (`Engine`, `parse config` -> parseConfig/parse_config). Definitions name
+    // the place a reader needs first; usages follow as lexical evidence.
+    let identifier = terms.concat().replace('_', "");
+    if identifier.chars().count() >= 3 && identifier.len() <= 256 {
+        let mut rows = symbols::definitions_by_identifier(&conn, &identifier, 64)?;
+        let exact = query.trim();
+        rows.sort_by(|left, right| {
+            (
+                left.name != exact,
+                definition_rank(&left.kind),
+                &left.path,
+                left.start_line,
+            )
+                .cmp(&(
+                    right.name != exact,
+                    definition_rank(&right.kind),
+                    &right.path,
+                    right.start_line,
+                ))
+        });
+        for row in rows {
+            if report.hits.len() >= count {
+                report.truncated = true;
+                break;
+            }
+            if seen_paths.contains(&row.path) {
+                continue;
+            }
+            let Some(text) = live_source(&canonical_root, &row.path, &row.hash) else {
+                // Marked seen so the lexical stage does not count it twice.
+                seen_paths.insert(row.path);
+                report.stale_results_discarded += 1;
+                continue;
+            };
+            let excerpt = text
+                .lines()
+                .nth(row.start_line.saturating_sub(1))
+                .map(excerpt_of)
+                .unwrap_or_default();
+            seen_paths.insert(row.path.clone());
+            report.hits.push(SearchHit {
+                path: row.path,
+                line: row.start_line,
+                excerpt,
+                bm25_score: 0.0,
+                match_kind: "definition",
+            });
+        }
+    }
+    let remaining = count - report.hits.len();
+    if remaining == 0 {
+        return Ok(report);
+    }
+
+    // Stage 2: BM25 candidates over source text and identifier/path words.
     let mut stmt = conn.prepare(
         "SELECT docs.path, docs.body, docs.rank, files.hash
          FROM docs JOIN files ON files.path = docs.path
          WHERE docs MATCH ?1 ORDER BY docs.rank ASC, docs.path ASC LIMIT ?2",
     )?;
-    let canonical_root = project.canonicalize()?;
-    let count = limit.clamp(1, 32);
     // Collect a bounded but generous window before reranking. An extra
     // candidate makes truncation explicit rather than silently claiming
     // completeness after stale-result rejection or multi-term reranking.
@@ -296,27 +454,7 @@ pub fn search_in_db(
             break;
         }
         let (path, body, score, indexed_hash) = row?;
-        // Never return stale cached code if a file changed after synchronization.
-        let full_path: PathBuf = canonical_root.join(&path);
-        let eligible = fs::symlink_metadata(&full_path)
-            .ok()
-            .is_some_and(|metadata| {
-                metadata.file_type().is_file() && metadata.len() <= MAX_SOURCE_BYTES
-            })
-            && full_path
-                .canonicalize()
-                .ok()
-                .is_some_and(|resolved| resolved.starts_with(&canonical_root));
-        if !eligible {
-            report.stale_results_discarded += 1;
-            continue;
-        }
-        let Ok(current_bytes) = fs::read(&full_path) else {
-            report.stale_results_discarded += 1;
-            continue;
-        };
-        if blake3::hash(&current_bytes).to_hex().as_str() != indexed_hash {
-            report.stale_results_discarded += 1;
+        if seen_paths.contains(&path) {
             continue;
         }
         let folded_body = body.to_lowercase();
@@ -334,23 +472,22 @@ pub fn search_in_db(
                 .filter(|term| folded_line.contains(term.as_str()))
                 .count();
             if matches > best.0 {
-                best = (
-                    matches,
-                    line_index + 1,
-                    line.trim().chars().take(240).collect(),
-                );
+                best = (matches, line_index + 1, excerpt_of(line));
             }
         }
         candidates.push((
-            coverage,
+            (coverage, best.0),
             SearchHit {
                 path,
                 line: best.1,
                 excerpt: best.2,
                 bm25_score: score,
+                match_kind: "lexical",
             },
+            indexed_hash,
         ));
     }
+    // File coverage first, then same-line co-occurrence (proximity), then BM25.
     candidates.sort_by(|left, right| {
         right
             .0
@@ -358,12 +495,54 @@ pub fn search_in_db(
             .then_with(|| left.1.bm25_score.total_cmp(&right.1.bm25_score))
             .then_with(|| left.1.path.cmp(&right.1.path))
     });
-    report.hits = candidates
-        .into_iter()
-        .take(count)
-        .map(|(_, hit)| hit)
-        .collect();
+    // Verify only what is returned: hashing every ranked candidate costs one
+    // file read per candidate. A stale candidate is skipped, never returned.
+    for (_, hit, indexed_hash) in candidates {
+        if report.hits.len() == count {
+            report.truncated = true;
+            break;
+        }
+        if live_source(&canonical_root, &hit.path, &indexed_hash).is_none() {
+            report.stale_results_discarded += 1;
+            continue;
+        }
+        report.hits.push(hit);
+    }
     Ok(report)
+}
+
+/// Types and free functions first; trait/impl members and impl blocks after.
+fn definition_rank(kind: &str) -> u8 {
+    match kind {
+        "type" | "class" => 0,
+        "function" | "module" | "macro" | "constant" => 1,
+        "method" => 2,
+        _ => 3,
+    }
+}
+
+/// Trimmed, length-bounded and secret-masked evidence line.
+fn excerpt_of(line: &str) -> String {
+    let trimmed: String = line.trim().chars().take(240).collect();
+    findex_core::redact_secrets(&trimmed).into_owned()
+}
+
+/// Current file text, only if it is a regular in-root file whose bytes still
+/// hash to the indexed digest. Symlinks, junction escapes and edits fail closed.
+fn live_source(root: &Path, relative: &str, indexed_hash: &str) -> Option<String> {
+    let full_path: PathBuf = root.join(relative);
+    let metadata = fs::symlink_metadata(&full_path).ok()?;
+    if !metadata.file_type().is_file() || metadata.len() > MAX_SOURCE_BYTES {
+        return None;
+    }
+    if !full_path.canonicalize().ok()?.starts_with(root) {
+        return None;
+    }
+    let bytes = fs::read(&full_path).ok()?;
+    if blake3::hash(&bytes).to_hex().as_str() != indexed_hash {
+        return None;
+    }
+    String::from_utf8(bytes).ok()
 }
 
 #[cfg(test)]
@@ -461,6 +640,179 @@ mod tests {
             search_in_db(project.path(), &db, "marker", 1, SyncStats::default()).expect("search");
         assert_eq!(found.hits.len(), 1);
         assert!(found.truncated);
+    }
+
+    fn indexed(files: &[(&str, &str)]) -> (tempfile::TempDir, tempfile::TempDir, PathBuf) {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        for (name, body) in files {
+            let path = project.path().join(name);
+            fs::create_dir_all(path.parent().expect("parent")).expect("dirs");
+            fs::write(path, body).expect("fixture");
+        }
+        let db = state.path().join("index.sqlite3");
+        synchronize_into(project.path(), &db).expect("sync");
+        (project, state, db)
+    }
+
+    #[test]
+    fn camel_case_identifiers_match_split_query_words() {
+        let (project, _state, db) = indexed(&[
+            (
+                "config.ts",
+                "// loader\nexport function parseConfigFile() {}\n",
+            ),
+            ("other.ts", "export const value = 1;\n"),
+        ]);
+        let found = search_in_db(
+            project.path(),
+            &db,
+            "parse config file",
+            5,
+            SyncStats::default(),
+        )
+        .expect("search");
+        assert_eq!(found.hits[0].path, "config.ts");
+        assert_eq!(found.hits[0].line, 2);
+    }
+
+    #[test]
+    fn definition_outranks_usages_and_points_at_definition_line() {
+        let usage = "use crate::Engine;\nfn a(e: Engine) -> Engine { e }\nfn b(e: Engine) -> Engine { e }\n";
+        let (project, _state, db) = indexed(&[
+            (
+                "src/engine.rs",
+                "// The core engine.\n// It runs.\npub struct Engine {\n    id: u32,\n}\n",
+            ),
+            ("src/a.rs", usage),
+            ("src/b.rs", usage),
+            ("src/c.rs", usage),
+        ]);
+        let found =
+            search_in_db(project.path(), &db, "Engine", 5, SyncStats::default()).expect("search");
+        assert_eq!(found.hits[0].path, "src/engine.rs");
+        assert_eq!(found.hits[0].line, 3);
+        assert_eq!(found.hits[0].match_kind, "definition");
+        assert_eq!(
+            found.hits.len(),
+            4,
+            "usages are still returned as lexical evidence"
+        );
+        assert!(found.hits[1..]
+            .iter()
+            .all(|hit| hit.match_kind == "lexical"));
+    }
+
+    #[test]
+    fn word_query_finds_snake_case_definition_before_comment_mentions() {
+        let (project, _state, db) = indexed(&[
+            (
+                "notes.py",
+                "# load user profile\n# load user profile again\n# load user profile\n",
+            ),
+            (
+                "users.py",
+                "import os\n\n\ndef load_user_profile(uid):\n    return uid\n",
+            ),
+        ]);
+        let found = search_in_db(
+            project.path(),
+            &db,
+            "load user profile",
+            5,
+            SyncStats::default(),
+        )
+        .expect("search");
+        assert_eq!(found.hits[0].path, "users.py");
+        assert_eq!(found.hits[0].line, 4);
+    }
+
+    #[test]
+    fn same_line_co_occurrence_breaks_file_coverage_ties() {
+        let filler = "let unrelated = 1;\n".repeat(40);
+        let (project, _state, db) = indexed(&[
+            ("spread.rs", "// retry\n// budget\n// exhausted\n"),
+            (
+                "together.rs",
+                &format!("{filler}// retry budget exhausted here\n{filler}"),
+            ),
+        ]);
+        let found = search_in_db(
+            project.path(),
+            &db,
+            "retry budget exhausted",
+            5,
+            SyncStats::default(),
+        )
+        .expect("search");
+        assert_eq!(found.hits[0].path, "together.rs");
+        assert_eq!(found.hits[0].line, 41);
+    }
+
+    #[test]
+    fn corrupt_index_database_is_rebuilt_from_sources() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        fs::write(project.path().join("lib.rs"), "fn recovered_marker() {}\n").expect("source");
+        let db = state.path().join("index.sqlite3");
+        fs::write(
+            &db,
+            b"this is not a sqlite database, it is garbage".repeat(200),
+        )
+        .expect("garbage");
+        synchronize_into(project.path(), &db).expect("rebuild corrupt cache");
+        let found = search_in_db(
+            project.path(),
+            &db,
+            "recovered_marker",
+            5,
+            SyncStats::default(),
+        )
+        .expect("search");
+        assert_eq!(found.hits.len(), 1);
+    }
+
+    #[test]
+    fn legacy_lexical_schema_is_migrated_and_reindexed() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        fs::write(
+            project.path().join("a.ts"),
+            "function loadUserProfile() {}\n",
+        )
+        .expect("source");
+        let db = state.path().join("index.sqlite3");
+        {
+            let conn = Connection::open(&db).expect("legacy db");
+            conn.execute_batch(
+                "CREATE TABLE files(path TEXT PRIMARY KEY NOT NULL, hash TEXT NOT NULL, size_bytes INTEGER NOT NULL);
+                 CREATE VIRTUAL TABLE docs USING fts5(path UNINDEXED, body, tokenize='unicode61');",
+            )
+            .expect("legacy schema");
+        }
+        synchronize_into(project.path(), &db).expect("migrate");
+        let found = search_in_db(project.path(), &db, "user profile", 5, SyncStats::default())
+            .expect("search");
+        assert_eq!(found.hits.len(), 1);
+    }
+
+    #[test]
+    fn excerpts_redact_common_secret_shapes() {
+        let (project, _state, db) = indexed(&[(
+            "settings.py",
+            "API_KEY = \"AKIAIOSFODNN7EXAMPLE\"\npassword = \"hunter2hunter2\"\n",
+        )]);
+        let found =
+            search_in_db(project.path(), &db, "API_KEY", 5, SyncStats::default()).expect("search");
+        assert!(
+            found.hits[0].excerpt.contains("[REDACTED"),
+            "{}",
+            found.hits[0].excerpt
+        );
+        assert!(!found.hits[0].excerpt.contains("AKIAIOSFODNN7EXAMPLE"));
+        let found =
+            search_in_db(project.path(), &db, "password", 5, SyncStats::default()).expect("search");
+        assert!(!found.hits[0].excerpt.contains("hunter2hunter2"));
     }
 
     #[test]

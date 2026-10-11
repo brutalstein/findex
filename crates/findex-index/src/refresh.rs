@@ -112,11 +112,7 @@ pub fn refresh_known_paths_into(
             if symbols::upsert(&tx, &key, &digest, contents)? {
                 report.sync.symbols_parsed += 1;
             }
-            tx.execute("DELETE FROM docs WHERE path = ?1", params![key])?;
-            tx.execute(
-                "INSERT INTO docs(path, body) VALUES(?1, ?2)",
-                params![key, contents],
-            )?;
+            super::replace_document(&tx, &key, contents)?;
             tx.execute(
                 "UPDATE files SET hash = ?2, size_bytes = ?3 WHERE path = ?1",
                 params![key, digest, bytes.len() as i64],

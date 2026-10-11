@@ -7,52 +7,93 @@ use std::io::{self, BufRead, BufReader, Read, Write};
 use std::path::Path;
 
 const MAX_REQUEST_BYTES: usize = 1024 * 1024;
+/// Modern (per-request `_meta`) revision first, then legacy `initialize` revisions.
+const MODERN_VERSION: &str = "2026-07-28";
+const LEGACY_VERSIONS: [&str; 4] = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
+const META_VERSION: &str = "io.modelcontextprotocol/protocolVersion";
+const META_SERVER_INFO: &str = "io.modelcontextprotocol/serverInfo";
+const INSTRUCTIONS: &str = "Use findex_search for lexical evidence-based code discovery. Results are not proof of correctness; verify before editing.";
 
 pub fn serve(project: &Path) -> io::Result<()> {
     let stdin = io::stdin();
     let stdout = io::stdout();
-    let mut input = BufReader::new(stdin.lock());
-    let mut output = stdout.lock();
     // Created lazily when the first search arrives: no expensive startup scan on initialize.
     let index_session: RefCell<Option<findex_watch::SearchBackend>> = RefCell::new(None);
-    while let Some(buffer) = read_frame(&mut input)? {
-        let request: Value = match serde_json::from_slice(&buffer) {
-            Ok(value) => value,
-            Err(_) => {
-                send(&mut output, &error(Value::Null, -32700, "invalid JSON"))?;
+    serve_io(
+        BufReader::new(stdin.lock()),
+        &mut stdout.lock(),
+        |request| {
+            handle_with_lookups(
+                request,
+                project,
+                |root, query, limit| {
+                    let mut session = index_session.borrow_mut();
+                    session
+                        .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
+                        .search(query, limit)
+                },
+                |root, name, limit| {
+                    let mut session = index_session.borrow_mut();
+                    session
+                        .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
+                        .search_symbols(name, limit)
+                },
+                |root, relative| {
+                    let mut session = index_session.borrow_mut();
+                    session
+                        .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
+                        .inspect_file(relative)
+                },
+            )
+        },
+    )
+}
+
+/// Transport loop over any byte stream. Malformed or oversized messages get a
+/// JSON-RPC error and the session continues; only I/O failure or EOF ends it.
+fn serve_io(
+    mut input: impl BufRead,
+    output: &mut impl Write,
+    mut handler: impl FnMut(&Value) -> Option<Value>,
+) -> io::Result<()> {
+    while let Some(frame) = read_frame(&mut input)? {
+        let buffer = match frame {
+            Frame::Message(buffer) => buffer,
+            Frame::Oversized => {
+                send(
+                    output,
+                    &error(Value::Null, -32600, "MCP request exceeded 1 MiB"),
+                )?;
                 continue;
             }
         };
-        if let Some(response) = handle_with_lookups(
-            &request,
-            project,
-            |root, query, limit| {
-                let mut session = index_session.borrow_mut();
-                session
-                    .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
-                    .search(query, limit)
-            },
-            |root, name, limit| {
-                let mut session = index_session.borrow_mut();
-                session
-                    .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
-                    .search_symbols(name, limit)
-            },
-            |root, relative| {
-                let mut session = index_session.borrow_mut();
-                session
-                    .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
-                    .inspect_file(relative)
-            },
-        ) {
-            send(&mut output, &response)?;
+        // Blank keep-alive lines are not messages.
+        if buffer.iter().all(u8::is_ascii_whitespace) {
+            continue;
+        }
+        let request: Value = match serde_json::from_slice(&buffer) {
+            Ok(value) => value,
+            Err(_) => {
+                send(output, &error(Value::Null, -32700, "invalid JSON"))?;
+                continue;
+            }
+        };
+        if let Some(response) = handler(&request) {
+            send(output, &response)?;
         }
     }
     Ok(())
 }
 
+enum Frame {
+    Message(Vec<u8>),
+    Oversized,
+}
+
 /// Limit memory *during* read, not after newline-terminated input is buffered.
-fn read_frame(input: &mut impl BufRead) -> io::Result<Option<Vec<u8>>> {
+/// An oversized line is discarded through the reader's own buffer, so a hostile
+/// client cannot force allocation beyond `MAX_REQUEST_BYTES`.
+fn read_frame(input: &mut impl BufRead) -> io::Result<Option<Frame>> {
     let mut buffer = Vec::new();
     let count = input
         .take((MAX_REQUEST_BYTES + 1) as u64)
@@ -60,13 +101,23 @@ fn read_frame(input: &mut impl BufRead) -> io::Result<Option<Vec<u8>>> {
     if count == 0 {
         return Ok(None);
     }
-    if buffer.len() > MAX_REQUEST_BYTES {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidData,
-            "MCP request exceeded 1 MiB",
-        ));
+    if buffer.len() <= MAX_REQUEST_BYTES {
+        return Ok(Some(Frame::Message(buffer)));
     }
-    Ok(Some(buffer))
+    drop(buffer);
+    loop {
+        let available = input.fill_buf()?;
+        if available.is_empty() {
+            break;
+        }
+        if let Some(end) = available.iter().position(|byte| *byte == b'\n') {
+            input.consume(end + 1);
+            break;
+        }
+        let length = available.len();
+        input.consume(length);
+    }
+    Ok(Some(Frame::Oversized))
 }
 
 fn send(output: &mut impl Write, value: &Value) -> io::Result<()> {
@@ -137,26 +188,60 @@ where
     )
         -> Result<Option<findex_syntax::Analysis>, Box<dyn std::error::Error + Send + Sync>>,
 {
-    let method = request.get("method")?.as_str()?;
-    let id = request.get("id")?.clone();
-    let response = match method {
+    let Some(object) = request.as_object() else {
+        // JSON-RPC batches were removed from MCP; scalars are never valid.
+        return Some(error(Value::Null, -32600, "request must be a JSON object"));
+    };
+    let id = object.get("id").cloned();
+    let Some(method) = object.get("method").and_then(Value::as_str) else {
+        return id.map(|id| error(id, -32600, "request is missing a method"));
+    };
+    // Requests without an id are notifications and never receive a response.
+    let id = id?;
+    let server_info = json!({"name":"findex", "version":env!("CARGO_PKG_VERSION")});
+    let supported = std::iter::once(MODERN_VERSION)
+        .chain(LEGACY_VERSIONS)
+        .collect::<Vec<_>>();
+    // Modern (2026-07-28+) clients declare their version on every request.
+    let modern = request
+        .get("params")
+        .and_then(|params| params.get("_meta"))
+        .and_then(|meta| meta.get(META_VERSION));
+    if let Some(requested) = modern {
+        if requested.as_str() != Some(MODERN_VERSION) {
+            return Some(json!({"jsonrpc":"2.0","id":id,"error":{
+                "code": -32022,
+                "message": "Unsupported protocol version",
+                "data": {"supported": supported, "requested": requested}
+            }}));
+        }
+    }
+    let mut response = match method {
+        "server/discover" => success(
+            id,
+            json!({
+                "resultType": "complete",
+                "supportedVersions": supported,
+                "capabilities": {"tools": {}},
+                "_meta": {META_SERVER_INFO: server_info},
+                "instructions": INSTRUCTIONS
+            }),
+        ),
         "initialize" => {
             let requested = request
                 .pointer("/params/protocolVersion")
                 .and_then(Value::as_str);
-            let version = match requested {
-                Some("2025-11-25") => "2025-11-25",
-                Some("2025-06-18") => "2025-06-18",
-                Some("2024-11-05") => "2024-11-05",
-                _ => "2025-06-18",
-            };
+            // Legacy negotiation: echo a supported version, else offer the latest legacy one.
+            let version = requested
+                .filter(|version| LEGACY_VERSIONS.contains(version))
+                .unwrap_or(LEGACY_VERSIONS[0]);
             success(
                 id,
                 json!({
                     "protocolVersion": version,
                     "capabilities": {"tools": {"listChanged": false}},
-                    "serverInfo": {"name":"findex", "version":env!("CARGO_PKG_VERSION")},
-                    "instructions": "Use findex_search for lexical evidence-based code discovery. Results are not proof of correctness; verify before editing."
+                    "serverInfo": server_info,
+                    "instructions": INSTRUCTIONS
                 }),
             )
         }
@@ -344,6 +429,11 @@ where
         }
         _ => error(id, -32601, "method not found"),
     };
+    if modern.is_some() {
+        if let Some(result) = response.get_mut("result").and_then(Value::as_object_mut) {
+            result.insert("_meta".into(), json!({META_SERVER_INFO: server_info}));
+        }
+    }
     Some(response)
 }
 
@@ -351,27 +441,120 @@ where
 #[allow(clippy::expect_used)]
 mod tests {
     use super::*;
+    fn run_session(input: &[u8]) -> Vec<Value> {
+        let mut output = Vec::new();
+        serve_io(
+            std::io::Cursor::new(input.to_vec()),
+            &mut output,
+            |request| handle(request, Path::new(".")),
+        )
+        .expect("session");
+        output
+            .split(|byte| *byte == b'\n')
+            .filter(|line| !line.is_empty())
+            .map(|line| serde_json::from_slice(line).expect("JSON-RPC response"))
+            .collect()
+    }
+
     #[test]
-    fn transport_rejects_large_unterminated_frames_before_full_allocation() {
+    fn oversized_frame_is_rejected_without_terminating_the_server() {
+        let mut input = vec![b'a'; MAX_REQUEST_BYTES * 2];
+        input.extend_from_slice(b"\n{\"jsonrpc\":\"2.0\",\"id\":7,\"method\":\"ping\"}\n");
+        let responses = run_session(&input);
+        assert_eq!(responses.len(), 2, "{responses:?}");
+        assert_eq!(responses[0]["error"]["code"], -32600);
+        assert_eq!(responses[1]["id"], 7);
+        assert!(responses[1]["result"].is_object());
+    }
+
+    #[test]
+    fn oversized_frame_is_discarded_in_bounded_chunks() {
         let input = vec![b'a'; MAX_REQUEST_BYTES * 2];
-        let mut reader = std::io::Cursor::new(input);
-        let failure = read_frame(&mut reader).expect_err("oversized request must fail");
-        assert_eq!(failure.kind(), io::ErrorKind::InvalidData);
-        assert_eq!(reader.position(), (MAX_REQUEST_BYTES + 1) as u64);
+        let mut reader = std::io::BufReader::with_capacity(4096, std::io::Cursor::new(input));
+        assert!(matches!(
+            read_frame(&mut reader).expect("frame"),
+            Some(Frame::Oversized)
+        ));
+        assert!(read_frame(&mut reader).expect("EOF").is_none());
     }
 
     #[test]
     fn bounded_transport_preserves_consecutive_json_rpc_frames() {
         let mut reader = std::io::Cursor::new(b"{\"id\":1}\n{\"id\":2}\n".to_vec());
-        assert_eq!(
-            read_frame(&mut reader).expect("first frame"),
-            Some(b"{\"id\":1}\n".to_vec())
+        assert!(
+            matches!(read_frame(&mut reader).expect("first"), Some(Frame::Message(m)) if m == b"{\"id\":1}\n")
         );
-        assert_eq!(
-            read_frame(&mut reader).expect("second frame"),
-            Some(b"{\"id\":2}\n".to_vec())
+        assert!(
+            matches!(read_frame(&mut reader).expect("second"), Some(Frame::Message(m)) if m == b"{\"id\":2}\n")
         );
-        assert_eq!(read_frame(&mut reader).expect("EOF"), None);
+        assert!(read_frame(&mut reader).expect("EOF").is_none());
+    }
+
+    #[test]
+    fn requests_without_method_or_non_object_messages_are_invalid() {
+        let responses = run_session(b"{\"jsonrpc\":\"2.0\",\"id\":3}\n[1,2]\n42\n");
+        assert_eq!(responses.len(), 3, "{responses:?}");
+        for response in &responses {
+            assert_eq!(response["error"]["code"], -32600, "{response}");
+        }
+        assert_eq!(responses[0]["id"], 3);
+    }
+
+    #[test]
+    fn modern_clients_discover_supported_versions_without_initialize() {
+        let discover = handle(
+            &json!({"jsonrpc":"2.0","id":"d","method":"server/discover","params":{"_meta":{
+                "io.modelcontextprotocol/protocolVersion":"2026-07-28"}}}),
+            Path::new("."),
+        )
+        .expect("discover");
+        let versions = discover["result"]["supportedVersions"]
+            .as_array()
+            .expect("versions");
+        assert_eq!(versions[0], "2026-07-28");
+        assert!(versions.contains(&json!("2025-11-25")));
+        assert!(discover["result"]["capabilities"]["tools"].is_object());
+        assert_eq!(
+            discover["result"]["_meta"]["io.modelcontextprotocol/serverInfo"]["name"],
+            "findex"
+        );
+        let tools = handle(
+            &json!({"jsonrpc":"2.0","id":2,"method":"tools/list","params":{"_meta":{
+                "io.modelcontextprotocol/protocolVersion":"2026-07-28"}}}),
+            Path::new("."),
+        )
+        .expect("tools");
+        assert_eq!(tools["result"]["tools"][0]["name"], "findex_search");
+        assert_eq!(
+            tools["result"]["_meta"]["io.modelcontextprotocol/serverInfo"]["name"],
+            "findex"
+        );
+    }
+
+    #[test]
+    fn unsupported_modern_version_returns_typed_error() {
+        let response = handle(
+            &json!({"jsonrpc":"2.0","id":1,"method":"tools/list","params":{"_meta":{
+                "io.modelcontextprotocol/protocolVersion":"1900-01-01"}}}),
+            Path::new("."),
+        )
+        .expect("response");
+        assert_eq!(response["error"]["code"], -32022);
+        assert_eq!(response["error"]["data"]["requested"], "1900-01-01");
+        assert!(response["error"]["data"]["supported"]
+            .as_array()
+            .expect("supported")
+            .contains(&json!("2026-07-28")));
+    }
+
+    #[test]
+    fn legacy_initialize_with_unknown_version_offers_latest_legacy_version() {
+        let response = handle(
+            &json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2099-01-01"}}),
+            Path::new("."),
+        )
+        .expect("init");
+        assert_eq!(response["result"]["protocolVersion"], "2025-11-25");
     }
 
     #[test]

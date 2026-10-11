@@ -10,7 +10,8 @@ use serde::Serialize;
 use std::fs;
 use std::path::{Component, Path};
 
-const EXTRACTOR_REVISION: i64 = 1;
+// 2: method/impl/macro/constant kinds, C++ forward-declaration filtering, JS via TSX grammar.
+const EXTRACTOR_REVISION: i64 = 2;
 const MAX_RESULTS: usize = 32;
 
 #[derive(Debug, Clone, Serialize)]
@@ -55,9 +56,52 @@ pub(crate) fn create_schema(conn: &Connection) -> Result<()> {
             PRIMARY KEY(path, ordinal)
         );
         CREATE INDEX IF NOT EXISTS symbols_by_name
-            ON symbols(name COLLATE NOCASE, path);",
+            ON symbols(name COLLATE NOCASE, path);
+        CREATE INDEX IF NOT EXISTS symbols_by_identifier
+            ON symbols(lower(replace(name, '_', '')), path);",
     )?;
     Ok(())
+}
+
+/// A cached definition whose file hash still matches the lexical index.
+pub(crate) struct DefinitionRow {
+    pub path: String,
+    pub name: String,
+    pub kind: String,
+    pub start_line: usize,
+    pub hash: String,
+}
+
+/// Definitions whose name equals `identifier` after case folding and removing
+/// underscores, so `parse config` finds `parseConfig` and `parse_config`.
+/// Callers must still verify the live file hash before returning evidence.
+pub(crate) fn definitions_by_identifier(
+    conn: &Connection,
+    identifier: &str,
+    limit: usize,
+) -> Result<Vec<DefinitionRow>> {
+    let mut stmt = conn.prepare_cached(
+        "SELECT s.path, s.name, s.kind, s.start_line, st.hash
+         FROM symbols AS s
+         JOIN symbol_state AS st ON st.path = s.path AND st.extractor_revision = ?2
+         JOIN files AS f ON f.path = s.path AND f.hash = st.hash
+         WHERE lower(replace(s.name, '_', '')) = ?1
+         ORDER BY s.path ASC, s.start_line ASC
+         LIMIT ?3",
+    )?;
+    let rows = stmt.query_map(
+        params![identifier, EXTRACTOR_REVISION, limit as i64],
+        |row| {
+            Ok(DefinitionRow {
+                path: row.get(0)?,
+                name: row.get(1)?,
+                kind: row.get(2)?,
+                start_line: usize::try_from(row.get::<_, i64>(3)?).unwrap_or(0),
+                hash: row.get(4)?,
+            })
+        },
+    )?;
+    Ok(rows.collect::<std::result::Result<Vec<_>, _>>()?)
 }
 
 pub(crate) fn clear(tx: &Transaction<'_>, path: &str) -> Result<()> {

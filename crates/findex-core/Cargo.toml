@@ -7,6 +7,7 @@ rust-version.workspace = true
 
 [dependencies]
 blake3 = "1.8"
+regex = "1"
 
 [lints]
 workspace = true

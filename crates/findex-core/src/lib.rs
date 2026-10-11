@@ -100,10 +100,80 @@ pub fn is_sensitive_filename(path: &Path) -> bool {
         || name.ends_with(".key")
 }
 
+/// Best-effort masking of common credential shapes in text returned to a
+/// model. This is a pattern list, not a guarantee that no secret survives.
+pub fn redact_secrets(text: &str) -> std::borrow::Cow<'_, str> {
+    use regex::Regex;
+    use std::sync::OnceLock;
+    static PATTERNS: OnceLock<Vec<(Regex, &'static str)>> = OnceLock::new();
+    let patterns = PATTERNS.get_or_init(|| {
+        [
+            (r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b", "[REDACTED:aws-key]"),
+            (r"\bgh[pousr]_[A-Za-z0-9]{30,}\b", "[REDACTED:github-token]"),
+            (r"\bgithub_pat_[A-Za-z0-9_]{22,}", "[REDACTED:github-token]"),
+            (r"\bsk-(?:ant-)?[A-Za-z0-9_\-]{20,}", "[REDACTED:api-key]"),
+            (r"\bxox[abprs]-[A-Za-z0-9-]{10,}", "[REDACTED:slack-token]"),
+            (r"-----BEGIN [A-Z ]*PRIVATE KEY-----", "[REDACTED:private-key]"),
+            (
+                r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}",
+                "[REDACTED:jwt]",
+            ),
+            (
+                r#"(?i)(\b(?:password|passwd|pwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|private[_-]?key)\b["']?\s*[:=]\s*["'])[^"'\s]{6,}(["'])"#,
+                "${1}[REDACTED:assignment]${2}",
+            ),
+        ]
+        .into_iter()
+        .filter_map(|(pattern, replacement)| Regex::new(pattern).ok().map(|r| (r, replacement)))
+        .collect()
+    });
+    let mut current = std::borrow::Cow::Borrowed(text);
+    for (pattern, replacement) in patterns {
+        if pattern.is_match(&current) {
+            current =
+                std::borrow::Cow::Owned(pattern.replace_all(&current, *replacement).into_owned());
+        }
+    }
+    current
+}
+
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn redaction_masks_known_credential_shapes_and_keeps_code() {
+        for (input, leaked) in [
+            ("let id = \"AKIAIOSFODNN7EXAMPLE\";", "AKIAIOSFODNN7EXAMPLE"),
+            (
+                "token = ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+                "ghp_abcdefghij",
+            ),
+            (
+                "ANTHROPIC = 'sk-ant-api03-abcdefghijklmnopqrstuvwx'",
+                "abcdefghijklmnop",
+            ),
+            ("-----BEGIN RSA PRIVATE KEY-----", "BEGIN RSA PRIVATE"),
+            ("password = \"hunter2hunter2\"", "hunter2hunter2"),
+            (
+                "\"client_secret\": \"0123456789abcdef\"",
+                "0123456789abcdef",
+            ),
+        ] {
+            let output = redact_secrets(input);
+            assert!(!output.contains(leaked), "{input} -> {output}");
+            assert!(output.contains("[REDACTED"), "{output}");
+        }
+        assert_eq!(
+            redact_secrets("fn password_strength(p: &str) -> u8"),
+            "fn password_strength(p: &str) -> u8"
+        );
+        assert_eq!(
+            redact_secrets("let secret = read_secret()?;"),
+            "let secret = read_secret()?;"
+        );
+    }
 
     #[cfg(windows)]
     #[test]
