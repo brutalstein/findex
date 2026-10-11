@@ -53,7 +53,7 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 return Err("usage: findex symbols <project-relative-file>".into());
             }
             let relative = PathBuf::from(relative);
-            match findex_syntax::inspect_file(&project, &relative)? {
+            match findex_index::inspect_indexed_file(&project, &relative)? {
                 Some(result) => {
                     println!(
                         "Language: {}; syntax errors: {}; truncated: {}",
