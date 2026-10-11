@@ -36,6 +36,24 @@ pub fn storage_dir(project: &Path) -> io::Result<PathBuf> {
     Ok(base.join("Findex").join("indexes").join(digest.as_str()))
 }
 
+/// Static scan-pruned components. Shared by the directory scanner and native
+/// watcher to avoid rescanning the whole workspace for irrelevant build churn.
+pub fn is_excluded_scan_entry(value: &std::ffi::OsStr) -> bool {
+    let name = value.to_string_lossy().to_ascii_lowercase();
+    matches!(
+        name.as_str(),
+        ".git"
+            | ".findex"
+            | "node_modules"
+            | "target"
+            | "vendor"
+            | "dist"
+            | "build"
+            | ".venv"
+            | "__pycache__"
+    )
+}
+
 /// Skip well-known credentials and key material even when tracked in Git.
 /// This does not guarantee secret-free snippets: secret scanning is a later milestone.
 pub fn is_sensitive_filename(path: &Path) -> bool {

@@ -26,3 +26,10 @@
 - Deterministic classification and mutation tests run in Windows CI, without sleeps.
 - Next steps: quantify cold/warm latency and peak memory; centralize filesystem
   security and add AST/LSP capability reporting before a production release.
+
+## Build churn optimization
+
+Scanner-pruned directories use one shared predicate from `findex-core`.
+The watcher ignores changes exclusively under those directories, without
+forcing a workspace-wide reconciliation. The `.git` directory is explicitly
+excepted so branch/index activity still triggers a safe full reconciliation.

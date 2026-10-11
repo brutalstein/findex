@@ -2,7 +2,7 @@
 //! Events are hints, never a source of truth. Overflow and uncertain events
 //! trigger full reconciliation; retrieved code is still verified by its hash.
 
-use findex_core::storage_dir;
+use findex_core::{is_excluded_scan_entry, storage_dir};
 use findex_index::{SearchReport, SyncStats};
 use notify::event::ModifyKind;
 use notify::{Event, EventKind, RecursiveMode, Watcher};
@@ -147,6 +147,26 @@ fn classify_event(root: &Path, event: &Event, changed: &mut BTreeSet<PathBuf>, f
         *full = true;
         return;
     }
+    // Build outputs and dependency folders are never eligible for indexing.
+    // Their create/rename/delete storms must not force O(repository) scans.
+    // The .git directory is deliberately *not* ignored: Git state changes
+    // require reconciliation even though the scanner never indexes .git.
+    if !event.paths.is_empty()
+        && event.paths.iter().all(|path| {
+            let Ok(relative) = path.strip_prefix(root) else {
+                return false;
+            };
+            relative.components().any(|component| {
+                if let Component::Normal(name) = component {
+                    !name.eq_ignore_ascii_case(".git") && is_excluded_scan_entry(name)
+                } else {
+                    false
+                }
+            })
+        })
+    {
+        return;
+    }
     match event.kind {
         EventKind::Access(_) => return,
         EventKind::Modify(ModifyKind::Name(_))
@@ -239,6 +259,26 @@ mod tests {
         classify_event(root, &event, &mut changed, &mut full);
         assert!(changed.is_empty());
         assert!(!full);
+    }
+
+    #[test]
+    fn ignored_build_churn_does_not_force_full_scan() {
+        let root = Path::new(r"C:\source");
+        for folder in ["target", "node_modules", ".venv", "dist"] {
+            let event = Event::new(EventKind::Create(CreateKind::File))
+                .add_path(root.join(folder).join("generated.bin"));
+            let mut changed = BTreeSet::new();
+            let mut full = false;
+            classify_event(root, &event, &mut changed, &mut full);
+            assert!(!full, "{folder}");
+            assert!(changed.is_empty());
+        }
+        let git_event = Event::new(EventKind::Create(CreateKind::File))
+            .add_path(root.join(".git").join("index"));
+        let mut changed = BTreeSet::new();
+        let mut full = false;
+        classify_event(root, &git_event, &mut changed, &mut full);
+        assert!(full);
     }
 
     #[test]
