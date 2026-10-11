@@ -76,7 +76,10 @@ pub fn inspect_file(project: &Path, relative: &Path) -> io::Result<Option<Analys
         ));
     }
     let source = std::str::from_utf8(&bytes).map_err(|err| {
-        io::Error::new(io::ErrorKind::InvalidData, format!("source is not UTF-8: {err}"))
+        io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("source is not UTF-8: {err}"),
+        )
     })?;
     analyze(&candidate, source).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))
 }
@@ -182,11 +185,13 @@ fn symbol_kind(language: &str, kind: &str) -> Option<&'static str> {
         | ("TypeScript", "generator_function_declaration")
         | ("C++", "function_definition") => Some("function"),
         ("TypeScript", "method_definition") => Some("method"),
-        ("Rust", "struct_item") | ("Rust", "enum_item") | ("Rust", "trait_item")
-        | ("Rust", "type_item") | ("TypeScript", "interface_declaration")
-        | ("TypeScript", "type_alias_declaration") | ("TypeScript", "enum_declaration") => {
-            Some("type")
-        }
+        ("Rust", "struct_item")
+        | ("Rust", "enum_item")
+        | ("Rust", "trait_item")
+        | ("Rust", "type_item")
+        | ("TypeScript", "interface_declaration")
+        | ("TypeScript", "type_alias_declaration")
+        | ("TypeScript", "enum_declaration") => Some("type"),
         ("Python", "class_definition")
         | ("TypeScript", "class_declaration")
         | ("TypeScript", "abstract_class_declaration")
@@ -202,9 +207,10 @@ fn language_for(path: &Path) -> Option<(&'static str, Language)> {
     match extension.as_str() {
         "rs" => Some(("Rust", tree_sitter_rust::LANGUAGE.into())),
         "py" | "pyi" => Some(("Python", tree_sitter_python::LANGUAGE.into())),
-        "ts" | "mts" | "cts" | "js" | "mjs" | "cjs" => {
-            Some(("TypeScript", tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into()))
-        }
+        "ts" | "mts" | "cts" | "js" | "mjs" | "cjs" => Some((
+            "TypeScript",
+            tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
+        )),
         "tsx" | "jsx" => Some(("TypeScript", tree_sitter_typescript::LANGUAGE_TSX.into())),
         "cc" | "cpp" | "cxx" | "hpp" | "hxx" | "hh" => {
             Some(("C++", tree_sitter_cpp::LANGUAGE.into()))
@@ -221,8 +227,12 @@ mod tests {
 
     #[test]
     fn rust_definitions_and_line_ranges() {
-        let result = analyze(Path::new("lib.rs"), "struct Engine;\nfn search() {\n  println!(\"ok\");\n}\n")
-            .expect("parse").expect("rust");
+        let result = analyze(
+            Path::new("lib.rs"),
+            "struct Engine;\nfn search() {\n  println!(\"ok\");\n}\n",
+        )
+        .expect("parse")
+        .expect("rust");
         assert_eq!(result.language, "Rust");
         assert_eq!(result.symbols.len(), 2);
         assert_eq!(result.symbols[0].name, "Engine");
@@ -234,8 +244,12 @@ mod tests {
 
     #[test]
     fn python_class_and_method() {
-        let result = analyze(Path::new("app.py"), "class Service:\n    def connect(self):\n        pass\n")
-            .expect("parse").expect("python");
+        let result = analyze(
+            Path::new("app.py"),
+            "class Service:\n    def connect(self):\n        pass\n",
+        )
+        .expect("parse")
+        .expect("python");
         assert_eq!(result.symbols.len(), 2);
         assert_eq!(result.symbols[0].name, "Service");
         assert_eq!(result.symbols[1].name, "connect");
@@ -243,8 +257,12 @@ mod tests {
 
     #[test]
     fn typescript_interface_and_function() {
-        let result = analyze(Path::new("app.ts"), "interface User { id: string }\nfunction connect(): void {}\n")
-            .expect("parse").expect("ts");
+        let result = analyze(
+            Path::new("app.ts"),
+            "interface User { id: string }\nfunction connect(): void {}\n",
+        )
+        .expect("parse")
+        .expect("ts");
         assert_eq!(result.symbols.len(), 2);
         assert_eq!(result.symbols[0].name, "User");
         assert_eq!(result.symbols[1].name, "connect");
@@ -252,8 +270,12 @@ mod tests {
 
     #[test]
     fn cpp_class_and_free_function() {
-        let result = analyze(Path::new("app.cpp"), "class Driver {};\nint connect(int code) { return code; }\n")
-            .expect("parse").expect("cpp");
+        let result = analyze(
+            Path::new("app.cpp"),
+            "class Driver {};\nint connect(int code) { return code; }\n",
+        )
+        .expect("parse")
+        .expect("cpp");
         assert!(result.symbols.iter().any(|symbol| symbol.name == "Driver"));
         assert!(result.symbols.iter().any(|symbol| symbol.name == "connect"));
     }
@@ -261,9 +283,13 @@ mod tests {
     #[test]
     fn unsupported_extension_and_size_limit() {
         assert!(analyze(Path::new("README.md"), "# hi")
-            .expect("unsupported").is_none());
-        assert!(analyze(Path::new("main.rs"), &"x".repeat(MAX_SOURCE_BYTES as usize + 1))
-            .is_err());
+            .expect("unsupported")
+            .is_none());
+        assert!(analyze(
+            Path::new("main.rs"),
+            &"x".repeat(MAX_SOURCE_BYTES as usize + 1)
+        )
+        .is_err());
     }
 
     #[test]
@@ -274,14 +300,16 @@ mod tests {
         assert!(inspect_file(workspace.path(), Path::new(".env")).is_err());
         std::fs::write(workspace.path().join("app.rs"), "fn start() {}").expect("write");
         let result = inspect_file(workspace.path(), Path::new("app.rs"))
-            .expect("inspect").expect("rust");
+            .expect("inspect")
+            .expect("rust");
         assert_eq!(result.symbols[0].name, "start");
     }
 
     #[test]
     fn parser_reports_syntax_errors_without_claiming_type_resolution() {
         let parsed = analyze(Path::new("bad.py"), "def broken(:\n    pass\n")
-            .expect("parser").expect("python");
+            .expect("parser")
+            .expect("python");
         assert!(parsed.has_syntax_errors);
         assert_eq!(parsed.capability, "syntax-definitions-only");
     }
