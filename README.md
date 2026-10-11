@@ -10,14 +10,17 @@ Findex is designed as a local-first, modular code intelligence engine that helps
 - Native Rust CLI for **Windows 10/11 x64** (`findex.exe`).
 - `findex claude [flags...]` launches the official `claude.exe` in the existing terminal and working directory, forwarding arguments.
 - Optional adjacent Claude plugin contributes a `findex_search` MCP tool using the normal Claude Code plugin loader.
-- Lexical search: SQLite FTS5/BM25, ignored directories, bounded per-file scan, stable local index path, atomic file updates and incremental content hashes.
-- Every retrieved hit checks current file content against its indexed hash, avoiding publication of stale snippets.
+- SQLite FTS5/BM25 lexical retrieval with bounded candidate reranking and source-hash verification.
+- Persisted Tree-sitter definitions with language-aware extraction for Rust, Python, TypeScript/JavaScript and C++.
+- Native Windows file watcher and incremental refresh of indexed files, with conservative full-scan fallbacks.
+- Explicit SCIP protobuf imports and mergeable, captured LSP symbol-reference evidence. Neither launches an LSP server.
+- Reverse file-impact lookup using source-backed semantic references; indirect impacts are only *potential*.
 - Indexing does not upload source; excludes common secret filenames but is **not a secret scanner**.
-- Native Windows CI: format, clippy, tests, optimized build and artifact packaging (when pushed to GitHub).
+- Native Windows CI: stable/MSRV Rust, format, lint, tests, build, MCP smoke and unsigned ZIP packaging.
 
 ### What is **not** implemented
 
-Tree-sitter AST, LSP/SCIP navigation, dependency and cross-language graphs, hybrid embeddings, adaptive search planner, verified project memory, source-code secret scanner, token telemetry and A/B benchmarks. Retrieval is currently lexical only. CLI searches still reconcile before every query; MCP uses native Windows event-driven refresh with periodic reconciliation and safe fallbacks. This is not yet large-monorepo benchmarked.
+Live LSP orchestration, complete cross-language/type/call graph, hybrid embeddings, adaptive search planner, verified project memory, source-code secret scanning, token telemetry, matched Claude Code A/B benchmarks and large-monorepo performance validation. Findex is still experimental. CLI searches reconcile before each query; warm MCP lexical and symbol lookups use a native watcher with safe fallbacks.
 
 ## Build
 
@@ -173,5 +176,5 @@ For normalized LSP reference captures, pass a small JSON file with a
 `findex graph-import-lsp capture.json`. The MCP tool `findex_impact` exposes
 previously imported verified evidence to Claude Code. Direct references are
 source-backed; indirect file impact is marked **potential**, never a proven
-call graph. The newest import replaces the previous semantic snapshot.
+call graph. SCIP imports replace the full semantic snapshot. Captured LSP imports now merge separate symbol identities, replacing only the same definition anchor and invalidating prior edges that reference updated source content. A capture remains a single-symbol reference set; all imported evidence is bounded and hash-verified.
 See `docs/adr/0006-scip-lsp-evidence-graph.md` for format, budgets and limits.

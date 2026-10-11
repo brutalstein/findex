@@ -48,6 +48,8 @@ pub struct SearchReport {
     pub hits: Vec<SearchHit>,
     pub sync: SyncStats,
     pub stale_results_discarded: usize,
+    /// True when a bounded candidate window may have omitted lower-ranked matches.
+    pub truncated: bool,
     pub retrieval: &'static str,
 }
 
@@ -260,6 +262,7 @@ pub fn search_in_db(
         hits: Vec::new(),
         sync,
         stale_results_discarded: 0,
+        truncated: false,
         retrieval: "sqlite-fts5-bm25",
     };
     let Some((expression, terms)) = fts_query(query) else {
@@ -272,7 +275,11 @@ pub fn search_in_db(
          WHERE docs MATCH ?1 ORDER BY docs.rank ASC, docs.path ASC LIMIT ?2",
     )?;
     let count = limit.clamp(1, 32);
-    let result_rows = stmt.query_map(params![expression, (count * 4) as i64], |row| {
+    // Collect a bounded but generous window before reranking. An extra
+    // candidate makes truncation explicit rather than silently claiming
+    // completeness after stale-result rejection or multi-term reranking.
+    let candidate_budget = (count * 16).clamp(32, 512);
+    let result_rows = stmt.query_map(params![expression, (candidate_budget + 1) as i64], |row| {
         Ok((
             row.get::<_, String>(0)?,
             row.get::<_, String>(1)?,
@@ -280,7 +287,12 @@ pub fn search_in_db(
             row.get::<_, String>(3)?,
         ))
     })?;
-    for row in result_rows {
+    let mut candidates = Vec::new();
+    for (candidate_index, row) in result_rows.enumerate() {
+        if candidate_index >= candidate_budget {
+            report.truncated = true;
+            break;
+        }
         let (path, body, score, indexed_hash) = row?;
         // Never return stale cached code if a file changed after synchronization.
         let full_path: PathBuf = project.join(&path);
@@ -292,22 +304,50 @@ pub fn search_in_db(
             report.stale_results_discarded += 1;
             continue;
         }
-        let (line_number, excerpt) = body
-            .lines()
-            .enumerate()
-            .find(|(_, line)| terms.iter().any(|term| line.to_lowercase().contains(term)))
-            .map(|(index, line)| (index + 1, line.trim().chars().take(240).collect::<String>()))
-            .unwrap_or((1, String::new()));
-        report.hits.push(SearchHit {
-            path,
-            line: line_number,
-            excerpt,
-            bm25_score: score,
-        });
-        if report.hits.len() >= count {
-            break;
+        let folded_body = body.to_lowercase();
+        let coverage = terms
+            .iter()
+            .filter(|term| folded_body.contains(term.as_str()))
+            .count();
+        // A snippet from the first matching line often shows the wrong
+        // function. Prefer the line covering the most query terms.
+        let mut best = (0_usize, 1_usize, String::new());
+        for (line_index, line) in body.lines().enumerate() {
+            let folded_line = line.to_lowercase();
+            let matches = terms
+                .iter()
+                .filter(|term| folded_line.contains(term.as_str()))
+                .count();
+            if matches > best.0 {
+                best = (
+                    matches,
+                    line_index + 1,
+                    line.trim().chars().take(240).collect(),
+                );
+            }
         }
+        candidates.push((
+            coverage,
+            SearchHit {
+                path,
+                line: best.1,
+                excerpt: best.2,
+                bm25_score: score,
+            },
+        ));
     }
+    candidates.sort_by(|left, right| {
+        right
+            .0
+            .cmp(&left.0)
+            .then_with(|| left.1.bm25_score.total_cmp(&right.1.bm25_score))
+            .then_with(|| left.1.path.cmp(&right.1.path))
+    });
+    report.hits = candidates
+        .into_iter()
+        .take(count)
+        .map(|(_, hit)| hit)
+        .collect();
     Ok(report)
 }
 
@@ -368,6 +408,41 @@ mod tests {
                 .len(),
             1
         );
+    }
+
+    #[test]
+    fn prefers_files_and_excerpts_covering_more_query_terms() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        fs::write(project.path().join("one.rs"), "fn alpha() {}\\n").expect("first");
+        fs::write(
+            project.path().join("both.rs"),
+            "fn alpha() {}\\nfn alpha_beta() {}\\n",
+        )
+        .expect("second");
+        synchronize_into(project.path(), &db).expect("sync");
+        let found = search_in_db(project.path(), &db, "alpha beta", 2, SyncStats::default())
+            .expect("search");
+        assert_eq!(found.hits[0].path, "both.rs");
+        assert_eq!(found.hits[0].line, 2);
+        assert!(found.hits[0].excerpt.contains("alpha_beta"));
+    }
+
+    #[test]
+    fn advertises_when_bounded_candidate_window_is_truncated() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        for number in 0..35 {
+            fs::write(project.path().join(format!("file_{number}.rs")), "fn marker() {}\\n")
+                .expect("fixture");
+        }
+        synchronize_into(project.path(), &db).expect("sync");
+        let found = search_in_db(project.path(), &db, "marker", 1, SyncStats::default())
+            .expect("search");
+        assert_eq!(found.hits.len(), 1);
+        assert!(found.truncated);
     }
 
     #[test]

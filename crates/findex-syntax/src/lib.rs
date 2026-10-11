@@ -301,7 +301,7 @@ mod tests {
     fn javascript_arrow_function_is_a_named_definition_not_a_constant() {
         let analysis = analyze(
             Path::new("app.ts"),
-            "const execute = (x: number) => x + 1;\\nconst setting = 10;\n",
+            "const execute = (x: number) => x + 1;\nconst setting = 10;\n",
         )
         .expect("parse")
         .expect("typescript");

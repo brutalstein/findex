@@ -279,8 +279,9 @@ fn doctor(project: &Path) {
         eprintln!("WARNING: ANTHROPIC_API_KEY is set and may override subscription authentication. Value intentionally hidden.");
     }
     println!(
-        "Index engine: SQLite/FTS5 lexical; no semantic graph, token accounting, or LSP in v0.1"
+        "Index engine: SQLite/FTS5, Tree-sitter symbols, optional imported SCIP/LSP references"
     );
+    println!("Limitations: no live LSP service, semantic task planner, or measured token savings");
 }
 
 fn print_help() {

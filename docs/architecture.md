@@ -30,7 +30,7 @@ No source upload or HTTP listener is performed by Findex. Claude Code itself may
 - Indexed state: SQLite `files` metadata and FTS5 `docs` contents; WAL enabled.
 - Update: hash every accepted file, replace changed content, remove absent/disallowed paths in a single transaction. Roll back if the safety cap is exceeded.
 - Query: escape lexical terms into a bounded disjunction; FTS5 BM25 sorting; verify current file hash before returning file/line/excerpt.
-- MCP: stdio JSON-RPC initialize, tools/list and tools/call; errors are explicit. Only `findex_search` exists in v0.1.
+- MCP: stdio JSON-RPC initialize, tools/list and tools/call; errors are explicit. `findex_search`, `findex_symbols`, `findex_find_symbol` and `findex_impact` are exposed.
 - CLI: no fabricated saving metrics. `findex claude` launches original native CLI; `doctor` warns when environment API key is present without reading its value.
 
 ## Next subsystems (design, not shipped)
