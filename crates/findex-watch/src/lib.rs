@@ -274,8 +274,7 @@ mod tests {
     #[test]
     fn late_watcher_disconnection_falls_back_to_verified_full_scan() {
         let workspace = tempfile::tempdir().expect("workspace");
-        std::fs::write(workspace.path().join("app.rs"), "fn fallback_marker() {}")
-            .expect("write");
+        std::fs::write(workspace.path().join("app.rs"), "fn fallback_marker() {}").expect("write");
         let mut watched = WatchedIndex::new(workspace.path()).expect("watcher");
         let (sender, disconnected_receiver) = mpsc::sync_channel(1);
         drop(sender);
