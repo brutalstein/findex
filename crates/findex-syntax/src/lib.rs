@@ -202,6 +202,12 @@ fn symbol_kind(language: &str, kind: &str) -> Option<&'static str> {
     }
 }
 
+/// Expose the language capability gate without running an AST parser.
+#[must_use]
+pub fn supports_path(path: &Path) -> bool {
+    language_for(path).is_some()
+}
+
 fn language_for(path: &Path) -> Option<(&'static str, Language)> {
     let extension = path.extension()?.to_str()?.to_ascii_lowercase();
     match extension.as_str() {
