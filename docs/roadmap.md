@@ -62,3 +62,14 @@ Status means *evidence*, not aspiration. No milestone is considered complete mer
 
 - [x] Native watcher-backed exact-symbol MCP retrieval with a warm-query
   no-full-scan CI assertion, plus indexed-only AST access controls.
+
+## Semantic evidence graph milestone (2026-10-11)
+
+- [x] SCIP protobuf and normalized captured LSP reference adapters, with file
+  admission, source hash, budget and transactional safety controls.
+- [x] Reverse file-impact BFS on exact semantic symbol IDs with bounded depth,
+  stale invalidation, cycle handling, source/line provenance and MCP/CLI tools.
+- [ ] Live language server orchestration and document version synchronization.
+- [ ] SCIP streaming import for very large generated indexes.
+- [ ] Precise type/implementation/call graphs and cross-indexer federation.
+- [ ] Independent real-world correctness and performance benchmarks.

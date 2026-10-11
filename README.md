@@ -154,3 +154,24 @@ compatibility. Release CI provides `findex-windows-x64.zip` alongside its
 SHA-256 checksum file; the ZIP includes the build compiler versions and lock
 file. This is **not** a cryptographically signed or bit-for-bit reproducible
 binary guarantee; see `docs/adr/0005-build-provenance.md`.
+
+## Semantic reference imports and impact graph (experimental)
+
+Findex supports explicit **SCIP protobuf** reference imports and a normalized
+**captured LSP references** JSON adapter. Neither runs a language server or
+executes downloaded indexers; you generate the source evidence separately.
+
+```powershell
+findex graph-import-scip .\index.scip
+findex impact crates\findex-index\src\lib.rs
+findex impact crates\findex-index\src\lib.rs 2
+```
+
+For normalized LSP reference captures, pass a small JSON file with a
+`definition` location and `references` locations, each with project-relative
+`path` and zero-based `line`, `character` fields. Then run
+`findex graph-import-lsp capture.json`. The MCP tool `findex_impact` exposes
+previously imported verified evidence to Claude Code. Direct references are
+source-backed; indirect file impact is marked **potential**, never a proven
+call graph. The newest import replaces the previous semantic snapshot.
+See `docs/adr/0006-scip-lsp-evidence-graph.md` for format, budgets and limits.
