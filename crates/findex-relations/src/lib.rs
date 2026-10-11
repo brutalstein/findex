@@ -177,10 +177,15 @@ fn persist(
     // Complete SCIP indexes replace the graph; individual LSP captures merge
     // by their stable definition-anchor identity, never deleting unrelated symbols.
     let incremental_lsp = origin == "lsp-captured-references";
-    let incoming: HashSet<&str> = refs.iter().map(|reference| reference.symbol.as_str()).collect();
+    let incoming: HashSet<&str> = refs
+        .iter()
+        .map(|reference| reference.symbol.as_str())
+        .collect();
     let previous_source: Option<String> = if incremental_lsp {
-        tx.query_row("SELECT source FROM snapshot WHERE id=1", [], |row| row.get(0))
-            .optional()?
+        tx.query_row("SELECT source FROM snapshot WHERE id=1", [], |row| {
+            row.get(0)
+        })
+        .optional()?
     } else {
         None
     };
@@ -197,19 +202,26 @@ fn persist(
                 )
                 .optional()?;
             if old.is_some_and(|digest| digest != file.digest) {
-                let mut stmt = tx.prepare("SELECT DISTINCT symbol FROM occurrences WHERE path=?1")?;
+                let mut stmt =
+                    tx.prepare("SELECT DISTINCT symbol FROM occurrences WHERE path=?1")?;
                 let affected = stmt
                     .query_map(params![file.path], |row| row.get::<_, String>(0))?
                     .collect::<std::result::Result<Vec<_>, _>>()?;
                 for symbol in affected {
                     tx.execute("DELETE FROM occurrences WHERE symbol=?1", params![symbol])?;
-                    tx.execute("DELETE FROM symbol_provenance WHERE symbol=?1", params![symbol])?;
+                    tx.execute(
+                        "DELETE FROM symbol_provenance WHERE symbol=?1",
+                        params![symbol],
+                    )?;
                 }
             }
         }
         for symbol in &incoming {
             tx.execute("DELETE FROM occurrences WHERE symbol=?1", params![symbol])?;
-            tx.execute("DELETE FROM symbol_provenance WHERE symbol=?1", params![symbol])?;
+            tx.execute(
+                "DELETE FROM symbol_provenance WHERE symbol=?1",
+                params![symbol],
+            )?;
         }
     } else {
         tx.execute("DELETE FROM occurrences", [])?;
@@ -258,7 +270,9 @@ fn persist(
         [],
     )?;
     let snapshot_source = if incremental_lsp
-        && previous_source.as_deref().is_some_and(|source| source != origin)
+        && previous_source
+            .as_deref()
+            .is_some_and(|source| source != origin)
     {
         "mixed-scip-lsp-evidence"
     } else {
@@ -588,7 +602,6 @@ mod tests {
         assert_eq!(after.stale_evidence_discarded, 1);
     }
 
-
     #[test]
     fn separately_imported_lsp_symbols_coexist_and_update_independently() {
         let workspace = tempdir().expect("workspace");
@@ -604,12 +617,34 @@ mod tests {
         let second = r#"{"definition":{"path":"c.rs","line":0,"character":3},"references":[{"path":"d.rs","line":0,"character":16}]}"#;
         import_lsp_snapshot(workspace.path(), first).expect("first");
         import_lsp_snapshot(workspace.path(), second).expect("second");
-        assert_eq!(impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("a").hits.len(), 1);
-        assert_eq!(impact(workspace.path(), Path::new("c.rs"), 1, 8).expect("c").hits.len(), 1);
-        let replace_second = r#"{"definition":{"path":"c.rs","line":0,"character":3},"references":[]}"#;
+        assert_eq!(
+            impact(workspace.path(), Path::new("a.rs"), 1, 8)
+                .expect("a")
+                .hits
+                .len(),
+            1
+        );
+        assert_eq!(
+            impact(workspace.path(), Path::new("c.rs"), 1, 8)
+                .expect("c")
+                .hits
+                .len(),
+            1
+        );
+        let replace_second =
+            r#"{"definition":{"path":"c.rs","line":0,"character":3},"references":[]}"#;
         import_lsp_snapshot(workspace.path(), replace_second).expect("update only second");
-        assert_eq!(impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("a remains").hits.len(), 1);
-        assert!(impact(workspace.path(), Path::new("c.rs"), 1, 8).expect("c cleared").hits.is_empty());
+        assert_eq!(
+            impact(workspace.path(), Path::new("a.rs"), 1, 8)
+                .expect("a remains")
+                .hits
+                .len(),
+            1
+        );
+        assert!(impact(workspace.path(), Path::new("c.rs"), 1, 8)
+            .expect("c cleared")
+            .hits
+            .is_empty());
     }
 
     #[test]
@@ -620,7 +655,10 @@ mod tests {
         let new_symbol = r#"{"definition":{"path":"b.rs","line":0,"character":3},"references":[]}"#;
         import_lsp_snapshot(workspace.path(), new_symbol).expect("incremental import");
         assert!(impact(workspace.path(), Path::new("a.rs"), 1, 8).is_err());
-        assert!(impact(workspace.path(), Path::new("b.rs"), 1, 8).expect("new symbol").hits.is_empty());
+        assert!(impact(workspace.path(), Path::new("b.rs"), 1, 8)
+            .expect("new symbol")
+            .hits
+            .is_empty());
     }
 
     #[test]

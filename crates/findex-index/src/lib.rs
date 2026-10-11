@@ -280,14 +280,15 @@ pub fn search_in_db(
     // candidate makes truncation explicit rather than silently claiming
     // completeness after stale-result rejection or multi-term reranking.
     let candidate_budget = (count * 16).clamp(32, 512);
-    let result_rows = stmt.query_map(params![expression, (candidate_budget + 1) as i64], |row| {
-        Ok((
-            row.get::<_, String>(0)?,
-            row.get::<_, String>(1)?,
-            row.get::<_, f64>(2)?,
-            row.get::<_, String>(3)?,
-        ))
-    })?;
+    let result_rows =
+        stmt.query_map(params![expression, (candidate_budget + 1) as i64], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, f64>(2)?,
+                row.get::<_, String>(3)?,
+            ))
+        })?;
     let mut candidates = Vec::new();
     for (candidate_index, row) in result_rows.enumerate() {
         if candidate_index >= candidate_budget {
@@ -297,12 +298,15 @@ pub fn search_in_db(
         let (path, body, score, indexed_hash) = row?;
         // Never return stale cached code if a file changed after synchronization.
         let full_path: PathBuf = canonical_root.join(&path);
-        let eligible = fs::symlink_metadata(&full_path).ok().is_some_and(|metadata| {
-            metadata.file_type().is_file() && metadata.len() <= MAX_SOURCE_BYTES
-        }) && full_path
-            .canonicalize()
+        let eligible = fs::symlink_metadata(&full_path)
             .ok()
-            .is_some_and(|resolved| resolved.starts_with(&canonical_root));
+            .is_some_and(|metadata| {
+                metadata.file_type().is_file() && metadata.len() <= MAX_SOURCE_BYTES
+            })
+            && full_path
+                .canonicalize()
+                .ok()
+                .is_some_and(|resolved| resolved.starts_with(&canonical_root));
         if !eligible {
             report.stale_results_discarded += 1;
             continue;
@@ -446,12 +450,15 @@ mod tests {
         let state = tempdir().expect("state");
         let db = state.path().join("index.sqlite3");
         for number in 0..35 {
-            fs::write(project.path().join(format!("file_{number}.rs")), "fn marker() {}\n")
-                .expect("fixture");
+            fs::write(
+                project.path().join(format!("file_{number}.rs")),
+                "fn marker() {}\n",
+            )
+            .expect("fixture");
         }
         synchronize_into(project.path(), &db).expect("sync");
-        let found = search_in_db(project.path(), &db, "marker", 1, SyncStats::default())
-            .expect("search");
+        let found =
+            search_in_db(project.path(), &db, "marker", 1, SyncStats::default()).expect("search");
         assert_eq!(found.hits.len(), 1);
         assert!(found.truncated);
     }

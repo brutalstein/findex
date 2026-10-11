@@ -107,7 +107,10 @@ pub fn analyze(path: &Path, source: &str) -> Result<Option<Analysis>, String> {
         let bound_function = label == "TypeScript"
             && node.kind() == "variable_declarator"
             && node.child_by_field_name("value").is_some_and(|value| {
-                matches!(value.kind(), "arrow_function" | "function_expression" | "generator_function")
+                matches!(
+                    value.kind(),
+                    "arrow_function" | "function_expression" | "generator_function"
+                )
             });
         if let Some(kind) = if bound_function {
             Some("function")
@@ -305,14 +308,18 @@ mod tests {
         )
         .expect("parse")
         .expect("typescript");
-        assert!(analysis.symbols.iter().any(|s| s.name == "execute" && s.kind == "function"));
+        assert!(analysis
+            .symbols
+            .iter()
+            .any(|s| s.name == "execute" && s.kind == "function"));
         assert!(!analysis.symbols.iter().any(|s| s.name == "setting"));
     }
 
     #[test]
     fn cpp_header_is_supported_for_definition_lookup() {
         let analysis = analyze(Path::new("engine.h"), "class Engine {};\n")
-            .expect("parse").expect("C++ header");
+            .expect("parse")
+            .expect("C++ header");
         assert!(analysis.symbols.iter().any(|s| s.name == "Engine"));
     }
 
