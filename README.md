@@ -170,7 +170,7 @@ findex impact crates\findex-index\src\lib.rs
 findex impact crates\findex-index\src\lib.rs 2
 ```
 
-For normalized LSP reference captures, pass a small JSON file with a
+For normalized LSP reference captures, pass a JSON file with a single capture or an array of captures. Batched captures index many separate symbols with one file reconciliation. A
 `definition` location and `references` locations, each with project-relative
 `path` and zero-based `line`, `character` fields. Then run
 `findex graph-import-lsp capture.json`. The MCP tool `findex_impact` exposes

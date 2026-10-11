@@ -27,7 +27,9 @@ merge by definition-anchor identity, replacing only that symbol. Changed
 imported files invalidate every older relation involving them before the new
 symbol is recorded. A failed import leaves the last valid snapshot.
 
-The normalized captured LSP JSON has this *explicit* schema:
+The normalized captured LSP JSON accepts a single capture or an array
+of captures in one bounded import, avoiding a full workspace reconciliation
+for every individual symbol. The single-capture schema is:
 
 ```json
 {"definition":{"path":"src/a.rs","line":0,"character":3},

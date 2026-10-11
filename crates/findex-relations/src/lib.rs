@@ -648,6 +648,28 @@ mod tests {
     }
 
     #[test]
+    fn lsp_batch_imports_multiple_symbols_without_reconciling_per_symbol() {
+        let workspace = tempdir().expect("workspace");
+        for (name, code) in [
+            ("a.rs", "fn alpha() {}\n"),
+            ("b.rs", "fn caller_a() { alpha(); }\n"),
+            ("c.rs", "fn gamma() {}\n"),
+            ("d.rs", "fn caller_c() { gamma(); }\n"),
+        ] {
+            fs::write(workspace.path().join(name), code).expect("fixture");
+        }
+        let batch = r#"[{"definition":{"path":"a.rs","line":0,"character":3},"references":[{"path":"b.rs","line":0,"character":16}]},{"definition":{"path":"c.rs","line":0,"character":3},"references":[{"path":"d.rs","line":0,"character":16}]}]"#;
+        let imported = import_lsp_snapshot(workspace.path(), batch).expect("batch");
+        assert_eq!(imported.definitions, 2);
+        assert_eq!(imported.references, 2);
+        assert_eq!(impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("a").hits.len(), 1);
+        assert_eq!(impact(workspace.path(), Path::new("c.rs"), 1, 8).expect("c").hits.len(), 1);
+        assert!(import_lsp_snapshot(workspace.path(), "[]").is_err());
+        let duplicate = r#"[{"definition":{"path":"a.rs","line":0,"character":3},"references":[]},{"definition":{"path":"a.rs","line":0,"character":3},"references":[]}]"#;
+        assert!(import_lsp_snapshot(workspace.path(), duplicate).is_err());
+    }
+
+    #[test]
     fn changed_imported_file_does_not_revalidate_unrelated_stale_edges() {
         let (workspace, first) = fixture();
         import_lsp_snapshot(workspace.path(), &first).expect("initial");
