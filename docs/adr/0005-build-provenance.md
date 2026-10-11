@@ -39,3 +39,11 @@ References:
 - https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html
 - https://doc.rust-lang.org/cargo/reference/resolver.html
 - https://doc.rust-lang.org/cargo/commands/cargo-generate-lockfile.html
+
+## MSRV finding
+
+The initial Windows Rust 1.85 CI test rejected `ignore 0.4.30`, which
+uses let-chain syntax not accepted by Rust 1.85. The scanner dependency is
+therefore constrained to the compatible 0.4.25 release and validated by
+explicit MSRV tests. Any future upgrade must preserve this minimum or
+update the advertised toolchain support explicitly.
