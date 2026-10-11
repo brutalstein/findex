@@ -2,7 +2,7 @@
 //! No network listener, telemetry upload or credential interception.
 
 use serde_json::{json, Value};
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{self, BufRead, BufReader, Read, Write};
 use std::path::Path;
 
 const MAX_REQUEST_BYTES: usize = 1024 * 1024;
@@ -15,18 +15,9 @@ pub fn serve(project: &Path) -> io::Result<()> {
     // Created lazily when the first search arrives: no expensive startup scan on initialize.
     let mut index_session: Option<findex_watch::SearchBackend> = None;
     loop {
-        let mut buffer = Vec::new();
-        let count = input.read_until(b'\n', &mut buffer)?;
-        if count == 0 {
+        let Some(buffer) = read_frame(&mut input)? else {
             break;
-        }
-        if buffer.len() > MAX_REQUEST_BYTES {
-            // Protocol has no safe way to recover from unbounded requests: fail closed.
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "MCP request exceeded 1 MiB",
-            ));
-        }
+        };
         let request: Value = match serde_json::from_slice(&buffer) {
             Ok(value) => value,
             Err(_) => {
@@ -43,6 +34,24 @@ pub fn serve(project: &Path) -> io::Result<()> {
         }
     }
     Ok(())
+}
+
+/// Limit memory *during* read, not after newline-terminated input is buffered.
+fn read_frame(input: &mut impl BufRead) -> io::Result<Option<Vec<u8>>> {
+    let mut buffer = Vec::new();
+    let count = input
+        .take((MAX_REQUEST_BYTES + 1) as u64)
+        .read_until(b'\n', &mut buffer)?;
+    if count == 0 {
+        return Ok(None);
+    }
+    if buffer.len() > MAX_REQUEST_BYTES {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "MCP request exceeded 1 MiB",
+        ));
+    }
+    Ok(Some(buffer))
 }
 
 fn send(output: &mut impl Write, value: &Value) -> io::Result<()> {
@@ -161,6 +170,23 @@ where
 #[allow(clippy::expect_used)]
 mod tests {
     use super::*;
+    #[test]
+    fn transport_rejects_large_unterminated_frames_before_full_allocation() {
+        let input = vec![b'a'; MAX_REQUEST_BYTES * 2];
+        let mut reader = std::io::Cursor::new(input);
+        let failure = read_frame(&mut reader).expect_err("oversized request must fail");
+        assert_eq!(failure.kind(), io::ErrorKind::InvalidData);
+        assert_eq!(reader.position(), (MAX_REQUEST_BYTES + 1) as u64);
+    }
+
+    #[test]
+    fn bounded_transport_preserves_consecutive_json_rpc_frames() {
+        let mut reader = std::io::Cursor::new(b"{\"id\":1}\n{\"id\":2}\n".to_vec());
+        assert_eq!(read_frame(&mut reader).expect("first frame"), Some(b"{\"id\":1}\n".to_vec()));
+        assert_eq!(read_frame(&mut reader).expect("second frame"), Some(b"{\"id\":2}\n".to_vec()));
+        assert_eq!(read_frame(&mut reader).expect("EOF"), None);
+    }
+
     #[test]
     fn initialization_and_tool_discovery() {
         let project = Path::new(".");

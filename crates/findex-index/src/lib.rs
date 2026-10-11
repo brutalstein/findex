@@ -247,9 +247,9 @@ pub fn search_in_db(
     };
     let conn = connect(database)?;
     let mut stmt = conn.prepare(
-        "SELECT docs.path, docs.body, bm25(docs), files.hash
+        "SELECT docs.path, docs.body, docs.rank, files.hash
          FROM docs JOIN files ON files.path = docs.path
-         WHERE docs MATCH ?1 ORDER BY bm25(docs) ASC LIMIT ?2",
+         WHERE docs MATCH ?1 ORDER BY docs.rank ASC, docs.path ASC LIMIT ?2",
     )?;
     let count = limit.clamp(1, 32);
     let result_rows = stmt.query_map(params![expression, (count * 4) as i64], |row| {

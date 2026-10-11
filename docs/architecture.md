@@ -72,3 +72,15 @@ Claude Code's official status line or OpenTelemetry where authorized; distinguis
 - FTS5 query behavior on punctuation-heavy identifiers and languages without whitespace boundaries.
 - Reconciliation performance for many small files; seek incremental index and worker budgets.
 - Secret-scanning of snippets and handling of source texts larger than current limits.
+
+
+## Query ranking and bounded transport (2026-10-11)
+
+The lexical database uses SQLite FTS5's hidden `rank` column, which by default
+evaluates to the BM25 score but has a documented optimization for sorted
+retrieval with LIMIT. Ranking remains lexical, *not* a calibrated probability.
+
+The MCP stdio transport now enforces its 1 MiB per-frame byte limit *while
+reading* the stream, not after buffering an arbitrarily large unterminated
+line. The parser rejects oversized frames without returning them to Claude.
+See <https://www.sqlite.org/fts5.html#sorting_by_auxiliary_function_results>.
