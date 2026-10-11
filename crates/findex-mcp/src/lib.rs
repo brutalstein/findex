@@ -35,7 +35,8 @@ pub fn serve(project: &Path) -> io::Result<()> {
             }
         };
         if let Some(response) = handle_with_search(&request, project, |root, query, limit| {
-            let engine = index_session.get_or_insert_with(|| findex_watch::SearchBackend::new(root));
+            let engine =
+                index_session.get_or_insert_with(|| findex_watch::SearchBackend::new(root));
             engine.search(query, limit)
         }) {
             send(&mut output, &response)?;

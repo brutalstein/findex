@@ -65,12 +65,10 @@ impl WatchedIndex {
         let overflow = Arc::new(AtomicBool::new(false));
         let dropped = Arc::clone(&overflow);
         // Never block a filesystem watcher callback on the indexing thread.
-        let mut watcher = notify::recommended_watcher(move |event| {
-            match tx.try_send(event) {
-                Ok(()) => {}
-                Err(TrySendError::Full(_)) | Err(TrySendError::Disconnected(_)) => {
-                    dropped.store(true, Ordering::Release);
-                }
+        let mut watcher = notify::recommended_watcher(move |event| match tx.try_send(event) {
+            Ok(()) => {}
+            Err(TrySendError::Full(_)) | Err(TrySendError::Disconnected(_)) => {
+                dropped.store(true, Ordering::Release);
             }
         })?;
         // Install the watcher *before* reconciliation so concurrent writes are
@@ -144,12 +142,7 @@ impl WatchedIndex {
 
 /// Conservative classification. New files, rename events and root/config
 /// changes need full reconciliation because their ignore eligibility may vary.
-fn classify_event(
-    root: &Path,
-    event: &Event,
-    changed: &mut BTreeSet<PathBuf>,
-    full: &mut bool,
-) {
+fn classify_event(root: &Path, event: &Event, changed: &mut BTreeSet<PathBuf>, full: &mut bool) {
     if event.need_rescan() {
         *full = true;
         return;
@@ -225,12 +218,10 @@ mod tests {
     fn event_loss_ignore_rule_and_outside_path_are_conservative() {
         let root = Path::new(r"C:\source");
         for event in [
-            Event::new(EventKind::Modify(ModifyKind::Any))
-                .add_path(root.join(".gitignore")),
+            Event::new(EventKind::Modify(ModifyKind::Any)).add_path(root.join(".gitignore")),
             Event::new(EventKind::Modify(ModifyKind::Any))
                 .add_path(PathBuf::from(r"C:\outside\secret.rs")),
-            Event::new(EventKind::Modify(ModifyKind::Any))
-                .set_flag(Flag::Rescan),
+            Event::new(EventKind::Modify(ModifyKind::Any)).set_flag(Flag::Rescan),
         ] {
             let mut changed = BTreeSet::new();
             let mut full = false;
@@ -242,8 +233,7 @@ mod tests {
     #[test]
     fn read_access_does_not_trigger_index_writes() {
         let root = Path::new(r"C:\source");
-        let event = Event::new(EventKind::Access(AccessKind::Any))
-            .add_path(root.join("readme.rs"));
+        let event = Event::new(EventKind::Access(AccessKind::Any)).add_path(root.join("readme.rs"));
         let mut changed = BTreeSet::new();
         let mut full = false;
         classify_event(root, &event, &mut changed, &mut full);
@@ -257,19 +247,39 @@ mod tests {
         let file = project.path().join("app.rs");
         std::fs::write(&file, "fn before_marker() {}").expect("write initial");
         let mut watched = WatchedIndex::new(project.path()).expect("watcher");
-        assert_eq!(watched.search("before_marker", 5).expect("search").hits.len(), 1);
+        assert_eq!(
+            watched
+                .search("before_marker", 5)
+                .expect("search")
+                .hits
+                .len(),
+            1
+        );
 
         std::fs::write(&file, "fn after_marker() {}").expect("edit");
         // Inject the same native watcher event deterministically: no sleeps or
         // timing assumptions about the operating system's event delivery.
         let (tx, rx) = mpsc::sync_channel(8);
-        tx.send(Ok(
-            Event::new(EventKind::Modify(ModifyKind::Data(DataChange::Any)))
-                .add_path(project.path().canonicalize().expect("root").join("app.rs")),
-        ))
+        tx.send(Ok(Event::new(EventKind::Modify(ModifyKind::Data(
+            DataChange::Any,
+        )))
+        .add_path(
+            project.path().canonicalize().expect("root").join("app.rs"),
+        )))
         .expect("enqueue");
         watched.changes = rx;
-        assert_eq!(watched.search("after_marker", 5).expect("search").hits.len(), 1);
-        assert!(watched.search("before_marker", 5).expect("search").hits.is_empty());
+        assert_eq!(
+            watched
+                .search("after_marker", 5)
+                .expect("search")
+                .hits
+                .len(),
+            1
+        );
+        assert!(watched
+            .search("before_marker", 5)
+            .expect("search")
+            .hits
+            .is_empty());
     }
 }
