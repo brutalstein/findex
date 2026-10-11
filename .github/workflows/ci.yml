@@ -84,6 +84,12 @@ jobs:
           if ($second.sync.examined -ne 0) {
             throw "Warm query unexpectedly walked workspace ($($second.sync.examined) files)"
           }
+      - name: Verify four-language native symbol extraction
+        shell: pwsh
+        run: |
+          $result = .\\target\\release\\findex.exe symbols crates\\findex-watch\\src\\lib.rs
+          if ($LASTEXITCODE -ne 0) { throw "Native syntax inspection failed" }
+          if (-not ($result -match "WatchedIndex")) { throw "Expected Rust definition missing" }
       - name: Package Findex and bundled Claude plugin
         shell: pwsh
         run: |

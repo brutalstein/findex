@@ -121,12 +121,46 @@ where
                         "required":["query"],
                         "additionalProperties":false
                     }
+                },{
+                    "name": "findex_symbols",
+                    "description": "Read one project-relative Rust, Python, TypeScript/TSX or C++ file and return bounded Tree-sitter syntax definitions with 1-based line ranges. No LSP references or call graph.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{
+                            "path":{"type":"string","minLength":1,"maxLength":500}
+                        },
+                        "required":["path"],
+                        "additionalProperties":false
+                    }
                 }]
             }),
         ),
         "tools/call" => {
             let name = request.pointer("/params/name").and_then(Value::as_str);
-            if name != Some("findex_search") {
+            if name == Some("findex_symbols") {
+                let path = request
+                    .pointer("/params/arguments/path")
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                if path.is_empty() || path.len() > 500 {
+                    error(id, -32602, "project-relative path must be 1-500 bytes")
+                } else {
+                    match findex_syntax::inspect_file(project, Path::new(path)) {
+                        Ok(Some(analysis)) => success(
+                            id,
+                            json!({"content":[{"type":"text","text":serde_json::to_string(&analysis).unwrap_or_default()}],"isError":false}),
+                        ),
+                        Ok(None) => success(
+                            id,
+                            json!({"content":[{"type":"text","text":"Unsupported language; use lexical search."}],"isError":false}),
+                        ),
+                        Err(err) => success(
+                            id,
+                            json!({"content":[{"type":"text","text":format!("Cannot inspect file: {err}")}],"isError":true}),
+                        ),
+                    }
+                }
+            } else if name != Some("findex_search") {
                 error(id, -32602, "unknown tool")
             } else {
                 let args = request.pointer("/params/arguments");
