@@ -25,6 +25,19 @@ jobs:
         run: |
           rustup default stable
           rustup component add rustfmt clippy
+      - name: Bootstrap Cargo.lock (temporary, removed after lock is committed)
+        shell: pwsh
+        run: |
+          cargo generate-lockfile
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency resolution failed' }
+          $raw = [System.IO.File]::ReadAllBytes((Join-Path $PWD 'Cargo.lock'))
+          $encoded = [System.Convert]::ToBase64String($raw)
+          for ($i = 0; $i -lt $encoded.Length; $i += 512) {
+            $count = [Math]::Min(512, $encoded.Length - $i)
+            Write-Output ("FINDEX_LOCK_CHUNK_V1:" + $encoded.Substring($i, $count))
+          }
+          $hash = (Get-FileHash -Algorithm SHA256 Cargo.lock).Hash.ToLowerInvariant()
+          Write-Output ("FINDEX_LOCK_SHA256:" + $hash)
       - name: Format check
         run: cargo fmt --all -- --check
       - name: Lint all targets

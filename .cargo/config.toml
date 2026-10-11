@@ -1,0 +1,4 @@
+# Keep dependency resolution compatible with the workspace's stated MSRV.
+# Cargo still requires an explicit MSRV test: fallback is a preference, not proof.
+[resolver]
+incompatible-rust-versions = "fallback"
