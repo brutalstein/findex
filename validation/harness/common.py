@@ -54,7 +54,8 @@ def results_dir(explicit: str | None = None) -> Path:
 
 
 def write_json(path: Path, value) -> None:
-    path.write_text(json.dumps(value, indent=2, sort_keys=False, default=str) + "\n", encoding="utf-8")
+    # Results are committed: never leak private machine paths.
+    path.write_text(sanitize(json.dumps(value, indent=2, sort_keys=False, default=str)) + "\n", encoding="utf-8")
 
 
 def sanitize(text: str) -> str:
@@ -126,6 +127,8 @@ def environment() -> dict:
         "ram_bytes": psutil.virtual_memory().total,
         "python": sys.version.split()[0],
         "rustc": tool_version(["rustc", "--version"]),
+        "rustc_host": next((line.split(": ", 1)[1] for line in subprocess.run(
+            ["rustc", "-vV"], capture_output=True, text=True).stdout.splitlines() if line.startswith("host: ")), None),
         "cargo": tool_version(["cargo", "--version"]),
         "git": tool_version(["git", "--version"]),
         "claude_code": tool_version(["claude", "--version"]),

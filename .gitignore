@@ -11,3 +11,8 @@
 .idea/
 .vscode/
 .DS_Store
+
+# Validation: per-query dumps and Claude transcripts stay local
+validation/results/*/raw/
+validation/results/**/*.stream.jsonl
+validation/results/**/transcripts/
