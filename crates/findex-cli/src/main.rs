@@ -45,6 +45,34 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 report.unknown_paths
             );
         }
+        "symbols" => {
+            let relative = args
+                .next()
+                .ok_or("usage: findex symbols <project-relative-file>")?;
+            if args.next().is_some() {
+                return Err("usage: findex symbols <project-relative-file>".into());
+            }
+            let relative = PathBuf::from(relative);
+            match findex_syntax::inspect_file(&project, &relative)? {
+                Some(result) => {
+                    println!(
+                        "Language: {}; syntax errors: {}; truncated: {}",
+                        result.language, result.has_syntax_errors, result.truncated
+                    );
+                    for symbol in result.symbols {
+                        println!(
+                            "{}:{}-{} [{}] {}",
+                            relative.display(),
+                            symbol.start_line,
+                            symbol.end_line,
+                            symbol.kind,
+                            symbol.name
+                        );
+                    }
+                }
+                None => println!("Syntax extraction unavailable for this file type"),
+            }
+        }
         "search" => {
             let query = args
                 .map(|a| a.to_string_lossy().into_owned())
@@ -167,6 +195,7 @@ fn print_help() {
     println!("  findex claude [CLAUDE_ARGS...]  Start official Claude Code in this terminal");
     println!("  findex index                    Reconcile project lexical index");
     println!("  findex search <terms...>        Search matching code and line evidence");
+    println!("  findex symbols <relative-file>  Parse definitions with Tree-sitter");
     println!("  findex refresh <paths...>       Refresh known relative files without a full scan");
     println!("  findex doctor                   Check local integration and system");
     println!("  findex status                   Show current project and index location");

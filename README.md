@@ -100,3 +100,19 @@ this as the sole correctness check when editing critical code.
 Windows CI validates event classification, invalidation, protocol negotiation,
 lexical fallback and optimized packaging. Real-world perf and race testing on
 large repositories is a separate milestone; no token savings are claimed.
+
+
+### Syntax-aware definition inspection (experimental)
+
+`findex symbols crates\\findex-watch\\src\\lib.rs` uses a bounded local
+Tree-sitter parser to return named function, type, class and method definitions
+with source line ranges. The adjacent Claude plugin also exposes
+`findex_symbols` (one project-relative path per call). Rust, Python,
+TypeScript/TSX/JavaScript-family and C++ are supported initially.
+
+This **does not** infer callers, implementations, types, or semantic
+cross-file references. Unsupported languages report an explicit fallback,
+and files with syntax errors report that limitation. The analysis is
+on-demand and does not yet persist AST symbols across the project; that
+is the next indexing milestone. No extra model tokens or remote service
+are used by the parser itself.
