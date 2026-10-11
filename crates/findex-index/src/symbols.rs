@@ -66,12 +66,7 @@ pub(crate) fn clear(tx: &Transaction<'_>, path: &str) -> Result<()> {
 
 /// Returns true only when the supported file was actually parsed.
 /// Unchanged hashes and extractor revisions bypass Tree-sitter entirely.
-pub(crate) fn upsert(
-    tx: &Transaction<'_>,
-    path: &str,
-    hash: &str,
-    source: &str,
-) -> Result<bool> {
+pub(crate) fn upsert(tx: &Transaction<'_>, path: &str, hash: &str, source: &str) -> Result<bool> {
     if !findex_syntax::supports_path(Path::new(path)) {
         clear(tx, path)?;
         return Ok(false);
@@ -83,9 +78,8 @@ pub(crate) fn upsert(
             |row| Ok((row.get(0)?, row.get(1)?)),
         )
         .optional()?;
-    if cached.is_some_and(|(old_hash, revision)| {
-        old_hash == hash && revision == EXTRACTOR_REVISION
-    }) {
+    if cached.is_some_and(|(old_hash, revision)| old_hash == hash && revision == EXTRACTOR_REVISION)
+    {
         return Ok(false);
     }
 
@@ -97,7 +91,10 @@ pub(crate) fn upsert(
             path, hash, extractor_revision, language, has_syntax_errors, truncated
         ) VALUES(?1, ?2, ?3, ?4, ?5, ?6)",
         params![
-            path, hash, EXTRACTOR_REVISION, analysis.language,
+            path,
+            hash,
+            EXTRACTOR_REVISION,
+            analysis.language,
             i64::from(analysis.has_syntax_errors),
             i64::from(analysis.truncated),
         ],
@@ -176,8 +173,7 @@ pub fn search_symbols_in_db(
             .canonicalize()
             .ok()
             .is_some_and(|p| p.starts_with(&project));
-        if !meta.is_some_and(|m| m.file_type().is_file() && m.len() <= MAX_SOURCE_BYTES)
-            || !inside
+        if !meta.is_some_and(|m| m.file_type().is_file() && m.len() <= MAX_SOURCE_BYTES) || !inside
         {
             report.stale_results_discarded += 1;
             continue;
@@ -186,8 +182,7 @@ pub fn search_symbols_in_db(
             report.stale_results_discarded += 1;
             continue;
         };
-        if bytes.len() as u64 > MAX_SOURCE_BYTES
-            || blake3::hash(&bytes).to_hex().as_str() != digest
+        if bytes.len() as u64 > MAX_SOURCE_BYTES || blake3::hash(&bytes).to_hex().as_str() != digest
         {
             report.stale_results_discarded += 1;
             continue;
@@ -221,15 +216,17 @@ mod tests {
         let workspace = tempdir().expect("workspace");
         let state = tempdir().expect("state");
         let db = state.path().join("db.sqlite3");
-        fs::write(workspace.path().join("engine.rs"), "struct Engine;\nfn ready() {}\n")
-            .expect("write");
+        fs::write(
+            workspace.path().join("engine.rs"),
+            "struct Engine;\nfn ready() {}\n",
+        )
+        .expect("write");
         let first = synchronize_into(workspace.path(), &db).expect("first");
         assert_eq!(first.symbols_parsed, 1);
         let second = synchronize_into(workspace.path(), &db).expect("second");
         assert_eq!(second.symbols_parsed, 0);
         assert_eq!(second.symbols_reused, 1);
-        let hits = search_symbols_in_db(workspace.path(), &db, "ready", 8)
-            .expect("lookup");
+        let hits = search_symbols_in_db(workspace.path(), &db, "ready", 8).expect("lookup");
         assert_eq!(hits.hits.len(), 1);
         assert_eq!(hits.hits[0].start_line, 2);
         assert_eq!(hits.hits[0].kind, "function");
@@ -246,23 +243,32 @@ mod tests {
         fs::write(&path, "def replacement():\n    pass\n").expect("edit");
         assert!(search_symbols_in_db(workspace.path(), &db, "original", 8)
             .expect("stale")
-            .hits.is_empty());
-        let refreshed = refresh_known_paths_into(
-            workspace.path(), &db, &[std::path::PathBuf::from("app.py")],
-        ).expect("refresh");
+            .hits
+            .is_empty());
+        let refreshed =
+            refresh_known_paths_into(workspace.path(), &db, &[std::path::PathBuf::from("app.py")])
+                .expect("refresh");
         assert_eq!(refreshed.sync.symbols_parsed, 1);
         assert!(search_symbols_in_db(workspace.path(), &db, "original", 8)
             .expect("old")
-            .hits.is_empty());
-        assert_eq!(search_symbols_in_db(workspace.path(), &db, "replacement", 8)
-            .expect("new").hits.len(), 1);
+            .hits
+            .is_empty());
+        assert_eq!(
+            search_symbols_in_db(workspace.path(), &db, "replacement", 8)
+                .expect("new")
+                .hits
+                .len(),
+            1
+        );
         fs::remove_file(path).expect("delete");
-        refresh_known_paths_into(
-            workspace.path(), &db, &[std::path::PathBuf::from("app.py")],
-        ).expect("refresh deletion");
-        assert!(search_symbols_in_db(workspace.path(), &db, "replacement", 8)
-            .expect("deleted")
-            .hits.is_empty());
+        refresh_known_paths_into(workspace.path(), &db, &[std::path::PathBuf::from("app.py")])
+            .expect("refresh deletion");
+        assert!(
+            search_symbols_in_db(workspace.path(), &db, "replacement", 8)
+                .expect("deleted")
+                .hits
+                .is_empty()
+        );
     }
 
     #[test]
@@ -270,8 +276,7 @@ mod tests {
         let workspace = tempdir().expect("workspace");
         let state = tempdir().expect("state");
         let db = state.path().join("db.sqlite3");
-        fs::write(workspace.path().join("legacy.rs"), "fn migrated() {}")
-            .expect("source");
+        fs::write(workspace.path().join("legacy.rs"), "fn migrated() {}").expect("source");
         synchronize_into(workspace.path(), &db).expect("initialize");
         let conn = connect(&db).expect("connection");
         conn.execute("DELETE FROM symbol_state", []).expect("state");
@@ -279,8 +284,13 @@ mod tests {
         drop(conn);
         let report = synchronize_into(workspace.path(), &db).expect("backfill");
         assert_eq!(report.symbols_parsed, 1);
-        assert_eq!(search_symbols_in_db(workspace.path(), &db, "migrated", 8)
-            .expect("lookup").hits.len(), 1);
+        assert_eq!(
+            search_symbols_in_db(workspace.path(), &db, "migrated", 8)
+                .expect("lookup")
+                .hits
+                .len(),
+            1
+        );
     }
 
     #[test]
@@ -290,16 +300,29 @@ mod tests {
         let db = state.path().join("db.sqlite3");
         fs::write(workspace.path().join(".gitignore"), "ignored.rs\n").expect("ignore");
         fs::write(workspace.path().join("ignored.rs"), "fn blocked() {}").expect("ignored");
-        fs::write(workspace.path().join("secrets.key"), "fn unsafe_symbol() {}")
-            .expect("secret");
-        fs::write(workspace.path().join("allowed.rs"), "fn allowed() {}")
-            .expect("allowed");
+        fs::write(
+            workspace.path().join("secrets.key"),
+            "fn unsafe_symbol() {}",
+        )
+        .expect("secret");
+        fs::write(workspace.path().join("allowed.rs"), "fn allowed() {}").expect("allowed");
         synchronize_into(workspace.path(), &db).expect("scan");
         assert!(search_symbols_in_db(workspace.path(), &db, "blocked", 8)
-            .expect("ignored").hits.is_empty());
-        assert!(search_symbols_in_db(workspace.path(), &db, "unsafe_symbol", 8)
-            .expect("secret").hits.is_empty());
-        assert_eq!(search_symbols_in_db(workspace.path(), &db, "allowed", 8)
-            .expect("allowed").hits.len(), 1);
+            .expect("ignored")
+            .hits
+            .is_empty());
+        assert!(
+            search_symbols_in_db(workspace.path(), &db, "unsafe_symbol", 8)
+                .expect("secret")
+                .hits
+                .is_empty()
+        );
+        assert_eq!(
+            search_symbols_in_db(workspace.path(), &db, "allowed", 8)
+                .expect("allowed")
+                .hits
+                .len(),
+            1
+        );
     }
 }
