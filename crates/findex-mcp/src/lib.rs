@@ -189,6 +189,19 @@ where
                         "additionalProperties": false
                     }
                 },{
+                    "name": "findex_impact",
+                    "description": "Read a previously imported SCIP/captured-LSP semantic-reference snapshot and return hash-verified reverse file references; indirect depths are potential impacts, not proven call edges. No indexer is launched.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{
+                            "path":{"type":"string","minLength":1,"maxLength":500},
+                            "depth":{"type":"integer","minimum":1,"maximum":3,"default":1},
+                            "limit":{"type":"integer","minimum":1,"maximum":32,"default":8}
+                        },
+                        "required":["path"],
+                        "additionalProperties":false
+                    }
+                },{
                     "name": "findex_symbols",
                     "description": "Read one project-relative Rust, Python, TypeScript/TSX or C++ file and return bounded Tree-sitter syntax definitions with 1-based line ranges. No LSP references or call graph.",
                     "inputSchema": {
@@ -226,6 +239,27 @@ where
                             id,
                             json!({"content":[{"type":"text","text":format!("Symbol lookup failed: {err}")}],"isError":true}),
                         ),
+                    }
+                }
+            } else if name == Some("findex_impact") {
+                let path = request.pointer("/params/arguments/path")
+                    .and_then(Value::as_str).unwrap_or("");
+                let depth = request.pointer("/params/arguments/depth")
+                    .and_then(Value::as_u64).unwrap_or(1);
+                let limit = request.pointer("/params/arguments/limit")
+                    .and_then(Value::as_u64).unwrap_or(8);
+                if path.is_empty() || path.len() > 500 || depth == 0 || depth > 3
+                    || limit == 0 || limit > 32
+                {
+                    error(id, -32602, "impact requires relative path, depth 1-3, limit 1-32")
+                } else {
+                    match findex_relations::impact(project, Path::new(path), depth as usize, limit as usize) {
+                        Ok(report) => success(id, json!({"content":[{"type":"text",
+                            "text":serde_json::to_string(&report).unwrap_or_default()}],
+                            "isError":false})),
+                        Err(err) => success(id, json!({"content":[{"type":"text",
+                            "text":format!("Semantic evidence unavailable: {err}")}],
+                            "isError":true})),
                     }
                 }
             } else if name == Some("findex_symbols") {
