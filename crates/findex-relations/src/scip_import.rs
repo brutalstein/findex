@@ -127,6 +127,39 @@ mod tests {
         assert_eq!(affected.hits[0].provenance, "scip-protobuf");
     }
     #[test]
+    fn oversized_payload_and_missing_documents_are_rejected() {
+        let root = tempdir().expect("workspace");
+        fs::write(root.path().join("a.rs"), "fn target() {}").expect("a");
+        fs::write(root.path().join("b.rs"), "fn uses() { target(); }").expect("b");
+        assert!(import_scip_bytes(root.path(), &[]).is_err());
+        assert!(import_scip_bytes(root.path(), &vec![0_u8; MAX_INPUT_BYTES + 1]).is_err());
+        let mut broken = Index::parse_from_bytes(&binary()).expect("parse");
+        broken.documents[1].relative_path = "../escape.rs".to_owned();
+        assert!(
+            import_scip_bytes(root.path(), &broken.write_to_bytes().expect("serialize")).is_err()
+        );
+    }
+
+    #[test]
+    fn scip_definition_and_reference_role_are_not_interchanged() {
+        let root = tempdir().expect("workspace");
+        fs::write(root.path().join("a.rs"), "fn target() {}").expect("a");
+        fs::write(root.path().join("b.rs"), "fn uses() { target(); }").expect("b");
+        let mut swapped = Index::parse_from_bytes(&binary()).expect("parse");
+        swapped.documents[0].occurrences[0].symbol_roles = 0;
+        swapped.documents[1].occurrences[0].symbol_roles = SymbolRole::Definition as i32;
+        let imported =
+            import_scip_bytes(root.path(), &swapped.write_to_bytes().expect("serialize"))
+                .expect("valid reversed roles");
+        assert_eq!(imported.definitions, 1);
+        assert_eq!(imported.references, 1);
+        assert!(impact(root.path(), Path::new("a.rs"), 1, 8)
+            .expect("not a definition in a.rs")
+            .hits
+            .is_empty());
+    }
+
+    #[test]
     fn malformed_scip_ranges_are_rejected_without_replacing_snapshot() {
         let root = tempdir().expect("workspace");
         fs::write(root.path().join("a.rs"), "fn target() {}").expect("a");

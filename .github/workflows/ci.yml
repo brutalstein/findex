@@ -37,6 +37,11 @@ jobs:
         run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - name: Unit and integration tests
         run: cargo test --locked --workspace --all-targets
+      - name: Graph adversarial regression focus
+        shell: pwsh
+        run: |
+          cargo test --locked -p findex-relations --all-targets -- --test-threads=1
+          if ($LASTEXITCODE -ne 0) { throw "Graph security regression suite failed" }
       - name: Build optimized native CLI
         run: cargo build --locked --release -p findex
       - name: Verify native executable and CLI
@@ -196,3 +201,5 @@ jobs:
           rustc +1.85.0 --version
       - name: Compile all workspace targets at MSRV
         run: cargo +1.85.0 check --locked --workspace --all-targets
+      - name: Run all regression tests on declared MSRV
+        run: cargo +1.85.0 test --locked --workspace --all-targets
