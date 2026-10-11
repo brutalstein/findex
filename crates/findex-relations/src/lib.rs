@@ -400,15 +400,13 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
                 r.get::<_, String>(4)?,
             ))
         })?;
-        let mut candidates = 0;
-        for row in rows {
+        for (candidate_index, row) in rows.enumerate() {
             // Never present a silently incomplete graph when the SQL
             // expansion budget is exhausted.
-            if candidates >= 4096 {
+            if candidate_index >= 4096 {
                 report.truncated = true;
                 return Ok(report);
             }
-            candidates += 1;
             let (ref_path, ref_line, symbol, def_line, provenance) = row?;
             if visited.contains(&ref_path) {
                 continue;
