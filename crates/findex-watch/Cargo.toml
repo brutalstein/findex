@@ -1,0 +1,17 @@
+[package]
+name = "findex-watch"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+findex-core = { path = "../findex-core" }
+findex-index = { path = "../findex-index" }
+notify = "=8.2.0"
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints]
+workspace = true

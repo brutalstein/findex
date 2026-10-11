@@ -56,6 +56,34 @@ jobs:
           .\target\release\findex.exe index
           .\target\release\findex.exe search findex_search
           if ($LASTEXITCODE -ne 0) { throw "Lexical search failed" }
+      - name: Assert warmed MCP search avoids full workspace reconciliation
+        shell: pwsh
+        run: |
+          $messages = @(
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}'
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"findex_search","arguments":{"query":"findex_search","limit":3}}}'
+            '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"findex_search","arguments":{"query":"findex_search","limit":3}}}'
+          ) -join "`n"
+          $responses = $messages | .\\target\\release\\findex.exe mcp
+          if ($LASTEXITCODE -ne 0) { throw "MCP search process failed" }
+          $parsed = @($responses | ForEach-Object { $_ | ConvertFrom-Json })
+          $initialCall = @($parsed | Where-Object { $_.id -eq 2 })
+          $warmCall = @($parsed | Where-Object { $_.id -eq 3 })
+          if ($initialCall.Count -ne 1 -or $warmCall.Count -ne 1) {
+            throw "Expected exactly two MCP search responses"
+          }
+          $first = $initialCall[0].result.content[0].text | ConvertFrom-Json
+          $second = $warmCall[0].result.content[0].text | ConvertFrom-Json
+          if ($first.hits.Count -eq 0 -or $second.hits.Count -eq 0) {
+            throw "Expected real lexical search hits"
+          }
+          if ($second.retrieval -ne "sqlite-fts5-bm25-native-watch") {
+            throw "Watcher-backed MCP path not selected"
+          }
+          if ($second.sync.examined -ne 0) {
+            throw "Warm query unexpectedly walked workspace ($($second.sync.examined) files)"
+          }
       - name: Package Findex and bundled Claude plugin
         shell: pwsh
         run: |

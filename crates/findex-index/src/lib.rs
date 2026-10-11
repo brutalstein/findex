@@ -104,21 +104,7 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
         .git_exclude(true)
         .parents(true)
         .follow_links(false)
-        .filter_entry(|entry| {
-            let name = entry.file_name().to_string_lossy().to_ascii_lowercase();
-            !matches!(
-                name.as_str(),
-                ".git"
-                    | ".findex"
-                    | "node_modules"
-                    | "target"
-                    | "vendor"
-                    | "dist"
-                    | "build"
-                    | ".venv"
-                    | "__pycache__"
-            )
-        })
+        .filter_entry(|entry| !findex_core::is_excluded_scan_entry(entry.file_name()))
         .build();
 
     for item in walker {
