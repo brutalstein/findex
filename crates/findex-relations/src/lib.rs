@@ -328,12 +328,10 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
             let Some(current_hash) = source_hashes.get(&ref_path) else {
                 continue;
             };
-            let verified = *checked
-                .entry(ref_path.clone())
-                .or_insert_with(|| {
-                    currently_admitted(&accepted_files, &ref_path, current_hash)
-                        && verify_path(project, &ref_path, current_hash)
-                });
+            let verified = *checked.entry(ref_path.clone()).or_insert_with(|| {
+                currently_admitted(&accepted_files, &ref_path, current_hash)
+                    && verify_path(project, &ref_path, current_hash)
+            });
             if !verified {
                 report.stale_evidence_discarded += 1;
                 continue;
@@ -414,14 +412,12 @@ mod tests {
     fn changed_ignore_rules_invalidate_previously_imported_paths() {
         let (workspace, snapshot) = fixture();
         import_lsp_snapshot(workspace.path(), &snapshot).expect("initial import");
-        fs::write(workspace.path().join(".gitignore"), "b.rs\n")
-            .expect("ignore referencing file");
-        let report = impact(workspace.path(), Path::new("a.rs"), 1, 10)
-            .expect("impact after ignore");
+        fs::write(workspace.path().join(".gitignore"), "b.rs\n").expect("ignore referencing file");
+        let report =
+            impact(workspace.path(), Path::new("a.rs"), 1, 10).expect("impact after ignore");
         assert!(report.hits.is_empty());
         assert_eq!(report.stale_evidence_discarded, 1);
-        fs::write(workspace.path().join(".gitignore"), "a.rs\n")
-            .expect("ignore target");
+        fs::write(workspace.path().join(".gitignore"), "a.rs\n").expect("ignore target");
         assert!(impact(workspace.path(), Path::new("a.rs"), 1, 10).is_err());
     }
 

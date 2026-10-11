@@ -59,7 +59,11 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
     occurrences.push(valid_occurrence(
         definition_file,
         &identity,
-        response.definition.line.checked_add(1).ok_or("LSP line overflow")?,
+        response
+            .definition
+            .line
+            .checked_add(1)
+            .ok_or("LSP line overflow")?,
         true,
     )?);
     for reference in &response.references {
@@ -67,7 +71,10 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
         occurrences.push(valid_occurrence(
             file,
             &identity,
-            reference.line.checked_add(1).ok_or("LSP reference line overflow")?,
+            reference
+                .line
+                .checked_add(1)
+                .ok_or("LSP reference line overflow")?,
             false,
         )?);
     }
