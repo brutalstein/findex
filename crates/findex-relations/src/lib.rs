@@ -236,6 +236,19 @@ fn valid_occurrence(
         definition,
     })
 }
+fn currently_admitted(index: &Connection, path: &str, digest: &str) -> bool {
+    index
+        .query_row(
+            "SELECT hash FROM files WHERE path = ?1",
+            params![path],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()
+        .ok()
+        .flatten()
+        .is_some_and(|indexed| indexed == digest)
+}
+
 fn verify_path(project: &Path, path: &str, digest: &str) -> bool {
     let Ok((_, full)) = project_file(project, Path::new(path)) else {
         return false;
@@ -247,6 +260,8 @@ fn verify_path(project: &Path, path: &str, digest: &str) -> bool {
 /// Breadth-first *file* impact. A link means "this file references a symbol
 /// defined in that file"; no exact invocation, execution, or impact guarantee.
 pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Result<ImpactReport> {
+    // Reapply current scanner admission, even when ignore rules changed since import.
+    let accepted_files = prepare(project)?;
     let (changed, _) = project_file(project, relative)?;
     let conn = open(project)?;
     let origin: Option<String> = conn
@@ -272,8 +287,10 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
     let Some(digest) = source_hashes.get(&changed) else {
         return Err("target path has no semantic snapshot evidence".into());
     };
-    if !verify_path(project, &changed, digest) {
-        return Err("target source changed since semantic snapshot; reimport evidence".into());
+    if !currently_admitted(&accepted_files, &changed, digest)
+        || !verify_path(project, &changed, digest)
+    {
+        return Err("target changed or is no longer admitted; reimport evidence".into());
     }
     let mut visited = HashSet::from([changed.clone()]);
     let mut queue = VecDeque::from([(changed, 0_usize)]);
@@ -313,7 +330,10 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
             };
             let verified = *checked
                 .entry(ref_path.clone())
-                .or_insert_with(|| verify_path(project, &ref_path, current_hash));
+                .or_insert_with(|| {
+                    currently_admitted(&accepted_files, &ref_path, current_hash)
+                        && verify_path(project, &ref_path, current_hash)
+                });
             if !verified {
                 report.stale_evidence_discarded += 1;
                 continue;
@@ -387,6 +407,21 @@ mod tests {
         let malicious =
             r#"{"definition":{"path":"../outside.rs","line":0,"character":0},"references":[]}"#;
         assert!(import_lsp_snapshot(workspace.path(), malicious).is_err());
+        assert!(impact(workspace.path(), Path::new("a.rs"), 1, 10).is_err());
+    }
+
+    #[test]
+    fn changed_ignore_rules_invalidate_previously_imported_paths() {
+        let (workspace, snapshot) = fixture();
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("initial import");
+        fs::write(workspace.path().join(".gitignore"), "b.rs\n")
+            .expect("ignore referencing file");
+        let report = impact(workspace.path(), Path::new("a.rs"), 1, 10)
+            .expect("impact after ignore");
+        assert!(report.hits.is_empty());
+        assert_eq!(report.stale_evidence_discarded, 1);
+        fs::write(workspace.path().join(".gitignore"), "a.rs\n")
+            .expect("ignore target");
         assert!(impact(workspace.path(), Path::new("a.rs"), 1, 10).is_err());
     }
 
