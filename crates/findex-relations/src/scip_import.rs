@@ -1,7 +1,10 @@
 //! Official SCIP protobuf import. Bounded input is parsed in memory;
 //! no arbitrary indexing executable or network request is launched.
 
-use super::{admitted, prepare, persist, valid_occurrence, Evidence, ImportReport, Occurrence, Result, MAX_DOCUMENTS, MAX_INPUT_BYTES, MAX_OCCURRENCES};
+use super::{
+    admitted, persist, prepare, valid_occurrence, Evidence, ImportReport, Occurrence, Result,
+    MAX_DOCUMENTS, MAX_INPUT_BYTES, MAX_OCCURRENCES,
+};
 use protobuf::Message;
 use scip::types::{Index, SymbolRole};
 use std::collections::HashMap;
@@ -25,8 +28,7 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
     if index.documents.len() > MAX_DOCUMENTS {
         return Err("too many SCIP documents".into());
     }
-    let total: usize = index.documents.iter()
-        .map(|d| d.occurrences.len()).sum();
+    let total: usize = index.documents.iter().map(|d| d.occurrences.len()).sum();
     if total > MAX_OCCURRENCES {
         return Err("too many SCIP occurrences".into());
     }
@@ -39,27 +41,37 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
         }
         let source = admitted(project, &indexed, &doc.relative_path)?;
         for occurrence in &doc.occurrences {
-            if occurrence.symbol.is_empty() { continue; }
+            if occurrence.symbol.is_empty() {
+                continue;
+            }
             // The SCIP 0.10 Rust bindings expose compact 0-based range arrays:
             // [line, start, end] or [start_line, start, end_line, end].
             let start_line = match occurrence.range.as_slice() {
                 [line, start, end] if *line >= 0 && *start >= 0 && end >= start => *line as usize,
-                [line, start, end_line, end] if *line >= 0 && *start >= 0
-                    && end_line >= line && *end >= 0 => *line as usize,
+                [line, start, end_line, end]
+                    if *line >= 0 && *start >= 0 && end_line >= line && *end >= 0 =>
+                {
+                    *line as usize
+                }
                 _ => return Err("malformed SCIP occurrence range".into()),
             };
             let symbol = if occurrence.symbol.starts_with("local ") {
-                format!("scip-local:{}:{}",source.path,occurrence.symbol)
+                format!("scip-local:{}:{}", source.path, occurrence.symbol)
             } else {
                 occurrence.symbol.clone()
             };
             let definition = (occurrence.symbol_roles & SymbolRole::Definition as i32) != 0;
-            rows.push(valid_occurrence(&source, &symbol, start_line + 1, definition)?);
+            rows.push(valid_occurrence(
+                &source,
+                &symbol,
+                start_line + 1,
+                definition,
+            )?);
         }
         files.insert(source.path.clone(), source);
     }
     let mut docs: Vec<_> = files.into_values().collect();
-    docs.sort_by(|a,b| a.path.cmp(&b.path));
+    docs.sort_by(|a, b| a.path.cmp(&b.path));
     persist(project, "scip-protobuf", &docs, &rows)
 }
 
@@ -74,8 +86,12 @@ mod tests {
     fn occurrence(symbol: &str, definition: bool, line: i32) -> Occurrence {
         Occurrence {
             symbol: symbol.to_owned(),
-            symbol_roles: if definition {SymbolRole::Definition as i32} else {0},
-            range: vec![line,0,4],
+            symbol_roles: if definition {
+                SymbolRole::Definition as i32
+            } else {
+                0
+            },
+            range: vec![line, 0, 4],
             ..Occurrence::default()
         }
     }
@@ -85,12 +101,12 @@ mod tests {
             documents: vec![
                 Document {
                     relative_path: "a.rs".to_owned(),
-                    occurrences: vec![occurrence(symbol,true,0)],
+                    occurrences: vec![occurrence(symbol, true, 0)],
                     ..Document::default()
                 },
                 Document {
                     relative_path: "b.rs".to_owned(),
-                    occurrences: vec![occurrence(symbol,false,0)],
+                    occurrences: vec![occurrence(symbol, false, 0)],
                     ..Document::default()
                 },
             ],
@@ -117,11 +133,16 @@ mod tests {
         fs::write(root.path().join("b.rs"), "fn uses() { target(); }").expect("b");
         import_scip_bytes(root.path(), &binary()).expect("good");
         let mut broken = Index::parse_from_bytes(&binary()).expect("parse");
-        broken.documents[1].occurrences[0].range = vec![-1,0,4];
-        assert!(import_scip_bytes(
-            root.path(), &broken.write_to_bytes().expect("serialized")
-        ).is_err());
-        assert_eq!(impact(root.path(), Path::new("a.rs"), 1, 8)
-            .expect("previous snapshot").hits.len(),1);
+        broken.documents[1].occurrences[0].range = vec![-1, 0, 4];
+        assert!(
+            import_scip_bytes(root.path(), &broken.write_to_bytes().expect("serialized")).is_err()
+        );
+        assert_eq!(
+            impact(root.path(), Path::new("a.rs"), 1, 8)
+                .expect("previous snapshot")
+                .hits
+                .len(),
+            1
+        );
     }
 }

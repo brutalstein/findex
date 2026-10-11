@@ -242,24 +242,49 @@ where
                     }
                 }
             } else if name == Some("findex_impact") {
-                let path = request.pointer("/params/arguments/path")
-                    .and_then(Value::as_str).unwrap_or("");
-                let depth = request.pointer("/params/arguments/depth")
-                    .and_then(Value::as_u64).unwrap_or(1);
-                let limit = request.pointer("/params/arguments/limit")
-                    .and_then(Value::as_u64).unwrap_or(8);
-                if path.is_empty() || path.len() > 500 || depth == 0 || depth > 3
-                    || limit == 0 || limit > 32
+                let path = request
+                    .pointer("/params/arguments/path")
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let depth = request
+                    .pointer("/params/arguments/depth")
+                    .and_then(Value::as_u64)
+                    .unwrap_or(1);
+                let limit = request
+                    .pointer("/params/arguments/limit")
+                    .and_then(Value::as_u64)
+                    .unwrap_or(8);
+                if path.is_empty()
+                    || path.len() > 500
+                    || depth == 0
+                    || depth > 3
+                    || limit == 0
+                    || limit > 32
                 {
-                    error(id, -32602, "impact requires relative path, depth 1-3, limit 1-32")
+                    error(
+                        id,
+                        -32602,
+                        "impact requires relative path, depth 1-3, limit 1-32",
+                    )
                 } else {
-                    match findex_relations::impact(project, Path::new(path), depth as usize, limit as usize) {
-                        Ok(report) => success(id, json!({"content":[{"type":"text",
+                    match findex_relations::impact(
+                        project,
+                        Path::new(path),
+                        depth as usize,
+                        limit as usize,
+                    ) {
+                        Ok(report) => success(
+                            id,
+                            json!({"content":[{"type":"text",
                             "text":serde_json::to_string(&report).unwrap_or_default()}],
-                            "isError":false})),
-                        Err(err) => success(id, json!({"content":[{"type":"text",
+                            "isError":false}),
+                        ),
+                        Err(err) => success(
+                            id,
+                            json!({"content":[{"type":"text",
                             "text":format!("Semantic evidence unavailable: {err}")}],
-                            "isError":true})),
+                            "isError":true}),
+                        ),
                     }
                 }
             } else if name == Some("findex_symbols") {

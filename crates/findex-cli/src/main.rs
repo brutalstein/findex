@@ -120,26 +120,40 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             );
         }
         "graph-import-scip" => {
-            let file = args.next().ok_or("usage: findex graph-import-scip <index.scip>")?;
-            if args.next().is_some() { return Err("usage: findex graph-import-scip <index.scip>".into()); }
+            let file = args
+                .next()
+                .ok_or("usage: findex graph-import-scip <index.scip>")?;
+            if args.next().is_some() {
+                return Err("usage: findex graph-import-scip <index.scip>".into());
+            }
             let imported = findex_relations::import_scip(&project, Path::new(&file))?;
-            println!("Imported {} files, {} definitions, {} references ({})",
-                imported.documents, imported.definitions, imported.references, imported.source);
+            println!(
+                "Imported {} files, {} definitions, {} references ({})",
+                imported.documents, imported.definitions, imported.references, imported.source
+            );
         }
         "graph-import-lsp" => {
-            let file = args.next().ok_or("usage: findex graph-import-lsp <captured.json>")?;
-            if args.next().is_some() { return Err("usage: findex graph-import-lsp <captured.json>".into()); }
+            let file = args
+                .next()
+                .ok_or("usage: findex graph-import-lsp <captured.json>")?;
+            if args.next().is_some() {
+                return Err("usage: findex graph-import-lsp <captured.json>".into());
+            }
             let metadata = std::fs::metadata(&file)?;
             if metadata.len() > 16 * 1024 * 1024 {
                 return Err("LSP capture exceeds 16 MiB".into());
             }
             let json = std::fs::read_to_string(file)?;
             let imported = findex_relations::import_lsp_snapshot(&project, &json)?;
-            println!("Imported {} files, {} definitions, {} references ({})",
-                imported.documents, imported.definitions, imported.references, imported.source);
+            println!(
+                "Imported {} files, {} definitions, {} references ({})",
+                imported.documents, imported.definitions, imported.references, imported.source
+            );
         }
         "impact" => {
-            let file = args.next().ok_or("usage: findex impact <relative-file> [depth:1-3]")?;
+            let file = args
+                .next()
+                .ok_or("usage: findex impact <relative-file> [depth:1-3]")?;
             let depth = match args.next() {
                 Some(s) => s.to_string_lossy().parse::<usize>()?,
                 None => 1,
@@ -148,16 +162,30 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 return Err("usage: findex impact <relative-file> [depth:1-3]".into());
             }
             let found = findex_relations::impact(&project, Path::new(&file), depth, 32)?;
-            println!("{} reference-based impacted files from {}", found.hits.len(), found.source);
+            println!(
+                "{} reference-based impacted files from {}",
+                found.hits.len(),
+                found.source
+            );
             for hit in &found.hits {
-                println!("{}:{} <= {}:{} [depth {}] {}",
-                    hit.path, hit.referenced_at_line,
-                    hit.definition_path, hit.definition_line,
-                    hit.depth, hit.interpretation);
+                println!(
+                    "{}:{} <= {}:{} [depth {}] {}",
+                    hit.path,
+                    hit.referenced_at_line,
+                    hit.definition_path,
+                    hit.definition_line,
+                    hit.depth,
+                    hit.interpretation
+                );
             }
-            if found.truncated { eprintln!("Impact results were truncated"); }
+            if found.truncated {
+                eprintln!("Impact results were truncated");
+            }
             if found.stale_evidence_discarded > 0 {
-                eprintln!("Discarded {} stale reference files", found.stale_evidence_discarded);
+                eprintln!(
+                    "Discarded {} stale reference files",
+                    found.stale_evidence_discarded
+                );
             }
         }
         "doctor" => doctor(&project),

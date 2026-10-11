@@ -5,7 +5,7 @@ mod lsp;
 mod scip_import;
 
 use findex_core::{is_sensitive_filename, normalized_relative_key, storage_dir, MAX_SOURCE_BYTES};
-use rusqlite::{params, Connection, OptionalExtension, Transaction};
+use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::error::Error;
@@ -121,15 +121,20 @@ fn admitted(project: &Path, db: &Connection, raw: &str) -> Result<Evidence> {
         return Err("invalid document relative path".into());
     }
     let relative = Path::new(raw);
-    if relative.components().any(|c| !matches!(c, Component::Normal(_))) {
+    if relative
+        .components()
+        .any(|c| !matches!(c, Component::Normal(_)))
+    {
         return Err("document has absolute/traversal path".into());
     }
     let (path, full) = project_file(project, relative)?;
-    let old: Option<String> = db.query_row(
-        "SELECT hash FROM files WHERE path = ?1",
-        params![path],
-        |r| r.get(0),
-    ).optional()?;
+    let old: Option<String> = db
+        .query_row(
+            "SELECT hash FROM files WHERE path = ?1",
+            params![path],
+            |r| r.get(0),
+        )
+        .optional()?;
     let Some(indexed_hash) = old else {
         return Err(format!("document not admitted by scanner: {path}").into());
     };
@@ -153,7 +158,8 @@ fn prepare(project: &Path) -> Result<Connection> {
     findex_index::synchronize(project)?;
     let index = storage_dir(project)?.join("index.sqlite3");
     Ok(Connection::open_with_flags(
-        index, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
+        index,
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
     )?)
 }
 fn persist(
@@ -181,12 +187,17 @@ fn persist(
         )?;
         for occurrence in refs {
             let inserted = insert.execute(params![
-                occurrence.symbol, occurrence.path,
-                occurrence.line as i64, i64::from(occurrence.definition)
+                occurrence.symbol,
+                occurrence.path,
+                occurrence.line as i64,
+                i64::from(occurrence.definition)
             ])?;
             if inserted != 0 {
-                if occurrence.definition { definitions += 1; }
-                else { references += 1; }
+                if occurrence.definition {
+                    definitions += 1;
+                } else {
+                    references += 1;
+                }
             }
         }
     }
@@ -205,11 +216,16 @@ fn persist(
     })
 }
 fn valid_occurrence(
-    file: &Evidence, symbol: &str, line: usize, definition: bool,
+    file: &Evidence,
+    symbol: &str,
+    line: usize,
+    definition: bool,
 ) -> Result<Occurrence> {
-    if symbol.is_empty() || symbol.len() > MAX_SYMBOL_LENGTH
+    if symbol.is_empty()
+        || symbol.len() > MAX_SYMBOL_LENGTH
         || symbol.chars().any(char::is_control)
-        || line == 0 || line > file.lines
+        || line == 0
+        || line > file.lines
     {
         return Err("invalid symbol or zero-based source location".into());
     }
@@ -225,8 +241,7 @@ fn verify_path(project: &Path, path: &str, digest: &str) -> bool {
         return false;
     };
     fs::read(full).ok().is_some_and(|bytes| {
-        bytes.len() as u64 <= MAX_SOURCE_BYTES
-            && blake3::hash(&bytes).to_hex().as_str() == digest
+        bytes.len() as u64 <= MAX_SOURCE_BYTES && blake3::hash(&bytes).to_hex().as_str() == digest
     })
 }
 /// Breadth-first *file* impact. A link means "this file references a symbol
@@ -234,10 +249,11 @@ fn verify_path(project: &Path, path: &str, digest: &str) -> bool {
 pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Result<ImpactReport> {
     let (changed, _) = project_file(project, relative)?;
     let conn = open(project)?;
-    let origin: Option<String> = conn.query_row(
-        "SELECT source FROM snapshot WHERE id=1", [], |r| r.get(0),
-    ).optional()?;
-    let source = origin.ok_or("no semantic snapshot: import SCIP or captured LSP references first")?;
+    let origin: Option<String> = conn
+        .query_row("SELECT source FROM snapshot WHERE id=1", [], |r| r.get(0))
+        .optional()?;
+    let source =
+        origin.ok_or("no semantic snapshot: import SCIP or captured LSP references first")?;
     let mut report = ImpactReport {
         changed_file: changed.clone(),
         source,
@@ -248,8 +264,9 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
     };
     let source_hashes: HashMap<String, String> = {
         let mut stmt = conn.prepare("SELECT path,digest FROM evidence_files")?;
-        stmt.query_map([], |r| Ok((r.get(0)?,r.get(1)?)))?
-            .collect::<std::result::Result<_,_>>()?
+        let results = stmt.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
+            .collect::<std::result::Result<_, _>>()?;
+        results
     };
     let Some(digest) = source_hashes.get(&changed) else {
         return Err("target path has no semantic snapshot evidence".into());
@@ -264,7 +281,9 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
     let mut checked = HashMap::<String, bool>::new();
 
     while let Some((definition_file, current_depth)) = queue.pop_front() {
-        if current_depth >= max_depth { continue; }
+        if current_depth >= max_depth {
+            continue;
+        }
         // The query is intentionally keyed by the exact semantic symbol ID.
         // No name matching, fuzzy AST guesses or generated call edges.
         let mut stmt = conn.prepare(
@@ -277,15 +296,22 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
         )?;
         let rows = stmt.query_map(params![definition_file], |r| {
             Ok((
-                r.get::<_,String>(0)?,r.get::<_,i64>(1)?,
-                r.get::<_,String>(2)?,r.get::<_,i64>(3)?,
+                r.get::<_, String>(0)?,
+                r.get::<_, i64>(1)?,
+                r.get::<_, String>(2)?,
+                r.get::<_, i64>(3)?,
             ))
         })?;
         for row in rows {
             let (ref_path, ref_line, symbol, def_line) = row?;
-            if visited.contains(&ref_path) { continue; }
-            let Some(current_hash) = source_hashes.get(&ref_path) else { continue; };
-            let verified = *checked.entry(ref_path.clone())
+            if visited.contains(&ref_path) {
+                continue;
+            }
+            let Some(current_hash) = source_hashes.get(&ref_path) else {
+                continue;
+            };
+            let verified = *checked
+                .entry(ref_path.clone())
                 .or_insert_with(|| verify_path(project, &ref_path, current_hash));
             if !verified {
                 report.stale_evidence_discarded += 1;
@@ -354,9 +380,11 @@ mod tests {
     #[test]
     fn rejects_ignored_and_traversal_sources_before_persisting() {
         let (workspace, _) = fixture();
-        let ignored = r#"{"definition":{"path":"hidden.rs","line":0,"character":0},"references":[]}"#;
+        let ignored =
+            r#"{"definition":{"path":"hidden.rs","line":0,"character":0},"references":[]}"#;
         assert!(import_lsp_snapshot(workspace.path(), ignored).is_err());
-        let malicious = r#"{"definition":{"path":"../outside.rs","line":0,"character":0},"references":[]}"#;
+        let malicious =
+            r#"{"definition":{"path":"../outside.rs","line":0,"character":0},"references":[]}"#;
         assert!(import_lsp_snapshot(workspace.path(), malicious).is_err());
         assert!(impact(workspace.path(), Path::new("a.rs"), 1, 10).is_err());
     }
@@ -366,7 +394,12 @@ mod tests {
         let (workspace, good) = fixture();
         import_lsp_snapshot(workspace.path(), &good).expect("good");
         assert!(import_lsp_snapshot(workspace.path(), "{bad").is_err());
-        assert_eq!(impact(workspace.path(), Path::new("a.rs"), 1, 10)
-            .expect("previous evidence").hits.len(), 1);
+        assert_eq!(
+            impact(workspace.path(), Path::new("a.rs"), 1, 10)
+                .expect("previous evidence")
+                .hits
+                .len(),
+            1
+        );
     }
 }
