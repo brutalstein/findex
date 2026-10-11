@@ -33,3 +33,12 @@ Scanner-pruned directories use one shared predicate from `findex-core`.
 The watcher ignores changes exclusively under those directories, without
 forcing a workspace-wide reconciliation. The `.git` directory is explicitly
 excepted so branch/index activity still triggers a safe full reconciliation.
+
+## Runtime failure recovery
+
+If the native watcher disconnects or reconciliation itself fails after a
+successful initialization, the backend permanently switches to safe full
+reconciliation per query for that MCP session. A deterministic test injects a
+disconnected event stream and checks real verified search results rather than
+silently returning stale evidence. A future version may attempt a bounded
+watcher restart, but must preserve scan fallback as the ultimate safety mode.

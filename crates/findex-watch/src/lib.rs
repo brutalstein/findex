@@ -40,7 +40,20 @@ impl SearchBackend {
 
     pub fn search(&mut self, query: &str, limit: usize) -> Result<SearchReport> {
         match self {
-            Self::Watched(index) => index.search(query, limit),
+            Self::Watched(index) => match index.search(query, limit) {
+                Ok(report) => Ok(report),
+                Err(err) => {
+                    // Event streams can fail after a successful initial watch.
+                    // Never strand Claude with an unusable MCP search tool.
+                    let project = index.project.clone();
+                    eprintln!("findex: native watcher failed ({err}); switching to full scans");
+                    *self = Self::Scanning(project);
+                    match self {
+                        Self::Scanning(project) => findex_index::search(project, query, limit),
+                        Self::Watched(_) => unreachable!("backend was just changed to scanning"),
+                    }
+                }
+            },
             Self::Scanning(project) => findex_index::search(project, query, limit),
         }
     }
@@ -259,6 +272,22 @@ mod tests {
         classify_event(root, &event, &mut changed, &mut full);
         assert!(changed.is_empty());
         assert!(!full);
+    }
+
+    #[test]
+    fn late_watcher_disconnection_falls_back_to_verified_full_scan() {
+        let workspace = tempfile::tempdir().expect("workspace");
+        std::fs::write(workspace.path().join("app.rs"), "fn fallback_marker() {}")
+            .expect("write");
+        let mut watched = WatchedIndex::new(workspace.path()).expect("watcher");
+        let (sender, disconnected_receiver) = mpsc::sync_channel(1);
+        drop(sender);
+        watched.changes = disconnected_receiver;
+
+        let mut backend = SearchBackend::Watched(Box::new(watched));
+        let found = backend.search("fallback_marker", 5).expect("safe fallback");
+        assert_eq!(found.hits.len(), 1);
+        assert!(matches!(backend, SearchBackend::Scanning(_)));
     }
 
     #[test]
