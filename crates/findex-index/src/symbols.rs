@@ -182,7 +182,8 @@ pub fn inspect_indexed_file_in_db(
         return Ok(None);
     }
     let bytes = fs::read(absolute)?;
-    if bytes.len() as u64 > MAX_SOURCE_BYTES || bytes.contains(&0)
+    if bytes.len() as u64 > MAX_SOURCE_BYTES
+        || bytes.contains(&0)
         || blake3::hash(&bytes).to_hex().as_str() != expected
     {
         return Ok(None);
@@ -290,21 +291,31 @@ mod tests {
         fs::write(workspace.path().join("ignored.rs"), "fn ignore_me() {}").expect("ignored");
         fs::write(workspace.path().join("allowed.rs"), "fn allowed() {}").expect("allowed");
         synchronize_into(workspace.path(), &db).expect("index");
-        assert!(inspect_indexed_file_in_db(workspace.path(), &db, Path::new("ignored.rs"))
-            .expect("ignored inspection").is_none());
+        assert!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("ignored.rs"))
+                .expect("ignored inspection")
+                .is_none()
+        );
         assert_eq!(
             inspect_indexed_file_in_db(workspace.path(), &db, Path::new("allowed.rs"))
                 .expect("allowed inspection")
-                .expect("analysis").symbols[0].name,
+                .expect("analysis")
+                .symbols[0]
+                .name,
             "allowed"
         );
         fs::write(workspace.path().join("allowed.rs"), "fn changed() {}").expect("edit");
-        assert!(inspect_indexed_file_in_db(workspace.path(), &db, Path::new("allowed.rs"))
-            .expect("stale inspection").is_none());
-        assert!(inspect_indexed_file_in_db(workspace.path(), &db, Path::new("../outside.rs"))
-            .is_err());
-        assert!(inspect_indexed_file_in_db(workspace.path(), &db, Path::new("C:\\outside.rs"))
-            .is_err());
+        assert!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("allowed.rs"))
+                .expect("stale inspection")
+                .is_none()
+        );
+        assert!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("../outside.rs")).is_err()
+        );
+        assert!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("C:\\outside.rs")).is_err()
+        );
     }
 
     #[test]

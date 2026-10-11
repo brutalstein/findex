@@ -129,11 +129,13 @@ where
         &Path,
         &str,
         usize,
-    ) -> Result<findex_index::SymbolSearchReport, Box<dyn std::error::Error + Send + Sync>>,
+    )
+        -> Result<findex_index::SymbolSearchReport, Box<dyn std::error::Error + Send + Sync>>,
     I: FnMut(
         &Path,
         &Path,
-    ) -> Result<Option<findex_syntax::Analysis>, Box<dyn std::error::Error + Send + Sync>>,
+    )
+        -> Result<Option<findex_syntax::Analysis>, Box<dyn std::error::Error + Send + Sync>>,
 {
     let method = request.get("method")?.as_str()?;
     let id = request.get("id")?.clone();

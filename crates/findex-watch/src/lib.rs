@@ -53,10 +53,7 @@ impl SearchBackend {
         }
     }
 
-    pub fn inspect_file(
-        &mut self,
-        relative: &Path,
-    ) -> Result<Option<findex_syntax::Analysis>> {
+    pub fn inspect_file(&mut self, relative: &Path) -> Result<Option<findex_syntax::Analysis>> {
         match self {
             Self::Watched(index) => match index.inspect_file(relative) {
                 Ok(analysis) => Ok(analysis),
@@ -138,12 +135,8 @@ impl WatchedIndex {
 
     pub fn search_symbols(&mut self, name: &str, limit: usize) -> Result<SymbolSearchReport> {
         let sync = self.refresh_before_search()?;
-        let mut report = findex_index::search_symbols_in_db(
-            &self.project,
-            &self.database,
-            name,
-            limit,
-        )?;
+        let mut report =
+            findex_index::search_symbols_in_db(&self.project, &self.database, name, limit)?;
         report.sync = sync;
         report.retrieval = "sqlite-symbol-exact-hash-native-watch";
         Ok(report)
@@ -346,20 +339,31 @@ mod tests {
         std::fs::write(project.path().join("ignored.rs"), "fn rejected() {}").expect("ignored");
         std::fs::write(&path, "fn before() {}").expect("initial");
         let mut watched = WatchedIndex::new(project.path()).expect("native watcher");
-        assert!(watched.inspect_file(Path::new("ignored.rs")).expect("ignore").is_none());
+        assert!(watched
+            .inspect_file(Path::new("ignored.rs"))
+            .expect("ignore")
+            .is_none());
 
         std::fs::write(&path, "fn after() {}").expect("edit");
         let (sender, receiver) = mpsc::sync_channel(8);
-        sender.send(Ok(
-            Event::new(EventKind::Modify(ModifyKind::Data(DataChange::Any)))
-                .add_path(project.path().canonicalize().expect("root").join("app.rs")),
-        )).expect("injected event");
+        sender
+            .send(Ok(Event::new(EventKind::Modify(ModifyKind::Data(
+                DataChange::Any,
+            )))
+            .add_path(
+                project.path().canonicalize().expect("root").join("app.rs"),
+            )))
+            .expect("injected event");
         watched.changes = receiver;
         let updated = watched.search_symbols("after", 8).expect("updated");
         assert_eq!(updated.hits.len(), 1);
         assert_eq!(updated.sync.indexed, 1);
         assert_eq!(updated.sync.symbols_parsed, 1);
-        assert!(watched.search_symbols("before", 8).expect("old").hits.is_empty());
+        assert!(watched
+            .search_symbols("before", 8)
+            .expect("old")
+            .hits
+            .is_empty());
     }
 
     #[test]
@@ -372,7 +376,9 @@ mod tests {
         let mut watched = watched;
         watched.changes = receiver;
         let mut backend = SearchBackend::Watched(Box::new(watched));
-        let result = backend.search_symbols("fallback_symbol", 8).expect("recovered");
+        let result = backend
+            .search_symbols("fallback_symbol", 8)
+            .expect("recovered");
         assert_eq!(result.hits.len(), 1);
         assert!(matches!(backend, SearchBackend::Scanning(_)));
     }
