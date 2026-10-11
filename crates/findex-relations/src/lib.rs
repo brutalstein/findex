@@ -264,7 +264,8 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
     };
     let source_hashes: HashMap<String, String> = {
         let mut stmt = conn.prepare("SELECT path,digest FROM evidence_files")?;
-        let results = stmt.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
+        let results = stmt
+            .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
             .collect::<std::result::Result<_, _>>()?;
         results
     };
