@@ -94,7 +94,11 @@ fn open(project: &Path) -> Result<Connection> {
              PRIMARY KEY(symbol,path,line,is_definition)
          );
          CREATE INDEX IF NOT EXISTS occ_target ON occurrences(path,is_definition,symbol);
-         CREATE INDEX IF NOT EXISTS occ_symbol ON occurrences(symbol,is_definition,path);",
+         CREATE INDEX IF NOT EXISTS occ_symbol ON occurrences(symbol,is_definition,path);
+         CREATE TABLE IF NOT EXISTS symbol_provenance(
+             symbol TEXT PRIMARY KEY,
+             source TEXT NOT NULL
+         );",
     )?;
     Ok(conn)
 }
@@ -170,11 +174,52 @@ fn persist(
 ) -> Result<ImportReport> {
     let mut conn = open(project)?;
     let tx = conn.transaction()?;
-    tx.execute("DELETE FROM occurrences", [])?;
-    tx.execute("DELETE FROM evidence_files", [])?;
+    // Complete SCIP indexes replace the graph; individual LSP captures merge
+    // by their stable definition-anchor identity, never deleting unrelated symbols.
+    let incremental_lsp = origin == "lsp-captured-references";
+    let incoming: HashSet<&str> = refs.iter().map(|reference| reference.symbol.as_str()).collect();
+    let previous_source: Option<String> = if incremental_lsp {
+        tx.query_row("SELECT source FROM snapshot WHERE id=1", [], |row| row.get(0))
+            .optional()?
+    } else {
+        None
+    };
+    if incremental_lsp {
+        // An imported file that changed invalidates *every* old relation
+        // mentioning that file, including symbols defined in other files.
+        // Otherwise updating its digest would accidentally revive stale edges.
+        for file in files {
+            let old: Option<String> = tx
+                .query_row(
+                    "SELECT digest FROM evidence_files WHERE path=?1",
+                    params![file.path],
+                    |row| row.get(0),
+                )
+                .optional()?;
+            if old.is_some_and(|digest| digest != file.digest) {
+                let mut stmt = tx.prepare("SELECT DISTINCT symbol FROM occurrences WHERE path=?1")?;
+                let affected = stmt
+                    .query_map(params![file.path], |row| row.get::<_, String>(0))?
+                    .collect::<std::result::Result<Vec<_>, _>>()?;
+                for symbol in affected {
+                    tx.execute("DELETE FROM occurrences WHERE symbol=?1", params![symbol])?;
+                    tx.execute("DELETE FROM symbol_provenance WHERE symbol=?1", params![symbol])?;
+                }
+            }
+        }
+        for symbol in &incoming {
+            tx.execute("DELETE FROM occurrences WHERE symbol=?1", params![symbol])?;
+            tx.execute("DELETE FROM symbol_provenance WHERE symbol=?1", params![symbol])?;
+        }
+    } else {
+        tx.execute("DELETE FROM occurrences", [])?;
+        tx.execute("DELETE FROM evidence_files", [])?;
+        tx.execute("DELETE FROM symbol_provenance", [])?;
+    }
     for file in files {
         tx.execute(
-            "INSERT INTO evidence_files(path,digest) VALUES(?1,?2)",
+            "INSERT INTO evidence_files(path,digest) VALUES(?1,?2)
+             ON CONFLICT(path) DO UPDATE SET digest=excluded.digest",
             params![file.path, file.digest],
         )?;
     }
@@ -201,10 +246,28 @@ fn persist(
             }
         }
     }
+    for symbol in incoming {
+        tx.execute(
+            "INSERT INTO symbol_provenance(symbol,source) VALUES(?1,?2)
+             ON CONFLICT(symbol) DO UPDATE SET source=excluded.source",
+            params![symbol, origin],
+        )?;
+    }
+    tx.execute(
+        "DELETE FROM evidence_files WHERE path NOT IN (SELECT DISTINCT path FROM occurrences)",
+        [],
+    )?;
+    let snapshot_source = if incremental_lsp
+        && previous_source.as_deref().is_some_and(|source| source != origin)
+    {
+        "mixed-scip-lsp-evidence"
+    } else {
+        origin
+    };
     tx.execute(
         "INSERT INTO snapshot(id,source) VALUES(1,?1)
          ON CONFLICT(id) DO UPDATE SET source=excluded.source",
-        params![origin],
+        params![snapshot_source],
     )?;
     tx.commit()?;
     Ok(ImportReport {
@@ -305,23 +368,34 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
         // The query is intentionally keyed by the exact semantic symbol ID.
         // No name matching, fuzzy AST guesses or generated call edges.
         let mut stmt = conn.prepare(
-            "SELECT DISTINCT refs.path,refs.line,defs.symbol,defs.line
+            "SELECT DISTINCT refs.path,refs.line,defs.symbol,defs.line,
+                    COALESCE(sp.source,?2)
              FROM occurrences AS defs
              JOIN occurrences AS refs
                ON refs.symbol=defs.symbol AND refs.is_definition=0
+             LEFT JOIN symbol_provenance AS sp ON sp.symbol=defs.symbol
              WHERE defs.path=?1 AND defs.is_definition=1 AND refs.path<>defs.path
-             ORDER BY refs.path,refs.line,defs.symbol LIMIT 4096",
+             ORDER BY refs.path,refs.line,defs.symbol LIMIT 4097",
         )?;
-        let rows = stmt.query_map(params![definition_file], |r| {
+        let rows = stmt.query_map(params![definition_file, report.source], |r| {
             Ok((
                 r.get::<_, String>(0)?,
                 r.get::<_, i64>(1)?,
                 r.get::<_, String>(2)?,
                 r.get::<_, i64>(3)?,
+                r.get::<_, String>(4)?,
             ))
         })?;
+        let mut candidates = 0;
         for row in rows {
-            let (ref_path, ref_line, symbol, def_line) = row?;
+            // Never present a silently incomplete graph when the SQL
+            // expansion budget is exhausted.
+            if candidates >= 4096 {
+                report.truncated = true;
+                return Ok(report);
+            }
+            candidates += 1;
+            let (ref_path, ref_line, symbol, def_line, provenance) = row?;
             if visited.contains(&ref_path) {
                 continue;
             }
@@ -345,7 +419,7 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
                 referenced_at_line: usize::try_from(ref_line)?,
                 definition_path: definition_file.clone(),
                 definition_line: usize::try_from(def_line)?,
-                provenance: report.source.clone(),
+                provenance,
                 interpretation: if next_depth == 1 {
                     "verified-semantic-reference"
                 } else {
@@ -511,6 +585,41 @@ mod tests {
         assert_eq!(after.hits.len(), 1);
         assert_eq!(after.hits[0].path, "c.rs");
         assert_eq!(after.stale_evidence_discarded, 1);
+    }
+
+
+    #[test]
+    fn separately_imported_lsp_symbols_coexist_and_update_independently() {
+        let workspace = tempdir().expect("workspace");
+        for (name, body) in [
+            ("a.rs", "fn alpha() {}\n"),
+            ("b.rs", "fn caller_a() { alpha(); }\n"),
+            ("c.rs", "fn gamma() {}\n"),
+            ("d.rs", "fn caller_c() { gamma(); }\n"),
+        ] {
+            fs::write(workspace.path().join(name), body).expect("fixture");
+        }
+        let first = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[{"path":"b.rs","line":0,"character":16}]}"#;
+        let second = r#"{"definition":{"path":"c.rs","line":0,"character":3},"references":[{"path":"d.rs","line":0,"character":16}]}"#;
+        import_lsp_snapshot(workspace.path(), first).expect("first");
+        import_lsp_snapshot(workspace.path(), second).expect("second");
+        assert_eq!(impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("a").hits.len(), 1);
+        assert_eq!(impact(workspace.path(), Path::new("c.rs"), 1, 8).expect("c").hits.len(), 1);
+        let replace_second = r#"{"definition":{"path":"c.rs","line":0,"character":3},"references":[]}"#;
+        import_lsp_snapshot(workspace.path(), replace_second).expect("update only second");
+        assert_eq!(impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("a remains").hits.len(), 1);
+        assert!(impact(workspace.path(), Path::new("c.rs"), 1, 8).expect("c cleared").hits.is_empty());
+    }
+
+    #[test]
+    fn changed_imported_file_does_not_revalidate_unrelated_stale_edges() {
+        let (workspace, first) = fixture();
+        import_lsp_snapshot(workspace.path(), &first).expect("initial");
+        fs::write(workspace.path().join("b.rs"), "fn changed() {}\n").expect("edit");
+        let new_symbol = r#"{"definition":{"path":"b.rs","line":0,"character":3},"references":[]}"#;
+        import_lsp_snapshot(workspace.path(), new_symbol).expect("incremental import");
+        assert!(impact(workspace.path(), Path::new("a.rs"), 1, 8).is_err());
+        assert!(impact(workspace.path(), Path::new("b.rs"), 1, 8).expect("new symbol").hits.is_empty());
     }
 
     #[test]

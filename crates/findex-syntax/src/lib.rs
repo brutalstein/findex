@@ -102,7 +102,18 @@ pub fn analyze(path: &Path, source: &str) -> Result<Option<Analysis>, String> {
     let mut symbols = Vec::new();
     let mut pending = vec![tree.root_node()];
     while let Some(node) = pending.pop() {
-        if let Some(kind) = symbol_kind(label, node.kind()) {
+        // JS/TS arrow functions and function expressions bound to variables
+        // are definitions too; ordinary constants should not be mislabeled.
+        let bound_function = label == "TypeScript"
+            && node.kind() == "variable_declarator"
+            && node.child_by_field_name("value").is_some_and(|value| {
+                matches!(value.kind(), "arrow_function" | "function_expression" | "generator_function")
+            });
+        if let Some(kind) = if bound_function {
+            Some("function")
+        } else {
+            symbol_kind(label, node.kind())
+        } {
             let name_node = if label == "C++" && node.kind() == "function_definition" {
                 node.child_by_field_name("declarator")
                     .and_then(cpp_declarator_name)
@@ -218,7 +229,7 @@ fn language_for(path: &Path) -> Option<(&'static str, Language)> {
             tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
         )),
         "tsx" | "jsx" => Some(("TypeScript", tree_sitter_typescript::LANGUAGE_TSX.into())),
-        "cc" | "cpp" | "cxx" | "hpp" | "hxx" | "hh" => {
+        "cc" | "cpp" | "cxx" | "hpp" | "hxx" | "hh" | "h" => {
             Some(("C++", tree_sitter_cpp::LANGUAGE.into()))
         }
         _ => None,
@@ -284,6 +295,25 @@ mod tests {
         .expect("cpp");
         assert!(result.symbols.iter().any(|symbol| symbol.name == "Driver"));
         assert!(result.symbols.iter().any(|symbol| symbol.name == "connect"));
+    }
+
+    #[test]
+    fn javascript_arrow_function_is_a_named_definition_not_a_constant() {
+        let analysis = analyze(
+            Path::new("app.ts"),
+            "const execute = (x: number) => x + 1;\\nconst setting = 10;\n",
+        )
+        .expect("parse")
+        .expect("typescript");
+        assert!(analysis.symbols.iter().any(|s| s.name == "execute" && s.kind == "function"));
+        assert!(!analysis.symbols.iter().any(|s| s.name == "setting"));
+    }
+
+    #[test]
+    fn cpp_header_is_supported_for_definition_lookup() {
+        let analysis = analyze(Path::new("engine.h"), "class Engine {};\n")
+            .expect("parse").expect("C++ header");
+        assert!(analysis.symbols.iter().any(|s| s.name == "Engine"));
     }
 
     #[test]
