@@ -464,8 +464,7 @@ mod tests {
     fn import_rejects_sensitive_or_unindexed_paths_without_replacing_snapshot() {
         let (workspace, baseline) = fixture();
         import_lsp_snapshot(workspace.path(), &baseline).expect("baseline");
-        fs::write(workspace.path().join("private.key"), "fn secret() {}")
-            .expect("secret fixture");
+        fs::write(workspace.path().join("private.key"), "fn secret() {}").expect("secret fixture");
         let cases = [
             r#"{"definition":{"path":"private.key","line":0,"character":0},"references":[]}"#,
             r#"{"definition":{"path":".gitignore","line":0,"character":0},"references":[]}"#,
@@ -492,26 +491,22 @@ mod tests {
         let no_refs = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[]}"#;
         let replacement = import_lsp_snapshot(workspace.path(), no_refs).expect("replacement");
         assert_eq!(replacement.references, 0);
-        assert!(
-            impact(workspace.path(), Path::new("a.rs"), 3, 64)
-                .expect("empty graph")
-                .hits
-                .is_empty()
-        );
+        assert!(impact(workspace.path(), Path::new("a.rs"), 3, 64)
+            .expect("empty graph")
+            .hits
+            .is_empty());
     }
 
     #[test]
     fn result_limit_does_not_bypass_source_verification() {
         let (workspace, _) = fixture();
-        fs::write(workspace.path().join("c.rs"), "fn secondary() {}")
-            .expect("third file");
+        fs::write(workspace.path().join("c.rs"), "fn secondary() {}").expect("third file");
         let json = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[{"path":"b.rs","line":0,"character":18},{"path":"c.rs","line":0,"character":3}]}"#;
         import_lsp_snapshot(workspace.path(), json).expect("import");
         let limited = impact(workspace.path(), Path::new("a.rs"), 1, 1).expect("limited");
         assert_eq!(limited.hits.len(), 1);
         assert!(limited.truncated);
-        fs::write(workspace.path().join("b.rs"), "fn edited() {}")
-            .expect("edit");
+        fs::write(workspace.path().join("b.rs"), "fn edited() {}").expect("edit");
         let after = impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("stale check");
         assert_eq!(after.hits.len(), 1);
         assert_eq!(after.hits[0].path, "c.rs");

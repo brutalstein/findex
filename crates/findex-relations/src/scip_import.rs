@@ -135,10 +135,9 @@ mod tests {
         assert!(import_scip_bytes(root.path(), &vec![0_u8; MAX_INPUT_BYTES + 1]).is_err());
         let mut broken = Index::parse_from_bytes(&binary()).expect("parse");
         broken.documents[1].relative_path = "../escape.rs".to_owned();
-        assert!(import_scip_bytes(
-            root.path(),
-            &broken.write_to_bytes().expect("serialize")
-        ).is_err());
+        assert!(
+            import_scip_bytes(root.path(), &broken.write_to_bytes().expect("serialize")).is_err()
+        );
     }
 
     #[test]
@@ -149,14 +148,15 @@ mod tests {
         let mut swapped = Index::parse_from_bytes(&binary()).expect("parse");
         swapped.documents[0].occurrences[0].symbol_roles = 0;
         swapped.documents[1].occurrences[0].symbol_roles = SymbolRole::Definition as i32;
-        let imported = import_scip_bytes(
-            root.path(),
-            &swapped.write_to_bytes().expect("serialize"),
-        ).expect("valid reversed roles");
+        let imported =
+            import_scip_bytes(root.path(), &swapped.write_to_bytes().expect("serialize"))
+                .expect("valid reversed roles");
         assert_eq!(imported.definitions, 1);
         assert_eq!(imported.references, 1);
         assert!(impact(root.path(), Path::new("a.rs"), 1, 8)
-            .expect("not a definition in a.rs").hits.is_empty());
+            .expect("not a definition in a.rs")
+            .hits
+            .is_empty());
     }
 
     #[test]
