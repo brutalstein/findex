@@ -48,3 +48,14 @@ Status means *evidence*, not aspiration. No milestone is considered complete mer
 - [ ] Resource budgets per machine and reproducible benchmark reference suite.
 - [ ] Red-team prompt-injection and secret-leak exercises; crash/recovery soak tests.
 - [ ] Secure update, signed binary, SBOM, coordinated vulnerability disclosure and enterprise policy support.
+
+## Evidence added after initial roadmap
+
+- [x] Native Windows watcher and transactional known-file refresh; CLI cold
+  searches and new paths still require reconciliation.
+- [x] On-demand four-language Tree-sitter definition extraction in CLI and MCP.
+- [x] Revision- and digest-keyed SQLite persistent symbol definitions (first
+  slice, exact-name lookup, parser cache; complete after new CI verification).
+- [ ] Native watcher-backed persistent symbol lookups without full project walk.
+- [ ] Multi-session consistency, branch awareness, cross-language semantic
+  reference graphs, benchmarks and signed production release.

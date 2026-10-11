@@ -2,8 +2,10 @@
 //! v0.1 reconciles file contents before each search; a native watcher is a planned optimization.
 
 mod refresh;
+mod symbols;
 
 pub use refresh::{refresh_known_paths, refresh_known_paths_into, RefreshReport};
+pub use symbols::{search_symbols, search_symbols_in_db, SymbolHit, SymbolSearchReport};
 
 use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
 use ignore::WalkBuilder;
@@ -24,6 +26,8 @@ pub struct SyncStats {
     pub unchanged: usize,
     pub removed: usize,
     pub skipped: usize,
+    pub symbols_parsed: usize,
+    pub symbols_reused: usize,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -81,6 +85,7 @@ fn connect(db: &Path) -> Result<Connection> {
              tokenize='unicode61'
          );",
     )?;
+    symbols::create_schema(&conn)?;
     Ok(conn)
 }
 
@@ -100,6 +105,9 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
     let walker = WalkBuilder::new(&project)
         .hidden(true)
         .git_ignore(true)
+        // Apply .gitignore rules also in non-Git workspaces (e.g. ZIP projects).
+        // Without this, files the user excludes could silently be indexed.
+        .require_git(false)
         .git_global(true)
         .git_exclude(true)
         .parents(true)
@@ -166,8 +174,16 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
             .get(&rel_string)
             .is_some_and(|old| old.as_str() == digest.as_str())
         {
+            if symbols::upsert(&tx, &rel_string, &digest, contents)? {
+                stats.symbols_parsed += 1;
+            } else if findex_syntax::supports_path(rel) {
+                stats.symbols_reused += 1;
+            }
             stats.unchanged += 1;
             continue;
+        }
+        if symbols::upsert(&tx, &rel_string, &digest, contents)? {
+            stats.symbols_parsed += 1;
         }
         tx.execute("DELETE FROM docs WHERE path = ?1", params![rel_string])?;
         tx.execute(
@@ -187,6 +203,7 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
         if !seen.contains(old_path) || !is_eligible_file(&project.join(old_path)) {
             tx.execute("DELETE FROM docs WHERE path = ?1", params![old_path])?;
             tx.execute("DELETE FROM files WHERE path = ?1", params![old_path])?;
+            symbols::clear(&tx, old_path)?;
             stats.removed += 1;
         }
     }

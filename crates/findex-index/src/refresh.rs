@@ -4,7 +4,7 @@
 //! are discovered by `synchronize`, while a future watcher can cheaply refresh
 //! known files as filesystem events arrive.
 
-use super::{connect, Result, SyncStats};
+use super::{connect, symbols, Result, SyncStats};
 use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
 use rusqlite::{params, OptionalExtension};
 use serde::Serialize;
@@ -99,11 +99,19 @@ pub fn refresh_known_paths_into(
 
         if let Some(bytes) = verified {
             let digest = blake3::hash(&bytes).to_hex().to_string();
+            let contents = std::str::from_utf8(&bytes)?;
             if digest == old_hash {
+                if symbols::upsert(&tx, &key, &digest, contents)? {
+                    report.sync.symbols_parsed += 1;
+                } else if findex_syntax::supports_path(relative) {
+                    report.sync.symbols_reused += 1;
+                }
                 report.sync.unchanged += 1;
                 continue;
             }
-            let contents = std::str::from_utf8(&bytes)?;
+            if symbols::upsert(&tx, &key, &digest, contents)? {
+                report.sync.symbols_parsed += 1;
+            }
             tx.execute("DELETE FROM docs WHERE path = ?1", params![key])?;
             tx.execute(
                 "INSERT INTO docs(path, body) VALUES(?1, ?2)",
@@ -119,6 +127,7 @@ pub fn refresh_known_paths_into(
             // Search verifies hashes, so a racing write cannot return stale code.
             tx.execute("DELETE FROM docs WHERE path = ?1", params![key])?;
             tx.execute("DELETE FROM files WHERE path = ?1", params![key])?;
+            symbols::clear(&tx, &key)?;
             report.sync.removed += 1;
         }
     }

@@ -73,6 +73,33 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 None => println!("Syntax extraction unavailable for this file type"),
             }
         }
+        "find-symbol" => {
+            let name = args
+                .next()
+                .ok_or("usage: findex find-symbol <exact-name>")?
+                .to_string_lossy()
+                .into_owned();
+            if name.is_empty() || args.next().is_some() {
+                return Err("usage: findex find-symbol <exact-name>".into());
+            }
+            let result = findex_index::search_symbols(&project, &name, 20)?;
+            for symbol in &result.hits {
+                println!(
+                    "{}:{}-{} [{}] {} ({})",
+                    symbol.path,
+                    symbol.start_line,
+                    symbol.end_line,
+                    symbol.kind,
+                    symbol.name,
+                    symbol.language
+                );
+            }
+            println!(
+                "{} definitions; {} stale discarded",
+                result.hits.len(),
+                result.stale_results_discarded
+            );
+        }
         "search" => {
             let query = args
                 .map(|a| a.to_string_lossy().into_owned())
@@ -196,6 +223,7 @@ fn print_help() {
     println!("  findex index                    Reconcile project lexical index");
     println!("  findex search <terms...>        Search matching code and line evidence");
     println!("  findex symbols <relative-file>  Parse definitions with Tree-sitter");
+    println!("  findex find-symbol <exact-name>  Search persistent project definitions");
     println!("  findex refresh <paths...>       Refresh known relative files without a full scan");
     println!("  findex doctor                   Check local integration and system");
     println!("  findex status                   Show current project and index location");

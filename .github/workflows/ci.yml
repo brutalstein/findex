@@ -90,6 +90,14 @@ jobs:
           $result = .\\target\\release\\findex.exe symbols crates\\findex-watch\\src\\lib.rs
           if ($LASTEXITCODE -ne 0) { throw "Native syntax inspection failed" }
           if (-not ($result -match "WatchedIndex")) { throw "Expected Rust definition missing" }
+      - name: Verify persistent exact-name symbol lookup
+        shell: pwsh
+        run: |
+          $result = .\\target\\release\\findex.exe find-symbol WatchedIndex
+          if ($LASTEXITCODE -ne 0) { throw "Symbol index lookup failed" }
+          if (-not ($result -match 'findex-watch')) { throw "Symbol index lookup missing expected source span" }
+          $second = .\\target\\release\\findex.exe find-symbol WatchedIndex
+          if ($LASTEXITCODE -ne 0 -or -not ($second -match 'WatchedIndex')) { throw "Cached symbol lookup failed" }
       - name: Package Findex and bundled Claude plugin
         shell: pwsh
         run: |
