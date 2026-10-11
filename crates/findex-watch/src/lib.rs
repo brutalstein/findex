@@ -47,11 +47,8 @@ impl SearchBackend {
                     // Never strand Claude with an unusable MCP search tool.
                     let project = index.project.clone();
                     eprintln!("findex: native watcher failed ({err}); switching to full scans");
-                    *self = Self::Scanning(project);
-                    match self {
-                        Self::Scanning(project) => findex_index::search(project, query, limit),
-                        Self::Watched(_) => unreachable!("backend was just changed to scanning"),
-                    }
+                    *self = Self::Scanning(project.clone());
+                    findex_index::search(&project, query, limit)
                 }
             },
             Self::Scanning(project) => findex_index::search(project, query, limit),
