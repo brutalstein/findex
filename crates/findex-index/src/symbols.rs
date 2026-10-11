@@ -3,12 +3,12 @@
 //! Definition extraction and lexical FTS updates share one SQLite transaction.
 //! An extractor version plus BLAKE3 content hash controls cache invalidation.
 
-use crate::{connect, synchronize, Result};
-use findex_core::{storage_dir, MAX_SOURCE_BYTES};
+use crate::{connect, synchronize, Result, SyncStats};
+use findex_core::{is_sensitive_filename, storage_dir, MAX_SOURCE_BYTES};
 use rusqlite::{params, Connection, OptionalExtension, Transaction};
 use serde::Serialize;
 use std::fs;
-use std::path::Path;
+use std::path::{Component, Path};
 
 const EXTRACTOR_REVISION: i64 = 1;
 const MAX_RESULTS: usize = 32;
@@ -27,6 +27,8 @@ pub struct SymbolHit {
 
 #[derive(Debug, Default, Serialize)]
 pub struct SymbolSearchReport {
+    /// Reconciliation work performed before this query, if any.
+    pub sync: SyncStats,
     pub hits: Vec<SymbolHit>,
     pub stale_results_discarded: usize,
     pub retrieval: &'static str,
@@ -120,9 +122,76 @@ pub(crate) fn upsert(tx: &Transaction<'_>, path: &str, hash: &str, source: &str)
 
 /// Full reconciliation first: safe for standalone CLI and index migrations.
 pub fn search_symbols(project: &Path, name: &str, limit: usize) -> Result<SymbolSearchReport> {
+    let sync = synchronize(project)?;
+    let db = storage_dir(project)?.join("index.sqlite3");
+    let mut report = search_symbols_in_db(project, &db, name, limit)?;
+    report.sync = sync;
+    Ok(report)
+}
+
+/// Read a single syntax file *only* after applying the exact same ignore
+/// and admission policy as the repository scanner.
+///
+/// This standalone entry point reconciles first. Watcher-backed callers may
+/// use `inspect_indexed_file_in_db` after they have reconciled pending events.
+pub fn inspect_indexed_file(
+    project: &Path,
+    relative: &Path,
+) -> Result<Option<findex_syntax::Analysis>> {
     synchronize(project)?;
     let db = storage_dir(project)?.join("index.sqlite3");
-    search_symbols_in_db(project, &db, name, limit)
+    inspect_indexed_file_in_db(project, &db, relative)
+}
+
+/// Refuse paths not admitted into the current index. Validate the live digest
+/// using the same bytes that are subsequently parsed to avoid stale evidence.
+pub fn inspect_indexed_file_in_db(
+    project: &Path,
+    database: &Path,
+    relative: &Path,
+) -> Result<Option<findex_syntax::Analysis>> {
+    if relative.as_os_str().is_empty()
+        || relative
+            .components()
+            .any(|component| !matches!(component, Component::Normal(_)))
+    {
+        return Err("expected a normal project-relative file path".into());
+    }
+    let root = project.canonicalize()?;
+    let absolute = root.join(relative);
+    if is_sensitive_filename(&absolute) || !findex_syntax::supports_path(relative) {
+        return Ok(None);
+    }
+    let key = findex_core::normalized_relative_key(relative)?;
+    let conn = connect(database)?;
+    let expected: Option<String> = conn
+        .query_row(
+            "SELECT hash FROM files WHERE path = ?1",
+            params![key],
+            |row| row.get(0),
+        )
+        .optional()?;
+    let Some(expected) = expected else {
+        return Ok(None);
+    };
+    let metadata = fs::symlink_metadata(&absolute)?;
+    if !metadata.file_type().is_file() || metadata.len() > MAX_SOURCE_BYTES {
+        return Ok(None);
+    }
+    if !absolute.canonicalize()?.starts_with(&root) {
+        return Ok(None);
+    }
+    let bytes = fs::read(absolute)?;
+    if bytes.len() as u64 > MAX_SOURCE_BYTES
+        || bytes.contains(&0)
+        || blake3::hash(&bytes).to_hex().as_str() != expected
+    {
+        return Ok(None);
+    }
+    let Ok(source) = std::str::from_utf8(&bytes) else {
+        return Ok(None);
+    };
+    findex_syntax::analyze(relative, source).map_err(Into::into)
 }
 
 /// Cache-only search, used after watcher-backed incremental reconciliation.
@@ -212,6 +281,42 @@ mod tests {
     use super::*;
     use crate::{refresh_known_paths_into, synchronize_into};
     use tempfile::tempdir;
+
+    #[test]
+    fn file_inspection_obeys_ignore_admission_and_detects_stale_edits() {
+        let workspace = tempdir().expect("workspace");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        fs::write(workspace.path().join(".gitignore"), "ignored.rs\n").expect("ignore");
+        fs::write(workspace.path().join("ignored.rs"), "fn ignore_me() {}").expect("ignored");
+        fs::write(workspace.path().join("allowed.rs"), "fn allowed() {}").expect("allowed");
+        synchronize_into(workspace.path(), &db).expect("index");
+        assert!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("ignored.rs"))
+                .expect("ignored inspection")
+                .is_none()
+        );
+        assert_eq!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("allowed.rs"))
+                .expect("allowed inspection")
+                .expect("analysis")
+                .symbols[0]
+                .name,
+            "allowed"
+        );
+        fs::write(workspace.path().join("allowed.rs"), "fn changed() {}").expect("edit");
+        assert!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("allowed.rs"))
+                .expect("stale inspection")
+                .is_none()
+        );
+        assert!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("../outside.rs")).is_err()
+        );
+        assert!(
+            inspect_indexed_file_in_db(workspace.path(), &db, Path::new("C:\\outside.rs")).is_err()
+        );
+    }
 
     #[test]
     fn caches_definitions_and_reuses_identical_source() {

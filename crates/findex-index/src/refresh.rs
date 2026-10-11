@@ -54,7 +54,7 @@ pub fn refresh_known_paths_into(
             return Err(format!("unsafe relative path: {}", relative.display()).into());
         }
 
-        let key = relative.to_string_lossy().replace('\\', "/");
+        let key = findex_core::normalized_relative_key(relative)?;
         if !seen.insert(key.clone()) {
             continue;
         }

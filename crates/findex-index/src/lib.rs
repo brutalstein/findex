@@ -5,7 +5,10 @@ mod refresh;
 mod symbols;
 
 pub use refresh::{refresh_known_paths, refresh_known_paths_into, RefreshReport};
-pub use symbols::{search_symbols, search_symbols_in_db, SymbolHit, SymbolSearchReport};
+pub use symbols::{
+    inspect_indexed_file, inspect_indexed_file_in_db, search_symbols, search_symbols_in_db,
+    SymbolHit, SymbolSearchReport,
+};
 
 use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
 use ignore::WalkBuilder;

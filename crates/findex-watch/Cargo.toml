@@ -8,6 +8,7 @@ rust-version.workspace = true
 [dependencies]
 findex-core = { path = "../findex-core" }
 findex-index = { path = "../findex-index" }
+findex-syntax = { path = "../findex-syntax" }
 notify = "=8.2.0"
 
 [dev-dependencies]

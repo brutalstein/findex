@@ -3,7 +3,7 @@
 //! trigger full reconciliation; retrieved code is still verified by its hash.
 
 use findex_core::{is_excluded_scan_entry, storage_dir};
-use findex_index::{SearchReport, SyncStats};
+use findex_index::{SearchReport, SymbolSearchReport, SyncStats};
 use notify::event::ModifyKind;
 use notify::{Event, EventKind, RecursiveMode, Watcher};
 use std::collections::BTreeSet;
@@ -35,6 +35,36 @@ impl SearchBackend {
                 eprintln!("findex: watcher unavailable ({err}); using full-scan fallback");
                 Self::Scanning(project.to_path_buf())
             }
+        }
+    }
+
+    pub fn search_symbols(&mut self, name: &str, limit: usize) -> Result<SymbolSearchReport> {
+        match self {
+            Self::Watched(index) => match index.search_symbols(name, limit) {
+                Ok(report) => Ok(report),
+                Err(err) => {
+                    let project = index.project.clone();
+                    eprintln!("findex: native watcher symbol lookup failed ({err}); switching to full scans");
+                    *self = Self::Scanning(project.clone());
+                    findex_index::search_symbols(&project, name, limit)
+                }
+            },
+            Self::Scanning(project) => findex_index::search_symbols(project, name, limit),
+        }
+    }
+
+    pub fn inspect_file(&mut self, relative: &Path) -> Result<Option<findex_syntax::Analysis>> {
+        match self {
+            Self::Watched(index) => match index.inspect_file(relative) {
+                Ok(analysis) => Ok(analysis),
+                Err(err) => {
+                    let project = index.project.clone();
+                    eprintln!("findex: native watcher file inspection failed ({err}); switching to full scans");
+                    *self = Self::Scanning(project.clone());
+                    findex_index::inspect_indexed_file(&project, relative)
+                }
+            },
+            Self::Scanning(project) => findex_index::inspect_indexed_file(project, relative),
         }
     }
 
@@ -101,6 +131,20 @@ impl WatchedIndex {
             findex_index::search_in_db(&self.project, &self.database, query, limit, sync)?;
         report.retrieval = "sqlite-fts5-bm25-native-watch";
         Ok(report)
+    }
+
+    pub fn search_symbols(&mut self, name: &str, limit: usize) -> Result<SymbolSearchReport> {
+        let sync = self.refresh_before_search()?;
+        let mut report =
+            findex_index::search_symbols_in_db(&self.project, &self.database, name, limit)?;
+        report.sync = sync;
+        report.retrieval = "sqlite-symbol-exact-hash-native-watch";
+        Ok(report)
+    }
+
+    pub fn inspect_file(&mut self, relative: &Path) -> Result<Option<findex_syntax::Analysis>> {
+        self.refresh_before_search()?;
+        findex_index::inspect_indexed_file_in_db(&self.project, &self.database, relative)
     }
 
     fn refresh_before_search(&mut self) -> Result<SyncStats> {
@@ -269,6 +313,74 @@ mod tests {
         classify_event(root, &event, &mut changed, &mut full);
         assert!(changed.is_empty());
         assert!(!full);
+    }
+
+    #[test]
+    fn persistent_symbol_lookup_skips_warm_full_reconciliation() {
+        let project = tempfile::tempdir().expect("workspace");
+        let path = project.path().join("app.rs");
+        std::fs::write(&path, "fn stable_symbol() {}").expect("fixture");
+        let mut backend = SearchBackend::new(project.path());
+        let first = backend.search_symbols("stable_symbol", 8).expect("first");
+        assert_eq!(first.hits.len(), 1);
+        let second = backend.search_symbols("stable_symbol", 8).expect("second");
+        assert_eq!(second.hits.len(), 1);
+        if matches!(backend, SearchBackend::Watched(_)) {
+            assert_eq!(second.sync.examined, 0);
+            assert_eq!(second.retrieval, "sqlite-symbol-exact-hash-native-watch");
+        }
+    }
+
+    #[test]
+    fn injected_change_updates_symbol_names_and_respects_admission() {
+        let project = tempfile::tempdir().expect("workspace");
+        let path = project.path().join("app.rs");
+        std::fs::write(project.path().join(".gitignore"), "ignored.rs\n").expect("ignore");
+        std::fs::write(project.path().join("ignored.rs"), "fn rejected() {}").expect("ignored");
+        std::fs::write(&path, "fn before() {}").expect("initial");
+        let mut watched = WatchedIndex::new(project.path()).expect("native watcher");
+        assert!(watched
+            .inspect_file(Path::new("ignored.rs"))
+            .expect("ignore")
+            .is_none());
+
+        std::fs::write(&path, "fn after() {}").expect("edit");
+        let (sender, receiver) = mpsc::sync_channel(8);
+        sender
+            .send(Ok(Event::new(EventKind::Modify(ModifyKind::Data(
+                DataChange::Any,
+            )))
+            .add_path(
+                project.path().canonicalize().expect("root").join("app.rs"),
+            )))
+            .expect("injected event");
+        watched.changes = receiver;
+        let updated = watched.search_symbols("after", 8).expect("updated");
+        assert_eq!(updated.hits.len(), 1);
+        assert_eq!(updated.sync.indexed, 1);
+        assert_eq!(updated.sync.symbols_parsed, 1);
+        assert!(watched
+            .search_symbols("before", 8)
+            .expect("old")
+            .hits
+            .is_empty());
+    }
+
+    #[test]
+    fn disconnected_symbol_watcher_switches_to_scanning() {
+        let project = tempfile::tempdir().expect("workspace");
+        std::fs::write(project.path().join("app.rs"), "fn fallback_symbol() {}").expect("write");
+        let watched = WatchedIndex::new(project.path()).expect("watch");
+        let (sender, receiver) = mpsc::sync_channel(1);
+        drop(sender);
+        let mut watched = watched;
+        watched.changes = receiver;
+        let mut backend = SearchBackend::Watched(Box::new(watched));
+        let result = backend
+            .search_symbols("fallback_symbol", 8)
+            .expect("recovered");
+        assert_eq!(result.hits.len(), 1);
+        assert!(matches!(backend, SearchBackend::Scanning(_)));
     }
 
     #[test]

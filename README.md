@@ -130,7 +130,17 @@ Previously created lexical databases are populated on their next reconciliation.
 1-based source line ranges and verifies the live file digest before publishing
 results. The adjacent MCP tool `findex_find_symbol` does the same. Exact names
 are compared with SQLite's ASCII `NOCASE`, not language-specific name resolution.
-This early iteration performs full filesystem reconciliation before CLI/MCP
-symbol lookups; the persistent symbol records **avoid AST parsing**, not the
-filesystem traversal. A watcher-backed symbol query path is a follow-up.
+CLI exact-symbol lookups still perform a full reconciliation. MCP symbol
+lookups reuse the **same native watcher session** as lexical retrieval: warm
+queries without relevant events avoid a whole-repository traversal.
+The persistent symbol records avoid unchanged-file AST parsing.
 Files with syntax errors are marked as such; no call relationships are inferred.
+
+### Indexed-only AST security policy
+
+CLI `findex symbols <path>` and MCP `findex_symbols` now only inspect
+files admitted by the same code scanner used by the lexical index.
+Unindexed, ignored, secret-named, traversal and stale paths cannot bypass
+the repository's ignore policy through direct syntax inspection. CLI
+reconciles before inspection; MCP processes watcher events and reconciles
+periodically. Syntax definitions do **not** guarantee semantic references.

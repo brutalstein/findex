@@ -2,6 +2,7 @@
 //! No network listener, telemetry upload or credential interception.
 
 use serde_json::{json, Value};
+use std::cell::RefCell;
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::path::Path;
 
@@ -13,7 +14,7 @@ pub fn serve(project: &Path) -> io::Result<()> {
     let mut input = BufReader::new(stdin.lock());
     let mut output = stdout.lock();
     // Created lazily when the first search arrives: no expensive startup scan on initialize.
-    let mut index_session: Option<findex_watch::SearchBackend> = None;
+    let index_session: RefCell<Option<findex_watch::SearchBackend>> = RefCell::new(None);
     while let Some(buffer) = read_frame(&mut input)? {
         let request: Value = match serde_json::from_slice(&buffer) {
             Ok(value) => value,
@@ -22,11 +23,28 @@ pub fn serve(project: &Path) -> io::Result<()> {
                 continue;
             }
         };
-        if let Some(response) = handle_with_search(&request, project, |root, query, limit| {
-            let engine =
-                index_session.get_or_insert_with(|| findex_watch::SearchBackend::new(root));
-            engine.search(query, limit)
-        }) {
+        if let Some(response) = handle_with_lookups(
+            &request,
+            project,
+            |root, query, limit| {
+                let mut session = index_session.borrow_mut();
+                session
+                    .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
+                    .search(query, limit)
+            },
+            |root, name, limit| {
+                let mut session = index_session.borrow_mut();
+                session
+                    .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
+                    .search_symbols(name, limit)
+            },
+            |root, relative| {
+                let mut session = index_session.borrow_mut();
+                session
+                    .get_or_insert_with(|| findex_watch::SearchBackend::new(root))
+                    .inspect_file(relative)
+            },
+        ) {
             send(&mut output, &response)?;
         }
     }
@@ -74,13 +92,50 @@ pub fn handle(request: &Value, project: &Path) -> Option<Value> {
 
 /// MCP protocol logic with an injected retrieval engine. Production keeps a
 /// watcher-backed session alive for the duration of the MCP stdio process.
-pub fn handle_with_search<F>(request: &Value, project: &Path, mut search: F) -> Option<Value>
+pub fn handle_with_search<F>(request: &Value, project: &Path, search: F) -> Option<Value>
 where
     F: FnMut(
         &Path,
         &str,
         usize,
     ) -> Result<findex_index::SearchReport, Box<dyn std::error::Error + Send + Sync>>,
+{
+    handle_with_lookups(
+        request,
+        project,
+        search,
+        findex_index::search_symbols,
+        findex_index::inspect_indexed_file,
+    )
+}
+
+/// One MCP session uses one watched index for *all* retrieval families.
+/// Each lookup is invoked exclusively on demand, never while the watcher
+/// callback is running.
+pub fn handle_with_lookups<F, S, I>(
+    request: &Value,
+    project: &Path,
+    mut search: F,
+    mut symbol_search: S,
+    mut inspect: I,
+) -> Option<Value>
+where
+    F: FnMut(
+        &Path,
+        &str,
+        usize,
+    ) -> Result<findex_index::SearchReport, Box<dyn std::error::Error + Send + Sync>>,
+    S: FnMut(
+        &Path,
+        &str,
+        usize,
+    )
+        -> Result<findex_index::SymbolSearchReport, Box<dyn std::error::Error + Send + Sync>>,
+    I: FnMut(
+        &Path,
+        &Path,
+    )
+        -> Result<Option<findex_syntax::Analysis>, Box<dyn std::error::Error + Send + Sync>>,
 {
     let method = request.get("method")?.as_str()?;
     let id = request.get("id")?.clone();
@@ -123,7 +178,7 @@ where
                     }
                 },{
                     "name": "findex_find_symbol",
-                    "description": "Search the local persistent symbol index for an exact function/type/class name across the current workspace. Returns verified definition file/line spans; no reference or call graph. v0.1 reconciles the workspace for this tool.",
+                    "description": "Search verified cached definitions by exact name with a watcher-backed incremental index. Returns source line spans, reconciliation stats and parse flags; no cross-file reference graph.",
                     "inputSchema": {
                         "type": "object",
                         "properties": {
@@ -162,7 +217,7 @@ where
                 if name.is_empty() || name.len() > 256 {
                     error(id, -32602, "symbol name must be 1-256 bytes")
                 } else {
-                    match findex_index::search_symbols(project, name, limit) {
+                    match symbol_search(project, name, limit) {
                         Ok(report) => success(
                             id,
                             json!({"content":[{"type":"text","text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
@@ -181,7 +236,7 @@ where
                 if path.is_empty() || path.len() > 500 {
                     error(id, -32602, "project-relative path must be 1-500 bytes")
                 } else {
-                    match findex_syntax::inspect_file(project, Path::new(path)) {
+                    match inspect(project, Path::new(path)) {
                         Ok(Some(analysis)) => success(
                             id,
                             json!({"content":[{"type":"text","text":serde_json::to_string(&analysis).unwrap_or_default()}],"isError":false}),
@@ -272,6 +327,34 @@ mod tests {
         .expect("tools");
         assert_eq!(tools["result"]["tools"][0]["name"], "findex_search");
     }
+
+    #[test]
+    fn symbol_lookup_uses_injected_backend_instead_of_full_scan() {
+        let project = Path::new(".");
+        let response = handle_with_lookups(
+            &json!({"jsonrpc":"2.0","id":11,"method":"tools/call","params":{
+                "name":"findex_find_symbol","arguments":{"name":"sample","limit":3}
+            }}),
+            project,
+            |_root, _query, _limit| panic!("lexical search must not run"),
+            |_root, name, limit| {
+                assert_eq!(name, "sample");
+                assert_eq!(limit, 3);
+                Ok(findex_index::SymbolSearchReport {
+                    retrieval: "sqlite-symbol-exact-hash-native-watch",
+                    ..findex_index::SymbolSearchReport::default()
+                })
+            },
+            |_root, _path| panic!("inspection must not run"),
+        )
+        .expect("response");
+        assert_eq!(response["result"]["isError"], false);
+        assert!(response["result"]["content"][0]["text"]
+            .as_str()
+            .expect("json payload")
+            .contains("native-watch"));
+    }
+
     #[test]
     fn notifications_produce_no_response() {
         assert!(handle(
