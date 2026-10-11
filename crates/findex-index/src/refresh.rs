@@ -128,6 +128,7 @@ pub fn refresh_known_paths_into(
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
     use crate::{search_in_db, synchronize_into};
