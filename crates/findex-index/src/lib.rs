@@ -302,6 +302,7 @@ pub fn search_in_db(
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
     use tempfile::tempdir;

@@ -57,6 +57,7 @@ pub fn is_sensitive_filename(path: &Path) -> bool {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
 

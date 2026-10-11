@@ -139,6 +139,7 @@ pub fn handle(request: &Value, project: &Path) -> Option<Value> {
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
     #[test]
