@@ -14,10 +14,7 @@ pub fn serve(project: &Path) -> io::Result<()> {
     let mut output = stdout.lock();
     // Created lazily when the first search arrives: no expensive startup scan on initialize.
     let mut index_session: Option<findex_watch::SearchBackend> = None;
-    loop {
-        let Some(buffer) = read_frame(&mut input)? else {
-            break;
-        };
+    while let Some(buffer) = read_frame(&mut input)? {
         let request: Value = match serde_json::from_slice(&buffer) {
             Ok(value) => value,
             Err(_) => {
