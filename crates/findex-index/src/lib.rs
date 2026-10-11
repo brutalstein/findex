@@ -105,6 +105,9 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
     let walker = WalkBuilder::new(&project)
         .hidden(true)
         .git_ignore(true)
+        // Apply .gitignore rules also in non-Git workspaces (e.g. ZIP projects).
+        // Without this, files the user excludes could silently be indexed.
+        .require_git(false)
         .git_global(true)
         .git_exclude(true)
         .parents(true)
