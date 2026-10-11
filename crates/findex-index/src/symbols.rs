@@ -162,7 +162,7 @@ pub fn inspect_indexed_file_in_db(
     if is_sensitive_filename(&absolute) || !findex_syntax::supports_path(relative) {
         return Ok(None);
     }
-    let key = relative.to_string_lossy().replace('\\', "/");
+    let key = findex_core::normalized_relative_key(relative)?;
     let conn = connect(database)?;
     let expected: Option<String> = conn
         .query_row(

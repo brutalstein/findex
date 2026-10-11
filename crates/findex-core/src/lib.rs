@@ -3,7 +3,7 @@
 
 use std::env;
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 pub const MAX_SOURCE_BYTES: u64 = 512 * 1024;
 pub const MAX_FILES_PER_SYNC: usize = 100_000;
@@ -24,6 +24,32 @@ pub fn project_root(working_directory: &Path) -> io::Result<PathBuf> {
         }
     }
     Ok(directory)
+}
+
+/// Construct a stable, workspace-relative SQLite key using real OS path
+/// components. Windows accepts repeated separators on disk, but the database
+/// cannot treat `src\\\\main.rs` and `src\\main.rs` as different files.
+pub fn normalized_relative_key(relative: &Path) -> io::Result<String> {
+    let mut key = String::new();
+    for part in relative.components() {
+        let Component::Normal(name) = part else {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "path must have only normal relative components",
+            ));
+        };
+        if !key.is_empty() {
+            key.push('/');
+        }
+        key.push_str(&name.to_string_lossy());
+    }
+    if key.is_empty() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "empty project-relative path",
+        ));
+    }
+    Ok(key)
 }
 
 /// Per-user local index directory; explicitly avoid putting Findex data in source trees.
@@ -78,6 +104,17 @@ pub fn is_sensitive_filename(path: &Path) -> bool {
 #[allow(clippy::expect_used)]
 mod tests {
     use super::*;
+
+    #[cfg(windows)]
+    #[test]
+    fn repeated_windows_separators_share_a_single_index_key() {
+        assert_eq!(
+            normalized_relative_key(Path::new(r"src\\\\nested\\file.rs")).expect("normalize"),
+            "src/nested/file.rs"
+        );
+        assert!(normalized_relative_key(Path::new(r"..\\outside.rs")).is_err());
+        assert!(normalized_relative_key(Path::new(r"C:\\external.rs")).is_err());
+    }
 
     #[test]
     fn sensitive_filename_rules() {
