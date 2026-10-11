@@ -182,8 +182,14 @@ mod tests {
     #[test]
     fn bounded_transport_preserves_consecutive_json_rpc_frames() {
         let mut reader = std::io::Cursor::new(b"{\"id\":1}\n{\"id\":2}\n".to_vec());
-        assert_eq!(read_frame(&mut reader).expect("first frame"), Some(b"{\"id\":1}\n".to_vec()));
-        assert_eq!(read_frame(&mut reader).expect("second frame"), Some(b"{\"id\":2}\n".to_vec()));
+        assert_eq!(
+            read_frame(&mut reader).expect("first frame"),
+            Some(b"{\"id\":1}\n".to_vec())
+        );
+        assert_eq!(
+            read_frame(&mut reader).expect("second frame"),
+            Some(b"{\"id\":2}\n".to_vec())
+        );
         assert_eq!(read_frame(&mut reader).expect("EOF"), None);
     }
 
