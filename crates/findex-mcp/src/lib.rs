@@ -122,6 +122,18 @@ where
                         "additionalProperties":false
                     }
                 },{
+                    "name": "findex_find_symbol",
+                    "description": "Search the local persistent symbol index for an exact function/type/class name across the current workspace. Returns verified definition file/line spans; no reference or call graph. v0.1 reconciles the workspace for this tool.",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string", "minLength": 1, "maxLength": 256},
+                            "limit": {"type": "integer", "minimum": 1, "maximum": 32, "default": 8}
+                        },
+                        "required": ["name"],
+                        "additionalProperties": false
+                    }
+                },{
                     "name": "findex_symbols",
                     "description": "Read one project-relative Rust, Python, TypeScript/TSX or C++ file and return bounded Tree-sitter syntax definitions with 1-based line ranges. No LSP references or call graph.",
                     "inputSchema": {
@@ -137,7 +149,31 @@ where
         ),
         "tools/call" => {
             let name = request.pointer("/params/name").and_then(Value::as_str);
-            if name == Some("findex_symbols") {
+            if name == Some("findex_find_symbol") {
+                let name = request
+                    .pointer("/params/arguments/name")
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let limit = request
+                    .pointer("/params/arguments/limit")
+                    .and_then(Value::as_u64)
+                    .unwrap_or(8)
+                    .clamp(1, 32) as usize;
+                if name.is_empty() || name.len() > 256 {
+                    error(id, -32602, "symbol name must be 1-256 bytes")
+                } else {
+                    match findex_index::search_symbols(project, name, limit) {
+                        Ok(report) => success(
+                            id,
+                            json!({"content":[{"type":"text","text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
+                        ),
+                        Err(err) => success(
+                            id,
+                            json!({"content":[{"type":"text","text":format!("Symbol lookup failed: {err}")}],"isError":true}),
+                        ),
+                    }
+                }
+            } else if name == Some("findex_symbols") {
                 let path = request
                     .pointer("/params/arguments/path")
                     .and_then(Value::as_str)

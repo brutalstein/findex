@@ -116,3 +116,21 @@ and files with syntax errors report that limitation. The analysis is
 on-demand and does not yet persist AST symbols across the project; that
 is the next indexing milestone. No extra model tokens or remote service
 are used by the parser itself.
+
+## Persistent AST definition index (experimental)
+
+Findex now stores syntax definitions in `symbol_state` and `symbols` SQLite
+tables, using the file's BLAKE3 digest and an explicit extractor revision as
+cache keys. After a first `findex index`, unchanged supported files avoid
+re-parsing by Tree-sitter. Lexical documents and symbol records are updated
+or deleted in **one SQLite transaction**, including watcher targeted refreshes.
+Previously created lexical databases are populated on their next reconciliation.
+
+`findex find-symbol WatchedIndex` looks up exact names across files with
+1-based source line ranges and verifies the live file digest before publishing
+results. The adjacent MCP tool `findex_find_symbol` does the same. Exact names
+are compared with SQLite's ASCII `NOCASE`, not language-specific name resolution.
+This early iteration performs full filesystem reconciliation before CLI/MCP
+symbol lookups; the persistent symbol records **avoid AST parsing**, not the
+filesystem traversal. A watcher-backed symbol query path is a follow-up.
+Files with syntax errors are marked as such; no call relationships are inferred.
