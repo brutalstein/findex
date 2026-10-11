@@ -173,7 +173,9 @@ fn persist(
     refs: &[Occurrence],
 ) -> Result<ImportReport> {
     let mut conn = open(project)?;
-    let tx = conn.transaction()?;
+    // IMMEDIATE takes the write lock up front: a deferred read-then-write
+    // transaction fails with SQLITE_BUSY at once when another writer committed.
+    let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
     // Complete SCIP indexes replace the graph; individual LSP captures merge
     // by their stable definition-anchor identity, never deleting unrelated symbols.
     let incremental_lsp = origin == "lsp-captured-references";

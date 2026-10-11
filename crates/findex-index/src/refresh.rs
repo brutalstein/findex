@@ -41,7 +41,9 @@ pub fn refresh_known_paths_into(
 
     let project = project.canonicalize()?;
     let mut conn = connect(database)?;
-    let tx = conn.transaction()?;
+    // IMMEDIATE takes the write lock up front: a deferred read-then-write
+    // transaction fails with SQLITE_BUSY at once when another writer committed.
+    let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
     let mut seen = BTreeSet::new();
     let mut report = RefreshReport::default();
 

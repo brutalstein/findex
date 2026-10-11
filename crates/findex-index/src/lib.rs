@@ -112,7 +112,30 @@ fn is_corrupt(err: &(dyn Error + Send + Sync + 'static)) -> bool {
     )
 }
 
+/// Schema setup can race other processes creating the same new database
+/// (WAL switch, CREATE TABLE). SQLite reports such lock-order conflicts as
+/// immediate SQLITE_BUSY without consulting the busy handler, so retry.
 fn open_schema(db: &Path) -> Result<Connection> {
+    let deadline = std::time::Instant::now() + Duration::from_secs(30);
+    loop {
+        match try_open_schema(db) {
+            Err(err) if is_busy(err.as_ref()) && std::time::Instant::now() < deadline => {
+                std::thread::sleep(Duration::from_millis(25));
+            }
+            other => return other,
+        }
+    }
+}
+
+fn is_busy(err: &(dyn Error + Send + Sync + 'static)) -> bool {
+    matches!(
+        err.downcast_ref::<rusqlite::Error>(),
+        Some(rusqlite::Error::SqliteFailure(failure, _))
+            if matches!(failure.code, rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
+    )
+}
+
+fn try_open_schema(db: &Path) -> Result<Connection> {
     let mut conn = Connection::open(db)?;
     conn.busy_timeout(Duration::from_secs(30))?;
     conn.execute_batch(
@@ -201,7 +224,9 @@ fn camel_parts(identifier: &str) -> Vec<String> {
 pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
     let project = project.canonicalize()?;
     let mut conn = connect(database)?;
-    let tx = conn.transaction()?;
+    // IMMEDIATE takes the write lock up front: a deferred read-then-write
+    // transaction fails with SQLITE_BUSY at once when another writer committed.
+    let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
     let existing: HashMap<String, String> = {
         let mut statement = tx.prepare("SELECT path, hash FROM files")?;
         let rows = statement.query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?;
