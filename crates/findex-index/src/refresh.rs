@@ -85,9 +85,7 @@ pub fn refresh_known_paths_into(
                 .is_some_and(|resolved| resolved.starts_with(&project));
             match metadata {
                 Some(meta)
-                    if meta.file_type().is_file()
-                        && meta.len() <= MAX_SOURCE_BYTES
-                        && inside =>
+                    if meta.file_type().is_file() && meta.len() <= MAX_SOURCE_BYTES && inside =>
                 {
                     fs::read(&absolute).ok().filter(|bytes| {
                         (bytes.len() as u64) <= MAX_SOURCE_BYTES
@@ -165,13 +163,17 @@ mod tests {
         assert_eq!(new.hits.len(), 1);
 
         fs::remove_file(&first).expect("delete");
-        let removed =
-            refresh_known_paths_into(workspace.path(), &db, &[PathBuf::from("first.rs")])
-                .expect("refresh deletion");
+        let removed = refresh_known_paths_into(workspace.path(), &db, &[PathBuf::from("first.rs")])
+            .expect("refresh deletion");
         assert_eq!(removed.sync.removed, 1);
-        let unaffected =
-            search_in_db(workspace.path(), &db, "other_marker", 5, SyncStats::default())
-                .expect("search unaffected");
+        let unaffected = search_in_db(
+            workspace.path(),
+            &db,
+            "other_marker",
+            5,
+            SyncStats::default(),
+        )
+        .expect("search unaffected");
         assert_eq!(unaffected.hits.len(), 1);
     }
 
@@ -255,9 +257,15 @@ mod tests {
         .is_empty());
         // The previous indexed snapshot is stale but never returned as current.
         assert_eq!(
-            search_in_db(workspace.path(), &db, "safe_marker", 5, SyncStats::default())
-                .expect("search")
-                .stale_results_discarded,
+            search_in_db(
+                workspace.path(),
+                &db,
+                "safe_marker",
+                5,
+                SyncStats::default()
+            )
+            .expect("search")
+            .stale_results_discarded,
             1
         );
     }
@@ -270,12 +278,8 @@ mod tests {
         fs::write(workspace.path().join("src.rs"), "fn previous_code() {}").expect("text");
         synchronize_into(workspace.path(), &db).expect("initial reconciliation");
         fs::write(workspace.path().join("src.rs"), [65, 0, 66]).expect("binary");
-        let report = refresh_known_paths_into(
-            workspace.path(),
-            &db,
-            &[PathBuf::from("src.rs")],
-        )
-        .expect("refresh");
+        let report = refresh_known_paths_into(workspace.path(), &db, &[PathBuf::from("src.rs")])
+            .expect("refresh");
         assert_eq!(report.sync.removed, 1);
         assert!(search_in_db(
             workspace.path(),
