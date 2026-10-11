@@ -1,0 +1,72 @@
+name: CI / Windows Native
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Format, Clippy, Tests, Release Build
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust stable with toolchain components
+        shell: pwsh
+        run: |
+          rustup default stable
+          rustup component add rustfmt clippy
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Lint all targets
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Unit and integration tests
+        run: cargo test --workspace --all-targets
+      - name: Build optimized native CLI
+        run: cargo build --release -p findex
+      - name: Verify native executable and CLI
+        shell: pwsh
+        run: |
+          .\target\release\findex.exe --version
+          .\target\release\findex.exe help
+          .\target\release\findex.exe doctor
+      - name: MCP protocol and lexical search smoke
+        shell: pwsh
+        run: |
+          $messages = @(
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}'
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+          ) -join "`n"
+          $responses = $messages | .\target\release\findex.exe mcp
+          if ($LASTEXITCODE -ne 0) { throw "MCP server exited unsuccessfully" }
+          $parsed = @($responses | ForEach-Object { $_ | ConvertFrom-Json })
+          if ($parsed.Count -ne 2) { throw "Expected exactly two MCP responses" }
+          if ($parsed[0].result.serverInfo.name -ne 'findex') { throw "MCP init mismatch" }
+          if ($parsed[1].result.tools[0].name -ne 'findex_search') { throw "MCP tools/list mismatch" }
+          .\target\release\findex.exe index
+          .\target\release\findex.exe search findex_search
+          if ($LASTEXITCODE -ne 0) { throw "Lexical search failed" }
+      - name: Package Findex and bundled Claude plugin
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist\findex | Out-Null
+          Copy-Item target\release\findex.exe dist\findex\findex.exe
+          Copy-Item -Recurse plugin dist\findex\plugin
+          Copy-Item README.md, LICENSE dist\findex\
+          Compress-Archive -Path dist\findex -DestinationPath dist\findex-windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: findex-windows-x64
+          path: dist/findex-windows-x64.zip
+          if-no-files-found: error
+          retention-days: 14

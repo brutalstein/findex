@@ -1,0 +1,5 @@
+{
+  "name": "findex",
+  "version": "0.1.0",
+  "description": "Local-first, evidence-backed lexical code search for Claude Code. Initial Windows prototype."
+}

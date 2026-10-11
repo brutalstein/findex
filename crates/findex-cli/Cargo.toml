@@ -1,0 +1,18 @@
+[package]
+name = "findex"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+findex-core = { path = "../findex-core" }
+findex-index = { path = "../findex-index" }
+findex-mcp = { path = "../findex-mcp" }
+
+[[bin]]
+name = "findex"
+path = "src/main.rs"
+
+[lints]
+workspace = true

@@ -1,0 +1,13 @@
+/target/
+**/*.db
+**/*.db-shm
+**/*.db-wal
+*.log
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.idea/
+.vscode/
+.DS_Store
