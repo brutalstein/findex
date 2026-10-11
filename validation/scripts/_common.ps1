@@ -1,6 +1,8 @@
 # Dot-sourced by the run-*.ps1 entry points. Resolves Python, the cargo target
 # directory and the shared results directory for one validation run.
-$ErrorActionPreference = 'Stop'
+# Continue: under redirection PS 5.1 turns native stderr (progress) into errors;
+# failures are detected from exit codes and explicit throws instead.
+$ErrorActionPreference = 'Continue'
 $Repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $Harness = Join-Path $Repo 'validation\harness'
 
