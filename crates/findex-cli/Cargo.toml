@@ -9,6 +9,7 @@ rust-version.workspace = true
 findex-core = { path = "../findex-core" }
 findex-index = { path = "../findex-index" }
 findex-mcp = { path = "../findex-mcp" }
+findex-syntax = { path = "../findex-syntax" }
 
 [[bin]]
 name = "findex"
