@@ -1,0 +1,113 @@
+{
+  "status": "EXECUTED",
+  "corpus": "vscode 1.94 (6,877 files)",
+  "metric": "peak working set of `findex index` (cold, fresh state), psutil peak_wset sampled every 20 ms",
+  "variants": {
+    "baseline-44f1a38": "start build of the previous campaign",
+    "main-caf33fa": "frozen vNext baseline",
+    "head": "vNext code at 132b29d",
+    "noterms": "head with the FTS `terms` column written as an empty string (ablation only, not shipped)",
+    "nosymbols": "head without Tree-sitter symbol extraction during indexing (ablation only, not shipped)"
+  },
+  "results": {
+    "baseline-44f1a38": {
+      "peak_working_set_mib": [
+        24.66,
+        24.45,
+        24.39
+      ],
+      "median_mib": 24.45,
+      "wall_s": [
+        294.25,
+        219.6,
+        244.24
+      ],
+      "exit_codes": [
+        0
+      ]
+    },
+    "main-caf33fa": {
+      "peak_working_set_mib": [
+        30.77,
+        30.99,
+        30.45
+      ],
+      "median_mib": 30.77,
+      "wall_s": [
+        33.09,
+        14.93,
+        15.46
+      ],
+      "exit_codes": [
+        0
+      ]
+    },
+    "head": {
+      "peak_working_set_mib": [
+        31.37,
+        30.48,
+        30.77
+      ],
+      "median_mib": 30.77,
+      "wall_s": [
+        14.1,
+        14.52,
+        15.86
+      ],
+      "exit_codes": [
+        0
+      ]
+    },
+    "noterms": {
+      "peak_working_set_mib": [
+        24.74,
+        23.82,
+        24.55
+      ],
+      "median_mib": 24.55,
+      "wall_s": [
+        12.71,
+        13.11,
+        13.75
+      ],
+      "exit_codes": [
+        0
+      ]
+    },
+    "nosymbols": {
+      "peak_working_set_mib": [
+        25.52,
+        25.58,
+        25.12
+      ],
+      "median_mib": 25.52,
+      "wall_s": [
+        4.68,
+        4.78,
+        4.94
+      ],
+      "exit_codes": [
+        0
+      ]
+    }
+  },
+  "cross_corpus_previous_run": {
+    "run": "20261012T005742Z-746f47e6bb69",
+    "baseline_mib": {
+      "ripgrep": 17.1,
+      "tokio": 15.3,
+      "vscode": 24.7
+    },
+    "current_mib": {
+      "ripgrep": 17.5,
+      "tokio": 15.2,
+      "vscode": 30.9
+    },
+    "largest_admitted_file_bytes": {
+      "ripgrep": 238586,
+      "tokio": 141129,
+      "vscode": "files up to the 524288-byte admission limit"
+    }
+  },
+  "conclusion": "The +6.3 MiB vscode peak disappears when either the derived `terms` text or Tree-sitter extraction is removed, and appears only on the corpus with files near MAX_SOURCE_BYTES. It is a transient per-file peak (file text + derived terms + parse tree of the largest admitted file), bounded by the 512 KiB admission limit, not growth with repository size. Not changed: both features are needed for retrieval quality."
+}

@@ -41,6 +41,8 @@ or reporting gap.
    processes importing SCIP into a fresh project at the same instant can see
    "database is locked". *Missing:* a concurrent-import test. *Action:* reuse
    the lexical retry loop and add the test.
+   **Fixed in vNext (`3a2e7de`):** `concurrent_first_opens_of_a_new_database_all_succeed`
+   reproduced the error before the retry was added.
 7. **Corruption detected at open time only** (low). A database corrupted
    while a server is running surfaces as a query error, not an automatic
    rebuild, until the next open.
@@ -92,6 +94,10 @@ or reporting gap.
     30.9 MiB) and was not root-caused. Cold indexing itself is 1.2–16×
     faster (run `20261012T005742Z-746f47e6bb69`). *Action:* profile
     allocation during the vscode cold index.
+    **Root-caused in vNext** (`results/20261012T103253Z-599cd1e65674`):
+    removing either the `terms` text or Tree-sitter extraction restores the
+    baseline peak; the rise is a transient per-file peak on files near the
+    512 KiB admission limit, not growth with repository size.
 
 ## Supply chain
 
