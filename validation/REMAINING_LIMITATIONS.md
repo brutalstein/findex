@@ -95,10 +95,12 @@ or reporting gap.
 
 ## Supply chain
 
-18. **Attestation verification needs a non-PR CI run** (medium). The workflow
-    attests the release ZIP only on pushes to `main` and manual runs, because
-    pull requests get no OIDC token. Verification with
-    `gh attestation verify` is recorded only if such a run exists.
+18. **Attestation covers CI builds only** (low). The workflow attests the
+    release ZIP on pushes to `main` and manual runs; pull requests get no
+    OIDC token. Verified for CI run 38191592325 (`493627f`):
+    `gh attestation verify findex-windows-x64.zip -R brutalstein/findex`
+    passed, signer `.github/workflows/ci.yml@refs/heads/main`. Locally built
+    binaries carry no attestation.
 19. **Binaries are unsigned** (medium). No Authenticode signing certificate
     is available. SHA-256 checksums, a CycloneDX SBOM and (on non-PR runs) a
     build-provenance attestation are produced instead.

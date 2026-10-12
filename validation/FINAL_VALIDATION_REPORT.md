@@ -218,9 +218,10 @@ CI (`.github/workflows/ci.yml`) now also: generates a CycloneDX 1.5 SBOM
 (`validation/harness/sbom.py`; 76 crates, all with licence metadata, 70 with
 registry SHA-256) into the release ZIP; runs `cargo audit` in a separate job;
 attests build provenance of the ZIP with `actions/attest-build-provenance`
-v4.2.2 on pushes to `main` and manual runs. GitHub CI results are not part of this report's evidence; they are
-linked from the commit on `main`. Attestation verification is listed in
-`REMAINING_LIMITATIONS.md` #18 until a non-PR run has been verified.
+v4.2.2 on pushes to `main` and manual runs. CI run 38191592325 on `main` (`493627f`): format/clippy/tests/release
+build, Rust 1.85 MSRV and RustSec audit jobs all succeeded; `gh attestation
+verify` on the downloaded `findex-windows-x64.zip` passed (signer
+`ci.yml@refs/heads/main`, source digest `493627f`).
 
 ## 14. Known limitations
 
