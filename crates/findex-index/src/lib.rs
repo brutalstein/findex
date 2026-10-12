@@ -251,7 +251,7 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
     // was indexed before is removed, without re-reading files a second time.
     let mut admitted = HashSet::new();
     let mut stats = SyncStats::default();
-    let walker = WalkBuilder::new(&project)
+    let walker = WalkBuilder::new(project)
         .hidden(true)
         .git_ignore(true)
         // Apply .gitignore rules also in non-Git workspaces (e.g. ZIP projects).
@@ -279,7 +279,7 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
             stats.skipped += 1;
             continue;
         }
-        let rel = entry.path().strip_prefix(&project)?;
+        let rel = entry.path().strip_prefix(project)?;
         let rel_string = rel.to_string_lossy().replace('\\', "/");
         if !seen.insert(rel_string.clone()) {
             continue;
