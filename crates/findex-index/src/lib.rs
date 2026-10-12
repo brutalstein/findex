@@ -12,7 +12,7 @@ pub use symbols::{
 
 use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
 use ignore::WalkBuilder;
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
@@ -74,7 +74,8 @@ pub fn search(project: &Path, query: &str, limit: usize) -> Result<SearchReport>
 
 /// Lexical schema revision kept in `PRAGMA user_version`.
 /// 2: FTS `terms` column with camelCase sub-words and path words.
-const LEXICAL_SCHEMA: i64 = 2;
+/// 3: `docs.rowid` = `files.id`, so updates never scan the FTS table by path.
+const LEXICAL_SCHEMA: i64 = 3;
 
 /// The index is a derived cache: an unreadable database is discarded and
 /// rebuilt from sources instead of leaving search permanently broken.
@@ -138,14 +139,7 @@ fn is_busy(err: &(dyn Error + Send + Sync + 'static)) -> bool {
 fn try_open_schema(db: &Path) -> Result<Connection> {
     let mut conn = Connection::open(db)?;
     conn.busy_timeout(Duration::from_secs(30))?;
-    conn.execute_batch(
-        "PRAGMA journal_mode=WAL;
-         CREATE TABLE IF NOT EXISTS files(
-             path TEXT PRIMARY KEY NOT NULL,
-             hash TEXT NOT NULL,
-             size_bytes INTEGER NOT NULL
-         );",
-    )?;
+    conn.execute_batch("PRAGMA journal_mode=WAL;")?;
     let version: i64 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;
     if version < LEXICAL_SCHEMA {
         // Rebuild lexical rows under a write lock; forgetting file hashes
@@ -155,7 +149,13 @@ fn try_open_schema(db: &Path) -> Result<Connection> {
         if version < LEXICAL_SCHEMA {
             tx.execute_batch(&format!(
                 "DROP TABLE IF EXISTS docs;
-                 DELETE FROM files;
+                 DROP TABLE IF EXISTS files;
+                 CREATE TABLE files(
+                     id INTEGER PRIMARY KEY,
+                     path TEXT UNIQUE NOT NULL,
+                     hash TEXT NOT NULL,
+                     size_bytes INTEGER NOT NULL
+                 );
                  CREATE VIRTUAL TABLE docs USING fts5(
                      path UNINDEXED,
                      body,
@@ -321,20 +321,14 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
         if symbols::upsert(&tx, &rel_string, &digest, contents)? {
             stats.symbols_parsed += 1;
         }
-        replace_document(&tx, &rel_string, contents)?;
-        tx.execute(
-            "INSERT INTO files(path, hash, size_bytes) VALUES(?1, ?2, ?3)
-             ON CONFLICT(path) DO UPDATE SET hash=excluded.hash, size_bytes=excluded.size_bytes",
-            params![rel_string, digest, bytes.len() as i64],
-        )?;
+        store_document(&tx, &rel_string, contents, &digest, bytes.len() as i64)?;
         stats.indexed += 1;
     }
 
     // Skipped but previously indexed files must be removed to prevent leaking obsolete results.
     for old_path in existing.keys() {
         if !admitted.contains(old_path) {
-            tx.execute("DELETE FROM docs WHERE path = ?1", params![old_path])?;
-            tx.execute("DELETE FROM files WHERE path = ?1", params![old_path])?;
+            remove_document(&tx, old_path)?;
             symbols::clear(&tx, old_path)?;
             stats.removed += 1;
         }
@@ -343,17 +337,44 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
     Ok(stats)
 }
 
-/// Replace one file's lexical row, including derived identifier words.
-pub(crate) fn replace_document(
+/// Upsert one file's metadata and lexical row, including derived identifier
+/// words. The FTS row is addressed by `files.id`: FTS5 cannot look up its
+/// UNINDEXED `path` column without reading every stored document.
+pub(crate) fn store_document(
     tx: &rusqlite::Transaction<'_>,
     path: &str,
     contents: &str,
+    hash: &str,
+    size_bytes: i64,
 ) -> Result<()> {
-    tx.execute("DELETE FROM docs WHERE path = ?1", params![path])?;
-    tx.execute(
-        "INSERT INTO docs(path, body, terms) VALUES(?1, ?2, ?3)",
-        params![path, contents, identifier_terms(path, contents)],
+    let id: i64 = tx.query_row(
+        "INSERT INTO files(path, hash, size_bytes) VALUES(?1, ?2, ?3)
+         ON CONFLICT(path) DO UPDATE SET hash=excluded.hash, size_bytes=excluded.size_bytes
+         RETURNING id",
+        params![path, hash, size_bytes],
+        |row| row.get(0),
     )?;
+    tx.execute("DELETE FROM docs WHERE rowid = ?1", params![id])?;
+    tx.execute(
+        "INSERT INTO docs(rowid, path, body, terms) VALUES(?1, ?2, ?3, ?4)",
+        params![id, path, contents, identifier_terms(path, contents)],
+    )?;
+    Ok(())
+}
+
+/// Remove one file's metadata and lexical row.
+pub(crate) fn remove_document(tx: &rusqlite::Transaction<'_>, path: &str) -> Result<()> {
+    let id: Option<i64> = tx
+        .query_row(
+            "SELECT id FROM files WHERE path = ?1",
+            params![path],
+            |row| row.get(0),
+        )
+        .optional()?;
+    if let Some(id) = id {
+        tx.execute("DELETE FROM docs WHERE rowid = ?1", params![id])?;
+        tx.execute("DELETE FROM files WHERE id = ?1", params![id])?;
+    }
     Ok(())
 }
 
@@ -456,7 +477,7 @@ pub fn search_in_db(
     // Stage 2: BM25 candidates over source text and identifier/path words.
     let mut stmt = conn.prepare(
         "SELECT docs.path, docs.body, docs.rank, files.hash
-         FROM docs JOIN files ON files.path = docs.path
+         FROM docs JOIN files ON files.id = docs.rowid
          WHERE docs MATCH ?1 ORDER BY docs.rank ASC, docs.path ASC LIMIT ?2",
     )?;
     // Collect a bounded but generous window before reranking. An extra
@@ -489,12 +510,17 @@ pub fn search_in_db(
             .count();
         // A snippet from the first matching line often shows the wrong
         // function. Prefer the line covering the most query terms.
-        let mut best = (0_usize, 1_usize, String::new());
+        // Without any matching line, cite line 1 with its real text.
+        let mut best = (
+            0_usize,
+            1_usize,
+            excerpt_of(body.lines().next().unwrap_or("")),
+        );
         for (line_index, line) in body.lines().enumerate() {
             let folded_line = line.to_lowercase();
             let matches = terms
                 .iter()
-                .filter(|term| folded_line.contains(term.as_str()))
+                .filter(|term| line_has_term(&folded_line, term))
                 .count();
             if matches > best.0 {
                 best = (matches, line_index + 1, excerpt_of(line));
@@ -534,6 +560,27 @@ pub fn search_in_db(
         report.hits.push(hit);
     }
     Ok(report)
+}
+
+/// Literal match, or the phrase FTS matched: `to_regex` is the tokens `to regex`.
+fn line_has_term(folded_line: &str, term: &str) -> bool {
+    if folded_line.contains(term) {
+        return true;
+    }
+    if term.chars().all(char::is_alphanumeric) {
+        return false; // a single token: the literal check was exact
+    }
+    let tokenize = |text: &str| -> Vec<String> {
+        text.split(|c: char| !c.is_alphanumeric())
+            .filter(|t| !t.is_empty())
+            .map(str::to_owned)
+            .collect()
+    };
+    let phrase = tokenize(term);
+    phrase.len() > 1
+        && tokenize(folded_line)
+            .windows(phrase.len())
+            .any(|window| window == phrase.as_slice())
 }
 
 /// Types and free functions first; trait/impl members and impl blocks after.
@@ -819,6 +866,66 @@ mod tests {
         let found = search_in_db(project.path(), &db, "user profile", 5, SyncStats::default())
             .expect("search");
         assert_eq!(found.hits.len(), 1);
+    }
+
+    /// FTS5 cannot look up its UNINDEXED `path` column, so deleting a document
+    /// by path scans every stored body: quadratic I/O on a cold index. Rows are
+    /// therefore keyed by `files.id`; this pins that invariant through edits,
+    /// targeted refreshes and removals.
+    #[test]
+    fn lexical_rows_are_keyed_by_file_id_through_edits_refreshes_and_removals() {
+        let (project, _state, db) = indexed(&[
+            ("a.rs", "fn alpha_marker() {}\n"),
+            ("b.rs", "fn beta_marker() {}\n"),
+            ("c.rs", "fn gamma_marker() {}\n"),
+        ]);
+        fs::write(project.path().join("a.rs"), "fn alpha_edited() {}\n").expect("edit");
+        fs::remove_file(project.path().join("b.rs")).expect("remove");
+        synchronize_into(project.path(), &db).expect("resync");
+        fs::write(project.path().join("c.rs"), "fn gamma_refreshed() {}\n").expect("edit");
+        refresh_known_paths_into(project.path(), &db, &[PathBuf::from("c.rs")]).expect("refresh");
+
+        let conn = Connection::open(&db).expect("db");
+        let orphans: i64 = conn
+            .query_row(
+                "SELECT count(*) FROM docs WHERE rowid NOT IN (SELECT id FROM files)",
+                [],
+                |row| row.get(0),
+            )
+            .expect("orphans");
+        let (docs, files): (i64, i64) = conn
+            .query_row(
+                "SELECT (SELECT count(*) FROM docs), (SELECT count(*) FROM files)",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .expect("counts");
+        assert_eq!((orphans, docs, files), (0, 2, 2));
+        for (query, path) in [("alpha edited", "a.rs"), ("gamma refreshed", "c.rs")] {
+            let found =
+                search_in_db(project.path(), &db, query, 5, SyncStats::default()).expect("search");
+            assert_eq!(found.hits.first().map(|h| h.path.as_str()), Some(path));
+        }
+        let gone = search_in_db(project.path(), &db, "beta marker", 5, SyncStats::default())
+            .expect("search");
+        assert!(gone.hits.is_empty(), "{:?}", gone.hits);
+    }
+
+    /// FTS splits `to_regex` into `to` + `regex`; a file matching only those
+    /// tokens must still cite a real line, never line 1 with an empty excerpt.
+    #[test]
+    fn token_only_matches_cite_the_line_holding_the_tokens() {
+        let (project, _state, db) = indexed(&[(
+            "glob.rs",
+            "//! Globs.\n\nfn build() {}\n\n// convert glob to regex here\nfn convert() {}\n",
+        )]);
+        let found =
+            search_in_db(project.path(), &db, "to_regex", 5, SyncStats::default()).expect("search");
+        let hit = found.hits.first().expect("hit");
+        assert_eq!(
+            (hit.line, hit.excerpt.as_str()),
+            (5, "// convert glob to regex here")
+        );
     }
 
     #[test]

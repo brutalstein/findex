@@ -114,17 +114,12 @@ pub fn refresh_known_paths_into(
             if symbols::upsert(&tx, &key, &digest, contents)? {
                 report.sync.symbols_parsed += 1;
             }
-            super::replace_document(&tx, &key, contents)?;
-            tx.execute(
-                "UPDATE files SET hash = ?2, size_bytes = ?3 WHERE path = ?1",
-                params![key, digest, bytes.len() as i64],
-            )?;
+            super::store_document(&tx, &key, contents, &digest, bytes.len() as i64)?;
             report.sync.indexed += 1;
         } else {
             // Removal also applies to unreadable, oversized and binary sources.
             // Search verifies hashes, so a racing write cannot return stale code.
-            tx.execute("DELETE FROM docs WHERE path = ?1", params![key])?;
-            tx.execute("DELETE FROM files WHERE path = ?1", params![key])?;
+            super::remove_document(&tx, &key)?;
             symbols::clear(&tx, &key)?;
             report.sync.removed += 1;
         }
