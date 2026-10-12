@@ -936,7 +936,11 @@ mod tests {
             .expect("write lock");
         let started = std::time::Instant::now();
         let stats = synchronize_into(project.path(), &db).expect("read-only reconcile");
-        assert!(started.elapsed() < Duration::from_secs(5), "{:?}", started.elapsed());
+        assert!(
+            started.elapsed() < Duration::from_secs(5),
+            "{:?}",
+            started.elapsed()
+        );
         assert_eq!((stats.unchanged, stats.indexed), (1, 0));
         drop(lock);
     }
