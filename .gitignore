@@ -16,3 +16,4 @@
 validation/results/*/raw/
 validation/results/**/*.stream.jsonl
 validation/results/**/transcripts/
+__pycache__/

@@ -55,7 +55,8 @@ def results_dir(explicit: str | None = None) -> Path:
 
 def write_json(path: Path, value) -> None:
     # Results are committed: never leak private machine paths.
-    path.write_text(sanitize(json.dumps(value, indent=2, sort_keys=False, default=str)) + "\n", encoding="utf-8")
+    path.write_text(sanitize(json.dumps(value, indent=2, sort_keys=False, default=str)) + "\n", encoding="utf-8",
+                    newline="\n")  # LF on every OS: checksums must verify after checkout
 
 
 def sanitize(text: str) -> str:
@@ -97,7 +98,7 @@ class CommandLog:
                  "duration_s": round(seconds, 4), "timed_out": timed_out}
         if note:
             entry["note"] = note
-        with self.path.open("a", encoding="utf-8") as handle:
+        with self.path.open("a", encoding="utf-8", newline="\n") as handle:
             handle.write(json.dumps(entry) + "\n")
 
 
@@ -181,7 +182,7 @@ def sha256_file(path: Path) -> str:
 def write_checksums(out: Path) -> None:
     lines = [f"{sha256_file(p)}  {p.name}" for p in sorted(out.iterdir())
              if p.is_file() and p.name != "checksums.sha256"]
-    (out / "checksums.sha256").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (out / "checksums.sha256").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 def findex_binary(label: str) -> Path:

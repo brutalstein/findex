@@ -82,7 +82,7 @@ def make_tasks() -> dict:
     def prepare_bug(repo: Path):
         path = repo / "crates" / "findex-core" / "src" / "lib.rs"
         text = path.read_text(encoding="utf-8")
-        path.write_text(text.replace('        || name.ends_with(".pem")\n', ""), encoding="utf-8")
+        path.write_text(text.replace('        || name.ends_with(".pem")\n', ""), encoding="utf-8", newline="\n")
 
     def judge_bug(text, repo, target):
         return cargo_check(repo, "sensitive_filename_rules", target)
@@ -95,7 +95,7 @@ def make_tasks() -> dict:
         hidden = ("\n#[cfg(test)]\nmod hidden_acceptance {\n    #[test]\n    fn hidden_kdbx_acceptance() {\n"
                   "        assert!(super::is_sensitive_filename(std::path::Path::new(\"Vault.KDBX\")));\n"
                   "        assert!(!super::is_sensitive_filename(std::path::Path::new(\"main.rs\")));\n    }\n}\n")
-        path.write_text(source + hidden, encoding="utf-8")
+        path.write_text(source + hidden, encoding="utf-8", newline="\n")
         ok_hidden, out_hidden = cargo_check(repo, "hidden_kdbx_acceptance", target)
         ok_all, out_all = cargo_check(repo, "", target)
         return ok_hidden and ok_all, f"hidden={ok_hidden} suite={ok_all} {out_hidden[-120:]}"

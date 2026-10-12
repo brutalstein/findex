@@ -169,7 +169,7 @@ def main() -> int:
     write_json(out / "regressions.json", {"tolerance": "retrieval quality 0%, latency/payload/perf 10%", "rows": regress})
     write_json(out / "failures.json", fails)
     (out / "commands.jsonl").touch()
-    (out / "summary.md").write_text(summary_md(out, data, env, regress, fails), encoding="utf-8")
+    (out / "summary.md").write_text(summary_md(out, data, env, regress, fails), encoding="utf-8", newline="\n")
     files = sorted(p for p in out.iterdir() if p.is_file() and p.name not in ("manifest.json", "checksums.sha256"))
     write_json(out / "manifest.json", {"run": out.name, "git_sha": env["git_sha"], "git_branch": env["git_branch"],
                                        "git_dirty": env["git_dirty"], "harness_tree": git("rev-parse", "HEAD:validation/harness"),
