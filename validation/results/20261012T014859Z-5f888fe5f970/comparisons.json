@@ -1,0 +1,3391 @@
+{
+  "per_task": {
+    "n1_named_file_lookup": {
+      "A": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 238.0,
+          "stdev": 0.0,
+          "min": 238.0,
+          "max": 238.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 23726.0,
+          "stdev": 0.0,
+          "min": 23726.0,
+          "max": 23726.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 23220.0,
+          "stdev": 0.0,
+          "min": 23220.0,
+          "max": 23220.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 47202.0,
+          "stdev": 0.0,
+          "min": 47202.0,
+          "max": 47202.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.050982,
+          "stdev": 0.0,
+          "min": 0.050982,
+          "max": 0.050982,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 646.0,
+          "stdev": 0.0,
+          "min": 646.0,
+          "max": 646.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 9.05,
+          "stdev": 0.0,
+          "min": 9.05,
+          "max": 9.05,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "B": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 240.0,
+          "stdev": 0.0,
+          "min": 240.0,
+          "max": 240.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 5814.0,
+          "stdev": 0.0,
+          "min": 5814.0,
+          "max": 5814.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 41425.0,
+          "stdev": 0.0,
+          "min": 41425.0,
+          "max": 41425.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 47497.0,
+          "stdev": 0.0,
+          "min": 47497.0,
+          "max": 47497.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0169885,
+          "stdev": 0.0,
+          "min": 0.0169885,
+          "max": 0.0169885,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 646.0,
+          "stdev": 0.0,
+          "min": 646.0,
+          "max": 646.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 6.66,
+          "stdev": 0.0,
+          "min": 6.66,
+          "max": 6.66,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "C": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 270.0,
+          "stdev": 0.0,
+          "min": 270.0,
+          "max": 270.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 23976.0,
+          "stdev": 0.0,
+          "min": 23976.0,
+          "max": 23976.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 23456.0,
+          "stdev": 0.0,
+          "min": 23456.0,
+          "max": 23456.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 47720.0,
+          "stdev": 0.0,
+          "min": 47720.0,
+          "max": 47720.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0516656,
+          "stdev": 0.0,
+          "min": 0.0516656,
+          "max": 0.0516656,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 646.0,
+          "stdev": 0.0,
+          "min": 646.0,
+          "max": 646.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 7.66,
+          "stdev": 0.0,
+          "min": 7.66,
+          "max": 7.66,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "D": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 254.0,
+          "stdev": 0.0,
+          "min": 254.0,
+          "max": 254.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 5888.0,
+          "stdev": 0.0,
+          "min": 5888.0,
+          "max": 5888.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 41969.0,
+          "stdev": 0.0,
+          "min": 41969.0,
+          "max": 41969.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 48129.0,
+          "stdev": 0.0,
+          "min": 48129.0,
+          "max": 48129.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.017260900000000003,
+          "stdev": 0.0,
+          "min": 0.017260900000000003,
+          "max": 0.017260900000000003,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 646.0,
+          "stdev": 0.0,
+          "min": 646.0,
+          "max": 646.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 7.14,
+          "stdev": 0.0,
+          "min": 7.14,
+          "max": 7.14,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "E": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 291.0,
+          "stdev": 0.0,
+          "min": 291.0,
+          "max": 291.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 22875.0,
+          "stdev": 0.0,
+          "min": 22875.0,
+          "max": 22875.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 22353.0,
+          "stdev": 0.0,
+          "min": 22353.0,
+          "max": 22353.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 45537.0,
+          "stdev": 0.0,
+          "min": 45537.0,
+          "max": 45537.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.049458300000000004,
+          "stdev": 0.0,
+          "min": 0.049458300000000004,
+          "max": 0.049458300000000004,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 646.0,
+          "stdev": 0.0,
+          "min": 646.0,
+          "max": 646.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 8.56,
+          "stdev": 0.0,
+          "min": 8.56,
+          "max": 8.56,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "B_vs_A_total_tokens_change_pct": 0.6249735180712682,
+      "B_vs_A_est_cost_change_pct": -66.67745478796438,
+      "paired_total_token_difference_B_minus_A": {
+        "n": 1,
+        "mean": 295.0,
+        "stdev": 0.0,
+        "min": 295.0,
+        "max": 295.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "C_vs_A_total_tokens_change_pct": 1.097411126647176,
+      "C_vs_A_est_cost_change_pct": 1.3408654034757355,
+      "paired_total_token_difference_C_minus_A": {
+        "n": 1,
+        "mean": 518.0,
+        "stdev": 0.0,
+        "min": 518.0,
+        "max": 518.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "D_vs_A_total_tokens_change_pct": 1.9638998347527648,
+      "D_vs_A_est_cost_change_pct": -66.14314856223766,
+      "paired_total_token_difference_D_minus_A": {
+        "n": 1,
+        "mean": 927.0,
+        "stdev": 0.0,
+        "min": 927.0,
+        "max": 927.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "E_vs_A_total_tokens_change_pct": -3.527392907080208,
+      "E_vs_A_est_cost_change_pct": -2.988701894786387,
+      "paired_total_token_difference_E_minus_A": {
+        "n": 1,
+        "mean": -1665.0,
+        "stdev": 0.0,
+        "min": -1665.0,
+        "max": -1665.0,
+        "ci95_halfwidth_normal_approx": null
+      }
+    },
+    "n2_no_repository_needed": {
+      "A": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 0.0,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 10.0,
+          "stdev": 0.0,
+          "min": 10.0,
+          "max": 10.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 167.0,
+          "stdev": 0.0,
+          "min": 167.0,
+          "max": 167.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 5138.0,
+          "stdev": 0.0,
+          "min": 5138.0,
+          "max": 5138.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 18060.0,
+          "stdev": 0.0,
+          "min": 18060.0,
+          "max": 18060.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 23375.0,
+          "stdev": 0.0,
+          "min": 23375.0,
+          "max": 23375.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.012927000000000001,
+          "stdev": 0.0,
+          "min": 0.012927000000000001,
+          "max": 0.012927000000000001,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 5.81,
+          "stdev": 0.0,
+          "min": 5.81,
+          "max": 5.81,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "B": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 0.0,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 10.0,
+          "stdev": 0.0,
+          "min": 10.0,
+          "max": 10.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 140.0,
+          "stdev": 0.0,
+          "min": 140.0,
+          "max": 140.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 5290.0,
+          "stdev": 0.0,
+          "min": 5290.0,
+          "max": 5290.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 18060.0,
+          "stdev": 0.0,
+          "min": 18060.0,
+          "max": 18060.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 23500.0,
+          "stdev": 0.0,
+          "min": 23500.0,
+          "max": 23500.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.013096,
+          "stdev": 0.0,
+          "min": 0.013096,
+          "max": 0.013096,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 5.83,
+          "stdev": 0.0,
+          "min": 5.83,
+          "max": 5.83,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "C": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 0.0,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 10.0,
+          "stdev": 0.0,
+          "min": 10.0,
+          "max": 10.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 177.0,
+          "stdev": 0.0,
+          "min": 177.0,
+          "max": 177.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 5376.0,
+          "stdev": 0.0,
+          "min": 5376.0,
+          "max": 5376.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 18065.0,
+          "stdev": 0.0,
+          "min": 18065.0,
+          "max": 18065.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 23628.0,
+          "stdev": 0.0,
+          "min": 23628.0,
+          "max": 23628.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0134535,
+          "stdev": 0.0,
+          "min": 0.0134535,
+          "max": 0.0134535,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 6.07,
+          "stdev": 0.0,
+          "min": 6.07,
+          "max": 6.07,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "D": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 0.0,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 10.0,
+          "stdev": 0.0,
+          "min": 10.0,
+          "max": 10.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 181.0,
+          "stdev": 0.0,
+          "min": 181.0,
+          "max": 181.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 5351.0,
+          "stdev": 0.0,
+          "min": 5351.0,
+          "max": 5351.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 18299.0,
+          "stdev": 0.0,
+          "min": 18299.0,
+          "max": 18299.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 23841.0,
+          "stdev": 0.0,
+          "min": 23841.0,
+          "max": 23841.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0134469,
+          "stdev": 0.0,
+          "min": 0.0134469,
+          "max": 0.0134469,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 11.18,
+          "stdev": 0.0,
+          "min": 11.18,
+          "max": 11.18,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "E": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 0.0,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 10.0,
+          "stdev": 0.0,
+          "min": 10.0,
+          "max": 10.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 183.0,
+          "stdev": 0.0,
+          "min": 183.0,
+          "max": 183.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 5344.0,
+          "stdev": 0.0,
+          "min": 5344.0,
+          "max": 5344.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 16988.0,
+          "stdev": 0.0,
+          "min": 16988.0,
+          "max": 16988.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 22525.0,
+          "stdev": 0.0,
+          "min": 22525.0,
+          "max": 22525.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.013311799999999999,
+          "stdev": 0.0,
+          "min": 0.013311799999999999,
+          "max": 0.013311799999999999,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 6.04,
+          "stdev": 0.0,
+          "min": 6.04,
+          "max": 6.04,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "B_vs_A_total_tokens_change_pct": 0.53475935828877,
+      "B_vs_A_est_cost_change_pct": 1.3073412237951496,
+      "paired_total_token_difference_B_minus_A": {
+        "n": 1,
+        "mean": 125.0,
+        "stdev": 0.0,
+        "min": 125.0,
+        "max": 125.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "C_vs_A_total_tokens_change_pct": 1.0823529411764705,
+      "C_vs_A_est_cost_change_pct": 4.072870735669523,
+      "paired_total_token_difference_C_minus_A": {
+        "n": 1,
+        "mean": 253.0,
+        "stdev": 0.0,
+        "min": 253.0,
+        "max": 253.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "D_vs_A_total_tokens_change_pct": 1.9935828877005346,
+      "D_vs_A_est_cost_change_pct": 4.0218148062195285,
+      "paired_total_token_difference_D_minus_A": {
+        "n": 1,
+        "mean": 466.0,
+        "stdev": 0.0,
+        "min": 466.0,
+        "max": 466.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "E_vs_A_total_tokens_change_pct": -3.6363636363636362,
+      "E_vs_A_est_cost_change_pct": 2.9767154018720325,
+      "paired_total_token_difference_E_minus_A": {
+        "n": 1,
+        "mean": -850.0,
+        "stdev": 0.0,
+        "min": -850.0,
+        "max": -850.0,
+        "ci95_halfwidth_normal_approx": null
+      }
+    },
+    "t1_find_function": {
+      "A": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 0.0,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 26.0,
+          "stdev": 0.0,
+          "min": 26.0,
+          "max": 26.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 382.0,
+          "stdev": 0.0,
+          "min": 382.0,
+          "max": 382.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 6316.0,
+          "stdev": 0.0,
+          "min": 6316.0,
+          "max": 6316.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 64696.0,
+          "stdev": 0.0,
+          "min": 64696.0,
+          "max": 64696.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 71420.0,
+          "stdev": 0.0,
+          "min": 71420.0,
+          "max": 71420.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.021037600000000004,
+          "stdev": 0.0,
+          "min": 0.021037600000000004,
+          "max": 0.021037600000000004,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 3.0,
+          "stdev": 0.0,
+          "min": 3.0,
+          "max": 3.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 2196.0,
+          "stdev": 0.0,
+          "min": 2196.0,
+          "max": 2196.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 8.78,
+          "stdev": 0.0,
+          "min": 8.78,
+          "max": 8.78,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "B": {
+        "success_rate": 1.0,
+        "findex_used_rate": 1.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 28.0,
+          "stdev": 0.0,
+          "min": 28.0,
+          "max": 28.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 474.0,
+          "stdev": 0.0,
+          "min": 474.0,
+          "max": 474.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 6133.0,
+          "stdev": 0.0,
+          "min": 6133.0,
+          "max": 6133.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 65248.0,
+          "stdev": 0.0,
+          "min": 65248.0,
+          "max": 65248.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 71883.0,
+          "stdev": 0.0,
+          "min": 71883.0,
+          "max": 71883.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0211888,
+          "stdev": 0.0,
+          "min": 0.0211888,
+          "max": 0.0211888,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 3.0,
+          "stdev": 0.0,
+          "min": 3.0,
+          "max": 3.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 730.0,
+          "stdev": 0.0,
+          "min": 730.0,
+          "max": 730.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 10.31,
+          "stdev": 0.0,
+          "min": 10.31,
+          "max": 10.31,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "C": {
+        "success_rate": 1.0,
+        "findex_used_rate": 1.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 28.0,
+          "stdev": 0.0,
+          "min": 28.0,
+          "max": 28.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 431.0,
+          "stdev": 0.0,
+          "min": 431.0,
+          "max": 431.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 6199.0,
+          "stdev": 0.0,
+          "min": 6199.0,
+          "max": 6199.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 65423.0,
+          "stdev": 0.0,
+          "min": 65423.0,
+          "max": 65423.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 72081.0,
+          "stdev": 0.0,
+          "min": 72081.0,
+          "max": 72081.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.021123299999999998,
+          "stdev": 0.0,
+          "min": 0.021123299999999998,
+          "max": 0.021123299999999998,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 3.0,
+          "stdev": 0.0,
+          "min": 3.0,
+          "max": 3.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 730.0,
+          "stdev": 0.0,
+          "min": 730.0,
+          "max": 730.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 9.99,
+          "stdev": 0.0,
+          "min": 9.99,
+          "max": 9.99,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "D": {
+        "success_rate": 1.0,
+        "findex_used_rate": 1.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 257.0,
+          "stdev": 0.0,
+          "min": 257.0,
+          "max": 257.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 6240.0,
+          "stdev": 0.0,
+          "min": 6240.0,
+          "max": 6240.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 41959.0,
+          "stdev": 0.0,
+          "min": 41959.0,
+          "max": 41959.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 48474.0,
+          "stdev": 0.0,
+          "min": 48474.0,
+          "max": 48474.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0179789,
+          "stdev": 0.0,
+          "min": 0.0179789,
+          "max": 0.0179789,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 2216.0,
+          "stdev": 0.0,
+          "min": 2216.0,
+          "max": 2216.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 7.69,
+          "stdev": 0.0,
+          "min": 7.69,
+          "max": 7.69,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "E": {
+        "success_rate": 1.0,
+        "findex_used_rate": 1.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 250.0,
+          "stdev": 0.0,
+          "min": 250.0,
+          "max": 250.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 6224.0,
+          "stdev": 0.0,
+          "min": 6224.0,
+          "max": 6224.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 39331.0,
+          "stdev": 0.0,
+          "min": 39331.0,
+          "max": 39331.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 45823.0,
+          "stdev": 0.0,
+          "min": 45823.0,
+          "max": 45823.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0176491,
+          "stdev": 0.0,
+          "min": 0.0176491,
+          "max": 0.0176491,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 2216.0,
+          "stdev": 0.0,
+          "min": 2216.0,
+          "max": 2216.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 8.52,
+          "stdev": 0.0,
+          "min": 8.52,
+          "max": 8.52,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "B_vs_A_total_tokens_change_pct": 0.6482777933352002,
+      "B_vs_A_est_cost_change_pct": 0.7187131611970812,
+      "paired_total_token_difference_B_minus_A": {
+        "n": 1,
+        "mean": 463.0,
+        "stdev": 0.0,
+        "min": 463.0,
+        "max": 463.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "C_vs_A_total_tokens_change_pct": 0.9255110613273592,
+      "C_vs_A_est_cost_change_pct": 0.4073658592234576,
+      "paired_total_token_difference_C_minus_A": {
+        "n": 1,
+        "mean": 661.0,
+        "stdev": 0.0,
+        "min": 661.0,
+        "max": 661.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "D_vs_A_total_tokens_change_pct": -32.12825539064688,
+      "D_vs_A_est_cost_change_pct": -14.539205993079078,
+      "paired_total_token_difference_D_minus_A": {
+        "n": 1,
+        "mean": -22946.0,
+        "stdev": 0.0,
+        "min": -22946.0,
+        "max": -22946.0,
+        "ci95_halfwidth_normal_approx": null
+      },
+      "E_vs_A_total_tokens_change_pct": -35.840100812097454,
+      "E_vs_A_est_cost_change_pct": -16.106875308970615,
+      "paired_total_token_difference_E_minus_A": {
+        "n": 1,
+        "mean": -25597.0,
+        "stdev": 0.0,
+        "min": -25597.0,
+        "max": -25597.0,
+        "ci95_halfwidth_normal_approx": null
+      }
+    },
+    "t2_identify_callers": {
+      "A": {
+        "success_rate": null,
+        "findex_used_rate": null,
+        "evidence_found_rate": null,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 0
+        },
+        "output_tokens": {
+          "n": 0
+        },
+        "cache_creation_input_tokens": {
+          "n": 0
+        },
+        "cache_read_input_tokens": {
+          "n": 0
+        },
+        "total_tokens": {
+          "n": 0
+        },
+        "total_cost_usd_estimate": {
+          "n": 0
+        },
+        "num_turns": {
+          "n": 0
+        },
+        "tool_call_count": {
+          "n": 0
+        },
+        "mcp_call_count": {
+          "n": 0
+        },
+        "toolsearch_calls": {
+          "n": 0
+        },
+        "builtin_search_calls": {
+          "n": 0
+        },
+        "read_calls": {
+          "n": 0
+        },
+        "files_read": {
+          "n": 0
+        },
+        "tool_result_bytes": {
+          "n": 0
+        },
+        "wall_s": {
+          "n": 0
+        }
+      },
+      "B": {
+        "success_rate": 1.0,
+        "findex_used_rate": 1.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 3.0,
+          "stdev": 0.0,
+          "min": 3.0,
+          "max": 3.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 52.0,
+          "stdev": 0.0,
+          "min": 52.0,
+          "max": 52.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 2624.0,
+          "stdev": 0.0,
+          "min": 2624.0,
+          "max": 2624.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 13538.0,
+          "stdev": 0.0,
+          "min": 13538.0,
+          "max": 13538.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 145385.0,
+          "stdev": 0.0,
+          "min": 145385.0,
+          "max": 145385.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 161599.0,
+          "stdev": 0.0,
+          "min": 161599.0,
+          "max": 161599.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0547865,
+          "stdev": 0.0,
+          "min": 0.0547865,
+          "max": 0.0547865,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 6.0,
+          "stdev": 0.0,
+          "min": 6.0,
+          "max": 6.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 5.0,
+          "stdev": 0.0,
+          "min": 5.0,
+          "max": 5.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 17415.0,
+          "stdev": 0.0,
+          "min": 17415.0,
+          "max": 17415.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 30.74,
+          "stdev": 0.0,
+          "min": 30.74,
+          "max": 30.74,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "C": {
+        "success_rate": 1.0,
+        "findex_used_rate": 1.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 3.0,
+          "stdev": 0.0,
+          "min": 3.0,
+          "max": 3.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 44.0,
+          "stdev": 0.0,
+          "min": 44.0,
+          "max": 44.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 2635.0,
+          "stdev": 0.0,
+          "min": 2635.0,
+          "max": 2635.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 12863.0,
+          "stdev": 0.0,
+          "min": 12863.0,
+          "max": 12863.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 119413.0,
+          "stdev": 0.0,
+          "min": 119413.0,
+          "max": 119413.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 134955.0,
+          "stdev": 0.0,
+          "min": 134955.0,
+          "max": 134955.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0508863,
+          "stdev": 0.0,
+          "min": 0.0508863,
+          "max": 0.0508863,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 6.0,
+          "stdev": 0.0,
+          "min": 6.0,
+          "max": 6.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 5.0,
+          "stdev": 0.0,
+          "min": 5.0,
+          "max": 5.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 15968.0,
+          "stdev": 0.0,
+          "min": 15968.0,
+          "max": 15968.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 32.44,
+          "stdev": 0.0,
+          "min": 32.44,
+          "max": 32.44,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "D": {
+        "success_rate": 1.0,
+        "findex_used_rate": 1.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 1125.0,
+          "stdev": 0.0,
+          "min": 1125.0,
+          "max": 1125.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 6794.0,
+          "stdev": 0.0,
+          "min": 6794.0,
+          "max": 6794.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 41965.0,
+          "stdev": 0.0,
+          "min": 41965.0,
+          "max": 41965.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 49902.0,
+          "stdev": 0.0,
+          "min": 49902.0,
+          "max": 49902.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.0234275,
+          "stdev": 0.0,
+          "min": 0.0234275,
+          "max": 0.0234275,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 3268.0,
+          "stdev": 0.0,
+          "min": 3268.0,
+          "max": 3268.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 16.06,
+          "stdev": 0.0,
+          "min": 16.06,
+          "max": 16.06,
+          "ci95_halfwidth_normal_approx": null
+        }
+      },
+      "E": {
+        "success_rate": 1.0,
+        "findex_used_rate": 1.0,
+        "evidence_found_rate": 1.0,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 1,
+          "mean": 18.0,
+          "stdev": 0.0,
+          "min": 18.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "output_tokens": {
+          "n": 1,
+          "mean": 1167.0,
+          "stdev": 0.0,
+          "min": 1167.0,
+          "max": 1167.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_creation_input_tokens": {
+          "n": 1,
+          "mean": 7010.0,
+          "stdev": 0.0,
+          "min": 7010.0,
+          "max": 7010.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "cache_read_input_tokens": {
+          "n": 1,
+          "mean": 39346.0,
+          "stdev": 0.0,
+          "min": 39346.0,
+          "max": 39346.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_tokens": {
+          "n": 1,
+          "mean": 47541.0,
+          "stdev": 0.0,
+          "min": 47541.0,
+          "max": 47541.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "total_cost_usd_estimate": {
+          "n": 1,
+          "mean": 0.023807599999999998,
+          "stdev": 0.0,
+          "min": 0.023807599999999998,
+          "max": 0.023807599999999998,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "num_turns": {
+          "n": 1,
+          "mean": 2.0,
+          "stdev": 0.0,
+          "min": 2.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "mcp_call_count": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "toolsearch_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "builtin_search_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "read_calls": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "files_read": {
+          "n": 1,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "tool_result_bytes": {
+          "n": 1,
+          "mean": 3268.0,
+          "stdev": 0.0,
+          "min": 3268.0,
+          "max": 3268.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "wall_s": {
+          "n": 1,
+          "mean": 17.36,
+          "stdev": 0.0,
+          "min": 17.36,
+          "max": 17.36,
+          "ci95_halfwidth_normal_approx": null
+        }
+      }
+    }
+  },
+  "overall": {
+    "__all__": {
+      "A": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.0,
+        "evidence_found_rate": 0.3333333333333333,
+        "first_evidence_tool_call": {
+          "n": 1,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": null
+        },
+        "input_tokens": {
+          "n": 3,
+          "mean": 18.0,
+          "stdev": 8.0,
+          "min": 10.0,
+          "max": 26.0,
+          "ci95_halfwidth_normal_approx": 9.052852220893332
+        },
+        "output_tokens": {
+          "n": 3,
+          "mean": 262.3333333333333,
+          "stdev": 109.54603294201635,
+          "min": 167.0,
+          "max": 382.0,
+          "ci95_halfwidth_normal_approx": 123.96300595114836
+        },
+        "cache_creation_input_tokens": {
+          "n": 3,
+          "mean": 11726.666666666666,
+          "stdev": 10408.406282103582,
+          "min": 5138.0,
+          "max": 23726.0,
+          "ci95_halfwidth_normal_approx": 11778.22049086269
+        },
+        "cache_read_input_tokens": {
+          "n": 3,
+          "mean": 35325.333333333336,
+          "stdev": 25566.255989748155,
+          "min": 18060.0,
+          "max": 64696.0,
+          "ci95_halfwidth_normal_approx": 28930.94216458988
+        },
+        "total_tokens": {
+          "n": 3,
+          "mean": 47332.333333333336,
+          "stdev": 24022.765168342576,
+          "min": 23375.0,
+          "max": 71420.0,
+          "ci95_halfwidth_normal_approx": 27184.317875778634
+        },
+        "total_cost_usd_estimate": {
+          "n": 3,
+          "mean": 0.028315533333333337,
+          "stdev": 0.020044250832927962,
+          "min": 0.012927000000000001,
+          "max": 0.050982,
+          "ci95_halfwidth_normal_approx": 0.022682205083626866
+        },
+        "num_turns": {
+          "n": 3,
+          "mean": 2.0,
+          "stdev": 1.0,
+          "min": 1.0,
+          "max": 3.0,
+          "ci95_halfwidth_normal_approx": 1.1316065276116665
+        },
+        "tool_call_count": {
+          "n": 3,
+          "mean": 1.0,
+          "stdev": 1.0,
+          "min": 0.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 1.1316065276116665
+        },
+        "mcp_call_count": {
+          "n": 3,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "toolsearch_calls": {
+          "n": 3,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "builtin_search_calls": {
+          "n": 3,
+          "mean": 0.6666666666666666,
+          "stdev": 1.1547005383792515,
+          "min": 0.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 1.3066666666666666
+        },
+        "read_calls": {
+          "n": 3,
+          "mean": 0.3333333333333333,
+          "stdev": 0.5773502691896257,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.6533333333333333
+        },
+        "files_read": {
+          "n": 3,
+          "mean": 0.3333333333333333,
+          "stdev": 0.5773502691896257,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.6533333333333333
+        },
+        "tool_result_bytes": {
+          "n": 3,
+          "mean": 947.3333333333334,
+          "stdev": 1128.5855454210518,
+          "min": 0.0,
+          "max": 2196.0,
+          "ci95_halfwidth_normal_approx": 1277.1147701666353
+        },
+        "wall_s": {
+          "n": 3,
+          "mean": 7.88,
+          "stdev": 1.7977485919894365,
+          "min": 5.81,
+          "max": 9.05,
+          "ci95_halfwidth_normal_approx": 2.034344041699929
+        }
+      },
+      "B": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.5,
+        "evidence_found_rate": 0.75,
+        "first_evidence_tool_call": {
+          "n": 3,
+          "mean": 2.0,
+          "stdev": 1.0,
+          "min": 1.0,
+          "max": 3.0,
+          "ci95_halfwidth_normal_approx": 1.1316065276116665
+        },
+        "input_tokens": {
+          "n": 4,
+          "mean": 27.0,
+          "stdev": 18.2208671582886,
+          "min": 10.0,
+          "max": 52.0,
+          "ci95_halfwidth_normal_approx": 17.856449815122826
+        },
+        "output_tokens": {
+          "n": 4,
+          "mean": 869.5,
+          "stdev": 1178.0111770833641,
+          "min": 140.0,
+          "max": 2624.0,
+          "ci95_halfwidth_normal_approx": 1154.450953541697
+        },
+        "cache_creation_input_tokens": {
+          "n": 4,
+          "mean": 7693.75,
+          "stdev": 3911.635325112333,
+          "min": 5290.0,
+          "max": 13538.0,
+          "ci95_halfwidth_normal_approx": 3833.402618610086
+        },
+        "cache_read_input_tokens": {
+          "n": 4,
+          "mean": 67529.5,
+          "stdev": 55363.52732319958,
+          "min": 18060.0,
+          "max": 145385.0,
+          "ci95_halfwidth_normal_approx": 54256.25677673559
+        },
+        "total_tokens": {
+          "n": 4,
+          "mean": 76119.75,
+          "stdev": 60312.387170878916,
+          "min": 23500.0,
+          "max": 161599.0,
+          "ci95_halfwidth_normal_approx": 59106.139427461334
+        },
+        "total_cost_usd_estimate": {
+          "n": 4,
+          "mean": 0.026514950000000002,
+          "stdev": 0.019135219552176556,
+          "min": 0.013096,
+          "max": 0.0547865,
+          "ci95_halfwidth_normal_approx": 0.018752515161133024
+        },
+        "num_turns": {
+          "n": 4,
+          "mean": 3.0,
+          "stdev": 2.160246899469287,
+          "min": 1.0,
+          "max": 6.0,
+          "ci95_halfwidth_normal_approx": 2.117041961479901
+        },
+        "tool_call_count": {
+          "n": 4,
+          "mean": 2.0,
+          "stdev": 2.160246899469287,
+          "min": 0.0,
+          "max": 5.0,
+          "ci95_halfwidth_normal_approx": 2.117041961479901
+        },
+        "mcp_call_count": {
+          "n": 4,
+          "mean": 0.75,
+          "stdev": 0.9574271077563381,
+          "min": 0.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 0.9382785656012114
+        },
+        "toolsearch_calls": {
+          "n": 4,
+          "mean": 0.5,
+          "stdev": 0.5773502691896257,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.5658032638058332
+        },
+        "builtin_search_calls": {
+          "n": 4,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "read_calls": {
+          "n": 4,
+          "mean": 0.75,
+          "stdev": 0.9574271077563381,
+          "min": 0.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 0.9382785656012114
+        },
+        "files_read": {
+          "n": 4,
+          "mean": 0.75,
+          "stdev": 0.9574271077563381,
+          "min": 0.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 0.9382785656012114
+        },
+        "tool_result_bytes": {
+          "n": 4,
+          "mean": 4697.75,
+          "stdev": 8484.437140042546,
+          "min": 0.0,
+          "max": 17415.0,
+          "ci95_halfwidth_normal_approx": 8314.748397241696
+        },
+        "wall_s": {
+          "n": 4,
+          "mean": 13.385,
+          "stdev": 11.73250896725277,
+          "min": 5.83,
+          "max": 30.74,
+          "ci95_halfwidth_normal_approx": 11.497858787907713
+        }
+      },
+      "C": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.5,
+        "evidence_found_rate": 0.75,
+        "first_evidence_tool_call": {
+          "n": 3,
+          "mean": 2.0,
+          "stdev": 1.0,
+          "min": 1.0,
+          "max": 3.0,
+          "ci95_halfwidth_normal_approx": 1.1316065276116665
+        },
+        "input_tokens": {
+          "n": 4,
+          "mean": 25.0,
+          "stdev": 14.65150731722394,
+          "min": 10.0,
+          "max": 44.0,
+          "ci95_halfwidth_normal_approx": 14.35847717087946
+        },
+        "output_tokens": {
+          "n": 4,
+          "mean": 878.25,
+          "stdev": 1175.857523965666,
+          "min": 177.0,
+          "max": 2635.0,
+          "ci95_halfwidth_normal_approx": 1152.3403734863525
+        },
+        "cache_creation_input_tokens": {
+          "n": 4,
+          "mean": 12103.5,
+          "stdev": 8595.647600190847,
+          "min": 5376.0,
+          "max": 23976.0,
+          "ci95_halfwidth_normal_approx": 8423.73464818703
+        },
+        "cache_read_input_tokens": {
+          "n": 4,
+          "mean": 56589.25,
+          "stdev": 46928.2743370135,
+          "min": 18065.0,
+          "max": 119413.0,
+          "ci95_halfwidth_normal_approx": 45989.70885027323
+        },
+        "total_tokens": {
+          "n": 4,
+          "mean": 69596.0,
+          "stdev": 47852.518240945275,
+          "min": 23628.0,
+          "max": 134955.0,
+          "ci95_halfwidth_normal_approx": 46895.46787612637
+        },
+        "total_cost_usd_estimate": {
+          "n": 4,
+          "mean": 0.034282175,
+          "stdev": 0.019873517766678853,
+          "min": 0.0134535,
+          "max": 0.0516656,
+          "ci95_halfwidth_normal_approx": 0.019476047411345274
+        },
+        "num_turns": {
+          "n": 4,
+          "mean": 3.0,
+          "stdev": 2.160246899469287,
+          "min": 1.0,
+          "max": 6.0,
+          "ci95_halfwidth_normal_approx": 2.117041961479901
+        },
+        "tool_call_count": {
+          "n": 4,
+          "mean": 2.0,
+          "stdev": 2.160246899469287,
+          "min": 0.0,
+          "max": 5.0,
+          "ci95_halfwidth_normal_approx": 2.117041961479901
+        },
+        "mcp_call_count": {
+          "n": 4,
+          "mean": 0.75,
+          "stdev": 0.9574271077563381,
+          "min": 0.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 0.9382785656012114
+        },
+        "toolsearch_calls": {
+          "n": 4,
+          "mean": 0.5,
+          "stdev": 0.5773502691896257,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.5658032638058332
+        },
+        "builtin_search_calls": {
+          "n": 4,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "read_calls": {
+          "n": 4,
+          "mean": 0.75,
+          "stdev": 0.9574271077563381,
+          "min": 0.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 0.9382785656012114
+        },
+        "files_read": {
+          "n": 4,
+          "mean": 0.5,
+          "stdev": 0.5773502691896257,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.5658032638058332
+        },
+        "tool_result_bytes": {
+          "n": 4,
+          "mean": 4336.0,
+          "stdev": 7761.521672112155,
+          "min": 0.0,
+          "max": 15968.0,
+          "ci95_halfwidth_normal_approx": 7606.291238669912
+        },
+        "wall_s": {
+          "n": 4,
+          "mean": 14.04,
+          "stdev": 12.371847073093006,
+          "min": 6.07,
+          "max": 32.44,
+          "ci95_halfwidth_normal_approx": 12.124410131631146
+        }
+      },
+      "D": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.5,
+        "evidence_found_rate": 0.75,
+        "first_evidence_tool_call": {
+          "n": 3,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "input_tokens": {
+          "n": 4,
+          "mean": 16.0,
+          "stdev": 4.0,
+          "min": 10.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": 3.92
+        },
+        "output_tokens": {
+          "n": 4,
+          "mean": 454.25,
+          "stdev": 448.5453340150432,
+          "min": 181.0,
+          "max": 1125.0,
+          "ci95_halfwidth_normal_approx": 439.5744273347423
+        },
+        "cache_creation_input_tokens": {
+          "n": 4,
+          "mean": 6068.25,
+          "stdev": 606.3961164123663,
+          "min": 5351.0,
+          "max": 6794.0,
+          "ci95_halfwidth_normal_approx": 594.2681940841189
+        },
+        "cache_read_input_tokens": {
+          "n": 4,
+          "mean": 36048.0,
+          "stdev": 11832.667380321875,
+          "min": 18299.0,
+          "max": 41969.0,
+          "ci95_halfwidth_normal_approx": 11596.014032715437
+        },
+        "total_tokens": {
+          "n": 4,
+          "mean": 42586.5,
+          "stdev": 12520.546753237257,
+          "min": 23841.0,
+          "max": 49902.0,
+          "ci95_halfwidth_normal_approx": 12270.135818172512
+        },
+        "total_cost_usd_estimate": {
+          "n": 4,
+          "mean": 0.01802855,
+          "stdev": 0.004112255239727547,
+          "min": 0.0134469,
+          "max": 0.0234275,
+          "ci95_halfwidth_normal_approx": 0.004030010134932996
+        },
+        "num_turns": {
+          "n": 4,
+          "mean": 1.75,
+          "stdev": 0.5,
+          "min": 1.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 0.49
+        },
+        "tool_call_count": {
+          "n": 4,
+          "mean": 0.75,
+          "stdev": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.49
+        },
+        "mcp_call_count": {
+          "n": 4,
+          "mean": 0.5,
+          "stdev": 0.5773502691896257,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.5658032638058332
+        },
+        "toolsearch_calls": {
+          "n": 4,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "builtin_search_calls": {
+          "n": 4,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "read_calls": {
+          "n": 4,
+          "mean": 0.25,
+          "stdev": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.49
+        },
+        "files_read": {
+          "n": 4,
+          "mean": 0.25,
+          "stdev": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.49
+        },
+        "tool_result_bytes": {
+          "n": 4,
+          "mean": 1532.5,
+          "stdev": 1484.7638420525557,
+          "min": 0.0,
+          "max": 3268.0,
+          "ci95_halfwidth_normal_approx": 1455.0685652115046
+        },
+        "wall_s": {
+          "n": 4,
+          "mean": 10.5175,
+          "stdev": 4.105300435615725,
+          "min": 7.14,
+          "max": 16.06,
+          "ci95_halfwidth_normal_approx": 4.023194426903411
+        }
+      },
+      "E": {
+        "success_rate": 1.0,
+        "findex_used_rate": 0.5,
+        "evidence_found_rate": 0.75,
+        "first_evidence_tool_call": {
+          "n": 3,
+          "mean": 1.0,
+          "stdev": 0.0,
+          "min": 1.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "input_tokens": {
+          "n": 4,
+          "mean": 16.0,
+          "stdev": 4.0,
+          "min": 10.0,
+          "max": 18.0,
+          "ci95_halfwidth_normal_approx": 3.92
+        },
+        "output_tokens": {
+          "n": 4,
+          "mean": 472.75,
+          "stdev": 464.9690849938305,
+          "min": 183.0,
+          "max": 1167.0,
+          "ci95_halfwidth_normal_approx": 455.6697032939539
+        },
+        "cache_creation_input_tokens": {
+          "n": 4,
+          "mean": 10363.25,
+          "stdev": 8368.879549656971,
+          "min": 5344.0,
+          "max": 22875.0,
+          "ci95_halfwidth_normal_approx": 8201.501958663832
+        },
+        "cache_read_input_tokens": {
+          "n": 4,
+          "mean": 29504.5,
+          "stdev": 11564.629248993098,
+          "min": 16988.0,
+          "max": 39346.0,
+          "ci95_halfwidth_normal_approx": 11333.336664013235
+        },
+        "total_tokens": {
+          "n": 4,
+          "mean": 40356.5,
+          "stdev": 11920.565352924052,
+          "min": 22525.0,
+          "max": 47541.0,
+          "ci95_halfwidth_normal_approx": 11682.15404586557
+        },
+        "total_cost_usd_estimate": {
+          "n": 4,
+          "mean": 0.026056700000000002,
+          "stdev": 0.016184494093009726,
+          "min": 0.013311799999999999,
+          "max": 0.049458300000000004,
+          "ci95_halfwidth_normal_approx": 0.01586080421114953
+        },
+        "num_turns": {
+          "n": 4,
+          "mean": 1.75,
+          "stdev": 0.5,
+          "min": 1.0,
+          "max": 2.0,
+          "ci95_halfwidth_normal_approx": 0.49
+        },
+        "tool_call_count": {
+          "n": 4,
+          "mean": 0.75,
+          "stdev": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.49
+        },
+        "mcp_call_count": {
+          "n": 4,
+          "mean": 0.5,
+          "stdev": 0.5773502691896257,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.5658032638058332
+        },
+        "toolsearch_calls": {
+          "n": 4,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "builtin_search_calls": {
+          "n": 4,
+          "mean": 0.0,
+          "stdev": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "ci95_halfwidth_normal_approx": 0.0
+        },
+        "read_calls": {
+          "n": 4,
+          "mean": 0.25,
+          "stdev": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.49
+        },
+        "files_read": {
+          "n": 4,
+          "mean": 0.25,
+          "stdev": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "ci95_halfwidth_normal_approx": 0.49
+        },
+        "tool_result_bytes": {
+          "n": 4,
+          "mean": 1532.5,
+          "stdev": 1484.7638420525557,
+          "min": 0.0,
+          "max": 3268.0,
+          "ci95_halfwidth_normal_approx": 1455.0685652115046
+        },
+        "wall_s": {
+          "n": 4,
+          "mean": 10.12,
+          "stdev": 4.968487362031493,
+          "min": 6.04,
+          "max": 17.36,
+          "ci95_halfwidth_normal_approx": 4.869117614790864
+        }
+      },
+      "B_vs_A_total_tokens_change_pct": 60.81977084022901,
+      "B_vs_A_est_cost_change_pct": -6.358994945059606,
+      "paired_total_token_difference_B_minus_A": {
+        "n": 3,
+        "mean": 294.3333333333333,
+        "stdev": 169.00098619041646,
+        "min": 125.0,
+        "max": 463.0,
+        "ci95_halfwidth_normal_approx": 191.24261914588436
+      },
+      "C_vs_A_total_tokens_change_pct": 47.036909230476695,
+      "C_vs_A_est_cost_change_pct": 21.0719734515566,
+      "paired_total_token_difference_C_minus_A": {
+        "n": 3,
+        "mean": 477.3333333333333,
+        "stdev": 207.01771260772188,
+        "min": 253.0,
+        "max": 661.0,
+        "ci95_halfwidth_normal_approx": 234.26259491813406
+      },
+      "D_vs_A_total_tokens_change_pct": -10.02662028071016,
+      "D_vs_A_est_cost_change_pct": -36.32982367746326,
+      "paired_total_token_difference_D_minus_A": {
+        "n": 3,
+        "mean": -7184.333333333333,
+        "stdev": 13651.949763068033,
+        "min": -22946.0,
+        "max": 927.0,
+        "ci95_halfwidth_normal_approx": 15448.63546651433
+      },
+      "E_vs_A_total_tokens_change_pct": -14.737987422269489,
+      "E_vs_A_est_cost_change_pct": -7.977364603174234,
+      "paired_total_token_difference_E_minus_A": {
+        "n": 3,
+        "mean": -9370.666666666666,
+        "stdev": 14058.324094049523,
+        "min": -25597.0,
+        "max": -850.0,
+        "ci95_halfwidth_normal_approx": 15908.491312106808
+      }
+    }
+  }
+}

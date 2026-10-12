@@ -174,18 +174,37 @@ def main() -> int:
     parser.add_argument("--session-budget", type=float, default=0.40)
     parser.add_argument("--total-budget", type=float, default=6.0, help="stop when estimated spend reaches this")
     parser.add_argument("--out", default=None)
+    parser.add_argument("--resume", action="store_true",
+                        help="keep EXECUTED sessions already in --out/tokens.json and run only the rest")
     args = parser.parse_args()
     out = results_dir(args.out)
     tasks = make_tasks()
     selected = [t for t in tasks if not args.tasks or t in args.tasks.split(",")]
     arms = args.arms.split(",")
     spent, sessions, blocked = 0.0, [], ""
+    done = {}
+    if args.resume and (out / "tokens.json").exists():
+        previous = json.loads((out / "tokens.json").read_text(encoding="utf-8"))
+        done = {(s["task"], s["arm"], s["rep"]): s for s in previous["sessions"] if s.get("status") == "EXECUTED"}
+        spent = sum(s.get("total_cost_usd_estimate") or 0.0 for s in done.values())
+
+    def save():
+        # Written after every session: an interrupted study keeps what it measured.
+        write_json(out / "tokens.json", {"model": args.model, "effort": args.effort, "reps": args.reps,
+                                          "arms": {a: dict(ARMS[a]) for a in arms},
+                                          "isolation": "CLAUDE_CODE_DISABLE_CLAUDE_MDS=1, Skill denied, --setting-sources project,local",
+                                          "cost_note": "total_cost_usd is Claude Code's client-side estimate, not an invoice",
+                                          "sessions": sessions, "estimated_spend_usd": spent})
+        write_json(out / "comparisons.json", compare(sessions, arms))
     base = WORK / "claude" / f"ab-{out.name}"
     target = WORK / "claude" / "cargo-target"  # shared build cache for acceptance tests only
     for rep in range(args.reps):
         for index, name in enumerate(selected):
             order = arms if (rep + index) % 2 == 0 else list(reversed(arms))  # counterbalanced
             for arm in order:
+                if (name, arm, rep) in done:
+                    sessions.append(done[(name, arm, rep)])
+                    continue
                 if spent >= args.total_budget or blocked:
                     sessions.append({"task": name, "arm": arm, "rep": rep, "status": "BLOCKED",
                                      "reason": blocked or f"total budget {args.total_budget} reached"})
@@ -222,17 +241,13 @@ def main() -> int:
                 if status == "BLOCKED":
                     record["reason"], record["correct"] = blocked, None
                 sessions.append(record)
+                save()
                 print(f"     correct={correct} in={summary['input_tokens']} out={summary['output_tokens']} "
                       f"cw={summary['cache_creation_input_tokens']} cr={summary['cache_read_input_tokens']} "
                       f"cost~{summary['total_cost_usd_estimate']} tools={summary['tool_call_count']} "
                       f"wall={summary['wall_s']}s {reason[:80]}", file=sys.stderr)
                 shutil.rmtree(dest / "state", ignore_errors=True)
-    write_json(out / "tokens.json", {"model": args.model, "effort": args.effort, "reps": args.reps,
-                                      "arms": {a: {k: v for k, v in ARMS[a].items()} for a in arms},
-                                      "isolation": "CLAUDE_CODE_DISABLE_CLAUDE_MDS=1, Skill denied, --setting-sources project,local",
-                                      "cost_note": "total_cost_usd is Claude Code's client-side estimate, not an invoice",
-                                      "sessions": sessions, "estimated_spend_usd": spent})
-    write_json(out / "comparisons.json", compare(sessions, arms))
+    save()
     return 0
 
 

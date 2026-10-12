@@ -103,6 +103,34 @@ pub fn context_in_db(
                 ));
             }
             if report.intent != "definition" {
+                let free_rust_function = !found.is_empty()
+                    && !sites.iter().any(|s| s.kind == "definition")
+                    && found.iter().all(|d| {
+                        d.path.ends_with(".rs")
+                            && d.enclosing
+                                .as_deref()
+                                .is_some_and(|e| e.starts_with("function "))
+                    });
+                if free_rust_function {
+                    // A Rust free function cannot be called as `.name(`; such
+                    // lines call some other type's method of the same name.
+                    let before = sites.len();
+                    sites.retain(|s| {
+                        !(s.path.ends_with(".rs") && only_method_syntax(&s.text, &identifier))
+                    });
+                    if sites.len() < before {
+                        report.missing.push(format!(
+                            "excluded {} method-syntax `.{identifier}(` lines: a Rust free function cannot be called that way",
+                            before - sites.len()
+                        ));
+                    }
+                }
+                let defined = found.len() + sites.iter().filter(|s| s.kind == "definition").count();
+                if defined > 1 {
+                    report.missing.push(format!(
+                        "`{identifier}` has {defined} definitions; call sites are name matches, not type-resolved, and may belong to any of them"
+                    ));
+                }
                 if sites.iter().all(|s| s.kind == "definition") {
                     report.missing.push(format!(
                         "no code mentions `{identifier}` outside its definition"
@@ -447,6 +475,12 @@ fn classify_line(line: &str, identifier: &str) -> Option<&'static str> {
         return Some(if call { "call" } else { "reference" });
     }
     None
+}
+
+/// Every occurrence of `identifier` on the line is a `.identifier` member access.
+fn only_method_syntax(line: &str, identifier: &str) -> bool {
+    let all = line.matches(identifier).count();
+    all > 0 && line.matches(&format!(".{identifier}")).count() == all
 }
 
 const CODE_EXTENSIONS: &[&str] = &[
@@ -807,6 +841,42 @@ mod tests {
             report.evidence
         );
         assert_eq!(report.evidence[1].path, "HISTORY.md");
+    }
+
+    #[test]
+    fn rust_free_function_callers_exclude_method_syntax() {
+        let other = "fn use_vec(v: Vec<u8>) -> usize {\n    v.iter().count() + walk_items()\n}\n";
+        let lib = "pub fn iter() -> u32 {\n    1\n}\n\npub fn walk_items() -> usize {\n    iter() as usize\n}\n";
+        let (root, _state, db) = project(&[("src/lib.rs", lib), ("src/other.rs", other)]);
+        let report = ask(&root, &db, "callers of `iter`", 2000);
+        let calls: Vec<_> = report
+            .evidence
+            .iter()
+            .filter(|e| e.kind == "call")
+            .map(|e| (e.path.as_str(), e.line))
+            .collect();
+        assert_eq!(calls, vec![("src/lib.rs", 6)], "{:?}", report.evidence);
+        assert!(
+            report.missing.iter().any(|m| m.contains("method-syntax")),
+            "{:?}",
+            report.missing
+        );
+    }
+
+    #[test]
+    fn shared_names_are_disclosed_as_ambiguous() {
+        let a = "pub struct A;\nimpl A {\n    pub fn build(&self) {}\n}\n";
+        let b = "pub struct B;\nimpl B {\n    pub fn build(&self) {}\n}\nfn go(a: crate::a::A) {\n    a.build();\n}\n";
+        let (root, _state, db) = project(&[("src/a.rs", a), ("src/b.rs", b)]);
+        let report = ask(&root, &db, "who calls `build`", 2000);
+        assert!(
+            report
+                .missing
+                .iter()
+                .any(|m| m.contains("2 definitions") && m.contains("not type-resolved")),
+            "{:?}",
+            report.missing
+        );
     }
 
     #[test]
