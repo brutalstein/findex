@@ -1,0 +1,306 @@
+{
+  "checks": [
+    {
+      "name": "findex --version",
+      "status": "PASS",
+      "detail": "findex 0.1.0",
+      "evidence": null
+    },
+    {
+      "name": "plugin absent: doctor reports missing plugin",
+      "status": "PASS",
+      "detail": "['Plugin beside executable: missing (Claude runs without Findex tools)', 'Native Claude CLI (claude.exe): found']",
+      "evidence": null
+    },
+    {
+      "name": "plugin present beside exe: doctor detects plugin and native claude.exe",
+      "status": "PASS",
+      "detail": "['Plugin beside executable: present', 'Native Claude CLI (claude.exe): found']",
+      "evidence": null
+    },
+    {
+      "name": "claude: findex MCP server connected",
+      "status": "PASS",
+      "detail": "[{'name': 'findex', 'status': 'connected', 'source': 'dynamic'}]",
+      "evidence": null
+    },
+    {
+      "name": "claude: findex tools discovered",
+      "status": "PASS",
+      "detail": "['mcp__findex__findex_find_symbol', 'mcp__findex__findex_impact', 'mcp__findex__findex_search', 'mcp__findex__findex_symbols']",
+      "evidence": null
+    },
+    {
+      "name": "claude: protocol negotiation observed",
+      "status": "PASS",
+      "detail": "{'initialize_requested': ['2025-11-25'], 'initialize_answered': ['2025-11-25'], 'modern_meta_requests': 0, 'client': {'name': 'claude-code', 'title': 'Claude Code', 'version': '2.1.281', 'description': \"Anthropic's agentic coding tool\", 'websiteUrl': 'https://claude.com/claude-code'}}",
+      "evidence": null
+    },
+    {
+      "name": "claude: genuine tools/call reached findex",
+      "status": "BLOCKED",
+      "detail": "plan usage limit reached; []",
+      "evidence": null
+    },
+    {
+      "name": "claude: correct answer from Findex evidence",
+      "status": "BLOCKED",
+      "detail": "plan usage limit reached; You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)",
+      "evidence": null
+    },
+    {
+      "name": "claude: session exit code 0",
+      "status": "BLOCKED",
+      "detail": "plan usage limit reached; ",
+      "evidence": null
+    },
+    {
+      "name": "claude --plugin-dir: plugin MCP tools discovered",
+      "status": "PASS",
+      "detail": "['mcp__plugin_findex_findex__findex_find_symbol', 'mcp__plugin_findex_findex__findex_impact', 'mcp__plugin_findex_findex__findex_search', 'mcp__plugin_findex_findex__findex_symbols']",
+      "evidence": null
+    },
+    {
+      "name": "claude --plugin-dir: tool invoked and answer correct",
+      "status": "BLOCKED",
+      "detail": "plan usage limit reached; {'calls': [], 'answer': \"You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)\"}",
+      "evidence": null
+    },
+    {
+      "name": "findex claude launcher: forwards args, loads plugin, answer correct",
+      "status": "BLOCKED",
+      "detail": "plan usage limit reached; {'exit': 1, 'calls': [], 'answer': \"You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)\", 'stderr': ''}",
+      "evidence": null
+    }
+  ],
+  "sessions": {
+    "mcp_config": {
+      "exit_code": 1,
+      "timed_out": false,
+      "wall_s": 2.66,
+      "result_subtype": "success",
+      "is_error": true,
+      "num_turns": 1,
+      "duration_api_ms": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "total_cost_usd_estimate": 0,
+      "model_usage": {},
+      "tool_calls": [],
+      "tool_call_count": 0,
+      "mcp_call_count": 0,
+      "files_read": 0,
+      "tool_result_bytes": 0,
+      "init_mcp_servers": [
+        {
+          "name": "findex",
+          "status": "connected",
+          "source": "dynamic"
+        }
+      ],
+      "init_model": "claude-haiku-4-5-20251001",
+      "init_tools_findex": [
+        "mcp__findex__findex_find_symbol",
+        "mcp__findex__findex_impact",
+        "mcp__findex__findex_search",
+        "mcp__findex__findex_symbols"
+      ],
+      "init_plugins": [
+        {
+          "name": "agents-md",
+          "path": "builtin",
+          "source": "agents-md@builtin"
+        },
+        {
+          "name": "telemetry",
+          "path": "builtin",
+          "source": "telemetry@builtin"
+        }
+      ],
+      "claude_code_version": "2.1.281",
+      "final_text": "You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)"
+    },
+    "plugin_dir": {
+      "exit_code": 1,
+      "timed_out": false,
+      "wall_s": 4.66,
+      "result_subtype": "success",
+      "is_error": true,
+      "num_turns": 1,
+      "duration_api_ms": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "total_cost_usd_estimate": 0,
+      "model_usage": {},
+      "tool_calls": [],
+      "tool_call_count": 0,
+      "mcp_call_count": 0,
+      "files_read": 0,
+      "tool_result_bytes": 0,
+      "init_mcp_servers": [
+        {
+          "name": "plugin:findex:findex",
+          "status": "connected",
+          "source": "plugin"
+        },
+        {
+          "name": "claude.ai Claude Docs",
+          "status": "connected",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai Webull",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai viewmax",
+          "status": "pending",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai trade",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai eromify",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai OpenArt",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai higgsfield",
+          "status": "pending",
+          "source": "claudeai"
+        }
+      ],
+      "init_model": "claude-haiku-4-5-20251001",
+      "init_tools_findex": [
+        "mcp__plugin_findex_findex__findex_find_symbol",
+        "mcp__plugin_findex_findex__findex_impact",
+        "mcp__plugin_findex_findex__findex_search",
+        "mcp__plugin_findex_findex__findex_symbols"
+      ],
+      "init_plugins": [
+        {
+          "name": "findex",
+          "path": "%FINDEX_VALIDATION_HOME%\\claude\\integration-20261011T210034Z-6730f7a14f26\\dist\\plugin",
+          "source": "findex@inline",
+          "version": "0.1.0"
+        },
+        {
+          "name": "agents-md",
+          "path": "builtin",
+          "source": "agents-md@builtin"
+        },
+        {
+          "name": "telemetry",
+          "path": "builtin",
+          "source": "telemetry@builtin"
+        }
+      ],
+      "claude_code_version": "2.1.281",
+      "final_text": "You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)"
+    },
+    "launcher": {
+      "exit_code": 1,
+      "timed_out": false,
+      "wall_s": 4.75,
+      "result_subtype": "success",
+      "is_error": true,
+      "num_turns": 1,
+      "duration_api_ms": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "total_cost_usd_estimate": 0,
+      "model_usage": {},
+      "tool_calls": [],
+      "tool_call_count": 0,
+      "mcp_call_count": 0,
+      "files_read": 0,
+      "tool_result_bytes": 0,
+      "init_mcp_servers": [
+        {
+          "name": "plugin:findex:findex",
+          "status": "connected",
+          "source": "plugin"
+        },
+        {
+          "name": "claude.ai Claude Docs",
+          "status": "connected",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai Webull",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai viewmax",
+          "status": "connected",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai trade",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai eromify",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai OpenArt",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai higgsfield",
+          "status": "pending",
+          "source": "claudeai"
+        }
+      ],
+      "init_model": "claude-haiku-4-5-20251001",
+      "init_tools_findex": [
+        "mcp__plugin_findex_findex__findex_find_symbol",
+        "mcp__plugin_findex_findex__findex_impact",
+        "mcp__plugin_findex_findex__findex_search",
+        "mcp__plugin_findex_findex__findex_symbols"
+      ],
+      "init_plugins": [
+        {
+          "name": "findex",
+          "path": "%FINDEX_VALIDATION_HOME%\\claude\\integration-20261011T210034Z-6730f7a14f26\\dist\\plugin",
+          "source": "findex@inline",
+          "version": "0.1.0"
+        },
+        {
+          "name": "agents-md",
+          "path": "builtin",
+          "source": "agents-md@builtin"
+        },
+        {
+          "name": "telemetry",
+          "path": "builtin",
+          "source": "telemetry@builtin"
+        }
+      ],
+      "claude_code_version": "2.1.281",
+      "final_text": "You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)"
+    }
+  },
+  "note": "trace proxy stores protocol metadata only; no tool payloads",
+  "post_hoc_note": "5 model-dependent checks reclassified FAIL->BLOCKED: every session answered \"You have hit your session limit\""
+}

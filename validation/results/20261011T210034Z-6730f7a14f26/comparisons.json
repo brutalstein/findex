@@ -1,0 +1,79 @@
+{
+  "per_task": {},
+  "overall": {
+    "__all__": {
+      "A": {
+        "success_rate": null,
+        "input_tokens": {
+          "n": 0
+        },
+        "output_tokens": {
+          "n": 0
+        },
+        "cache_creation_input_tokens": {
+          "n": 0
+        },
+        "cache_read_input_tokens": {
+          "n": 0
+        },
+        "total_tokens": {
+          "n": 0
+        },
+        "total_cost_usd_estimate": {
+          "n": 0
+        },
+        "tool_call_count": {
+          "n": 0
+        },
+        "mcp_call_count": {
+          "n": 0
+        },
+        "files_read": {
+          "n": 0
+        },
+        "tool_result_bytes": {
+          "n": 0
+        },
+        "wall_s": {
+          "n": 0
+        }
+      },
+      "B": {
+        "success_rate": null,
+        "input_tokens": {
+          "n": 0
+        },
+        "output_tokens": {
+          "n": 0
+        },
+        "cache_creation_input_tokens": {
+          "n": 0
+        },
+        "cache_read_input_tokens": {
+          "n": 0
+        },
+        "total_tokens": {
+          "n": 0
+        },
+        "total_cost_usd_estimate": {
+          "n": 0
+        },
+        "tool_call_count": {
+          "n": 0
+        },
+        "mcp_call_count": {
+          "n": 0
+        },
+        "files_read": {
+          "n": 0
+        },
+        "tool_result_bytes": {
+          "n": 0
+        },
+        "wall_s": {
+          "n": 0
+        }
+      }
+    }
+  }
+}

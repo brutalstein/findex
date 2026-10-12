@@ -1,0 +1,212 @@
+{
+  "FAIL": [],
+  "BLOCKED": [
+    {
+      "component": "compatibility",
+      "check": "claude: genuine tools/call reached findex",
+      "detail": "plan usage limit reached; []"
+    },
+    {
+      "component": "compatibility",
+      "check": "claude: correct answer from Findex evidence",
+      "detail": "plan usage limit reached; You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)"
+    },
+    {
+      "component": "compatibility",
+      "check": "claude: session exit code 0",
+      "detail": "plan usage limit reached; "
+    },
+    {
+      "component": "compatibility",
+      "check": "claude --plugin-dir: tool invoked and answer correct",
+      "detail": "plan usage limit reached; {'calls': [], 'answer': \"You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)\"}"
+    },
+    {
+      "component": "compatibility",
+      "check": "findex claude launcher: forwards args, loads plugin, answer correct",
+      "detail": "plan usage limit reached; {'exit': 1, 'calls': [], 'answer': \"You've hit your session limit \u00b7 resets 2:50am (Europe/Istanbul)\", 'stderr': ''}"
+    },
+    {
+      "component": "tokens",
+      "session": "t1_find_function/A/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t1_find_function/B/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t2_identify_callers/B/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t2_identify_callers/A/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t3_explain_concept/A/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t3_explain_concept/B/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t4_cross_file_trace/B/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t4_cross_file_trace/A/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t5_fix_bug/A/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t5_fix_bug/B/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t6_feature_with_test/B/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t6_feature_with_test/A/0",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t1_find_function/B/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t1_find_function/A/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t2_identify_callers/A/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t2_identify_callers/B/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t3_explain_concept/B/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t3_explain_concept/A/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t4_cross_file_trace/A/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t4_cross_file_trace/B/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t5_fix_bug/B/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t5_fix_bug/A/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t6_feature_with_test/A/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t6_feature_with_test/B/1",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t1_find_function/A/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t1_find_function/B/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t2_identify_callers/B/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t2_identify_callers/A/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t3_explain_concept/A/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t3_explain_concept/B/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t4_cross_file_trace/B/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t4_cross_file_trace/A/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t5_fix_bug/A/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t5_fix_bug/B/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t6_feature_with_test/B/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    },
+    {
+      "component": "tokens",
+      "session": "t6_feature_with_test/A/2",
+      "reason": "Claude plan usage limit reached (reclassified post hoc from the recorded answer text)"
+    }
+  ],
+  "SKIPPED": [],
+  "NOT_RUN": []
+}
