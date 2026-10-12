@@ -119,6 +119,34 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 result.stale_results_discarded
             );
         }
+        "context" => {
+            let mut budget = 2000;
+            let mut as_json = false;
+            let mut words = Vec::new();
+            while let Some(arg) = args.next() {
+                match arg.to_string_lossy().as_ref() {
+                    "--budget" => {
+                        budget = args
+                            .next()
+                            .ok_or("--budget needs a number")?
+                            .to_string_lossy()
+                            .parse()?;
+                    }
+                    "--json" => as_json = true,
+                    word => words.push(word.to_string()),
+                }
+            }
+            let task = words.join(" ");
+            if task.trim().is_empty() {
+                return Err("usage: findex context [--budget N] [--json] <task>".into());
+            }
+            let report = findex_index::context(&project, &task, budget)?;
+            if as_json {
+                println!("{}", serde_json::to_string(&report)?);
+            } else {
+                print!("{}", report.render());
+            }
+        }
         "graph-import-scip" => {
             let file = args
                 .next()

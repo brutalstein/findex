@@ -1,9 +1,11 @@
 //! SQLite/FTS5-backed *lexical* code discovery. No embeddings or model calls.
 //! v0.1 reconciles file contents before each search; a native watcher is a planned optimization.
 
+mod context;
 mod refresh;
 mod symbols;
 
+pub use context::{context, context_in_db, ContextReport, Evidence};
 pub use refresh::{refresh_known_paths, refresh_known_paths_into, RefreshReport};
 pub use symbols::{
     inspect_indexed_file, inspect_indexed_file_in_db, search_symbols, search_symbols_in_db,

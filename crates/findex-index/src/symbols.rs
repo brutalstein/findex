@@ -69,6 +69,7 @@ pub(crate) struct DefinitionRow {
     pub name: String,
     pub kind: String,
     pub start_line: usize,
+    pub end_line: usize,
     pub hash: String,
 }
 
@@ -81,7 +82,7 @@ pub(crate) fn definitions_by_identifier(
     limit: usize,
 ) -> Result<Vec<DefinitionRow>> {
     let mut stmt = conn.prepare_cached(
-        "SELECT s.path, s.name, s.kind, s.start_line, st.hash
+        "SELECT s.path, s.name, s.kind, s.start_line, s.end_line, st.hash
          FROM symbols AS s
          JOIN symbol_state AS st ON st.path = s.path AND st.extractor_revision = ?2
          JOIN files AS f ON f.path = s.path AND f.hash = st.hash
@@ -97,9 +98,32 @@ pub(crate) fn definitions_by_identifier(
                 name: row.get(1)?,
                 kind: row.get(2)?,
                 start_line: usize::try_from(row.get::<_, i64>(3)?).unwrap_or(0),
-                hash: row.get(4)?,
+                end_line: usize::try_from(row.get::<_, i64>(4)?).unwrap_or(0),
+                hash: row.get(5)?,
             })
         },
+    )?;
+    Ok(rows.collect::<std::result::Result<Vec<_>, _>>()?)
+}
+
+/// Definitions in `path` whose span contains `line`, innermost first. Only
+/// rows extracted from the given file hash count, so stale spans never apply.
+pub(crate) fn containing(
+    conn: &Connection,
+    path: &str,
+    hash: &str,
+    line: usize,
+) -> Result<Vec<(String, String)>> {
+    let mut stmt = conn.prepare_cached(
+        "SELECT s.name, s.kind
+         FROM symbols AS s
+         JOIN symbol_state AS st ON st.path = s.path AND st.extractor_revision = ?3
+         WHERE s.path = ?1 AND st.hash = ?2 AND s.start_line <= ?4 AND s.end_line >= ?4
+         ORDER BY s.end_line - s.start_line ASC, s.start_line DESC",
+    )?;
+    let rows = stmt.query_map(
+        params![path, hash, EXTRACTOR_REVISION, line as i64],
+        |row| Ok((row.get(0)?, row.get(1)?)),
     )?;
     Ok(rows.collect::<std::result::Result<Vec<_>, _>>()?)
 }

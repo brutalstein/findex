@@ -11,6 +11,7 @@ findex-index = { path = "../findex-index" }
 findex-relations = { path = "../findex-relations" }
 findex-mcp = { path = "../findex-mcp" }
 findex-syntax = { path = "../findex-syntax" }
+serde_json = "1"
 
 [[bin]]
 name = "findex"

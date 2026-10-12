@@ -3,7 +3,7 @@
 //! trigger full reconciliation; retrieved code is still verified by its hash.
 
 use findex_core::{is_excluded_scan_entry, storage_dir};
-use findex_index::{SearchReport, SymbolSearchReport, SyncStats};
+use findex_index::{ContextReport, SearchReport, SymbolSearchReport, SyncStats};
 use notify::event::ModifyKind;
 use notify::{Event, EventKind, RecursiveMode, Watcher};
 use std::collections::BTreeSet;
@@ -65,6 +65,21 @@ impl SearchBackend {
                 }
             },
             Self::Scanning(project) => findex_index::inspect_indexed_file(project, relative),
+        }
+    }
+
+    pub fn context(&mut self, task: &str, budget_tokens: usize) -> Result<ContextReport> {
+        match self {
+            Self::Watched(index) => match index.context(task, budget_tokens) {
+                Ok(report) => Ok(report),
+                Err(err) => {
+                    let project = index.project.clone();
+                    eprintln!("findex: native watcher context lookup failed ({err}); switching to full scans");
+                    *self = Self::Scanning(project.clone());
+                    findex_index::context(&project, task, budget_tokens)
+                }
+            },
+            Self::Scanning(project) => findex_index::context(project, task, budget_tokens),
         }
     }
 
@@ -140,6 +155,11 @@ impl WatchedIndex {
         report.sync = sync;
         report.retrieval = "sqlite-symbol-exact-hash-native-watch";
         Ok(report)
+    }
+
+    pub fn context(&mut self, task: &str, budget_tokens: usize) -> Result<ContextReport> {
+        let sync = self.refresh_before_search()?;
+        findex_index::context_in_db(&self.project, &self.database, task, budget_tokens, sync)
     }
 
     pub fn inspect_file(&mut self, relative: &Path) -> Result<Option<findex_syntax::Analysis>> {
