@@ -90,6 +90,21 @@ def run_claude(repo: Path, prompt: str, *, model: str, max_turns: int, budget_us
             "wall_s": wall, "events": events, "stderr_tail": stderr[-2000:]}
 
 
+def blocked_session(final_text: str, result: dict) -> bool:
+    """True when the client stopped for a plan limit or authentication failure,
+    or failed before any model call (no model usage at all)."""
+    if re.search(r"hit your (session|usage|weekly|daily) limit|usage limit reached|failed to authenticate"
+                 r"|oauth session expired|not logged in|please run /login", final_text, re.I):
+        return True
+    return bool(result.get("is_error")) and not result.get("modelUsage")
+
+
+assert blocked_session("Failed to authenticate: OAuth session expired and could not be refreshed", {})
+assert blocked_session("You've hit your session limit · resets 7:50am", {"modelUsage": {"m": {}}})
+assert blocked_session("", {"is_error": True, "modelUsage": {}})
+assert not blocked_session("The answer is dyn.", {"is_error": False, "modelUsage": {"m": {}}})
+
+
 def summarize_session(session: dict, markers: tuple[str, ...] = ()) -> dict:
     """Usage and tool accounting from stream-json events. `markers` are
     strings whose first appearance in a tool result counts as the first
@@ -118,9 +133,9 @@ def summarize_session(session: dict, markers: tuple[str, ...] = ()) -> dict:
                     first_evidence = call_index.get(block.get("tool_use_id"))
     usage = result.get("usage") or {}
     final_text = result.get("result") or ""
-    # Plan/session usage limits end a session before any model call. Such a
-    # session measured nothing and must not be scored as a wrong answer.
-    limit_hit = bool(re.search(r"hit your (session|usage|weekly|daily) limit|usage limit reached", final_text, re.I))
+    # Plan/session usage limits and expired sign-ins end a session early. Such a
+    # session did not measure the arm and must not be scored as a wrong answer.
+    limit_hit = blocked_session(final_text, result)
     return {
         "limit_hit": limit_hit,
         "exit_code": session["exit_code"], "timed_out": session["timed_out"], "wall_s": round(session["wall_s"], 2),

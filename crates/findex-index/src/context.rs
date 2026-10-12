@@ -144,6 +144,15 @@ pub fn context_in_db(
             candidates.extend(found);
             candidates.extend(sites);
         }
+        if candidates.is_empty() {
+            // Issue titles often name code that does not exist yet.
+            report.intent = "concept";
+            report.missing.push(
+                "no code matches the named identifiers; showing a text search over the task words"
+                    .to_string(),
+            );
+            concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
+        }
     }
     pack(candidates, &mut report);
     Ok(report)
@@ -596,13 +605,18 @@ fn concept(
 /// imports. Order inside a group is preserved (ranked, or by path and line).
 fn pack(mut candidates: Vec<Evidence>, report: &mut ContextReport) {
     let tests_first = report.intent == "tests";
-    candidates.sort_by_key(|e| match (e.kind, tests_first && e.in_test) {
-        ("definition", _) => 0,
-        (_, true) => 1,
-        ("call" | "match", _) => 2,
-        ("reference", _) => 3,
-        ("import", _) => 4,
-        _ => 5,
+    // A concept task asks how the code works, so test code ranks after source.
+    let tests_last = report.intent == "concept";
+    candidates.sort_by_key(|e| {
+        let rank = match (e.kind, tests_first && e.in_test) {
+            ("definition", _) => 0,
+            (_, true) => 1,
+            ("call" | "match", _) => 2,
+            ("reference", _) => 3,
+            ("import", _) => 4,
+            _ => 5,
+        };
+        (tests_last && e.in_test, rank)
     });
     let mut used = render_header(report).len().div_ceil(4);
     for evidence in candidates {
@@ -825,6 +839,48 @@ mod tests {
             report.evidence.last().map(|e| e.kind),
             Some("mention"),
             "prose ranks last"
+        );
+    }
+
+    #[test]
+    fn concept_task_ranks_test_code_after_source() {
+        let (root, _state, db) = project(&[
+            (
+                "test/gtest/gtest.h",
+                "// duration format chrono duration format
+void duration_format_check() {}
+",
+            ),
+            (
+                "include/chrono.h",
+                "// render a chrono duration
+void render_duration() {}
+",
+            ),
+        ]);
+        let report = ask(&root, &db, "chrono duration format is wrong", 2000);
+        assert_eq!(
+            report.evidence[0].path, "include/chrono.h",
+            "{:?}",
+            report.evidence
+        );
+    }
+
+    #[test]
+    fn unmatched_identifier_falls_back_to_the_task_words() {
+        let (root, _state, db) = project(&[(
+            "src/models.py",
+            "def iter_content(self):
+    # stream the json body
+    return self.json()
+",
+        )]);
+        let report = ask(&root, &db, "Consider iter_json for streaming json", 2000);
+        assert_eq!(report.evidence[0].path, "src/models.py", "{:?}", report);
+        assert!(
+            report.missing.iter().any(|m| m.contains("iter_json")),
+            "{:?}",
+            report.missing
         );
     }
 

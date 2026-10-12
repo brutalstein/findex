@@ -69,11 +69,30 @@ pub struct ImpactReport {
 fn database(project: &Path) -> Result<PathBuf> {
     Ok(storage_dir(project)?.join("relations.sqlite3"))
 }
+/// Schema setup can race other processes creating the same new database;
+/// SQLite reports those lock-order conflicts as immediate SQLITE_BUSY without
+/// consulting the busy handler, so retry like the lexical index does.
 fn open(project: &Path) -> Result<Connection> {
     let db = database(project)?;
     if let Some(parent) = db.parent() {
         fs::create_dir_all(parent)?;
     }
+    let deadline = std::time::Instant::now() + Duration::from_secs(30);
+    loop {
+        match try_open(&db) {
+            Err(rusqlite::Error::SqliteFailure(failure, _))
+                if matches!(
+                    failure.code,
+                    rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
+                ) && std::time::Instant::now() < deadline =>
+            {
+                std::thread::sleep(Duration::from_millis(25));
+            }
+            other => return Ok(other?),
+        }
+    }
+}
+fn try_open(db: &Path) -> rusqlite::Result<Connection> {
     let conn = Connection::open(db)?;
     conn.busy_timeout(Duration::from_secs(5))?;
     conn.execute_batch(
@@ -464,6 +483,26 @@ mod tests {
         fs::write(root.path().join("hidden.rs"), "fn ignored() {}\n").expect("ignored");
         let data = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[{"path":"b.rs","line":0,"character":18}]}"#;
         (root, data.to_owned())
+    }
+
+    #[test]
+    fn concurrent_first_opens_of_a_new_database_all_succeed() {
+        for _ in 0..20 {
+            let root = tempdir().expect("root");
+            let barrier = std::sync::Arc::new(std::sync::Barrier::new(8));
+            let workers: Vec<_> = (0..8)
+                .map(|_| {
+                    let (path, barrier) = (root.path().to_path_buf(), barrier.clone());
+                    std::thread::spawn(move || {
+                        barrier.wait();
+                        open(&path).map(drop).map_err(|e| e.to_string())
+                    })
+                })
+                .collect();
+            for worker in workers {
+                worker.join().expect("thread").expect("open");
+            }
+        }
     }
 
     #[test]

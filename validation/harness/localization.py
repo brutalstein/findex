@@ -7,7 +7,7 @@ each system receives only the issue title. Systems:
   findex-context  `findex context` from this checkout's release build
 Metrics: hit@k (any gold file in the top k), MRR of the first gold file,
 gold-file recall@10, empty-result rate, output bytes.
-Usage: localization.py [--out DIR] [--limit N]
+Usage: localization.py [--out DIR] [--limit N] [--split dev|test]
 """
 from __future__ import annotations
 
@@ -81,10 +81,13 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=None)
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--split", choices=("dev", "test"), default=None,
+                        help="evaluate one split only (development work must use dev)")
     args = parser.parse_args()
     out = results_dir(args.out)
     log = CommandLog(out)
     tasks = [json.loads(line) for line in (VALIDATION / "golden" / "issue_localization.jsonl").open(encoding="utf-8")]
+    tasks = [t for t in tasks if args.split in (None, split(t))]
     tasks = tasks[: args.limit] if args.limit else tasks
     systems = {"findex-main": findex_binary("main"), "findex-context": findex_binary("current")}
     scratch = WORK / "localization"

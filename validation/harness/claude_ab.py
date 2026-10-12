@@ -231,8 +231,8 @@ def main() -> int:
                 # A Findex arm whose server failed to start silently measures A twice.
                 status = "EXECUTED" if connected or not config else "INVALID"
                 if summary["limit_hit"]:
-                    # Never retry around a plan limit: record it and stop scheduling sessions.
-                    status, blocked = "BLOCKED", "Claude plan usage limit reached: " + summary["final_text"][:120]
+                    # Never retry around a plan limit or sign-in failure: record it and stop scheduling sessions.
+                    status, blocked = "BLOCKED", "Claude plan limit or sign-in failure: " + summary["final_text"][:120]
                 record = {"task": name, "arm": arm, "rep": rep, "status": status, "findex_connected": connected,
                           "needs_findex": task.get("needs_findex", True),
                           "correct": correct,
