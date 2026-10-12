@@ -151,6 +151,7 @@ dependencies = [
  "findex-mcp",
  "findex-relations",
  "findex-syntax",
+ "serde_json",
 ]
 
 [[package]]
