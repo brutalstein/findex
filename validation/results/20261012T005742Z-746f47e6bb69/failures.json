@@ -1,0 +1,15 @@
+{
+  "FAIL": [
+    {
+      "component": "tests",
+      "step": "clippy",
+      "detail": 101
+    }
+  ],
+  "BLOCKED": [],
+  "SKIPPED": [],
+  "NOT_RUN": [
+    "tokens",
+    "comparisons"
+  ]
+}

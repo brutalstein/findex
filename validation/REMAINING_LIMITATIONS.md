@@ -55,16 +55,22 @@ or reporting gap.
 ## Claude Code and tokens
 
 10. **A/B study is small** (medium). Six tasks, three repetitions, one model
-    (Haiku) and one effort level. Confidence intervals are wide; per-task
-    differences of less than about 30 % are within run-to-run noise. Results
-    must not be extrapolated to Sonnet/Opus or to large tasks.
+    (Haiku) and one effort level. Measured: B vs A total tokens +5.5 %, paired
+    difference +10.2k with a 95 % half-width of ±36.8k (run
+    `20261012T001625Z-bf4967d90524`), so no saving or cost is demonstrated.
+    Per-task standard deviations reach 65 % of the mean (t3 B). Results must
+    not be extrapolated to Sonnet/Opus or to large tasks. *Action:* more
+    repetitions, a stronger model, tasks sized to large repositories.
 11. **Shared prompt cache across sessions** (medium, measurement). Cache
     reuse is account-wide, so cache-creation vs cache-read splits depend on
     run order. Counterbalancing (ABBA) spreads but does not remove this; total
     tokens are the primary metric for this reason.
 12. **The model decides whether to call Findex** (medium). With Findex
-    available, Haiku still used built-in Grep/Glob/Read on several tasks.
-    Savings depend on tool choice, which Findex cannot force.
+    available, Haiku called it in 3 of 18 sessions (t1 and t2 only; 4 calls, 0.2
+    per session overall) and used built-in Grep/Glob/Read otherwise. Savings
+    depend on tool choice, which Findex cannot force. *Action:* measure with
+    tool-use guidance in the project's `CLAUDE.md`, reported as a separate
+    arm.
 13. **Only Claude Code 2.1.281 tested; it negotiates 2025-11-25** (low). The
     2026-07-28 stateless path is covered by unit and black-box tests, not by a
     real client.

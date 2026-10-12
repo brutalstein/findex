@@ -1,0 +1,60 @@
+{
+  "baseline": {
+    "ripgrep": {
+      "cold_index_peak_working_set_bytes": 17969152,
+      "mcp_after_queries": {
+        "rss": 8237056,
+        "peak_wset": 13209600,
+        "private": 2117632
+      },
+      "db_bytes": 4702208
+    },
+    "tokio": {
+      "cold_index_peak_working_set_bytes": 16044032,
+      "mcp_after_queries": {
+        "rss": 9486336,
+        "peak_wset": 14622720,
+        "private": 3985408
+      },
+      "db_bytes": 8937472
+    },
+    "vscode": {
+      "cold_index_peak_working_set_bytes": 25907200,
+      "mcp_after_queries": {
+        "rss": 9089024,
+        "peak_wset": 15654912,
+        "private": 2969600
+      },
+      "db_bytes": 123953152
+    }
+  },
+  "current": {
+    "ripgrep": {
+      "cold_index_peak_working_set_bytes": 18358272,
+      "mcp_after_queries": {
+        "rss": 9125888,
+        "peak_wset": 13897728,
+        "private": 2727936
+      },
+      "db_bytes": 5029888
+    },
+    "tokio": {
+      "cold_index_peak_working_set_bytes": 15929344,
+      "mcp_after_queries": {
+        "rss": 9977856,
+        "peak_wset": 15605760,
+        "private": 3719168
+      },
+      "db_bytes": 10059776
+    },
+    "vscode": {
+      "cold_index_peak_working_set_bytes": 32374784,
+      "mcp_after_queries": {
+        "rss": 8712192,
+        "peak_wset": 15171584,
+        "private": 2285568
+      },
+      "db_bytes": 137564160
+    }
+  }
+}

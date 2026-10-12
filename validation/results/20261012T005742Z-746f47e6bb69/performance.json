@@ -1,0 +1,1209 @@
+{
+  "build": "release (cargo build --release -p findex)",
+  "systems": {
+    "baseline": {
+      "status": "EXECUTED",
+      "binary_bytes": 12711936,
+      "corpora": {
+        "ripgrep": {
+          "files_admitted": 195,
+          "cold_index_s": {
+            "n": 3,
+            "mean": 0.6136873000001893,
+            "variance": 0.00020395554515577452,
+            "stdev": 0.014281300541469411,
+            "min": 0.5973741000007067,
+            "p50": 0.6197546000003058,
+            "p95": 0.6239331999995557,
+            "p99": 0.6239331999995557,
+            "max": 0.6239331999995557
+          },
+          "noop_reconcile_s": {
+            "n": 3,
+            "mean": 0.11005283333361149,
+            "variance": 9.091063033554243e-07,
+            "stdev": 0.0009534706620318343,
+            "min": 0.10900560000027326,
+            "p50": 0.11028220000025613,
+            "p95": 0.11087070000030508,
+            "p99": 0.11087070000030508,
+            "max": 0.11087070000030508
+          },
+          "cold_index_peak_working_set_bytes": 17969152,
+          "cold_index_cpu_s": {
+            "n": 3,
+            "mean": 0.5104166666666666,
+            "variance": 8.138020833333334e-05,
+            "stdev": 0.009021097956087904,
+            "min": 0.5,
+            "p50": 0.515625,
+            "p95": 0.515625,
+            "p99": 0.515625,
+            "max": 0.515625
+          },
+          "cold_index_io": {
+            "read_bytes": 114674509,
+            "write_bytes": 11197140
+          },
+          "db_bytes": 4702208,
+          "runs": [
+            {
+              "cold_index": {
+                "wall_s": 0.6239331999995557,
+                "exit_code": 0,
+                "peak_working_set": 17965056,
+                "cpu_user_s": 0.3125,
+                "cpu_system_s": 0.203125,
+                "read_bytes": 114674509,
+                "write_bytes": 11197140,
+                "stdout_tail": "Indexed 201 changed, 0 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 4702208
+              },
+              "noop_reconcile": {
+                "wall_s": 0.11028220000025613,
+                "exit_code": 0,
+                "peak_working_set": 7458816,
+                "cpu_user_s": 0.0,
+                "cpu_system_s": 0.03125,
+                "read_bytes": 5835429,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 201 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 0.5973741000007067,
+                "exit_code": 0,
+                "peak_working_set": 17948672,
+                "cpu_user_s": 0.40625,
+                "cpu_system_s": 0.09375,
+                "read_bytes": 114228045,
+                "write_bytes": 10754772,
+                "stdout_tail": "Indexed 201 changed, 0 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 4702208
+              },
+              "noop_reconcile": {
+                "wall_s": 0.10900560000027326,
+                "exit_code": 0,
+                "peak_working_set": 7303168,
+                "cpu_user_s": 0.0,
+                "cpu_system_s": 0.03125,
+                "read_bytes": 4735195,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 201 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 0.6197546000003058,
+                "exit_code": 0,
+                "peak_working_set": 17969152,
+                "cpu_user_s": 0.4375,
+                "cpu_system_s": 0.078125,
+                "read_bytes": 115964749,
+                "write_bytes": 12491476,
+                "stdout_tail": "Indexed 201 changed, 0 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 4702208
+              },
+              "noop_reconcile": {
+                "wall_s": 0.11087070000030508,
+                "exit_code": 0,
+                "peak_working_set": 7319552,
+                "cpu_user_s": 0.03125,
+                "cpu_system_s": 0.015625,
+                "read_bytes": 5381111,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 201 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            }
+          ],
+          "warm_mcp": {
+            "process_start_to_initialize_ms": 54.154899999957706,
+            "first_query_incl_watch_and_sync_ms": 44.38329999993584,
+            "first_query_error": false,
+            "search_ms": {
+              "n": 94,
+              "mean": 15.224753191558465,
+              "variance": 139.05207144364562,
+              "stdev": 11.79203423687557,
+              "min": 2.9373999996096245,
+              "p50": 13.033999999606749,
+              "p95": 35.2947999999742,
+              "p99": 40.529800000513205,
+              "max": 40.529800000513205
+            },
+            "find_symbol_ms": {
+              "n": 40,
+              "mean": 2.5584749999097767,
+              "variance": 0.021286979848393436,
+              "stdev": 0.14590058207009812,
+              "min": 2.381099999183789,
+              "p50": 2.51990000015212,
+              "p95": 2.8228999999555526,
+              "p99": 2.938699999504024,
+              "max": 2.938699999504024
+            },
+            "errors": 0,
+            "idle_cpu_seconds_per_10s": 0.0,
+            "memory_after_queries": {
+              "rss": 8237056,
+              "peak_wset": 13209600,
+              "private": 2117632
+            }
+          },
+          "concurrency_4_clients_shared_db": {
+            "clients": 4,
+            "requests": 174,
+            "wall_s": 0.958118700000341,
+            "throughput_rps": 181.60589079405094,
+            "latency_ms": {
+              "n": 174,
+              "mean": 17.496991954033746,
+              "variance": 263.5520000193383,
+              "stdev": 16.23428470919918,
+              "min": 2.090999999381893,
+              "p50": 12.563399999635294,
+              "p95": 44.984000000113156,
+              "p99": 68.05520000034448,
+              "max": 84.56229999956122
+            },
+            "errors": 0,
+            "error_samples": []
+          },
+          "real_watcher_edit_workload": {
+            "edit": {
+              "latency_ms": {
+                "n": 25,
+                "mean": 31.025875999985146,
+                "variance": 161.44301169291433,
+                "stdev": 12.706022654352317,
+                "min": 19.46999999927357,
+                "p50": 28.65719999954308,
+                "p95": 39.62119999960123,
+                "p99": 89.18660000017553,
+                "max": 89.18660000017553
+              },
+              "correct": 25,
+              "total": 25
+            },
+            "create": {
+              "latency_ms": {
+                "n": 10,
+                "mean": 60.04963000013959,
+                "variance": 1.7789738758709461,
+                "stdev": 1.3337817946991728,
+                "min": 56.41250000007858,
+                "p50": 60.28859999969427,
+                "p95": 61.17800000083662,
+                "p99": 61.17800000083662,
+                "max": 61.17800000083662
+              },
+              "correct": 10,
+              "total": 10
+            },
+            "rename": {
+              "latency_ms": {
+                "n": 10,
+                "mean": 60.65408000004027,
+                "variance": 0.7238040791947642,
+                "stdev": 0.8507667595732477,
+                "min": 59.36130000009143,
+                "p50": 60.363300000062736,
+                "p95": 62.029599999732454,
+                "p99": 62.029599999732454,
+                "max": 62.029599999732454
+              },
+              "correct": 10,
+              "total": 10
+            },
+            "delete": {
+              "latency_ms": {
+                "n": 10,
+                "mean": 57.11399000010715,
+                "variance": 68.81441461688473,
+                "stdev": 8.29544541401393,
+                "min": 53.03139999978157,
+                "p50": 55.021400000441645,
+                "p95": 80.61360000010609,
+                "p99": 80.61360000010609,
+                "max": 80.61360000010609
+              },
+              "correct": 10,
+              "total": 10
+            }
+          }
+        },
+        "tokio": {
+          "files_admitted": 763,
+          "cold_index_s": {
+            "n": 3,
+            "mean": 2.311606466666793,
+            "variance": 0.003229792811717172,
+            "stdev": 0.05683126614564532,
+            "min": 2.2655779000006078,
+            "p50": 2.294113699999798,
+            "p95": 2.375127799999973,
+            "p99": 2.375127799999973,
+            "max": 2.375127799999973
+          },
+          "noop_reconcile_s": {
+            "n": 3,
+            "mean": 0.1924719000001763,
+            "variance": 4.984175697965307e-07,
+            "stdev": 0.0007059869473273077,
+            "min": 0.19183950000024197,
+            "p50": 0.1923426000003019,
+            "p95": 0.19323359999998502,
+            "p99": 0.19323359999998502,
+            "max": 0.19323359999998502
+          },
+          "cold_index_peak_working_set_bytes": 16044032,
+          "cold_index_cpu_s": {
+            "n": 3,
+            "mean": 2.1979166666666665,
+            "variance": 0.0020345052083333335,
+            "stdev": 0.04510548978043952,
+            "min": 2.171875,
+            "p50": 2.171875,
+            "p95": 2.25,
+            "p99": 2.25,
+            "max": 2.25
+          },
+          "cold_index_io": {
+            "read_bytes": 1390119356,
+            "write_bytes": 39407344
+          },
+          "db_bytes": 8937472,
+          "runs": [
+            {
+              "cold_index": {
+                "wall_s": 2.2655779000006078,
+                "exit_code": 0,
+                "peak_working_set": 15675392,
+                "cpu_user_s": 1.0,
+                "cpu_system_s": 1.171875,
+                "read_bytes": 1390119356,
+                "write_bytes": 39407344,
+                "stdout_tail": "Indexed 763 changed, 0 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 8937472
+              },
+              "noop_reconcile": {
+                "wall_s": 0.1923426000003019,
+                "exit_code": 0,
+                "peak_working_set": 7544832,
+                "cpu_user_s": 0.0625,
+                "cpu_system_s": 0.046875,
+                "read_bytes": 9849963,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 763 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 2.375127799999973,
+                "exit_code": 0,
+                "peak_working_set": 16044032,
+                "cpu_user_s": 1.171875,
+                "cpu_system_s": 1.078125,
+                "read_bytes": 1390549436,
+                "write_bytes": 39837494,
+                "stdout_tail": "Indexed 763 changed, 0 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 8937472
+              },
+              "noop_reconcile": {
+                "wall_s": 0.19323359999998502,
+                "exit_code": 0,
+                "peak_working_set": 7520256,
+                "cpu_user_s": 0.0625,
+                "cpu_system_s": 0.0625,
+                "read_bytes": 10117453,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 763 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 2.294113699999798,
+                "exit_code": 0,
+                "peak_working_set": 15896576,
+                "cpu_user_s": 1.09375,
+                "cpu_system_s": 1.078125,
+                "read_bytes": 1385257404,
+                "write_bytes": 34541296,
+                "stdout_tail": "Indexed 763 changed, 0 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 8937472
+              },
+              "noop_reconcile": {
+                "wall_s": 0.19183950000024197,
+                "exit_code": 0,
+                "peak_working_set": 7512064,
+                "cpu_user_s": 0.0625,
+                "cpu_system_s": 0.046875,
+                "read_bytes": 10100532,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 763 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            }
+          ],
+          "warm_mcp": {
+            "process_start_to_initialize_ms": 52.2845999994388,
+            "first_query_incl_watch_and_sync_ms": 127.19379999998637,
+            "first_query_error": false,
+            "search_ms": {
+              "n": 98,
+              "mean": 20.75877448975675,
+              "variance": 244.88590529107339,
+              "stdev": 15.648830796295082,
+              "min": 2.842199999577133,
+              "p50": 25.37040000061097,
+              "p95": 40.38739999941754,
+              "p99": 44.335900000078254,
+              "max": 44.335900000078254
+            },
+            "find_symbol_ms": {
+              "n": 40,
+              "mean": 2.433812500021304,
+              "variance": 0.05870629653591136,
+              "stdev": 0.24229382273576716,
+              "min": 2.083200000015495,
+              "p50": 2.386099999966973,
+              "p95": 2.7370999996492174,
+              "p99": 3.6465000002863235,
+              "max": 3.6465000002863235
+            },
+            "errors": 0,
+            "idle_cpu_seconds_per_10s": 0.0,
+            "memory_after_queries": {
+              "rss": 9486336,
+              "peak_wset": 14622720,
+              "private": 3985408
+            }
+          },
+          "concurrency_4_clients_shared_db": {
+            "clients": 4,
+            "requests": 178,
+            "wall_s": 1.2582532000005813,
+            "throughput_rps": 141.46596249460583,
+            "latency_ms": {
+              "n": 178,
+              "mean": 23.485328089918767,
+              "variance": 800.0638186349258,
+              "stdev": 28.285399389701496,
+              "min": 1.9712000002982677,
+              "p50": 21.3752999998178,
+              "p95": 45.65739999998186,
+              "p99": 169.1345999997793,
+              "max": 191.71339999957127
+            },
+            "errors": 0,
+            "error_samples": []
+          }
+        },
+        "vscode": {
+          "files_admitted": 6877,
+          "cold_index_s": {
+            "n": 3,
+            "mean": 269.3034219000001,
+            "variance": 1107.5207441132663,
+            "stdev": 33.27943425170065,
+            "min": 248.91790370000035,
+            "p50": 251.2854785999998,
+            "p95": 307.70688340000015,
+            "p99": 307.70688340000015,
+            "max": 307.70688340000015
+          },
+          "noop_reconcile_s": {
+            "n": 3,
+            "mean": 1.4427805666667457,
+            "variance": 0.00047252636741960155,
+            "stdev": 0.021737671619094845,
+            "min": 1.4176802000001771,
+            "p50": 1.4552596000003177,
+            "p95": 1.4554018999997425,
+            "p99": 1.4554018999997425,
+            "max": 1.4554018999997425
+          },
+          "cold_index_peak_working_set_bytes": 25907200,
+          "cold_index_cpu_s": {
+            "n": 3,
+            "mean": 268.46875,
+            "variance": 1135.033447265625,
+            "stdev": 33.69025745324047,
+            "min": 248.203125,
+            "p50": 249.84375,
+            "p95": 307.359375,
+            "p99": 307.359375,
+            "max": 307.359375
+          },
+          "cold_index_io": {
+            "read_bytes": 262354808036,
+            "write_bytes": 617424102
+          },
+          "db_bytes": 123953152,
+          "runs": [
+            {
+              "cold_index": {
+                "wall_s": 307.70688340000015,
+                "exit_code": 0,
+                "peak_working_set": 25907200,
+                "cpu_user_s": 40.296875,
+                "cpu_system_s": 267.0625,
+                "read_bytes": 262354808036,
+                "write_bytes": 617424102,
+                "stdout_tail": "Indexed 6878 changed, 0 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 123953152
+              },
+              "noop_reconcile": {
+                "wall_s": 1.4176802000001771,
+                "exit_code": 0,
+                "peak_working_set": 12759040,
+                "cpu_user_s": 0.515625,
+                "cpu_system_s": 0.828125,
+                "read_bytes": 165020910,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 6878 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 251.2854785999998,
+                "exit_code": 0,
+                "peak_working_set": 25890816,
+                "cpu_user_s": 43.140625,
+                "cpu_system_s": 206.703125,
+                "read_bytes": 262354808036,
+                "write_bytes": 617424028,
+                "stdout_tail": "Indexed 6878 changed, 0 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 123953152
+              },
+              "noop_reconcile": {
+                "wall_s": 1.4554018999997425,
+                "exit_code": 0,
+                "peak_working_set": 12578816,
+                "cpu_user_s": 0.625,
+                "cpu_system_s": 0.765625,
+                "read_bytes": 162848237,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 6878 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 248.91790370000035,
+                "exit_code": 0,
+                "peak_working_set": 25292800,
+                "cpu_user_s": 42.984375,
+                "cpu_system_s": 205.21875,
+                "read_bytes": 262354808036,
+                "write_bytes": 617424028,
+                "stdout_tail": "Indexed 6878 changed, 0 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 123953152
+              },
+              "noop_reconcile": {
+                "wall_s": 1.4552596000003177,
+                "exit_code": 0,
+                "peak_working_set": 12972032,
+                "cpu_user_s": 0.46875,
+                "cpu_system_s": 0.90625,
+                "read_bytes": 164518484,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 6878 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            }
+          ],
+          "warm_mcp": {
+            "process_start_to_initialize_ms": 52.596700000322016,
+            "first_query_incl_watch_and_sync_ms": 1304.3071000001873,
+            "first_query_error": false,
+            "search_ms": {
+              "n": 120,
+              "mean": 5.235919166678589,
+              "variance": 70.54812328118487,
+              "stdev": 8.399293022700475,
+              "min": 2.6539999998931307,
+              "p50": 3.312999999252497,
+              "p95": 13.821999999890977,
+              "p99": 52.97760000030394,
+              "max": 61.78179999915301
+            },
+            "find_symbol_ms": {
+              "n": 120,
+              "mean": 2.5314491666601193,
+              "variance": 0.07527428669102178,
+              "stdev": 0.27436159842627716,
+              "min": 2.180499999667518,
+              "p50": 2.4627000002510613,
+              "p95": 2.861099999790895,
+              "p99": 3.8470999998025945,
+              "max": 4.114800000024843
+            },
+            "errors": 0,
+            "idle_cpu_seconds_per_10s": 0.0,
+            "memory_after_queries": {
+              "rss": 9089024,
+              "peak_wset": 15654912,
+              "private": 2969600
+            }
+          },
+          "concurrency_4_clients_shared_db": {
+            "clients": 4,
+            "requests": 200,
+            "wall_s": 2.0801797000003717,
+            "throughput_rps": 96.14553973388178,
+            "latency_ms": {
+              "n": 200,
+              "mean": 40.02239350000309,
+              "variance": 53618.975272930365,
+              "stdev": 231.55771477739705,
+              "min": 2.1665000003849855,
+              "p50": 3.513800000291667,
+              "p95": 27.516999999534164,
+              "p99": 1652.8823999997257,
+              "max": 1667.1464000000924
+            },
+            "errors": 0,
+            "error_samples": []
+          }
+        }
+      }
+    },
+    "current": {
+      "status": "EXECUTED",
+      "binary_bytes": 12846592,
+      "corpora": {
+        "ripgrep": {
+          "files_admitted": 195,
+          "cold_index_s": {
+            "n": 3,
+            "mean": 0.5397674000002249,
+            "variance": 0.0004293265849971064,
+            "stdev": 0.02072019751346754,
+            "min": 0.5203431999998429,
+            "p50": 0.5373819000005824,
+            "p95": 0.5615771000002496,
+            "p99": 0.5615771000002496,
+            "max": 0.5615771000002496
+          },
+          "noop_reconcile_s": {
+            "n": 3,
+            "mean": 0.09049176666697652,
+            "variance": 1.026566942597917e-06,
+            "stdev": 0.0010131963988279453,
+            "min": 0.08932320000076288,
+            "p50": 0.09102699999948527,
+            "p95": 0.09112510000068141,
+            "p99": 0.09112510000068141,
+            "max": 0.09112510000068141
+          },
+          "cold_index_peak_working_set_bytes": 18358272,
+          "cold_index_cpu_s": {
+            "n": 3,
+            "mean": 0.4375,
+            "variance": 0.0009765625,
+            "stdev": 0.03125,
+            "min": 0.40625,
+            "p50": 0.4375,
+            "p95": 0.46875,
+            "p99": 0.46875,
+            "max": 0.46875
+          },
+          "cold_index_io": {
+            "read_bytes": 8503271,
+            "write_bytes": 5537380
+          },
+          "db_bytes": 5029888,
+          "runs": [
+            {
+              "cold_index": {
+                "wall_s": 0.5203431999998429,
+                "exit_code": 0,
+                "peak_working_set": 18358272,
+                "cpu_user_s": 0.21875,
+                "cpu_system_s": 0.1875,
+                "read_bytes": 8503271,
+                "write_bytes": 5537380,
+                "stdout_tail": "Indexed 201 changed, 0 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 5029888
+              },
+              "noop_reconcile": {
+                "wall_s": 0.08932320000076288,
+                "exit_code": 0,
+                "peak_working_set": 7286784,
+                "cpu_user_s": 0.015625,
+                "cpu_system_s": 0.0,
+                "read_bytes": 2012675,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 201 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 0.5373819000005824,
+                "exit_code": 0,
+                "peak_working_set": 18325504,
+                "cpu_user_s": 0.3125,
+                "cpu_system_s": 0.125,
+                "read_bytes": 13498181,
+                "write_bytes": 10567268,
+                "stdout_tail": "Indexed 201 changed, 0 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 5029888
+              },
+              "noop_reconcile": {
+                "wall_s": 0.09112510000068141,
+                "exit_code": 0,
+                "peak_working_set": 7282688,
+                "cpu_user_s": 0.015625,
+                "cpu_system_s": 0.0,
+                "read_bytes": 1998786,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 201 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 0.5615771000002496,
+                "exit_code": 0,
+                "peak_working_set": 18341888,
+                "cpu_user_s": 0.359375,
+                "cpu_system_s": 0.109375,
+                "read_bytes": 13498181,
+                "write_bytes": 10567268,
+                "stdout_tail": "Indexed 201 changed, 0 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 5029888
+              },
+              "noop_reconcile": {
+                "wall_s": 0.09102699999948527,
+                "exit_code": 0,
+                "peak_working_set": 7397376,
+                "cpu_user_s": 0.015625,
+                "cpu_system_s": 0.015625,
+                "read_bytes": 2012675,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 201 unchanged, 0 removed, 9 skipped (examined 210)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            }
+          ],
+          "warm_mcp": {
+            "process_start_to_initialize_ms": 55.051600000297185,
+            "first_query_incl_watch_and_sync_ms": 29.63739999995596,
+            "first_query_error": false,
+            "search_ms": {
+              "n": 94,
+              "mean": 10.036390425526367,
+              "variance": 35.04138577713351,
+              "stdev": 5.919576486298113,
+              "min": 2.738300000601157,
+              "p50": 9.917899999891233,
+              "p95": 21.515200000067125,
+              "p99": 22.240399999645888,
+              "max": 22.240399999645888
+            },
+            "find_symbol_ms": {
+              "n": 40,
+              "mean": 2.556127500020011,
+              "variance": 0.05844332151104814,
+              "stdev": 0.24175053569960944,
+              "min": 2.2611000003962545,
+              "p50": 2.4794000000838423,
+              "p95": 3.0095000001892913,
+              "p99": 3.2052999995357823,
+              "max": 3.2052999995357823
+            },
+            "errors": 0,
+            "idle_cpu_seconds_per_10s": 0.0,
+            "memory_after_queries": {
+              "rss": 9125888,
+              "peak_wset": 13897728,
+              "private": 2727936
+            }
+          },
+          "concurrency_4_clients_shared_db": {
+            "clients": 4,
+            "requests": 174,
+            "wall_s": 0.5534735999999612,
+            "throughput_rps": 314.37813836109297,
+            "latency_ms": {
+              "n": 174,
+              "mean": 10.813206321838424,
+              "variance": 77.58329293064962,
+              "stdev": 8.808137880996734,
+              "min": 2.086299999973562,
+              "p50": 8.872899999914807,
+              "p95": 23.765900000398688,
+              "p99": 47.69209999994928,
+              "max": 52.10739999984071
+            },
+            "errors": 0,
+            "error_samples": []
+          },
+          "real_watcher_edit_workload": {
+            "edit": {
+              "latency_ms": {
+                "n": 25,
+                "mean": 27.09088799987512,
+                "variance": 264.2561158811392,
+                "stdev": 16.255956320104307,
+                "min": 16.5445999991789,
+                "p50": 21.6006999999081,
+                "p95": 42.902199999844015,
+                "p99": 97.36489999977493,
+                "max": 97.36489999977493
+              },
+              "correct": 25,
+              "total": 25
+            },
+            "create": {
+              "latency_ms": {
+                "n": 10,
+                "mean": 39.80569000013929,
+                "variance": 2.05826872565009,
+                "stdev": 1.4346667646704896,
+                "min": 38.42079999958514,
+                "p50": 39.54840000005788,
+                "p95": 43.36090000015247,
+                "p99": 43.36090000015247,
+                "max": 43.36090000015247
+              },
+              "correct": 10,
+              "total": 10
+            },
+            "rename": {
+              "latency_ms": {
+                "n": 10,
+                "mean": 39.86964000005173,
+                "variance": 2.630261166024331,
+                "stdev": 1.621807992958578,
+                "min": 37.64670000055048,
+                "p50": 39.382900000418886,
+                "p95": 42.34829999950307,
+                "p99": 42.34829999950307,
+                "max": 42.34829999950307
+              },
+              "correct": 10,
+              "total": 10
+            },
+            "delete": {
+              "latency_ms": {
+                "n": 10,
+                "mean": 38.159319999886065,
+                "variance": 0.6052311215917375,
+                "stdev": 0.7779660157048877,
+                "min": 37.116299999979674,
+                "p50": 37.97300000042014,
+                "p95": 39.38419999940379,
+                "p99": 39.38419999940379,
+                "max": 39.38419999940379
+              },
+              "correct": 10,
+              "total": 10
+            }
+          }
+        },
+        "tokio": {
+          "files_admitted": 763,
+          "cold_index_s": {
+            "n": 3,
+            "mean": 1.2364519333329251,
+            "variance": 0.000853068569350033,
+            "stdev": 0.0292073375943449,
+            "min": 1.210050699999556,
+            "p50": 1.2314784000000145,
+            "p95": 1.2678266999992047,
+            "p99": 1.2678266999992047,
+            "max": 1.2678266999992047
+          },
+          "noop_reconcile_s": {
+            "n": 3,
+            "mean": 0.1310534000000795,
+            "variance": 2.7253424946938016e-07,
+            "stdev": 0.0005220481294568348,
+            "min": 0.1305619000004299,
+            "p50": 0.1309969000003548,
+            "p95": 0.13160139999945386,
+            "p99": 0.13160139999945386,
+            "max": 0.13160139999945386
+          },
+          "cold_index_peak_working_set_bytes": 15929344,
+          "cold_index_cpu_s": {
+            "n": 3,
+            "mean": 1.1197916666666667,
+            "variance": 0.0015462239583333333,
+            "stdev": 0.039322054350368486,
+            "min": 1.078125,
+            "p50": 1.125,
+            "p95": 1.15625,
+            "p99": 1.15625,
+            "max": 1.15625
+          },
+          "cold_index_io": {
+            "read_bytes": 23799780,
+            "write_bytes": 17933188
+          },
+          "db_bytes": 10059776,
+          "runs": [
+            {
+              "cold_index": {
+                "wall_s": 1.2678266999992047,
+                "exit_code": 0,
+                "peak_working_set": 15736832,
+                "cpu_user_s": 1.03125,
+                "cpu_system_s": 0.125,
+                "read_bytes": 23799780,
+                "write_bytes": 17933188,
+                "stdout_tail": "Indexed 763 changed, 0 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 10059776
+              },
+              "noop_reconcile": {
+                "wall_s": 0.1309969000003548,
+                "exit_code": 0,
+                "peak_working_set": 7516160,
+                "cpu_user_s": 0.015625,
+                "cpu_system_s": 0.046875,
+                "read_bytes": 4589583,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 763 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 1.2314784000000145,
+                "exit_code": 0,
+                "peak_working_set": 15929344,
+                "cpu_user_s": 1.03125,
+                "cpu_system_s": 0.09375,
+                "read_bytes": 28039140,
+                "write_bytes": 22172548,
+                "stdout_tail": "Indexed 763 changed, 0 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 10059776
+              },
+              "noop_reconcile": {
+                "wall_s": 0.13160139999945386,
+                "exit_code": 0,
+                "peak_working_set": 7475200,
+                "cpu_user_s": 0.0,
+                "cpu_system_s": 0.0625,
+                "read_bytes": 4564277,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 763 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 1.210050699999556,
+                "exit_code": 0,
+                "peak_working_set": 15769600,
+                "cpu_user_s": 0.875,
+                "cpu_system_s": 0.203125,
+                "read_bytes": 25831396,
+                "write_bytes": 19964804,
+                "stdout_tail": "Indexed 763 changed, 0 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 10059776
+              },
+              "noop_reconcile": {
+                "wall_s": 0.1305619000004299,
+                "exit_code": 0,
+                "peak_working_set": 7507968,
+                "cpu_user_s": 0.03125,
+                "cpu_system_s": 0.03125,
+                "read_bytes": 4643041,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 763 unchanged, 0 removed, 0 skipped (examined 763)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            }
+          ],
+          "warm_mcp": {
+            "process_start_to_initialize_ms": 53.92649999976129,
+            "first_query_incl_watch_and_sync_ms": 75.11470000008558,
+            "first_query_error": false,
+            "search_ms": {
+              "n": 98,
+              "mean": 13.335712244933886,
+              "variance": 87.74239744591179,
+              "stdev": 9.367091194491051,
+              "min": 2.8001999999105465,
+              "p50": 13.461399999869172,
+              "p95": 27.374700000109442,
+              "p99": 35.36160000021482,
+              "max": 35.36160000021482
+            },
+            "find_symbol_ms": {
+              "n": 40,
+              "mean": 2.474322499938353,
+              "variance": 0.027519254141008708,
+              "stdev": 0.16588928277923415,
+              "min": 2.0772999996552244,
+              "p50": 2.4483000006512157,
+              "p95": 2.709500000491971,
+              "p99": 3.0695000004925532,
+              "max": 3.0695000004925532
+            },
+            "errors": 0,
+            "idle_cpu_seconds_per_10s": 0.0,
+            "memory_after_queries": {
+              "rss": 9977856,
+              "peak_wset": 15605760,
+              "private": 3719168
+            }
+          },
+          "concurrency_4_clients_shared_db": {
+            "clients": 4,
+            "requests": 178,
+            "wall_s": 0.8165969000001496,
+            "throughput_rps": 217.97780520593133,
+            "latency_ms": {
+              "n": 178,
+              "mean": 15.001387078673053,
+              "variance": 266.7109866805691,
+              "stdev": 16.331288579918276,
+              "min": 2.0388000002640183,
+              "p50": 12.812899999516958,
+              "p95": 32.57189999931143,
+              "p99": 98.41079999932845,
+              "max": 101.77530000055413
+            },
+            "errors": 0,
+            "error_samples": []
+          }
+        },
+        "vscode": {
+          "files_admitted": 6877,
+          "cold_index_s": {
+            "n": 3,
+            "mean": 15.424147266666902,
+            "variance": 0.04408287657690341,
+            "stdev": 0.20995922598662675,
+            "min": 15.185591000000386,
+            "p50": 15.505994699999974,
+            "p95": 15.580856100000346,
+            "p99": 15.580856100000346,
+            "max": 15.580856100000346
+          },
+          "noop_reconcile_s": {
+            "n": 3,
+            "mean": 0.871408333333117,
+            "variance": 0.0005822362165587493,
+            "stdev": 0.024129571412661876,
+            "min": 0.8435709999994288,
+            "p50": 0.8843030999996699,
+            "p95": 0.8863509000002523,
+            "p99": 0.8863509000002523,
+            "max": 0.8863509000002523
+          },
+          "cold_index_peak_working_set_bytes": 32374784,
+          "cold_index_cpu_s": {
+            "n": 3,
+            "mean": 15.244791666666666,
+            "variance": 0.035725911458333336,
+            "stdev": 0.18901299282941725,
+            "min": 15.03125,
+            "p50": 15.3125,
+            "p95": 15.390625,
+            "p99": 15.390625,
+            "max": 15.390625
+          },
+          "cold_index_io": {
+            "read_bytes": 928111972,
+            "write_bytes": 688211340
+          },
+          "db_bytes": 137564160,
+          "runs": [
+            {
+              "cold_index": {
+                "wall_s": 15.185591000000386,
+                "exit_code": 0,
+                "peak_working_set": 32374784,
+                "cpu_user_s": 12.140625,
+                "cpu_system_s": 2.890625,
+                "read_bytes": 928111972,
+                "write_bytes": 688211340,
+                "stdout_tail": "Indexed 6878 changed, 0 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 137564160
+              },
+              "noop_reconcile": {
+                "wall_s": 0.8435709999994288,
+                "exit_code": 0,
+                "peak_working_set": 13299712,
+                "cpu_user_s": 0.359375,
+                "cpu_system_s": 0.40625,
+                "read_bytes": 87569882,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 6878 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 15.580856100000346,
+                "exit_code": 0,
+                "peak_working_set": 31715328,
+                "cpu_user_s": 12.28125,
+                "cpu_system_s": 3.109375,
+                "read_bytes": 928111972,
+                "write_bytes": 688211340,
+                "stdout_tail": "Indexed 6878 changed, 0 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 137564160
+              },
+              "noop_reconcile": {
+                "wall_s": 0.8843030999996699,
+                "exit_code": 0,
+                "peak_working_set": 13246464,
+                "cpu_user_s": 0.328125,
+                "cpu_system_s": 0.46875,
+                "read_bytes": 88220186,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 6878 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            },
+            {
+              "cold_index": {
+                "wall_s": 15.505994699999974,
+                "exit_code": 0,
+                "peak_working_set": 32124928,
+                "cpu_user_s": 12.40625,
+                "cpu_system_s": 2.90625,
+                "read_bytes": 928111972,
+                "write_bytes": 688211340,
+                "stdout_tail": "Indexed 6878 changed, 0 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+                "db_bytes": 137564160
+              },
+              "noop_reconcile": {
+                "wall_s": 0.8863509000002523,
+                "exit_code": 0,
+                "peak_working_set": 13230080,
+                "cpu_user_s": 0.453125,
+                "cpu_system_s": 0.359375,
+                "read_bytes": 87662554,
+                "write_bytes": 0,
+                "stdout_tail": "Indexed 0 changed, 6878 unchanged, 0 removed, 202 skipped (examined 7080)\n",
+                "stderr_tail": "",
+                "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+              }
+            }
+          ],
+          "warm_mcp": {
+            "process_start_to_initialize_ms": 56.41260000084003,
+            "first_query_incl_watch_and_sync_ms": 853.9549000006446,
+            "first_query_error": false,
+            "search_ms": {
+              "n": 120,
+              "mean": 4.031405000008211,
+              "variance": 9.028206499141904,
+              "stdev": 3.004697405587109,
+              "min": 2.552799999648414,
+              "p50": 3.3179000001837267,
+              "p95": 6.084799999371171,
+              "p99": 13.697200000024168,
+              "max": 31.697600000370585
+            },
+            "find_symbol_ms": {
+              "n": 120,
+              "mean": 2.6091800000055323,
+              "variance": 0.11206882565972873,
+              "stdev": 0.3347668228181053,
+              "min": 2.2247999995670398,
+              "p50": 2.542199999879813,
+              "p95": 3.056000000469794,
+              "p99": 3.3951999994314974,
+              "max": 5.0381999999444815
+            },
+            "errors": 0,
+            "idle_cpu_seconds_per_10s": 0.0,
+            "memory_after_queries": {
+              "rss": 8712192,
+              "peak_wset": 15171584,
+              "private": 2285568
+            }
+          },
+          "concurrency_4_clients_shared_db": {
+            "clients": 4,
+            "requests": 200,
+            "wall_s": 1.4070206999995207,
+            "throughput_rps": 142.14431955412462,
+            "latency_ms": {
+              "n": 200,
+              "mean": 27.050849500024015,
+              "variance": 20523.04746400318,
+              "stdev": 143.25867325925918,
+              "min": 2.151900000171736,
+              "p50": 3.7737000002380228,
+              "p95": 21.58329999929265,
+              "p99": 1000.5001999998058,
+              "max": 1055.3515999999945
+            },
+            "errors": 0,
+            "error_samples": []
+          }
+        }
+      }
+    }
+  }
+}

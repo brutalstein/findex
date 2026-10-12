@@ -1,0 +1,190 @@
+{
+  "summary": {
+    "PASS": 30,
+    "FAIL": 0,
+    "SKIPPED": 0
+  },
+  "checks": [
+    {
+      "name": "mcp: 2 MiB frame rejected, server stays alive",
+      "category": "security",
+      "status": "PASS",
+      "detail": "{\"error\": {\"code\": -32600, \"message\": \"MCP request exceeded 1 MiB\"}, \"id\": null, \"jsonrpc\": \"2.0\"}"
+    },
+    {
+      "name": "mcp: invalid JSON -> -32700",
+      "category": "security",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "mcp: 5000-deep nesting does not crash",
+      "category": "security",
+      "status": "PASS",
+      "detail": "{\"error\": {\"code\": -32700, \"message\": \"invalid JSON\"}, \"id\": null, \"jsonrpc\": \"2.0\"}"
+    },
+    {
+      "name": "mcp: JSON-RPC batch rejected (-32600)",
+      "category": "security",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "mcp: findex_symbols rejects '../outside.rs'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Cannot inspect file: expected a normal project-relative file path"
+    },
+    {
+      "name": "mcp: findex_symbols rejects '..\\\\..\\\\Windows\\\\win.ini'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Cannot inspect file: expected a normal project-relative file path"
+    },
+    {
+      "name": "mcp: findex_symbols rejects 'C:\\\\Windows\\\\win.ini'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Cannot inspect file: expected a normal project-relative file path"
+    },
+    {
+      "name": "mcp: findex_symbols rejects '\\\\\\\\?\\\\C:\\\\Windows\\\\win.ini'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Cannot inspect file: expected a normal project-relative file path"
+    },
+    {
+      "name": "mcp: findex_symbols rejects '\\\\\\\\server\\\\share\\\\a.rs'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Cannot inspect file: expected a normal project-relative file path"
+    },
+    {
+      "name": "mcp: findex_symbols rejects 'src/lib.rs:stream'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Unsupported language; use lexical search."
+    },
+    {
+      "name": "mcp: findex_symbols rejects '.env'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Unsupported language; use lexical search."
+    },
+    {
+      "name": "mcp: findex_symbols rejects 'src\\\\..\\\\..\\\\x.rs'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Cannot inspect file: expected a normal project-relative file path"
+    },
+    {
+      "name": "mcp: findex_symbols rejects 'CON'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Unsupported language; use lexical search."
+    },
+    {
+      "name": "mcp: findex_symbols rejects 'src/lib.rs\\x00.txt'",
+      "category": "security",
+      "status": "PASS",
+      "detail": "Unsupported language; use lexical search."
+    },
+    {
+      "name": "mcp: unicode query handled",
+      "category": "security",
+      "status": "PASS",
+      "detail": "{\"hits\":[],\"sync\":{\"examined\":4,\"indexed\":0,\"unchanged\":4,\"removed\":0,\"skipped\":0,\"symbols_parsed\":0,\"symbols_reused\":4},\"stale_results_discarded\":0,\"truncated\""
+    },
+    {
+      "name": "mcp: over-long query rejected",
+      "category": "security",
+      "status": "PASS",
+      "detail": "{\"error\": {\"code\": -32602, \"message\": \"query must be 1-500 bytes and limit 1-32\"}, \"id\": 16, \"jsonrpc\": \"2.0\"}"
+    },
+    {
+      "name": "redaction: credential literals masked in excerpts",
+      "category": "security",
+      "status": "PASS",
+      "detail": "{\"hits\":[{\"path\":\"src/settings.py\",\"line\":1,\"excerpt\":\"AWS_KEY = \\\"[REDACTED:aws-key]\\\"\",\"bm25_score\":-1.7474240236398944,\"match_kind\":\"lexical\"}],\"sync\":{\"examined\":4,\"indexed\":0,\"unchanged\":4,\"remov"
+    },
+    {
+      "name": "admission: .env never indexed",
+      "category": "security",
+      "status": "PASS",
+      "detail": "{\"hits\":[],\"sync\":{\"examined\":4,\"indexed\":0,\"unchanged\":4,\"removed\":0,\"skipped\":0,\"symbols_parsed\":0,\"symbols_reused\":4},\"stale_results_discarded\":0,\"truncated\""
+    },
+    {
+      "name": "prompt-injection text is returned only as JSON data inside tool content",
+      "category": "security",
+      "status": "PASS",
+      "detail": "instructions advertise untrusted data; no execution path exists"
+    },
+    {
+      "name": "mcp: 2026-07-28 server/discover",
+      "category": "compatibility",
+      "status": "PASS",
+      "detail": "{\"id\": 20, \"jsonrpc\": \"2.0\", \"result\": {\"_meta\": {\"io.modelcontextprotocol/serverInfo\": {\"name\": \"findex\", \"version\": \"0.1.0\"}}, \"capabilities\": {\"tools\": {}}, "
+    },
+    {
+      "name": "mcp: unsupported modern version -> -32022",
+      "category": "compatibility",
+      "status": "PASS",
+      "detail": "{\"error\": {\"code\": -32022, \"data\": {\"requested\": \"1900-01-01\", \"supported\": [\"2026-07-28\", \"2025-11-25\", \"2025-06-18\", \"2025-03-26\", \"2024-11-05\"]}, \"message\": "
+    },
+    {
+      "name": "network: MCP server opened no sockets",
+      "category": "security",
+      "status": "PASS",
+      "detail": "[]"
+    },
+    {
+      "name": "network: indexing opened no sockets (sampled every 10 ms)",
+      "category": "security",
+      "status": "PASS",
+      "detail": "[]"
+    },
+    {
+      "name": "symlink: file symlink to outside is not indexed",
+      "category": "security",
+      "status": "PASS",
+      "detail": "0 hits; 0 changed; 0 stale discarded\n"
+    },
+    {
+      "name": "reliability: random-bytes index DB is rebuilt on next use",
+      "category": "reliability",
+      "status": "PASS",
+      "detail": "src/settings.py:3  def load_settings():\n1 hits; 4 changed; 0 stale discarded\nfindex: index cache is corrupt (file is not a database); rebuilding\n"
+    },
+    {
+      "name": "fuzz: 200 random SCIP payloads cause no panic/crash",
+      "category": "security",
+      "status": "PASS",
+      "detail": "non-0/1 exit codes: 0"
+    },
+    {
+      "name": "fuzz: mutated LSP captures cause no panic/crash",
+      "category": "security",
+      "status": "PASS",
+      "detail": "crashes=0"
+    },
+    {
+      "name": "reliability: kill -9 after 0.2s of indexing (killed mid-run=True) then recover",
+      "category": "reliability",
+      "status": "PASS",
+      "detail": "reindex=0 search=0 integrity=ok"
+    },
+    {
+      "name": "reliability: kill -9 after 0.6s of indexing (killed mid-run=True) then recover",
+      "category": "reliability",
+      "status": "PASS",
+      "detail": "reindex=0 search=0 integrity=ok"
+    },
+    {
+      "name": "reliability: kill -9 after 1.5s of indexing (killed mid-run=True) then recover",
+      "category": "reliability",
+      "status": "PASS",
+      "detail": "reindex=0 search=0 integrity=ok"
+    }
+  ],
+  "scope": "black-box checks of findex.exe; not a certification"
+}
