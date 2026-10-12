@@ -73,3 +73,23 @@ Status means *evidence*, not aspiration. No milestone is considered complete mer
 - [ ] SCIP streaming import for very large generated indexes.
 - [ ] Precise type/implementation/call graphs and cross-indexer federation.
 - [ ] Independent real-world correctness and performance benchmarks.
+
+## Validation milestone (2026-10-12)
+
+Evidence: `validation/FINAL_VALIDATION_REPORT.md` and `validation/results/`.
+
+- [x] Real Claude Code plugin validation and MCP tool invocation (`--mcp-config`,
+  `--plugin-dir`, `findex claude`) on Claude Code 2.1.281 — closes the F0/F1
+  integration items for that version.
+- [x] Real-data recall@k / line recall vs a lexical (`git grep`) baseline and
+  the previous build on 642 golden queries over 7 pinned corpora (F3).
+- [x] Path traversal, junction, Unicode, long-path, case-fold, locked-file and
+  concurrent-writer tests on Windows (F2 partial; OneDrive/network volumes
+  still untested).
+- [x] Cold indexing no longer O(files²): FTS rows keyed by file id.
+- [x] RustSec audit job, CycloneDX SBOM in the release ZIP, build-provenance
+  attestation on non-PR CI runs (F5 partial; binaries still unsigned).
+- [ ] Code-fix A/B outcomes: a small Haiku study exists; larger models, more
+  tasks and comparison with other navigation tools remain (F4).
+- [ ] Query planner beyond definition-first + lexical, graph reranking,
+  embeddings (F4) — not justified by measured failures yet.

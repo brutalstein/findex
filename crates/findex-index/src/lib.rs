@@ -224,9 +224,23 @@ fn camel_parts(identifier: &str) -> Vec<String> {
 pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
     let project = project.canonicalize()?;
     let mut conn = connect(database)?;
-    // IMMEDIATE takes the write lock up front: a deferred read-then-write
-    // transaction fails with SQLITE_BUSY at once when another writer committed.
-    let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+    let deadline = std::time::Instant::now() + Duration::from_secs(30);
+    loop {
+        // A deferred transaction keeps an unchanged reconcile read-only, so
+        // concurrent servers do not queue behind each other. When it must write
+        // after another writer committed, SQLite returns SQLITE_BUSY at once
+        // (stale snapshot); the whole pass is then retried on a fresh snapshot.
+        match synchronize_once(&project, &mut conn) {
+            Err(err) if is_busy(err.as_ref()) && std::time::Instant::now() < deadline => {
+                std::thread::sleep(Duration::from_millis(25));
+            }
+            other => return other,
+        }
+    }
+}
+
+fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> {
+    let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Deferred)?;
     let existing: HashMap<String, String> = {
         let mut statement = tx.prepare("SELECT path, hash FROM files")?;
         let rows = statement.query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?;
@@ -909,6 +923,22 @@ mod tests {
         let gone = search_in_db(project.path(), &db, "beta marker", 5, SyncStats::default())
             .expect("search");
         assert!(gone.hits.is_empty(), "{:?}", gone.hits);
+    }
+
+    /// Several MCP servers reconcile the same index on start-up. An unchanged
+    /// project must not queue behind another connection's write lock.
+    #[test]
+    fn unchanged_reconcile_does_not_wait_for_another_writer() {
+        let (project, _state, db) = indexed(&[("a.rs", "fn alpha() {}\n")]);
+        let mut holder = Connection::open(&db).expect("holder");
+        let lock = holder
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+            .expect("write lock");
+        let started = std::time::Instant::now();
+        let stats = synchronize_into(project.path(), &db).expect("read-only reconcile");
+        assert!(started.elapsed() < Duration::from_secs(5), "{:?}", started.elapsed());
+        assert_eq!((stats.unchanged, stats.indexed), (1, 0));
+        drop(lock);
     }
 
     /// FTS splits `to_regex` into `to` + `regex`; a file matching only those
