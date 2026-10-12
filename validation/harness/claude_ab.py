@@ -141,16 +141,16 @@ def main() -> int:
     tasks = make_tasks()
     selected = [t for t in tasks if not args.tasks or t in args.tasks.split(",")]
     arms = args.arms.split(",")
-    spent, sessions = 0.0, []
+    spent, sessions, blocked = 0.0, [], ""
     base = WORK / "claude" / f"ab-{out.name}"
     target = WORK / "claude" / "cargo-target"  # shared build cache for acceptance tests only
     for rep in range(args.reps):
         for index, name in enumerate(selected):
             order = arms if (rep + index) % 2 == 0 else list(reversed(arms))  # counterbalanced
             for arm in order:
-                if spent >= args.total_budget:
+                if spent >= args.total_budget or blocked:
                     sessions.append({"task": name, "arm": arm, "rep": rep, "status": "BLOCKED",
-                                     "reason": f"total budget {args.total_budget} reached"})
+                                     "reason": blocked or f"total budget {args.total_budget} reached"})
                     continue
                 task = tasks[name]
                 dest = base / f"{name}-{arm}-{rep}"
@@ -172,10 +172,15 @@ def main() -> int:
                                 for s in summary["init_mcp_servers"] or [])
                 # A Findex arm whose server failed to start silently measures A twice.
                 status = "EXECUTED" if connected or not config else "INVALID"
+                if summary["limit_hit"]:
+                    # Never retry around a plan limit: record it and stop scheduling sessions.
+                    status, blocked = "BLOCKED", "Claude plan usage limit reached: " + summary["final_text"][:120]
                 record = {"task": name, "arm": arm, "rep": rep, "status": status, "findex_connected": connected,
                           "correct": correct,
                           "judge_detail": reason, **{k: v for k, v in summary.items() if k != "final_text"}}
                 record["answer_excerpt"] = summary["final_text"][:600]
+                if status == "BLOCKED":
+                    record["reason"], record["correct"] = blocked, None
                 sessions.append(record)
                 print(f"     correct={correct} in={summary['input_tokens']} out={summary['output_tokens']} "
                       f"cw={summary['cache_creation_input_tokens']} cr={summary['cache_read_input_tokens']} "

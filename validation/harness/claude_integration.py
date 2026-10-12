@@ -23,6 +23,11 @@ def check(name, status, detail="", evidence=None):
     print(f"[{status}] {name} {str(detail)[:140]}", file=sys.stderr)
 
 
+def outcome(ok: bool, summary: dict) -> str:
+    """Model-dependent checks are BLOCKED, not FAIL, when a plan limit stopped the session."""
+    return "BLOCKED" if summary.get("limit_hit") else ("PASS" if ok else "FAIL")
+
+
 def authenticated() -> bool:
     if not shutil.which("claude"):
         return False
@@ -86,11 +91,11 @@ def main() -> int:
            "initialize_answered": [m.get("protocolVersion") for m in messages if m.get("dir") == "server->client" and m.get("protocolVersion")],
            "modern_meta_requests": len(modern), "client": next((m.get("clientInfo") for m in messages if m.get("clientInfo")), None)})
     called = [m for m in messages if m.get("method") == "tools/call"]
-    check("claude: genuine tools/call reached findex", "PASS" if any(m.get("tool") == "findex_find_symbol" for m in called) else "FAIL",
+    check("claude: genuine tools/call reached findex", outcome(any(m.get("tool") == "findex_find_symbol" for m in called), summary),
           [m.get("tool") for m in called])
-    check("claude: correct answer from Findex evidence", "PASS" if expected in summary["final_text"] else "FAIL",
+    check("claude: correct answer from Findex evidence", outcome(expected in summary["final_text"], summary),
           summary["final_text"][:200])
-    check("claude: session exit code 0", "PASS" if session["exit_code"] == 0 else "FAIL", session["stderr_tail"][-300:])
+    check("claude: session exit code 0", outcome(session["exit_code"] == 0, summary), session["stderr_tail"][-300:])
     evidence = {"mcp_config": summary}
 
     # 2. Bundled plugin discovered with --plugin-dir and findex.exe on PATH.
@@ -106,7 +111,7 @@ def main() -> int:
     plugin_tools = summary["init_tools_findex"]
     check("claude --plugin-dir: plugin MCP tools discovered", "PASS" if plugin_tools else "FAIL", plugin_tools)
     check("claude --plugin-dir: tool invoked and answer correct",
-          "PASS" if summary["mcp_call_count"] >= 1 and expected in summary["final_text"] else "FAIL",
+          outcome(summary["mcp_call_count"] >= 1 and expected in summary["final_text"], summary),
           {"calls": summary["tool_calls"], "answer": summary["final_text"][:200]})
     evidence["plugin_dir"] = summary
 
@@ -120,7 +125,7 @@ def main() -> int:
                          executable=[str(dist / "findex.exe"), "claude"], env=env, strict_mcp=False)
     summary = summarize_session(session)
     check("findex claude launcher: forwards args, loads plugin, answer correct",
-          "PASS" if session["exit_code"] == 0 and summary["mcp_call_count"] >= 1 and expected in summary["final_text"] else "FAIL",
+          outcome(session["exit_code"] == 0 and summary["mcp_call_count"] >= 1 and expected in summary["final_text"], summary),
           {"exit": session["exit_code"], "calls": summary["tool_calls"], "answer": summary["final_text"][:160],
            "stderr": session["stderr_tail"][-200:]})
     evidence["launcher"] = summary

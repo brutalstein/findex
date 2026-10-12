@@ -8,6 +8,7 @@ an explicit MCP configuration. Credentials are never read or stored: the
 from __future__ import annotations
 
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -103,7 +104,12 @@ def summarize_session(session: dict) -> dict:
                 content = block.get("content")
                 tool_result_bytes += len(json.dumps(content, ensure_ascii=False).encode("utf-8"))
     usage = result.get("usage") or {}
+    final_text = result.get("result") or ""
+    # Plan/session usage limits end a session before any model call. Such a
+    # session measured nothing and must not be scored as a wrong answer.
+    limit_hit = bool(re.search(r"hit your (session|usage|weekly|daily) limit|usage limit reached", final_text, re.I))
     return {
+        "limit_hit": limit_hit,
         "exit_code": session["exit_code"], "timed_out": session["timed_out"], "wall_s": round(session["wall_s"], 2),
         "result_subtype": result.get("subtype"), "is_error": result.get("is_error"),
         "num_turns": result.get("num_turns"), "duration_api_ms": result.get("duration_api_ms"),
@@ -116,7 +122,7 @@ def summarize_session(session: dict) -> dict:
         "init_mcp_servers": init.get("mcp_servers"), "init_model": init.get("model"),
         "init_tools_findex": [t for t in init.get("tools", []) if "findex" in t],
         "init_plugins": init.get("plugins"), "claude_code_version": init.get("claude_code_version"),
-        "final_text": (result.get("result") or "")[:4000],
+        "final_text": final_text[:4000],
     }
 
 

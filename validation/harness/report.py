@@ -135,9 +135,10 @@ def summary_md(out: Path, data: dict, env: dict, regress: list[dict], fails: dic
                 o = overall[arm]
                 lines.append(f"- arm {arm}: success {o['success_rate']}, total tokens mean {o['total_tokens'].get('mean')}, "
                              f"est. cost mean {o['total_cost_usd_estimate'].get('mean')}, n={o['total_tokens'].get('n')}")
+        pct = lambda key: "n/a" if overall.get(key) is None else f"{overall[key]:+.1f}%"  # noqa: E731
         if "B_vs_A_total_tokens_change_pct" in overall:
-            lines.append(f"- B vs A total tokens: {overall['B_vs_A_total_tokens_change_pct']:+.1f}%; "
-                         f"est. cost: {overall['B_vs_A_est_cost_change_pct']:+.1f}%")
+            lines.append(f"- B vs A total tokens: {pct('B_vs_A_total_tokens_change_pct')}; "
+                         f"est. cost: {pct('B_vs_A_est_cost_change_pct')}")
     lines += ["", "## Regressions (current vs baseline)", ""]
     flagged = [r for r in regress if r["regression"]]
     lines += [f"- {r['metric']}: {r['baseline']} -> {r['current']} ({r['change_pct']}%)" for r in flagged] or ["- none flagged"]
@@ -151,10 +152,14 @@ def summary_md(out: Path, data: dict, env: dict, regress: list[dict], fails: dic
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=None)
+    parser.add_argument("--environment-only", action="store_true", help="record the environment at run start")
     args = parser.parse_args()
     out = results_dir(args.out)
-    env = environment()
+    # The environment (commit, dirty state, tools) is the one the run started with.
+    env = load(out, "environment") or environment()
     write_json(out / "environment.json", env)
+    if args.environment_only:
+        return 0
     data = {name: load(out, name) for name in COMPONENTS}
     for name, value in data.items():
         if value is None:

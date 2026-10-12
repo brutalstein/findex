@@ -27,10 +27,10 @@ No source upload or HTTP listener is performed by Findex. Claude Code itself may
 - Project identity: nearest ancestor containing `.git` (folder or linked-worktree file), otherwise supplied directory.
 - Local state: `%LOCALAPPDATA%/Findex/indexes/<BLAKE3(canonical-root)>/index.sqlite3`.
 - Scan: `ignore` walker, no symlink following, 512 KiB per-file max, 100k files per reconciliation. Binary/invalid UTF-8 excluded.
-- Indexed state: SQLite `files` metadata and FTS5 `docs` contents; WAL enabled.
-- Update: hash every accepted file, replace changed content, remove absent/disallowed paths in a single transaction. Roll back if the safety cap is exceeded.
-- Query: escape lexical terms into a bounded disjunction; FTS5 BM25 sorting; verify current file hash before returning file/line/excerpt.
-- MCP: stdio JSON-RPC initialize, tools/list and tools/call; errors are explicit. `findex_search`, `findex_symbols`, `findex_find_symbol` and `findex_impact` are exposed.
+- Indexed state: SQLite `files` metadata, FTS5 `docs(path, body, terms)` where `terms` holds camelCase sub-words and path words, and a Tree-sitter `symbols` table with an expression index on the normalized identifier (`lower(replace(name,'_',''))`); WAL enabled. `PRAGMA user_version` versions the lexical schema; an older or corrupt database is rebuilt from sources.
+- Update: hash every accepted file, replace changed content, remove absent/disallowed paths in a single `BEGIN IMMEDIATE` transaction (concurrent writers wait on the busy timeout instead of failing). Roll back if the safety cap is exceeded.
+- Query: (1) definitions whose normalized name equals the concatenated query (`GitignoreBuilder`, `gitignore builder`, `gitignore_builder`), types before functions before methods; (2) FTS5 candidates ranked by query-term coverage per file, then same-line co-occurrence, then BM25. Only returned hits are re-verified against the current file hash; stale hits are counted, never returned; `truncated` reports remaining candidates. Excerpts pass through `redact_secrets`.
+- MCP: stdio JSON-RPC. Legacy `initialize` (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05) and the 2026-07-28 stateless era (`server/discover`, per-request `_meta` protocol version, `-32022` for unsupported versions) are both served. Oversized frames, invalid JSON and invalid requests get JSON-RPC errors and the server keeps reading. `findex_search`, `findex_symbols`, `findex_find_symbol` and `findex_impact` are exposed; server `instructions` mark returned source as untrusted data.
 - CLI: no fabricated saving metrics. `findex claude` launches original native CLI; `doctor` warns when environment API key is present without reading its value.
 
 ## Next subsystems (design, not shipped)
@@ -84,3 +84,8 @@ The MCP stdio transport now enforces its 1 MiB per-frame byte limit *while
 reading* the stream, not after buffering an arbitrarily large unterminated
 line. The parser rejects oversized frames without returning them to Claude.
 See <https://www.sqlite.org/fts5.html#sorting_by_auxiliary_function_results>.
+
+Superseded on 2026-10-12: ranking is now the two-stage definition-first plus
+coverage/BM25 scheme described under *Implemented paths*; an oversized frame
+is answered with `-32600` and the stream continues. Measured effects are in
+`validation/FINAL_VALIDATION_REPORT.md`.

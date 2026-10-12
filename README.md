@@ -10,7 +10,7 @@ Findex is designed as a local-first, modular code intelligence engine that helps
 - Native Rust CLI for **Windows 10/11 x64** (`findex.exe`).
 - `findex claude [flags...]` launches the official `claude.exe` in the existing terminal and working directory, forwarding arguments.
 - Optional adjacent Claude plugin contributes a `findex_search` MCP tool using the normal Claude Code plugin loader.
-- SQLite FTS5/BM25 lexical retrieval with bounded candidate reranking and source-hash verification.
+- Definition-first retrieval: queries matching a defined identifier (`GitignoreBuilder`, `gitignore builder`, `gitignore_builder`) return the definition first; other queries use SQLite FTS5 with camelCase-aware terms, ranked by query-term coverage, same-line co-occurrence and BM25. Every returned hit is source-hash verified; excerpts mask common credential shapes.
 - Persisted Tree-sitter definitions with language-aware extraction for Rust, Python, TypeScript/JavaScript and C++.
 - Native Windows file watcher and incremental refresh of indexed files, with conservative full-scan fallbacks.
 - Explicit SCIP protobuf imports and mergeable, captured LSP symbol-reference evidence. Neither launches an LSP server.
@@ -20,7 +20,7 @@ Findex is designed as a local-first, modular code intelligence engine that helps
 
 ### What is **not** implemented
 
-Live LSP orchestration, complete cross-language/type/call graph, hybrid embeddings, adaptive search planner, verified project memory, source-code secret scanning, token telemetry, matched Claude Code A/B benchmarks and large-monorepo performance validation. Findex is still experimental. CLI searches reconcile before each query; warm MCP lexical and symbol lookups use a native watcher with safe fallbacks.
+Live LSP orchestration, complete cross-language/type/call graph, hybrid embeddings, a general adaptive search planner, verified project memory, full source-code secret scanning (only excerpt redaction of common credential shapes exists) and token telemetry inside the CLI. Retrieval, performance, security, real Claude Code integration and a small matched Claude Code A/B study are measured by the [validation suite](validation/README.md); see its report for what was and was not shown. Findex is still experimental. CLI searches reconcile before each query; warm MCP lexical and symbol lookups use a native watcher with safe fallbacks.
 
 ## Build
 
@@ -50,7 +50,8 @@ If Findex's bundled plugin is not present, the official Claude Code still launch
 - Findex does not change the user's Claude Code settings or take over authentication.
 - Local indexing has a 100,000-file reconciliation safety limit and scans UTF-8 files at most 512 KiB each. These are provisional bootstrap defaults.
 - Git-ignore rules, hidden directories and common vendor/build directory filters apply. Ignored files will not be retrieved.
-- Findex's MCP adapter implements the established 2024/2025 JSON-RPC stdio handshake; the newest 2026 protocol and official Claude plugin compatibility require actual integration tests.
+- Findex's MCP adapter serves both the `initialize` handshake (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05) and the stateless 2026-07-28 protocol (`server/discover`, per-request `_meta` version). Claude Code 2.1.281 was tested for real via `--mcp-config`, `--plugin-dir` and `findex claude`; it negotiates 2025-11-25.
+- Build with the rustup MSVC toolchain (`rust-toolchain.toml`). A standalone `gnullvm` Rust earlier on `PATH` produces a `findex.exe` that needs `libunwind.dll` and fails to start as an MCP server without it.
 - `ANTHROPIC_API_KEY` may affect official Claude Code authentication; `findex doctor` warns without logging its value.
 
 ## Modules
@@ -65,7 +66,7 @@ If Findex's bundled plugin is not present, the official Claude Code still launch
 
 ## Why measurements matter
 
-A smaller snippet is **not** verified token savings. Findex will eventually measure total model input/output/cache tokens and task success in matched runs with and without Findex, and compare against established code navigation tools. Until then the CLI deliberately shows token savings as unavailable.
+A smaller snippet is **not** verified token savings. The validation suite measures total model input/output/cache tokens and task success in matched Claude Code runs with and without Findex ([report](validation/FINAL_VALIDATION_REPORT.md)). The CLI still shows token savings as unavailable: a small study on a handful of tasks does not justify a per-session savings figure.
 
 See [Architecture](docs/architecture.md), [Roadmap](docs/roadmap.md), [Security](SECURITY.md), [Contributing](CONTRIBUTING.md), and [ADR-0001](docs/adr/0001-native-cli-and-local-index.md).
 

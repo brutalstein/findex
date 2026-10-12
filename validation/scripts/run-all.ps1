@@ -12,6 +12,7 @@ $failed = @()
 $python = Get-Python
 & $python[0] @($python | Select-Object -Skip 1) (Join-Path $Harness 'corpora.py') $(if ($Offline) { '--verify-only' })
 if ($LASTEXITCODE -ne 0) { throw 'corpora/baseline not ready (run without -Offline once to fetch)' }
+& $python[0] @($python | Select-Object -Skip 1) (Join-Path $Harness 'report.py') --out $out --environment-only
 $steps = @(
     @{ Name = 'unit'; Args = @{} },
     @{ Name = 'retrieval'; Args = @{ Quick = $Quick } },
