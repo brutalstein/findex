@@ -25,8 +25,15 @@ def fresh_workspace(corpus: str, dest: Path) -> Path:
     if dest.exists():
         # Git marks object files read-only; Windows refuses to unlink them.
         shutil.rmtree(dest, onexc=lambda func, path, _: (os.chmod(path, 0o666), func(path)))
-    shutil.copytree(CORPORA / corpus, dest / "repo", ignore=shutil.ignore_patterns(".git"))
+    # Copy only the pinned commit's tracked files: build output left in a corpus
+    # (e.g. ripgrep/target) is not part of it and overflows MAX_PATH on Windows.
+    source = CORPORA / corpus
     repo = dest / "repo"
+    tracked = subprocess.run(["git", "ls-files", "-z"], cwd=source, check=True, capture_output=True).stdout
+    for name in filter(None, tracked.decode("utf-8").split("\0")):
+        target = repo / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source / name, target)
     for argv in (["init", "-q"], ["add", "-A"],
                  ["-c", "user.email=validation@local", "-c", "user.name=validation", "commit", "-q", "-m", "base"]):
         subprocess.run(["git", *argv], cwd=repo, check=True, capture_output=True)
