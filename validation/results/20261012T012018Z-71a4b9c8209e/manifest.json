@@ -1,0 +1,74 @@
+{
+  "run": "20261012T012018Z-71a4b9c8209e",
+  "git_sha": "71a4b9c8209e1ae5fe5e2e62b50a795aeed5b6c5",
+  "git_branch": "validation/production-engineering",
+  "git_dirty": false,
+  "harness_tree": "517c112ff54870f011c6e1d9b5f6b4fd7521fb41",
+  "generated_by": "validation/harness/report.py",
+  "argv": [
+    "--out",
+    "validation\\results\\20261012T012018Z-71a4b9c8209e"
+  ],
+  "files": [
+    {
+      "name": "commands.jsonl",
+      "bytes": 854
+    },
+    {
+      "name": "comparisons.json",
+      "bytes": 76
+    },
+    {
+      "name": "compatibility.json",
+      "bytes": 76
+    },
+    {
+      "name": "cpu.json",
+      "bytes": 76
+    },
+    {
+      "name": "environment.json",
+      "bytes": 804
+    },
+    {
+      "name": "failures.json",
+      "bytes": 218
+    },
+    {
+      "name": "memory.json",
+      "bytes": 76
+    },
+    {
+      "name": "performance.json",
+      "bytes": 76
+    },
+    {
+      "name": "regressions.json",
+      "bytes": 82
+    },
+    {
+      "name": "relations.json",
+      "bytes": 76
+    },
+    {
+      "name": "retrieval.json",
+      "bytes": 76
+    },
+    {
+      "name": "security.json",
+      "bytes": 76
+    },
+    {
+      "name": "summary.md",
+      "bytes": 884
+    },
+    {
+      "name": "tests.json",
+      "bytes": 6897
+    },
+    {
+      "name": "tokens.json",
+      "bytes": 76
+    }
+  ]
+}

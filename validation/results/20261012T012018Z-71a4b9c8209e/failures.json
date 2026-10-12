@@ -1,0 +1,16 @@
+{
+  "FAIL": [],
+  "BLOCKED": [],
+  "SKIPPED": [],
+  "NOT_RUN": [
+    "retrieval",
+    "relations",
+    "performance",
+    "memory",
+    "cpu",
+    "tokens",
+    "comparisons",
+    "security",
+    "compatibility"
+  ]
+}

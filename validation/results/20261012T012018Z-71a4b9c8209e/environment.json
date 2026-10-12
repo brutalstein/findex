@@ -1,0 +1,28 @@
+{
+  "utc": "20261012T012019Z",
+  "git_sha": "71a4b9c8209e1ae5fe5e2e62b50a795aeed5b6c5",
+  "git_dirty": false,
+  "git_branch": "validation/production-engineering",
+  "os": "Windows-11-10.0.26200-SP0",
+  "windows_build": "10.0.26200",
+  "machine": "AMD64",
+  "logical_processors": 32,
+  "physical_cores": 16,
+  "ram_bytes": 33521238016,
+  "python": "3.12.10",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "rustc_host": "x86_64-pc-windows-msvc",
+  "cargo": "cargo 1.97.0 (c980f4866 2026-06-30)",
+  "git": "git version 2.51.2.windows.1",
+  "claude_code": "2.1.281 (Claude Code)",
+  "cpu_model": "AMD Ryzen 9 8945HX with Radeon Graphics",
+  "storage": [
+    "SSD NVMe CT1000P310SSD8"
+  ],
+  "claude_auth": {
+    "logged_in": true,
+    "method": "claude.ai",
+    "plan": "pro"
+  },
+  "ci_run_url": ""
+}

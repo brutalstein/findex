@@ -86,9 +86,12 @@ or reporting gap.
     laptop, Windows 11. Small absolute differences (a few milliseconds, or
     less than 10 % on sub-second cold indexes) are within noise. No Windows 10
     machine was available.
-17. **Cold indexing does slightly more work** (low). The `terms` FTS column,
-    the identifier expression index and broader Tree-sitter extraction add
-    CPU during cold indexing. See `regressions.json` for measured values.
+17. **Larger index and cold-index memory** (low). The `terms` FTS column and
+    the identifier expression index grow the database 11–13 % (tokio,
+    vscode). Peak working set while cold-indexing vscode rose 25 % (24.7 →
+    30.9 MiB) and was not root-caused. Cold indexing itself is 1.2–16×
+    faster (run `20261012T005742Z-746f47e6bb69`). *Action:* profile
+    allocation during the vscode cold index.
 
 ## Supply chain
 

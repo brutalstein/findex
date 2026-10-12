@@ -1,0 +1,5 @@
+{"utc": "20261012T012023Z", "argv": ["cargo", "fmt", "--all", "--", "--check"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.3526, "timed_out": false}
+{"utc": "20261012T012024Z", "argv": ["cargo", "clippy", "--workspace", "--all-targets", "--locked", "--", "-D", "warnings"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.6826, "timed_out": false}
+{"utc": "20261012T012027Z", "argv": ["cargo", "test", "--workspace", "--locked", "--no-fail-fast"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 3.047, "timed_out": false}
+{"utc": "20261012T012027Z", "argv": ["cargo", "build", "--release", "--locked", "-p", "findex"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.3985, "timed_out": false}
+{"utc": "20261012T012030Z", "argv": ["cargo", "audit", "--deny", "warnings"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 2.4443, "timed_out": false}
