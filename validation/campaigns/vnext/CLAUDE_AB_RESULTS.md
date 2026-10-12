@@ -1,7 +1,66 @@
 # Claude Code A/B/C/D/E results
 
-Status: **PARTIAL — the full study is BLOCKED.** No statistically supported
-token claim can be made from this campaign.
+Status: **EXECUTED (Run 3, 120/120 sessions). Result: negative.** With Haiku,
+no Findex arm saved tokens; `findex_context` (D) used **+31 % total tokens**
+vs built-ins only (A), 95 % CI excluding zero.
+
+## Run 3 — `results/20261012T105254Z-397bf78730ba` (code `397bf78`)
+
+8 tasks × 5 arms × 3 repetitions, all EXECUTED, none BLOCKED. Estimated
+client-side spend 4.77 USD (subscription; not an invoice). Statistics:
+`ab_stats.json` (paired by task and repetition, bootstrap 10,000 draws,
+seed 11; `harness/ab_stats.py`).
+
+### Pooled over all 8 tasks (24 pairs per arm)
+
+| Arm vs A | Δ total tokens per session | 95 % CI | Relative | Δ turns [95 % CI] | Correct (arm / A) |
+|---|---|---|---|---|---|
+| B (4 tools, deferred) | +15.2k | [−0.2k, +30.8k] | +20.8 % | +0.88 [−0.08, +2.00] | 24/24 / 24/24 |
+| C (B + guidance) | +14.0k | [+2.9k, +25.8k] | +19.2 % | +1.00 [+0.21, +1.79] | 24/24 / 24/24 |
+| **D (`findex_context`)** | **+22.7k** | **[+8.7k, +37.6k]** | **+31.1 %** | **+1.33 [+0.33, +2.33]** | **23/24** / 24/24 |
+| E (no Grep/Glob) | +51.1k | [+15.1k, +93.4k] | +70.0 % | +3.25 [+1.08, +5.54] | 18/24 / 24/24 |
+
+### Per task (mean of 3; tokens in thousands; correct/3; sessions that called Findex)
+
+| Task | A | B | C | D | E |
+|---|---|---|---|---|---|
+| n1 named file | 26k 3/3 | 26k 3/3 fx0 | 27k 3/3 fx0 | 27k 3/3 fx0 | 24k 3/3 fx0 |
+| n2 no repo | 13k 3/3 | 13k 3/3 fx0 | 13k 3/3 fx0 | 13k 3/3 fx0 | 12k 3/3 fx0 |
+| t1 find function | 45k 3/3 | 63k 3/3 fx3 | 64k 3/3 fx3 | 59k 3/3 fx3 | 128k **1/3** fx3 |
+| t2 callers | **28k** 3/3 | 104k 3/3 fx3 | 58k 3/3 fx3 | 76k 3/3 fx3 | 193k **1/3** fx3 |
+| t3 concept | 49k 3/3 | 72k 3/3 fx0 | 75k 3/3 fx2 | 100k **2/3** fx3 | 175k **1/3** fx3 |
+| t4 trace | 140k 3/3 | 140k 3/3 fx0 | 198k 3/3 fx2 | 195k 3/3 fx2 | 202k 3/3 fx3 |
+| t5 fix bug | 152k 3/3 | 150k 3/3 fx0 | 119k 3/3 fx1 | 133k 3/3 fx2 | **74k** 3/3 fx3 |
+| t6 feature | 131k 3/3 | 137k 3/3 fx0 | 142k 3/3 fx1 | 162k 3/3 fx1 | 185k 3/3 fx3 |
+
+D minus A per task (k tokens, 95 % CI): t1 +14.8 [+14.4, +15.1]; t2 +48.1
+[+14.3, +100.1]; t3 +51.0 [−5.4, +115.9]; t4 +55.3 [+22.2, +81.5]; t5 −19.5
+[−45.0, +6.6]; t6 +30.4 [+5.2, +43.1]. The only task where any Findex arm
+saved tokens significantly is t5 (C −33.0k [−41.2, −20.9]; E −78.5k
+[−102.8, −45.7]).
+
+### Why D did not save tokens (diagnosis, not tuned on)
+
+- **Tool selection mostly worked.** In all 6 D sessions on t1/t2, a Findex
+  tool was the first evidence tool. `findex_context` was called directly in
+  3 of 6; in the other 3 the model first spent a ToolSearch turn (2× to load
+  `findex_find_symbol`, 1× before `findex_context`).
+- **The model did not trust the answer.** On t2, every D session followed
+  `findex_context` with 1–6 Grep calls. Reproducing the call on the same
+  workspace shows the report was complete and correct: definition, 24 call
+  sites with enclosing functions, 1 reference, "complete for the indexed
+  files", ~790 tokens.
+- **The built-in baseline is strong.** Arm A answered t2 with a single Grep
+  in 2 turns (28k tokens) every time. When one Grep already answers, any
+  extra tool (or a ToolSearch turn) can only add a turn.
+- **Without Grep (E)**, Haiku searched for substitute tools and failed 6 of
+  18 navigation sessions. Findex is not a sufficient replacement for Grep for
+  this model.
+- The one-session pilot of Run 1 (D: 2 turns on t1/t2) did not replicate;
+  run-to-run variance per cell is large.
+
+Negative controls: no arm called Findex on n1/n2, and the upfront
+`findex_context` schema cost about +1k tokens per session (n1 26k → 27k).
 
 ## Design (`validation/harness/claude_ab.py`)
 
@@ -73,16 +132,18 @@ scored them as wrong answers; they were reclassified BLOCKED
 (`blocked_session()`), and the harness now stops on this condition. **No
 measurement.** The run was stopped by the operator.
 
-## What is required to complete
+Two later attempts at `fc6c4e7` (`20261012T104630Z`, `20261012T104841Z`)
+measured nothing: one could not see the corpora from the operator's terminal
+(the Claude app virtualizes `%LOCALAPPDATA%`), the other was BLOCKED on the
+same expired sign-in. A third attempt at `fc6c4e7` ran 5 sessions and then
+crashed copying ripgrep's untracked `target/` (MAX_PATH); fixed in `397bf78`
+by copying only tracked files. Run 3 started fresh after that fix. None of
+these partial directories is committed.
 
-1. The account owner signs in again (`/login` or `claude auth login`).
-   Findex never handles credentials.
-2. Run: `validation/scripts/run-claude-ab.ps1 -Reps 3 -Arms 'A,B,C,D,E'`
-   (8 tasks × 5 arms × 3 reps = 120 sessions; the run resumes with
-   `--resume` if a plan limit stops it).
-3. Report per task: paired token difference vs A with 95 % CI, success
-   rate, Findex use rate, first-evidence tool call.
+## Conclusion
 
-Until then: **token savings and task-success differences are NOT
-demonstrated.** The single-session observations are consistent with fewer
-turns for D/E on navigation tasks, which is the mechanism vNext targets.
+Token savings with Claude Code are **refuted for Haiku 4.5 on these tasks**,
+not merely undemonstrated. The single-session pilot (Run 1) suggested fewer
+turns for D/E; Run 3 with three repetitions does not reproduce it. Findex's
+measured value is in retrieval quality (RETRIEVAL_RESULTS), not in reducing
+this model's token use.

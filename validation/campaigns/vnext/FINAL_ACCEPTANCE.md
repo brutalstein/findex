@@ -4,13 +4,13 @@
 
 ## Blockers (exact)
 
-1. **Claude Code A/B/C/D/E study not completed** (spec: "run real A/B/C/D
-   studies"). 19 sessions measured before the plan session limit; the rerun
-   (`20261012T100733Z-96295ee75261`) failed sign-in on every session
-   ("OAuth session expired and could not be refreshed"). Token and
-   task-success claims for `findex_context` are therefore unproven.
-   *Unblock:* the account owner signs in again, then
-   `validation/scripts/run-claude-ab.ps1 -Reps 3 -Arms 'A,B,C,D,E'`.
+1. **The Claude Code study shows no benefit; it shows a cost.** Run 3
+   (`20261012T105254Z-397bf78730ba`, 120/120 sessions, Haiku 4.5): the
+   `findex_context` arm used +22.7k tokens per session vs built-ins only
+   (+31.1 %, 95 % CI [+8.7k, +37.6k]) and +1.33 turns, with 23/24 vs 24/24
+   correct. The model called Findex but then re-verified with Grep. The
+   product goal "make Claude use Findex beneficially" is not met for this
+   model.
 2. **Typed multi-language relationship graph not built; cross-language edge
    precision unmeasured** (spec P2). Only Rust has a compiler oracle.
 3. **Windows reliability items not exercised**: OneDrive/SMB volumes, mass
@@ -33,18 +33,20 @@
 | Cold-index peak memory regression (#17) | root-caused (transient, bounded) |
 | Relations DB concurrent open (#6) | reproduced and fixed |
 
-CI: see the pull request for this branch (`vnext/context-engine` → `main`).
+CI: PR brutalstein/findex#25, run 38237215005 — Format/Clippy/Tests/Release
+Build, RustSec audit and Rust 1.85 minimum toolchain all pass (at `fc6c4e7`).
 
 ## What can be claimed
 
-- `findex_context` answers navigation tasks in one call, loads without a
-  `ToolSearch` turn, and ranks the right file higher than the previous
+- `findex_context` returns definitions and call sites with enclosing
+  functions in one call, and ranks the right file higher than the previous
   `findex search` on held-out real issues.
 - Its call-site evidence is reliable for uniquely named functions and
   explicitly flagged as unreliable for shared names.
 
 ## What cannot be claimed
 
-- Token savings or higher task success with Claude Code.
+- Token savings or higher task success with Claude Code. For Haiku 4.5 the
+  measured effect is the opposite (+31 % tokens).
 - Any result for models other than Haiku 4.5.
 - Type-resolved call graphs.

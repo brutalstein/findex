@@ -40,8 +40,11 @@ the four existing tools stay deferred and unchanged (backward compatible,
   (guidance prompt) did not remove the `ToolSearch` turn.
 
 *Verified.* MCP test `only_the_task_context_tool_loads_upfront_in_claude_code`.
-Pilot sessions: D and E answered t1/t2 in 2 turns with 1 tool call; B and C
-needed 3–6 turns (see `campaigns/vnext/CLAUDE_AB_RESULTS.md`).
+The one-session pilot (D and E: 2 turns on t1/t2) did **not** replicate.
+The 120-session study refutes the hypothesis for Haiku 4.5: D used +31 %
+tokens vs built-ins only, because the model re-verified `findex_context`
+results with Grep (`campaigns/vnext/CLAUDE_AB_RESULTS.md`). `alwaysLoad`
+removed the ToolSearch turn in some sessions but did not reduce turns overall.
 
 ## D3. Deterministic, explainable retrieval; no embeddings
 

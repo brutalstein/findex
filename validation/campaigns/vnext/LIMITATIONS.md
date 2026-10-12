@@ -1,9 +1,10 @@
 # Limitations of vNext and of its evidence
 
-1. **Token savings not demonstrated.** The A–E study ran 19 sessions (one
-   per cell) before a plan limit, and the rerun was blocked by an expired
-   sign-in. Single-session observations favour D/E on t1/t2 (2 turns vs 3–6),
-   but there are no repetitions, no CI and no data for t3–t6.
+1. **Findex increases Claude Code token use for Haiku 4.5.** 120-session
+   study: D +31 % tokens vs A (CI excludes zero), E +70 % with 18/24
+   correct. 3 repetitions per cell; per-cell variance is large. Tasks are
+   small enough that one Grep often answers them; larger tasks were not
+   tested.
 2. **One model.** All sessions used Haiku 4.5. Nothing is claimed for
    Sonnet/Opus.
 3. **Small held-out localization set** (28 tasks, 4 corpora; ripgrep and fmt

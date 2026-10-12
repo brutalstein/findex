@@ -31,5 +31,5 @@
 | O2 | medium | Vendored packages inside a project (`requests/packages/urllib3`) outrank the project's code | no reliable language-independent vendored-code signal without false negatives |
 | O3 | medium | hit@10 on held-out localization not improved (0.750 vs 0.786 main) | concept fallback ranks by lexical coverage; top-10 breadth unchanged |
 | O4 | low | `findex context --json` output is not budgeted (max 41.8 KB); the MCP text output is | CLI JSON is for tooling |
-| O5 | medium | Claude A/B study incomplete | BLOCKED on sign-in and plan limits |
+| O5 | high | With Findex available, Haiku 4.5 uses more tokens (D +31 %, E +70 %); it re-verifies `findex_context` results with Grep | model behaviour; no change found that is not tuned on the study tasks themselves |
 | O6 | medium | Cross-language edge precision unmeasured | SCIP indexers for Python/TS/C++ not installed |
