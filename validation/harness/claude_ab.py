@@ -27,7 +27,24 @@ from common import CORPORA, VALIDATION, WORK, results_dir, write_json
 BASE_TOOLS = ["Read", "Grep", "Glob", "Edit"]
 FINDEX_TOOLS = ["mcp__findex__findex_search", "mcp__findex__findex_find_symbol",
                 "mcp__findex__findex_symbols", "mcp__findex__findex_impact"]
-DENY = ["Bash", "WebFetch", "WebSearch", "Agent", "Task", "NotebookEdit", "Write"]
+CONTEXT_TOOL = "mcp__findex__findex_context"
+# Skill is denied so the operator's personal skills cannot steer any arm.
+DENY = ["Bash", "WebFetch", "WebSearch", "Agent", "Task", "NotebookEdit", "Write", "Skill"]
+GUIDANCE = ("This repository has Findex MCP tools for code navigation. To locate code, prefer them over Grep/Glob: "
+            "mcp__findex__findex_find_symbol finds where a named symbol is defined; mcp__findex__findex_search "
+            "finds identifiers or code terms and returns file:line evidence. Load them with ToolSearch once. "
+            "Read files only to confirm details or to edit.")
+# A: built-ins only. B: Findex as on main (caf33fa). C: B + concise guidance.
+# D: this build, findex_context loaded upfront, no extra guidance.
+# E: diagnostic only - D without Grep/Glob, so search must go through Findex.
+ARMS = {
+    "A": {"binary": None, "tools": BASE_TOOLS},
+    "B": {"binary": "main", "tools": BASE_TOOLS + FINDEX_TOOLS},
+    "C": {"binary": "main", "tools": BASE_TOOLS + FINDEX_TOOLS, "extra": ["--append-system-prompt", GUIDANCE]},
+    "D": {"binary": "current", "tools": BASE_TOOLS + FINDEX_TOOLS + [CONTEXT_TOOL]},
+    "E": {"binary": "current", "tools": ["Read", "Edit"] + FINDEX_TOOLS + [CONTEXT_TOOL],
+          "deny": ["Grep", "Glob"]},
+}
 
 
 def golden_symbol(corpus: str) -> dict:
@@ -87,6 +104,13 @@ def make_tasks() -> dict:
     def judge_bug(text, repo, target):
         return cargo_check(repo, "sensitive_filename_rules", target)
 
+    def judge_rust_version(text, repo, target):
+        return "1.85" in text, "expects rust-version 1.85 from Cargo.toml"
+
+    def judge_trait_object(text, repo, target):
+        ok = bool(re.search(r"dyn|dynamic dispatch|vtable", text, re.I))
+        return ok, "expects dyn / dynamic dispatch / vtable"
+
     def judge_feature(text, repo, target):
         path = repo / "crates" / "findex-core" / "src" / "lib.rs"
         source = path.read_text(encoding="utf-8")
@@ -101,25 +125,39 @@ def make_tasks() -> dict:
         return ok_hidden and ok_all, f"hidden={ok_hidden} suite={ok_all} {out_hidden[-120:]}"
 
     return {
+        "n1_named_file_lookup": {"corpus": "findex", "judge": judge_rust_version, "max_turns": 6,
+                                 "markers": ("rust-version",), "needs_findex": False,
+                                 "prompt": "What is the value of rust-version in the [workspace.package] table of the "
+                                           "Cargo.toml file at the repository root? Answer with the value only."},
+        "n2_no_repository_needed": {"corpus": "ripgrep", "judge": judge_trait_object, "max_turns": 4,
+                                    "markers": (), "needs_findex": False,
+                                    "prompt": "Without looking at any files, explain in one sentence what a Rust "
+                                              "trait object is."},
         "t1_find_function": {"corpus": "ripgrep", "judge": judge_find, "max_turns": 12,
+                             "markers": tuple(path for path, _ in symbol["expected"]),
                              "prompt": f"In this repository, where is `{symbol['name']}` defined? "
                                        "Answer with the repository-relative path and 1-based line number as path:line."},
         "t2_identify_callers": {"corpus": "tokio", "judge": judge_callers, "max_turns": 20,
+                                "markers": tuple(sorted(callers)),
                                 "prompt": "List every source file in this repository that calls the function "
                                           "`poll_proceed` (excluding the file where it is only defined, unless it also calls it). "
                                           "Give repository-relative paths, one per line."},
         "t3_explain_concept": {"corpus": "requests", "judge": judge_concept, "max_turns": 12,
+                               "markers": ("should_strip_auth",),
                                "prompt": "When requests follows a redirect, which method decides whether the Authorization "
                                          "header must be removed? Give the method name and its file, and explain the rule in two sentences."},
         "t4_cross_file_trace": {"corpus": "findex", "judge": judge_trace, "max_turns": 15,
+                                "markers": ("search_in_db",),
                                 "prompt": "Trace what happens when the MCP server receives a findex_search tool call: name the "
                                           "function in the findex-watch crate that handles it and the findex-index function that finally "
                                           "runs the SQLite FTS query. Be concise."},
         "t5_fix_bug": {"corpus": "findex", "judge": judge_bug, "max_turns": 20, "prepare": prepare_bug,
+                       "markers": ("is_sensitive_filename",),
                        "prompt": "Bug report: Findex now indexes TLS private key files such as server.pem even though they "
                                  "must be excluded as sensitive. Find the root cause and fix it with a minimal edit. "
                                  "You cannot run commands."},
         "t6_feature_with_test": {"corpus": "findex", "judge": judge_feature, "max_turns": 20,
+                                 "markers": ("is_sensitive_filename",),
                                  "prompt": "Treat KeePass databases (*.kdbx, case-insensitive) as sensitive files that are never "
                                            "indexed, and add an assertion for it to the existing unit test of that rule. "
                                            "Make a minimal edit. You cannot run commands."},
@@ -132,7 +170,7 @@ def main() -> int:
     parser.add_argument("--effort", default=None)
     parser.add_argument("--reps", type=int, default=3)
     parser.add_argument("--tasks", default="")
-    parser.add_argument("--arms", default="A,B")
+    parser.add_argument("--arms", default="A,B,C,D")
     parser.add_argument("--session-budget", type=float, default=0.40)
     parser.add_argument("--total-budget", type=float, default=6.0, help="stop when estimated spend reaches this")
     parser.add_argument("--out", default=None)
@@ -159,13 +197,14 @@ def main() -> int:
                     task["prepare"](repo)
                     subprocess.run(["git", "-c", "user.email=v@l", "-c", "user.name=v", "commit", "-qam", "task setup"],
                                    cwd=repo, capture_output=True)
-                tools = BASE_TOOLS + (FINDEX_TOOLS if arm in ("B", "C") else [])
-                config = mcp_config(dest, "current" if arm == "B" else "baseline", via="direct") if arm in ("B", "C") else None
+                spec = ARMS[arm]
+                config = mcp_config(dest, spec["binary"], via="direct") if spec["binary"] else None
                 print(f"[ab] rep={rep} {name} arm={arm}", file=sys.stderr)
                 session = run_claude(repo, task["prompt"], model=args.model, effort=args.effort,
                                      max_turns=task["max_turns"], budget_usd=args.session_budget,
-                                     allowed_tools=tools, disallowed_tools=DENY, mcp_config_path=config)
-                summary = summarize_session(session)
+                                     allowed_tools=spec["tools"], disallowed_tools=DENY + spec.get("deny", []),
+                                     mcp_config_path=config, extra=spec.get("extra"))
+                summary = summarize_session(session, task.get("markers", ()))
                 correct, reason = task["judge"](summary["final_text"], repo, target)
                 spent += summary["total_cost_usd_estimate"] or 0.0
                 connected = any(s.get("name") == "findex" and s.get("status") == "connected"
@@ -176,6 +215,7 @@ def main() -> int:
                     # Never retry around a plan limit: record it and stop scheduling sessions.
                     status, blocked = "BLOCKED", "Claude plan usage limit reached: " + summary["final_text"][:120]
                 record = {"task": name, "arm": arm, "rep": rep, "status": status, "findex_connected": connected,
+                          "needs_findex": task.get("needs_findex", True),
                           "correct": correct,
                           "judge_detail": reason, **{k: v for k, v in summary.items() if k != "final_text"}}
                 record["answer_excerpt"] = summary["final_text"][:600]
@@ -188,6 +228,8 @@ def main() -> int:
                       f"wall={summary['wall_s']}s {reason[:80]}", file=sys.stderr)
                 shutil.rmtree(dest / "state", ignore_errors=True)
     write_json(out / "tokens.json", {"model": args.model, "effort": args.effort, "reps": args.reps,
+                                      "arms": {a: {k: v for k, v in ARMS[a].items()} for a in arms},
+                                      "isolation": "CLAUDE_CODE_DISABLE_CLAUDE_MDS=1, Skill denied, --setting-sources project,local",
                                       "cost_note": "total_cost_usd is Claude Code's client-side estimate, not an invoice",
                                       "sessions": sessions, "estimated_spend_usd": spent})
     write_json(out / "comparisons.json", compare(sessions, arms))
@@ -205,8 +247,8 @@ def describe(values: list[float]) -> dict:
 
 def compare(sessions: list[dict], arms: list[str]) -> dict:
     metrics = ["input_tokens", "output_tokens", "cache_creation_input_tokens", "cache_read_input_tokens",
-               "total_tokens", "total_cost_usd_estimate", "tool_call_count", "mcp_call_count", "files_read",
-               "tool_result_bytes", "wall_s"]
+               "total_tokens", "total_cost_usd_estimate", "num_turns", "tool_call_count", "mcp_call_count",
+               "toolsearch_calls", "builtin_search_calls", "read_calls", "files_read", "tool_result_bytes", "wall_s"]
     executed = [s for s in sessions if s.get("status") == "EXECUTED"]
     for s in executed:
         s["total_tokens"] = sum((s.get(k) or 0) for k in ("input_tokens", "output_tokens",
@@ -217,21 +259,27 @@ def compare(sessions: list[dict], arms: list[str]) -> dict:
         entry = {}
         for arm in arms:
             rows = [s for s in executed if s["arm"] == arm and (task == "__all__" or s["task"] == task)]
+            evidence = [r["first_evidence_tool_call"] for r in rows if r.get("first_evidence_tool_call")]
             entry[arm] = {"success_rate": (sum(r["correct"] for r in rows) / len(rows)) if rows else None,
+                          "findex_used_rate": (sum(1 for r in rows if r.get("mcp_call_count")) / len(rows)) if rows else None,
+                          "evidence_found_rate": (len(evidence) / len(rows)) if rows else None,
+                          "first_evidence_tool_call": describe([float(v) for v in evidence]),
                           **{m: describe([float(r.get(m) or 0) for r in rows]) for m in metrics}}
-        if "A" in entry and "B" in entry and entry["A"]["total_tokens"].get("n") and entry["B"]["total_tokens"].get("n"):
-            a, b = entry["A"]["total_tokens"]["mean"], entry["B"]["total_tokens"]["mean"]
-            entry["B_vs_A_total_tokens_change_pct"] = (b - a) / a * 100 if a else None
-            a, b = entry["A"]["total_cost_usd_estimate"]["mean"], entry["B"]["total_cost_usd_estimate"]["mean"]
-            entry["B_vs_A_est_cost_change_pct"] = (b - a) / a * 100 if a else None
+        for other_arm in [a for a in arms if a != "A"]:
+            if not ("A" in entry and entry["A"]["total_tokens"].get("n") and entry[other_arm]["total_tokens"].get("n")):
+                continue
+            a, b = entry["A"]["total_tokens"]["mean"], entry[other_arm]["total_tokens"]["mean"]
+            entry[f"{other_arm}_vs_A_total_tokens_change_pct"] = (b - a) / a * 100 if a else None
+            a, b = entry["A"]["total_cost_usd_estimate"]["mean"], entry[other_arm]["total_cost_usd_estimate"]["mean"]
+            entry[f"{other_arm}_vs_A_est_cost_change_pct"] = (b - a) / a * 100 if a else None
             # Paired by (task, rep): per-pair differences give a variance estimate.
             pairs = []
             for s in executed:
                 if s["arm"] == "A" and (task == "__all__" or s["task"] == task):
-                    other = next((o for o in executed if o["arm"] == "B" and o["task"] == s["task"] and o["rep"] == s["rep"]), None)
+                    other = next((o for o in executed if o["arm"] == other_arm and o["task"] == s["task"] and o["rep"] == s["rep"]), None)
                     if other:
                         pairs.append(other["total_tokens"] - s["total_tokens"])
-            entry["paired_total_token_difference_B_minus_A"] = describe([float(p) for p in pairs])
+            entry[f"paired_total_token_difference_{other_arm}_minus_A"] = describe([float(p) for p in pairs])
         result["per_task" if task != "__all__" else "overall"][task] = entry
     return result
 

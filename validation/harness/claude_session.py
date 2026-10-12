@@ -50,7 +50,7 @@ def run_claude(repo: Path, prompt: str, *, model: str, max_turns: int, budget_us
                allowed_tools: list[str], disallowed_tools: list[str] | None = None,
                mcp_config_path: Path | None = None, extra: list[str] | None = None,
                effort: str | None = None, timeout: float = 900, executable: list[str] | None = None,
-               env: dict | None = None, strict_mcp: bool = True) -> dict:
+               env: dict | None = None, strict_mcp: bool = True, isolate_memory: bool = True) -> dict:
     argv = (executable or ["claude"]) + [
         "-p", prompt, "--model", model, "--max-turns", str(max_turns), "--max-budget-usd", str(budget_usd),
         "--output-format", "stream-json", "--verbose", "--no-session-persistence",
@@ -68,6 +68,10 @@ def run_claude(repo: Path, prompt: str, *, model: str, max_turns: int, budget_us
         # Strict mode also drops plugin-provided servers; plugin tests disable it.
         argv += ["--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']
     argv += extra or []
+    if isolate_memory:
+        # `--setting-sources` does not stop the operator's ~/.claude/CLAUDE.md
+        # from loading (verified 2026-10-12); this documented switch does.
+        env = dict(env or os.environ, CLAUDE_CODE_DISABLE_CLAUDE_MDS="1")
     started = time.perf_counter()
     try:
         proc = subprocess.run(argv, cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace",
@@ -86,23 +90,32 @@ def run_claude(repo: Path, prompt: str, *, model: str, max_turns: int, budget_us
             "wall_s": wall, "events": events, "stderr_tail": stderr[-2000:]}
 
 
-def summarize_session(session: dict) -> dict:
-    """Usage and tool accounting from stream-json events."""
+def summarize_session(session: dict, markers: tuple[str, ...] = ()) -> dict:
+    """Usage and tool accounting from stream-json events. `markers` are
+    strings whose first appearance in a tool result counts as the first
+    relevant evidence (1-based tool call index)."""
     init = next((e for e in session["events"] if e.get("type") == "system" and e.get("subtype") == "init"), {})
     result = next((e for e in reversed(session["events"]) if e.get("type") == "result"), {})
     tool_calls, mcp_calls, files_read, tool_result_bytes = [], 0, set(), 0
+    call_index, first_evidence, findex_inputs = {}, None, []
     for event in session["events"]:
         message = event.get("message") or {}
         for block in message.get("content") or [] if isinstance(message.get("content"), list) else []:
             if block.get("type") == "tool_use":
                 tool_calls.append(block.get("name"))
+                call_index[block.get("id")] = len(tool_calls)
+                if "findex" in str(block.get("name")):
+                    findex_inputs.append({"tool": block.get("name"), "input": json.dumps(block.get("input"))[:300]})
                 mcp_calls += str(block.get("name", "")).startswith("mcp__")
                 path = (block.get("input") or {}).get("file_path")
                 if block.get("name") == "Read" and path:
                     files_read.add(path)
             if block.get("type") == "tool_result":
                 content = block.get("content")
-                tool_result_bytes += len(json.dumps(content, ensure_ascii=False).encode("utf-8"))
+                serialized = json.dumps(content, ensure_ascii=False)
+                tool_result_bytes += len(serialized.encode("utf-8"))
+                if first_evidence is None and any(m in serialized for m in markers):
+                    first_evidence = call_index.get(block.get("tool_use_id"))
     usage = result.get("usage") or {}
     final_text = result.get("result") or ""
     # Plan/session usage limits end a session before any model call. Such a
@@ -119,6 +132,10 @@ def summarize_session(session: dict) -> dict:
         "total_cost_usd_estimate": result.get("total_cost_usd"), "model_usage": result.get("modelUsage"),
         "tool_calls": tool_calls, "tool_call_count": len(tool_calls), "mcp_call_count": mcp_calls,
         "files_read": len(files_read), "tool_result_bytes": tool_result_bytes,
+        "first_evidence_tool_call": first_evidence, "findex_inputs": findex_inputs,
+        "toolsearch_calls": tool_calls.count("ToolSearch"),
+        "builtin_search_calls": sum(tool_calls.count(n) for n in ("Grep", "Glob")),
+        "read_calls": tool_calls.count("Read"),
         "init_mcp_servers": init.get("mcp_servers"), "init_model": init.get("model"),
         "init_tools_findex": [t for t in init.get("tools", []) if "findex" in t],
         "init_plugins": init.get("plugins"), "claude_code_version": init.get("claude_code_version"),

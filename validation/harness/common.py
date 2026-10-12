@@ -186,9 +186,12 @@ def write_checksums(out: Path) -> None:
 
 
 def findex_binary(label: str) -> Path:
-    """`current` = this checkout's release build; `baseline` = frozen 44f1a38 build."""
+    """`current` = this checkout's release build; `baseline` = frozen 44f1a38
+    build; `main` = frozen release build of main at caf33fa (vNext baseline)."""
     if label == "baseline":
         return WORK / "bin" / "baseline-44f1a38" / "findex.exe"
+    if label == "main":
+        return WORK / "bin" / "main-caf33fa" / "findex.exe"
     target = Path(os.environ.get("CARGO_TARGET_DIR") or REPO / "target")
     return target / "release" / "findex.exe"
 

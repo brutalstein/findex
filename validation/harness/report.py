@@ -130,15 +130,16 @@ def summary_md(out: Path, data: dict, env: dict, regress: list[dict], fails: dic
     overall = ((data.get("comparisons") or {}).get("overall") or {}).get("__all__")
     if overall:
         lines += ["", "## Claude Code A/B (all tasks)", ""]
-        for arm in ("A", "B", "C"):
-            if arm in overall:
-                o = overall[arm]
-                lines.append(f"- arm {arm}: success {o['success_rate']}, total tokens mean {o['total_tokens'].get('mean')}, "
-                             f"est. cost mean {o['total_cost_usd_estimate'].get('mean')}, n={o['total_tokens'].get('n')}")
+        arms = [arm for arm in "ABCDE" if arm in overall]
+        for arm in arms:
+            o = overall[arm]
+            lines.append(f"- arm {arm}: success {o['success_rate']}, total tokens mean {o['total_tokens'].get('mean')}, "
+                         f"est. cost mean {o['total_cost_usd_estimate'].get('mean')}, n={o['total_tokens'].get('n')}")
         pct = lambda key: "n/a" if overall.get(key) is None else f"{overall[key]:+.1f}%"  # noqa: E731
-        if "B_vs_A_total_tokens_change_pct" in overall:
-            lines.append(f"- B vs A total tokens: {pct('B_vs_A_total_tokens_change_pct')}; "
-                         f"est. cost: {pct('B_vs_A_est_cost_change_pct')}")
+        for arm in arms[1:]:
+            if f"{arm}_vs_A_total_tokens_change_pct" in overall:
+                lines.append(f"- {arm} vs A total tokens: {pct(f'{arm}_vs_A_total_tokens_change_pct')}; "
+                             f"est. cost: {pct(f'{arm}_vs_A_est_cost_change_pct')}")
     lines += ["", "## Regressions (current vs baseline)", ""]
     flagged = [r for r in regress if r["regression"]]
     lines += [f"- {r['metric']}: {r['baseline']} -> {r['current']} ({r['change_pct']}%)" for r in flagged] or ["- none flagged"]
