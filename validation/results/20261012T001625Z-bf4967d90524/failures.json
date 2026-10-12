@@ -1,0 +1,12 @@
+{
+  "FAIL": [
+    {
+      "component": "tokens",
+      "session": "t3_explain_concept/B/0",
+      "detail": "task answer judged incorrect: expects should_strip_auth in src/requests/sessions.py"
+    }
+  ],
+  "BLOCKED": [],
+  "SKIPPED": [],
+  "NOT_RUN": []
+}

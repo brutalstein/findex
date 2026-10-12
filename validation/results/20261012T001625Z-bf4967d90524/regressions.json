@@ -1,0 +1,1244 @@
+{
+  "tolerance": "retrieval quality 0%, latency/payload/perf 10%",
+  "rows": [
+    {
+      "metric": "retrieval/all/file_recall@1",
+      "baseline": 0.6947,
+      "current": 0.9844,
+      "regression": false,
+      "change_pct": 41.7
+    },
+    {
+      "metric": "retrieval/all/file_recall@5",
+      "baseline": 0.9174,
+      "current": 0.9984,
+      "regression": false,
+      "change_pct": 8.83
+    },
+    {
+      "metric": "retrieval/all/file_recall@10",
+      "baseline": 0.9642,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 3.71
+    },
+    {
+      "metric": "retrieval/all/span_recall@1",
+      "baseline": 0.5218,
+      "current": 0.9704,
+      "regression": false,
+      "change_pct": 85.97
+    },
+    {
+      "metric": "retrieval/all/file_mrr",
+      "baseline": 0.7905,
+      "current": 0.991,
+      "regression": false,
+      "change_pct": 25.36
+    },
+    {
+      "metric": "retrieval/all/span_mrr",
+      "baseline": 0.5859,
+      "current": 0.9743,
+      "regression": false,
+      "change_pct": 66.29
+    },
+    {
+      "metric": "retrieval/all/file_ndcg@10",
+      "baseline": 0.8358,
+      "current": 0.9935,
+      "regression": false,
+      "change_pct": 18.87
+    },
+    {
+      "metric": "retrieval/all/file_precision@1",
+      "baseline": 0.6947,
+      "current": 0.9844,
+      "regression": false,
+      "change_pct": 41.7
+    },
+    {
+      "metric": "retrieval/all/evidence_validity",
+      "baseline": 0.9929,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.72
+    },
+    {
+      "metric": "retrieval/all/top1_false_positive",
+      "baseline": 0.3053,
+      "current": 0.0156,
+      "regression": false,
+      "change_pct": -94.89
+    },
+    {
+      "metric": "retrieval/all/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/all/latency_p95_ms",
+      "baseline": 47.80240000036429,
+      "current": 25.974199999836856,
+      "regression": false,
+      "change_pct": -45.66
+    },
+    {
+      "metric": "retrieval/all/payload_bytes_mean",
+      "baseline": 1244.7834890965732,
+      "current": 1391.8021806853583,
+      "regression": true,
+      "change_pct": 11.81
+    },
+    {
+      "metric": "retrieval/identifier_words/file_recall@1",
+      "baseline": 0.5607,
+      "current": 0.9791,
+      "regression": false,
+      "change_pct": 74.62
+    },
+    {
+      "metric": "retrieval/identifier_words/file_recall@5",
+      "baseline": 0.8201,
+      "current": 0.9958,
+      "regression": false,
+      "change_pct": 21.42
+    },
+    {
+      "metric": "retrieval/identifier_words/file_recall@10",
+      "baseline": 0.9247,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 8.14
+    },
+    {
+      "metric": "retrieval/identifier_words/span_recall@1",
+      "baseline": 0.3431,
+      "current": 0.9623,
+      "regression": false,
+      "change_pct": 180.47
+    },
+    {
+      "metric": "retrieval/identifier_words/file_mrr",
+      "baseline": 0.6761,
+      "current": 0.987,
+      "regression": false,
+      "change_pct": 45.98
+    },
+    {
+      "metric": "retrieval/identifier_words/span_mrr",
+      "baseline": 0.4165,
+      "current": 0.9665,
+      "regression": false,
+      "change_pct": 132.05
+    },
+    {
+      "metric": "retrieval/identifier_words/file_ndcg@10",
+      "baseline": 0.7421,
+      "current": 0.9905,
+      "regression": false,
+      "change_pct": 33.47
+    },
+    {
+      "metric": "retrieval/identifier_words/file_precision@1",
+      "baseline": 0.5607,
+      "current": 0.9791,
+      "regression": false,
+      "change_pct": 74.62
+    },
+    {
+      "metric": "retrieval/identifier_words/evidence_validity",
+      "baseline": 1.0,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.0
+    },
+    {
+      "metric": "retrieval/identifier_words/top1_false_positive",
+      "baseline": 0.4393,
+      "current": 0.0209,
+      "regression": false,
+      "change_pct": -95.24
+    },
+    {
+      "metric": "retrieval/identifier_words/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/identifier_words/latency_p95_ms",
+      "baseline": 52.98660000016753,
+      "current": 31.303100000059203,
+      "regression": false,
+      "change_pct": -40.92
+    },
+    {
+      "metric": "retrieval/identifier_words/payload_bytes_mean",
+      "baseline": 1750.5355648535565,
+      "current": 1960.702928870293,
+      "regression": true,
+      "change_pct": 12.01
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/file_recall@1",
+      "baseline": 0.574,
+      "current": 0.9882,
+      "regression": false,
+      "change_pct": 72.16
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/file_recall@5",
+      "baseline": 0.8343,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 19.86
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/file_recall@10",
+      "baseline": 0.9467,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 5.63
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/span_recall@1",
+      "baseline": 0.3432,
+      "current": 0.9763,
+      "regression": false,
+      "change_pct": 184.47
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/file_mrr",
+      "baseline": 0.6935,
+      "current": 0.9926,
+      "regression": false,
+      "change_pct": 43.13
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/span_mrr",
+      "baseline": 0.4168,
+      "current": 0.9763,
+      "regression": false,
+      "change_pct": 134.24
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/file_ndcg@10",
+      "baseline": 0.7612,
+      "current": 0.9944,
+      "regression": false,
+      "change_pct": 30.64
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/file_precision@1",
+      "baseline": 0.574,
+      "current": 0.9882,
+      "regression": false,
+      "change_pct": 72.16
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/evidence_validity",
+      "baseline": 1.0,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.0
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/top1_false_positive",
+      "baseline": 0.426,
+      "current": 0.0118,
+      "regression": false,
+      "change_pct": -97.23
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/latency_p95_ms",
+      "baseline": 51.578199999767094,
+      "current": 30.17360000012559,
+      "regression": false,
+      "change_pct": -41.5
+    },
+    {
+      "metric": "retrieval/identifier_words/dev/payload_bytes_mean",
+      "baseline": 1755.1538461538462,
+      "current": 1964.4023668639054,
+      "regression": true,
+      "change_pct": 11.92
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/file_recall@1",
+      "baseline": 0.5286,
+      "current": 0.9571,
+      "regression": false,
+      "change_pct": 81.06
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/file_recall@5",
+      "baseline": 0.7857,
+      "current": 0.9857,
+      "regression": false,
+      "change_pct": 25.46
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/file_recall@10",
+      "baseline": 0.8714,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 14.76
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/span_recall@1",
+      "baseline": 0.3429,
+      "current": 0.9286,
+      "regression": false,
+      "change_pct": 170.81
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/file_mrr",
+      "baseline": 0.6339,
+      "current": 0.9735,
+      "regression": false,
+      "change_pct": 53.57
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/span_mrr",
+      "baseline": 0.4158,
+      "current": 0.9429,
+      "regression": false,
+      "change_pct": 126.77
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/file_ndcg@10",
+      "baseline": 0.6959,
+      "current": 0.9808,
+      "regression": false,
+      "change_pct": 40.94
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/file_precision@1",
+      "baseline": 0.5286,
+      "current": 0.9571,
+      "regression": false,
+      "change_pct": 81.06
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/evidence_validity",
+      "baseline": 1.0,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.0
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/top1_false_positive",
+      "baseline": 0.4714,
+      "current": 0.0429,
+      "regression": false,
+      "change_pct": -90.9
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/latency_p95_ms",
+      "baseline": 53.01389999976891,
+      "current": 33.398200000192446,
+      "regression": false,
+      "change_pct": -37.0
+    },
+    {
+      "metric": "retrieval/identifier_words/heldout/payload_bytes_mean",
+      "baseline": 1739.3857142857144,
+      "current": 1951.7714285714285,
+      "regression": true,
+      "change_pct": 12.21
+    },
+    {
+      "metric": "retrieval/line_terms/file_recall@1",
+      "baseline": 0.7398,
+      "current": 0.9919,
+      "regression": false,
+      "change_pct": 34.08
+    },
+    {
+      "metric": "retrieval/line_terms/file_recall@5",
+      "baseline": 0.9756,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 2.5
+    },
+    {
+      "metric": "retrieval/line_terms/file_recall@10",
+      "baseline": 0.9756,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 2.5
+    },
+    {
+      "metric": "retrieval/line_terms/span_recall@1",
+      "baseline": 0.7398,
+      "current": 0.9919,
+      "regression": false,
+      "change_pct": 34.08
+    },
+    {
+      "metric": "retrieval/line_terms/file_mrr",
+      "baseline": 0.8404,
+      "current": 0.9959,
+      "regression": false,
+      "change_pct": 18.5
+    },
+    {
+      "metric": "retrieval/line_terms/span_mrr",
+      "baseline": 0.8404,
+      "current": 0.9959,
+      "regression": false,
+      "change_pct": 18.5
+    },
+    {
+      "metric": "retrieval/line_terms/file_ndcg@10",
+      "baseline": 0.8748,
+      "current": 0.997,
+      "regression": false,
+      "change_pct": 13.97
+    },
+    {
+      "metric": "retrieval/line_terms/file_precision@1",
+      "baseline": 0.7398,
+      "current": 0.9919,
+      "regression": false,
+      "change_pct": 34.08
+    },
+    {
+      "metric": "retrieval/line_terms/evidence_validity",
+      "baseline": 1.0,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.0
+    },
+    {
+      "metric": "retrieval/line_terms/top1_false_positive",
+      "baseline": 0.2602,
+      "current": 0.0081,
+      "regression": false,
+      "change_pct": -96.89
+    },
+    {
+      "metric": "retrieval/line_terms/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/line_terms/latency_p95_ms",
+      "baseline": 49.00309999993624,
+      "current": 28.61299999995026,
+      "regression": false,
+      "change_pct": -41.61
+    },
+    {
+      "metric": "retrieval/line_terms/payload_bytes_mean",
+      "baseline": 1739.7154471544716,
+      "current": 1977.219512195122,
+      "regression": true,
+      "change_pct": 13.65
+    },
+    {
+      "metric": "retrieval/line_terms/dev/file_recall@1",
+      "baseline": 0.7444,
+      "current": 0.9889,
+      "regression": false,
+      "change_pct": 32.85
+    },
+    {
+      "metric": "retrieval/line_terms/dev/file_recall@5",
+      "baseline": 0.9889,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 1.12
+    },
+    {
+      "metric": "retrieval/line_terms/dev/file_recall@10",
+      "baseline": 0.9889,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 1.12
+    },
+    {
+      "metric": "retrieval/line_terms/dev/span_recall@1",
+      "baseline": 0.7444,
+      "current": 0.9889,
+      "regression": false,
+      "change_pct": 32.85
+    },
+    {
+      "metric": "retrieval/line_terms/dev/file_mrr",
+      "baseline": 0.8485,
+      "current": 0.9944,
+      "regression": false,
+      "change_pct": 17.2
+    },
+    {
+      "metric": "retrieval/line_terms/dev/span_mrr",
+      "baseline": 0.8485,
+      "current": 0.9944,
+      "regression": false,
+      "change_pct": 17.2
+    },
+    {
+      "metric": "retrieval/line_terms/dev/file_ndcg@10",
+      "baseline": 0.8842,
+      "current": 0.9959,
+      "regression": false,
+      "change_pct": 12.63
+    },
+    {
+      "metric": "retrieval/line_terms/dev/file_precision@1",
+      "baseline": 0.7444,
+      "current": 0.9889,
+      "regression": false,
+      "change_pct": 32.85
+    },
+    {
+      "metric": "retrieval/line_terms/dev/evidence_validity",
+      "baseline": 1.0,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.0
+    },
+    {
+      "metric": "retrieval/line_terms/dev/top1_false_positive",
+      "baseline": 0.2556,
+      "current": 0.0111,
+      "regression": false,
+      "change_pct": -95.66
+    },
+    {
+      "metric": "retrieval/line_terms/dev/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/line_terms/dev/latency_p95_ms",
+      "baseline": 47.53789999995206,
+      "current": 28.61299999995026,
+      "regression": false,
+      "change_pct": -39.81
+    },
+    {
+      "metric": "retrieval/line_terms/dev/payload_bytes_mean",
+      "baseline": 1737.088888888889,
+      "current": 1972.1444444444444,
+      "regression": true,
+      "change_pct": 13.53
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/file_recall@1",
+      "baseline": 0.7273,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 37.49
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/file_recall@5",
+      "baseline": 0.9394,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 6.45
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/file_recall@10",
+      "baseline": 0.9394,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 6.45
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/span_recall@1",
+      "baseline": 0.7273,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 37.49
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/file_mrr",
+      "baseline": 0.8182,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 22.22
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/span_mrr",
+      "baseline": 0.8182,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 22.22
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/file_ndcg@10",
+      "baseline": 0.849,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 17.79
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/file_precision@1",
+      "baseline": 0.7273,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 37.49
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/evidence_validity",
+      "baseline": 1.0,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.0
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/top1_false_positive",
+      "baseline": 0.2727,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": -100.0
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/latency_p95_ms",
+      "baseline": 50.32499999970241,
+      "current": 29.027399999904446,
+      "regression": false,
+      "change_pct": -42.32
+    },
+    {
+      "metric": "retrieval/line_terms/heldout/payload_bytes_mean",
+      "baseline": 1746.878787878788,
+      "current": 1991.060606060606,
+      "regression": true,
+      "change_pct": 13.98
+    },
+    {
+      "metric": "retrieval/split/dev/file_recall@1",
+      "baseline": 0.7058,
+      "current": 0.9889,
+      "regression": false,
+      "change_pct": 40.11
+    },
+    {
+      "metric": "retrieval/split/dev/file_recall@5",
+      "baseline": 0.9248,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 8.13
+    },
+    {
+      "metric": "retrieval/split/dev/file_recall@10",
+      "baseline": 0.9735,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 2.72
+    },
+    {
+      "metric": "retrieval/split/dev/span_recall@1",
+      "baseline": 0.5354,
+      "current": 0.9801,
+      "regression": false,
+      "change_pct": 83.06
+    },
+    {
+      "metric": "retrieval/split/dev/file_mrr",
+      "baseline": 0.8001,
+      "current": 0.9935,
+      "regression": false,
+      "change_pct": 24.17
+    },
+    {
+      "metric": "retrieval/split/dev/span_mrr",
+      "baseline": 0.5981,
+      "current": 0.9823,
+      "regression": false,
+      "change_pct": 64.24
+    },
+    {
+      "metric": "retrieval/split/dev/file_ndcg@10",
+      "baseline": 0.8453,
+      "current": 0.9952,
+      "regression": false,
+      "change_pct": 17.73
+    },
+    {
+      "metric": "retrieval/split/dev/file_precision@1",
+      "baseline": 0.7058,
+      "current": 0.9889,
+      "regression": false,
+      "change_pct": 40.11
+    },
+    {
+      "metric": "retrieval/split/dev/evidence_validity",
+      "baseline": 0.9961,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.39
+    },
+    {
+      "metric": "retrieval/split/dev/top1_false_positive",
+      "baseline": 0.2942,
+      "current": 0.0111,
+      "regression": false,
+      "change_pct": -96.23
+    },
+    {
+      "metric": "retrieval/split/dev/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/split/dev/latency_p95_ms",
+      "baseline": 47.53789999995206,
+      "current": 25.517499999750726,
+      "regression": false,
+      "change_pct": -46.32
+    },
+    {
+      "metric": "retrieval/split/dev/payload_bytes_mean",
+      "baseline": 1248.8429203539822,
+      "current": 1393.5796460176991,
+      "regression": true,
+      "change_pct": 11.59
+    },
+    {
+      "metric": "retrieval/split/heldout/file_recall@1",
+      "baseline": 0.6684,
+      "current": 0.9737,
+      "regression": false,
+      "change_pct": 45.68
+    },
+    {
+      "metric": "retrieval/split/heldout/file_recall@5",
+      "baseline": 0.9,
+      "current": 0.9947,
+      "regression": false,
+      "change_pct": 10.52
+    },
+    {
+      "metric": "retrieval/split/heldout/file_recall@10",
+      "baseline": 0.9421,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 6.15
+    },
+    {
+      "metric": "retrieval/split/heldout/span_recall@1",
+      "baseline": 0.4895,
+      "current": 0.9474,
+      "regression": false,
+      "change_pct": 93.54
+    },
+    {
+      "metric": "retrieval/split/heldout/file_mrr",
+      "baseline": 0.7675,
+      "current": 0.985,
+      "regression": false,
+      "change_pct": 28.34
+    },
+    {
+      "metric": "retrieval/split/heldout/span_mrr",
+      "baseline": 0.5568,
+      "current": 0.9553,
+      "regression": false,
+      "change_pct": 71.57
+    },
+    {
+      "metric": "retrieval/split/heldout/file_ndcg@10",
+      "baseline": 0.8133,
+      "current": 0.9894,
+      "regression": false,
+      "change_pct": 21.65
+    },
+    {
+      "metric": "retrieval/split/heldout/file_precision@1",
+      "baseline": 0.6684,
+      "current": 0.9737,
+      "regression": false,
+      "change_pct": 45.68
+    },
+    {
+      "metric": "retrieval/split/heldout/evidence_validity",
+      "baseline": 0.9854,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 1.48
+    },
+    {
+      "metric": "retrieval/split/heldout/top1_false_positive",
+      "baseline": 0.3316,
+      "current": 0.0263,
+      "regression": false,
+      "change_pct": -92.07
+    },
+    {
+      "metric": "retrieval/split/heldout/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/split/heldout/latency_p95_ms",
+      "baseline": 49.3771999999808,
+      "current": 27.846700000282,
+      "regression": false,
+      "change_pct": -43.6
+    },
+    {
+      "metric": "retrieval/split/heldout/payload_bytes_mean",
+      "baseline": 1235.1263157894737,
+      "current": 1387.5736842105264,
+      "regression": true,
+      "change_pct": 12.34
+    },
+    {
+      "metric": "retrieval/symbol_exact/file_recall@1",
+      "baseline": 0.7893,
+      "current": 0.9857,
+      "regression": false,
+      "change_pct": 24.88
+    },
+    {
+      "metric": "retrieval/symbol_exact/file_recall@5",
+      "baseline": 0.975,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 2.56
+    },
+    {
+      "metric": "retrieval/symbol_exact/file_recall@10",
+      "baseline": 0.9929,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.72
+    },
+    {
+      "metric": "retrieval/symbol_exact/span_recall@1",
+      "baseline": 0.5786,
+      "current": 0.9679,
+      "regression": false,
+      "change_pct": 67.28
+    },
+    {
+      "metric": "retrieval/symbol_exact/file_mrr",
+      "baseline": 0.8662,
+      "current": 0.9923,
+      "regression": false,
+      "change_pct": 14.56
+    },
+    {
+      "metric": "retrieval/symbol_exact/span_mrr",
+      "baseline": 0.6186,
+      "current": 0.9714,
+      "regression": false,
+      "change_pct": 57.03
+    },
+    {
+      "metric": "retrieval/symbol_exact/file_ndcg@10",
+      "baseline": 0.8987,
+      "current": 0.9945,
+      "regression": false,
+      "change_pct": 10.66
+    },
+    {
+      "metric": "retrieval/symbol_exact/file_precision@1",
+      "baseline": 0.7893,
+      "current": 0.9857,
+      "regression": false,
+      "change_pct": 24.88
+    },
+    {
+      "metric": "retrieval/symbol_exact/evidence_validity",
+      "baseline": 0.9598,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 4.19
+    },
+    {
+      "metric": "retrieval/symbol_exact/top1_false_positive",
+      "baseline": 0.2107,
+      "current": 0.0143,
+      "regression": false,
+      "change_pct": -93.21
+    },
+    {
+      "metric": "retrieval/symbol_exact/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/symbol_exact/latency_p95_ms",
+      "baseline": 9.105399999953079,
+      "current": 9.925700000167126,
+      "regression": false,
+      "change_pct": 9.01
+    },
+    {
+      "metric": "retrieval/symbol_exact/payload_bytes_mean",
+      "baseline": 595.6714285714286,
+      "current": 649.0392857142857,
+      "regression": false,
+      "change_pct": 8.96
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/file_recall@1",
+      "baseline": 0.8031,
+      "current": 0.9896,
+      "regression": false,
+      "change_pct": 23.22
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/file_recall@5",
+      "baseline": 0.9741,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 2.66
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/file_recall@10",
+      "baseline": 0.9896,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 1.05
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/span_recall@1",
+      "baseline": 0.6062,
+      "current": 0.9793,
+      "regression": false,
+      "change_pct": 61.55
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/file_mrr",
+      "baseline": 0.8709,
+      "current": 0.994,
+      "regression": false,
+      "change_pct": 14.13
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/span_mrr",
+      "baseline": 0.64,
+      "current": 0.9819,
+      "regression": false,
+      "change_pct": 53.42
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/file_ndcg@10",
+      "baseline": 0.9008,
+      "current": 0.9955,
+      "regression": false,
+      "change_pct": 10.51
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/file_precision@1",
+      "baseline": 0.8031,
+      "current": 0.9896,
+      "regression": false,
+      "change_pct": 23.22
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/evidence_validity",
+      "baseline": 0.976,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 2.46
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/top1_false_positive",
+      "baseline": 0.1969,
+      "current": 0.0104,
+      "regression": false,
+      "change_pct": -94.72
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/latency_p95_ms",
+      "baseline": 8.302799999910349,
+      "current": 10.192499999902793,
+      "regression": true,
+      "change_pct": 22.76
+    },
+    {
+      "metric": "retrieval/symbol_exact/dev/payload_bytes_mean",
+      "baseline": 577.8134715025907,
+      "current": 623.9430051813472,
+      "regression": false,
+      "change_pct": 7.98
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/file_recall@1",
+      "baseline": 0.7586,
+      "current": 0.977,
+      "regression": false,
+      "change_pct": 28.79
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/file_recall@5",
+      "baseline": 0.977,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 2.35
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/file_recall@10",
+      "baseline": 1.0,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 0.0
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/span_recall@1",
+      "baseline": 0.5172,
+      "current": 0.9425,
+      "regression": false,
+      "change_pct": 82.23
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/file_mrr",
+      "baseline": 0.8557,
+      "current": 0.9885,
+      "regression": false,
+      "change_pct": 15.52
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/span_mrr",
+      "baseline": 0.5712,
+      "current": 0.9483,
+      "regression": false,
+      "change_pct": 66.02
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/file_ndcg@10",
+      "baseline": 0.8942,
+      "current": 0.9922,
+      "regression": false,
+      "change_pct": 10.96
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/file_precision@1",
+      "baseline": 0.7586,
+      "current": 0.977,
+      "regression": false,
+      "change_pct": 28.79
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/evidence_validity",
+      "baseline": 0.9299,
+      "current": 1.0,
+      "regression": false,
+      "change_pct": 7.54
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/top1_false_positive",
+      "baseline": 0.2414,
+      "current": 0.023,
+      "regression": false,
+      "change_pct": -90.47
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/missing_evidence",
+      "baseline": 0.0,
+      "current": 0.0,
+      "regression": false,
+      "change_pct": null
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/latency_p95_ms",
+      "baseline": 10.74930000004315,
+      "current": 9.857600000032107,
+      "regression": false,
+      "change_pct": -8.3
+    },
+    {
+      "metric": "retrieval/symbol_exact/heldout/payload_bytes_mean",
+      "baseline": 635.2873563218391,
+      "current": 704.7126436781609,
+      "regression": true,
+      "change_pct": 10.93
+    },
+    {
+      "metric": "performance/ripgrep/cold_index_s_p50",
+      "baseline": 0.6923305000000255,
+      "current": 0.6495626000000811,
+      "regression": false,
+      "change_pct": -6.18
+    },
+    {
+      "metric": "performance/ripgrep/noop_reconcile_s_p50",
+      "baseline": 0.12189179999995758,
+      "current": 0.12251609999975699,
+      "regression": false,
+      "change_pct": 0.51
+    },
+    {
+      "metric": "performance/ripgrep/cold_index_peak_working_set_bytes",
+      "baseline": 17969152,
+      "current": 18366464,
+      "regression": false,
+      "change_pct": 2.21
+    },
+    {
+      "metric": "performance/ripgrep/db_bytes",
+      "baseline": 4702208,
+      "current": 5029888,
+      "regression": false,
+      "change_pct": 6.97
+    },
+    {
+      "metric": "performance/ripgrep/search_p95_ms",
+      "baseline": 58.44380000007732,
+      "current": 26.982699999734905,
+      "regression": false,
+      "change_pct": -53.83
+    },
+    {
+      "metric": "performance/ripgrep/find_symbol_p95_ms",
+      "baseline": 6.377499999871361,
+      "current": 3.856499999983498,
+      "regression": false,
+      "change_pct": -39.53
+    },
+    {
+      "metric": "performance/ripgrep/concurrency_rps",
+      "baseline": 145.72562862390274,
+      "current": 194.21899352375746,
+      "regression": false,
+      "change_pct": 33.28
+    },
+    {
+      "metric": "performance/tokio/cold_index_s_p50",
+      "baseline": 2.604891800000132,
+      "current": 1.5317568000000392,
+      "regression": false,
+      "change_pct": -41.2
+    },
+    {
+      "metric": "performance/tokio/noop_reconcile_s_p50",
+      "baseline": 0.23960269999997763,
+      "current": 0.1836790000002111,
+      "regression": false,
+      "change_pct": -23.34
+    },
+    {
+      "metric": "performance/tokio/cold_index_peak_working_set_bytes",
+      "baseline": 15933440,
+      "current": 15904768,
+      "regression": false,
+      "change_pct": -0.18
+    },
+    {
+      "metric": "performance/tokio/db_bytes",
+      "baseline": 8937472,
+      "current": 10059776,
+      "regression": true,
+      "change_pct": 12.56
+    },
+    {
+      "metric": "performance/tokio/search_p95_ms",
+      "baseline": 46.2216000000808,
+      "current": 32.93409999969299,
+      "regression": false,
+      "change_pct": -28.75
+    },
+    {
+      "metric": "performance/tokio/find_symbol_p95_ms",
+      "baseline": 3.297999999631429,
+      "current": 3.9196000002448272,
+      "regression": true,
+      "change_pct": 18.85
+    },
+    {
+      "metric": "performance/tokio/concurrency_rps",
+      "baseline": 103.20257296770559,
+      "current": 156.1598434611628,
+      "regression": false,
+      "change_pct": 51.31
+    },
+    {
+      "metric": "performance/vscode/cold_index_s_p50",
+      "baseline": 284.62917370000014,
+      "current": 18.732534999999643,
+      "regression": false,
+      "change_pct": -93.42
+    },
+    {
+      "metric": "performance/vscode/noop_reconcile_s_p50",
+      "baseline": 1.8842571000000135,
+      "current": 1.0137462999996387,
+      "regression": false,
+      "change_pct": -46.2
+    },
+    {
+      "metric": "performance/vscode/cold_index_peak_working_set_bytes",
+      "baseline": 25911296,
+      "current": 32382976,
+      "regression": true,
+      "change_pct": 24.98
+    },
+    {
+      "metric": "performance/vscode/db_bytes",
+      "baseline": 123953152,
+      "current": 137564160,
+      "regression": true,
+      "change_pct": 10.98
+    },
+    {
+      "metric": "performance/vscode/search_p95_ms",
+      "baseline": 19.552400000065973,
+      "current": 8.238699999765231,
+      "regression": false,
+      "change_pct": -57.86
+    },
+    {
+      "metric": "performance/vscode/find_symbol_p95_ms",
+      "baseline": 4.554199999802222,
+      "current": 4.230300000017451,
+      "regression": false,
+      "change_pct": -7.11
+    },
+    {
+      "metric": "performance/vscode/concurrency_rps",
+      "baseline": 71.26263130139586,
+      "current": 41.59568968824859,
+      "regression": true,
+      "change_pct": -41.63
+    }
+  ]
+}

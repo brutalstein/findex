@@ -1,0 +1,339 @@
+{
+  "status": "EXECUTED",
+  "corpus": "ripgrep",
+  "scip_generator": "rust-analyzer scip",
+  "scip_exit_code": 1,
+  "import": "Imported 97 files, 13320 definitions, 33155 references (scip-protobuf)",
+  "import_exit_code": 0,
+  "targets_queried": 60,
+  "targets_truncated_at_32_hits": 7,
+  "direct_edges_checked": 316,
+  "direct_edges_to_modules": 257,
+  "direct_edges_invalid": 0,
+  "direct_edge_precision": 1.0,
+  "invalid_samples": [],
+  "labels": [
+    {
+      "depth": 1,
+      "interpretation": "verified-semantic-reference",
+      "count": 316
+    },
+    {
+      "depth": 2,
+      "interpretation": "potential-transitive-file-impact",
+      "count": 834
+    }
+  ],
+  "indirect_edges_labelled": {
+    "potential-transitive-file-impact": 834
+  },
+  "recall_proxy": {
+    "definition": "files calling a corpus-unique fn name per git grep (-w name\\s*\\() found among direct hits",
+    "expected_files": 157,
+    "found_files": 129,
+    "recall": 0.8217,
+    "caveat": "grep also matches comments/strings/macros and same-named methods; hit limit 32 truncates",
+    "names": [
+      {
+        "name": "is_line_dependent",
+        "file": "crates/printer/src/hyperlink.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "inactive",
+        "file": "crates/printer/src/hyperlink.rs",
+        "grep_callers": 3,
+        "found": 3
+      },
+      {
+        "name": "as_slice",
+        "file": "crates/printer/src/json.rs",
+        "grep_callers": 1,
+        "found": 0
+      },
+      {
+        "name": "sort_lines",
+        "file": "tests/util.rs",
+        "grep_callers": 3,
+        "found": 3
+      },
+      {
+        "name": "cmd_exists",
+        "file": "tests/util.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "is_pcre2",
+        "file": "tests/util.rs",
+        "grep_callers": 3,
+        "found": 3
+      },
+      {
+        "name": "create",
+        "file": "tests/util.rs",
+        "grep_callers": 5,
+        "found": 5
+      },
+      {
+        "name": "create_size",
+        "file": "tests/util.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "create_bytes",
+        "file": "tests/util.rs",
+        "grep_callers": 4,
+        "found": 4
+      },
+      {
+        "name": "create_dir",
+        "file": "tests/util.rs",
+        "grep_callers": 3,
+        "found": 3
+      },
+      {
+        "name": "output",
+        "file": "tests/util.rs",
+        "grep_callers": 2,
+        "found": 1
+      },
+      {
+        "name": "raw_output",
+        "file": "tests/util.rs",
+        "grep_callers": 3,
+        "found": 3
+      },
+      {
+        "name": "assert_err",
+        "file": "tests/util.rs",
+        "grep_callers": 5,
+        "found": 5
+      },
+      {
+        "name": "assert_non_empty_stderr",
+        "file": "tests/util.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "is_cross",
+        "file": "tests/util.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "elapsed",
+        "file": "crates/printer/src/stats.rs",
+        "grep_callers": 4,
+        "found": 4
+      },
+      {
+        "name": "searches",
+        "file": "crates/printer/src/stats.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "searches_with_match",
+        "file": "crates/printer/src/stats.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "bytes_searched",
+        "file": "crates/printer/src/stats.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "bytes_printed",
+        "file": "crates/printer/src/stats.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "matched_lines",
+        "file": "crates/printer/src/stats.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "is_explicit",
+        "file": "crates/core/haystack.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "is_file",
+        "file": "crates/core/haystack.rs",
+        "grep_callers": 6,
+        "found": 1
+      },
+      {
+        "name": "and_then",
+        "file": "crates/core/flags/parse.rs",
+        "grep_callers": 5,
+        "found": 0
+      },
+      {
+        "name": "parse_low_raw",
+        "file": "crates/core/flags/parse.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "from_bytes",
+        "file": "crates/printer/src/jsont.rs",
+        "grep_callers": 3,
+        "found": 0
+      },
+      {
+        "name": "without_terminator",
+        "file": "crates/searcher/src/lines.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "locate",
+        "file": "crates/searcher/src/lines.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "preceding",
+        "file": "crates/searcher/src/lines.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "render_custom_markup",
+        "file": "crates/core/flags/doc/mod.rs",
+        "grep_callers": 2,
+        "found": 2
+      },
+      {
+        "name": "from_ast",
+        "file": "crates/regex/src/ast.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "any_uppercase",
+        "file": "crates/regex/src/ast.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "any_literal",
+        "file": "crates/regex/src/ast.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "is_readable_stdin",
+        "file": "crates/cli/src/lib.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "buffer_writer",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "has_implicit_path",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "haystack_builder",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "matches_possible",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "path_printer_builder",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "quit_after_match",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "search_worker",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "searcher",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "walk_builder",
+        "file": "crates/core/flags/hiargs.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "get_matcher",
+        "file": "crates/cli/src/decompress.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "replace_all",
+        "file": "crates/printer/src/util.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "from_sink_match",
+        "file": "crates/printer/src/util.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "from_sink_context",
+        "file": "crates/printer/src/util.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "context_kind",
+        "file": "crates/printer/src/util.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "original_matches",
+        "file": "crates/printer/src/util.rs",
+        "grep_callers": 1,
+        "found": 1
+      },
+      {
+        "name": "as_hyperlink",
+        "file": "crates/printer/src/util.rs",
+        "grep_callers": 3,
+        "found": 3
+      }
+    ]
+  }
+}

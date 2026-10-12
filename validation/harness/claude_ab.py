@@ -90,7 +90,7 @@ def make_tasks() -> dict:
     def judge_feature(text, repo, target):
         path = repo / "crates" / "findex-core" / "src" / "lib.rs"
         source = path.read_text(encoding="utf-8")
-        if "kdbx" not in source.split("#[cfg(test)]")[-1]:
+        if "kdbx" not in source.split("#[cfg(test)]")[-1].lower():  # the task says case-insensitive
             return False, "agent did not add a test assertion for .kdbx"
         hidden = ("\n#[cfg(test)]\nmod hidden_acceptance {\n    #[test]\n    fn hidden_kdbx_acceptance() {\n"
                   "        assert!(super::is_sensitive_filename(std::path::Path::new(\"Vault.KDBX\")));\n"
