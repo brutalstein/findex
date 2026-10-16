@@ -863,7 +863,10 @@ mod tests {
             contract["relationships"]["complete_typed_call_graph"],
             false
         );
-        assert_eq!(contract["source_policy"]["selected_tool_results_may_be_sent_to_model"], true);
+        assert_eq!(
+            contract["source_policy"]["selected_tool_results_may_be_sent_to_model"],
+            true
+        );
         assert_eq!(contract["models_or_network_calls_per_query"], 0);
         assert_eq!(
             contract["syntax_languages"]
