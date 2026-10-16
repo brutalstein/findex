@@ -1,0 +1,22 @@
+{
+  "current": {
+    "ripgrep": {
+      "cold_index_peak_working_set_bytes": 19034112,
+      "mcp_after_queries": {
+        "rss": 9912320,
+        "peak_wset": 14737408,
+        "private": 3031040
+      },
+      "db_bytes": 5029888
+    },
+    "tokio": {
+      "cold_index_peak_working_set_bytes": 16465920,
+      "mcp_after_queries": {
+        "rss": 10936320,
+        "peak_wset": 16965632,
+        "private": 4239360
+      },
+      "db_bytes": 10059776
+    }
+  }
+}

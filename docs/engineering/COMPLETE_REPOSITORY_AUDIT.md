@@ -27,22 +27,22 @@ repository content, model-visible excerpts). `A` = code, `D` = documentation.
 
 | # | Sev. | Where | Finding | Status |
 |---|---|---|---|---|
-| A1 | high | `findex-index/src/context.rs` `classify_line` | A line starting with `#` or `*` is treated as a comment in every language. Rust attributes (`#[serde(with = "codec")]`), C/C++ preprocessor lines (`#define CALL f(x)`) and C dereference lines (`*out = f(x);`) are therefore omitted, yet the coverage line says "every code occurrence is shown". `validation/harness/coverage_check.py` uses the same rule, so its 279/279 verification could not detect this. | fixed in `context.rs` + independent checker; coverage check main 266/279 → branch 277/279 (2 ripgrep violations open), `results/20261016T130036Z-622f0446a58f` |
-| A2 | medium | `context.rs` `classify` | Intent words are English only. A Turkish caller/test/impact request (`` `foo` fonksiyonunu kim çağırıyor``) routes to `definition`, so no call sites are returned. | open; labeled router set added (260 cases), baseline 178/260 (callers 26/50, tests 28/40, impact 24/40, file 0/30) |
-| A3 | medium | `context.rs` | No explicit-file intent: a task naming `src/lib.rs` is treated as concept text. | open |
-| A4 | medium | `findex-index/src/lib.rs` | Removed or newly excluded files leave recoverable text in SQLite free pages and FTS5 segments (`secure_delete` off). | open |
-| A5 | medium | `lib.rs` `try_open_schema` | A database with a newer `user_version` (index written by a newer Findex) is used by an older binary without a check: rollback can misread the schema. | open |
-| A6 | low | `refresh.rs` | A transient read failure of a known file (Windows sharing violation during a save) removes it from the index until the next full reconciliation (≤120 s in the MCP watcher). False negative, not false evidence. | open |
+| A1 | high | `findex-index/src/context.rs` `classify_line` | A line starting with `#` or `*` is treated as a comment in every language. Rust attributes (`#[serde(with = "codec")]`), C/C++ preprocessor lines (`#define CALL f(x)`) and C dereference lines (`*out = f(x);`) are therefore omitted, yet the coverage line says "every code occurrence is shown". `validation/harness/coverage_check.py` uses the same rule, so its 279/279 verification could not detect this. | fixed (`cd2b397`, `7068bff`, `fbc73ad`): per-language lexer with nesting, multi-line/raw strings, char literals; independent checker: frozen main 268/279 → 279/279 (`results/20261016T171736Z-fbc73ade35e4`, re-run at `d60e34b`) |
+| A2 | medium | `context.rs` `classify` | Intent words are English only. A Turkish caller/test/impact request (`` `foo` fonksiyonunu kim çağırıyor``) routes to `definition`, so no call sites are returned. | fixed (`fbc73ad`): Turkish stems; dev set 178/260 → 258/260, frozen held-out set 30/60 → 50/60; issue localization unchanged or better on all 65 tasks |
+| A3 | medium | `context.rs` | No explicit-file intent: a task naming `src/lib.rs` is treated as concept text. | fixed (`fbc73ad`): `file` intent lists that file's definitions or its head |
+| A4 | medium | `findex-index/src/lib.rs` | Removed or newly excluded files leave recoverable text in SQLite free pages and FTS5 segments (`secure_delete` off). | fixed (`edd41bf`): `secure_delete`, FTS5 `secure-delete` (schema 4); WAL frames can persist while another process holds the DB open |
+| A5 | medium | `lib.rs` `try_open_schema` | A database with a newer `user_version` (index written by a newer Findex) is used by an older binary without a check: rollback can misread the schema. | fixed (`edd41bf`) for binaries from schema 4 on |
+| A6 | low | `refresh.rs` | A transient read failure of a known file (Windows sharing violation during a save) removes it from the index until the next full reconciliation (≤120 s in the MCP watcher). False negative, not false evidence. | fixed (`edd41bf`) in refresh and full reconciliation; the same removal also happened in full reconciliation |
 | A7 | low | `findex-relations/src/lib.rs` | Relations database has no schema version; no typed relationship kinds; impact is file level; `findex_context` does not use SCIP data. | open (P1 typed graph not built) |
-| A8 | low | `context.rs` `pack` | Budget is rendered characters / 4 over header + evidence; `missing`, `coverage` and footer lines are not counted; there is no absolute byte cap on the MCP text. | open, measured (CONTEXT_ENGINE_RESULTS) |
+| A8 | low | `context.rs` `pack` | Budget is rendered characters / 4 over header + evidence; `missing`, `coverage` and footer lines are not counted; there is no absolute byte cap on the MCP text. | fixed (`d60e34b`): whole report counted; measured before/after (CONTEXT_ENGINE_RESULTS) |
 | A9 | info | `validation/harness/common.py` | The environment record ran `claude --version` and `claude auth status` in every run. | fixed (`622f044`) |
 | A10 | high | `validation/scripts/run-all.ps1` | The default run could start real Claude sessions unless `-Offline` was given. | fixed (`622f044`) |
 | A11 | low | `findex-mcp/src/lib.rs` | Tool error texts include `{err}`, which can contain absolute local paths. | open |
 | A12 | low | `findex-core/src/lib.rs` `storage_dir` | Index directory permissions are inherited from `%LOCALAPPDATA%`; not verified by a test. | open (THREAT_MODEL) |
-| D1 | medium | `README.md` | No mention of `findex_context`; says "experimental v0.1 foundation", "Searches still perform a full reconciliation in v0.1", and that AST symbols are "not yet" persisted (they are, `symbols.rs`). | open |
-| D2 | medium | `SECURITY.md` | "No binary signing, SBOM, dependency audit … yet": SBOM (CycloneDX in the release ZIP) and `cargo audit` in CI exist. | open |
-| D3 | low | `docs/architecture.md` | Titled v0.1; context engine and live-model gate absent. | open |
-| D4 | low | `findex-index/src/lib.rs:2`, `refresh.rs:4`, `findex-cli` doctor | Comments/strings say the watcher is planned; doctor says no task planner. | open |
+| D1 | medium | `README.md` | No mention of `findex_context`; says "experimental v0.1 foundation", "Searches still perform a full reconciliation in v0.1", and that AST symbols are "not yet" persisted (they are, `symbols.rs`). | fixed (`01ff624`) |
+| D2 | medium | `SECURITY.md` | "No binary signing, SBOM, dependency audit … yet": SBOM (CycloneDX in the release ZIP) and `cargo audit` in CI exist. | fixed (`01ff624`) |
+| D3 | low | `docs/architecture.md` | Titled v0.1; context engine and live-model gate absent. | fixed (`01ff624`) |
+| D4 | low | `findex-index/src/lib.rs:2`, `refresh.rs:4`, `findex-cli` doctor | Comments/strings say the watcher is planned; doctor says no task planner. | fixed (`01ff624`) |
 
 ## Subsystem review
 

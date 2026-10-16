@@ -1,0 +1,12 @@
+{"utc": "20261016T172453Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\ripgrep", "exit_code": 0, "duration_s": 0.6039, "timed_out": false}
+{"utc": "20261016T172453Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\ripgrep", "exit_code": 0, "duration_s": 0.0919, "timed_out": false}
+{"utc": "20261016T172454Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\ripgrep", "exit_code": 0, "duration_s": 0.4394, "timed_out": false}
+{"utc": "20261016T172454Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\ripgrep", "exit_code": 0, "duration_s": 0.094, "timed_out": false}
+{"utc": "20261016T172454Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\ripgrep", "exit_code": 0, "duration_s": 0.463, "timed_out": false}
+{"utc": "20261016T172454Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\ripgrep", "exit_code": 0, "duration_s": 0.093, "timed_out": false}
+{"utc": "20261016T172511Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 1.0332, "timed_out": false}
+{"utc": "20261016T172511Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 0.1539, "timed_out": false}
+{"utc": "20261016T172512Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 0.9935, "timed_out": false}
+{"utc": "20261016T172513Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 0.1559, "timed_out": false}
+{"utc": "20261016T172514Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 0.9747, "timed_out": false}
+{"utc": "20261016T172514Z", "argv": ["%REPO%\\target\\a5\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 0.1536, "timed_out": false}
