@@ -7,7 +7,7 @@ use super::{
     MAX_OCCURRENCES, MAX_SYMBOL_LENGTH,
 };
 use protobuf::Message;
-use scip::types::{Index, SymbolRole};
+use scip::types::{Index, Occurrence as ScipOccurrence, SymbolRole};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -19,6 +19,58 @@ pub fn import_scip(project: &Path, file: &Path) -> Result<ImportReport> {
     }
     import_scip_bytes(project, &fs::read(file)?)
 }
+/// SCIP 0.10 typed ranges take precedence over the older packed field.
+/// Validate start/end locations against the actual hash-verified source.
+fn checked_range(occ: &ScipOccurrence, lines: &[&str], encoding: i32) -> Result<(usize, usize)> {
+    let typed = if occ.has_single_line_range() {
+        let range = occ.single_line_range();
+        Some((range.line, range.start_character, range.line, range.end_character))
+    } else if occ.has_multi_line_range() {
+        let range = occ.multi_line_range();
+        Some((range.start_line, range.start_character, range.end_line, range.end_character))
+    } else {
+        None
+    };
+    let packed = match occ.range.as_slice() {
+        [] => None,
+        [line, start, end] => Some((*line, *start, *line, *end)),
+        [line, start, end_line, end] => Some((*line, *start, *end_line, *end)),
+        _ => return Err("malformed SCIP packed occurrence range".into()),
+    };
+    if let (Some(a), Some(b)) = (typed, packed) {
+        if a != b {
+            return Err("SCIP typed and packed ranges disagree".into());
+        }
+    }
+    let (start_line, start, end_line, end) = typed.or(packed)
+        .ok_or("SCIP occurrence has no source range")?;
+    if start_line < 0 || start < 0 || end_line < start_line || end < 0
+        || (start_line == end_line && end < start)
+    {
+        return Err("invalid SCIP source range ordering".into());
+    }
+    let start_line = usize::try_from(start_line)?;
+    let end_line = usize::try_from(end_line)?;
+    let start = usize::try_from(start)?;
+    let end = usize::try_from(end)?;
+    let first = lines.get(start_line).ok_or("SCIP start line out of bounds")?;
+    let last = lines.get(end_line).ok_or("SCIP end line out of bounds")?;
+    // 0=unspecified: tolerate offsets measured by any of the supported
+    // encodings, but do not pretend such offsets are independently verified.
+    let bound = |line: &str| match encoding {
+        1 => line.len(),
+        2 => line.encode_utf16().count(),
+        3 => line.chars().count(),
+        _ => line.len().max(line.encode_utf16().count()).max(line.chars().count()),
+    };
+    if start > bound(first) || end > bound(last)
+        || (encoding == 1 && (!first.is_char_boundary(start) || !last.is_char_boundary(end)))
+    {
+        return Err("SCIP source character offset out of bounds".into());
+    }
+    Ok((start_line, start))
+}
+
 /// Symbol IDs are opaque and scoped to the exact SCIP producer. Local SCIP
 /// symbols must be qualified with their containing document to avoid aliasing.
 pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
@@ -51,21 +103,19 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
         } else {
             doc.language.clone()
         };
+        let body = fs::read(project.join(&source.path))?;
+        if blake3::hash(&body).to_hex().as_str() != source.digest {
+            return Err("SCIP source changed during location validation".into());
+        }
+        let contents = std::str::from_utf8(&body)?;
+        let lines: Vec<&str> = contents.lines().collect();
+        let lines = if lines.is_empty() { vec![""] } else { lines };
+        let encoding = doc.position_encoding.value();
         for occurrence in &doc.occurrences {
             if occurrence.symbol.is_empty() {
                 continue;
             }
-            // The SCIP 0.10 Rust bindings expose compact 0-based range arrays:
-            // [line, start, end] or [start_line, start, end_line, end].
-            let start_line = match occurrence.range.as_slice() {
-                [line, start, end] if *line >= 0 && *start >= 0 && end >= start => *line as usize,
-                [line, start, end_line, end]
-                    if *line >= 0 && *start >= 0 && end_line >= line && *end >= 0 =>
-                {
-                    *line as usize
-                }
-                _ => return Err("malformed SCIP occurrence range".into()),
-            };
+            let (start_line, column) = checked_range(occurrence, &lines, encoding)?;
             let symbol = if occurrence.symbol.starts_with("local ") {
                 format!("scip-local:{}:{}", source.path, occurrence.symbol)
             } else {
@@ -85,7 +135,6 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
                 start_line + 1,
                 definition,
             )?);
-            let column = usize::try_from(*occurrence.range.get(1).ok_or("missing column")?)?;
             sites.push(SemanticSite {
                 symbol,
                 path: source.path.clone(),
@@ -334,6 +383,36 @@ mod tests {
             .expect("not a definition in a.rs")
             .hits
             .is_empty());
+    }
+
+    #[test]
+    fn scip_typed_ranges_override_packed_ranges_and_reject_invalid_offsets() {
+        use scip::types::SingleLineRange;
+        let root = tempdir().expect("workspace");
+        fs::write(root.path().join("a.rs"), "fn target() {}\n").expect("source");
+        let mut parsed = Index::parse_from_bytes(&binary()).expect("parse fixture");
+        // Keep only the admitted source file from the fixture.
+        parsed.documents.truncate(1);
+        let occurrence = &mut parsed.documents[0].occurrences[0];
+        occurrence.range = vec![0, 3, 9];
+        occurrence.set_single_line_range(SingleLineRange {
+            line: 0, start_character: 3, end_character: 9,
+            ..SingleLineRange::default()
+        });
+        import_scip_bytes(root.path(), &parsed.write_to_bytes().expect("typed"))
+            .expect("typed accepted");
+        let expected = impact(root.path(), Path::new("a.rs"), 1, 8).expect("impact");
+        assert!(expected.hits.is_empty());
+        let original = parsed.clone();
+        parsed.documents[0].occurrences[0].range = vec![0, 0, 4];
+        assert!(import_scip_bytes(root.path(), &parsed.write_to_bytes().expect("mismatch")).is_err());
+        parsed = original;
+        parsed.documents[0].occurrences[0].set_single_line_range(SingleLineRange {
+            line: 0, start_character: 1000, end_character: 1001,
+            ..SingleLineRange::default()
+        });
+        parsed.documents[0].occurrences[0].range.clear();
+        assert!(import_scip_bytes(root.path(), &parsed.write_to_bytes().expect("out of bounds")).is_err());
     }
 
     #[test]
