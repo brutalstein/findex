@@ -142,6 +142,21 @@ fn success(id: Value, value: Value) -> Value {
     json!({"jsonrpc":"2.0","id":id,"result":value})
 }
 
+/// Execution errors are intentionally stable, bounded and devoid of local
+/// absolute paths, usernames, credential strings, or raw SQLite diagnostics.
+/// A model can use built-in file tools if Findex is unavailable. Detailed OS
+/// errors must never be interpolated into MCP responses.
+fn unavailable(id: Value, kind: &'static str) -> Value {
+    success(
+        id,
+        json!({
+            "content": [{"type":"text",
+              "text":format!("Findex {kind} unavailable. Use Claude Read/Grep/Glob; verify source directly. No project file was changed by this lookup.")}],
+            "isError":true
+        }),
+    )
+}
+
 /// Pure protocol dispatch, except for the intentionally bounded tool invocation.
 /// Unknown notifications are ignored; calls receive JSON-RPC errors.
 pub fn handle(request: &Value, project: &Path) -> Option<Value> {
@@ -313,6 +328,14 @@ where
                         "additionalProperties": false
                     }
                 },{
+                    "name": "findex_capabilities",
+                    "description": "Read the static Findex engine compatibility/safety contract: supported extraction modes, index limits, graph uncertainty and safe fallbacks. No scan, indexing or network call.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{},
+                        "additionalProperties":false
+                    }
+                },{
                     "name": "findex_symbols",
                     "description": "Read one project-relative Rust, Python, TypeScript/TSX or C++ file and return bounded Tree-sitter syntax definitions with 1-based line ranges. No LSP references or call graph.",
                     "inputSchema": {
@@ -341,7 +364,31 @@ where
         ),
         "tools/call" => {
             let name = request.pointer("/params/name").and_then(Value::as_str);
-            if name == Some("findex_context") {
+            if name == Some("findex_capabilities") {
+                success(
+                    id,
+                    json!({"content":[{"type":"text","text": serde_json::to_string(&json!({
+                        "engine_version": env!("CARGO_PKG_VERSION"),
+                        "source_policy": {
+                            "retrieval_runs_locally": true,
+                            "selected_tool_results_may_be_sent_to_model": true,
+                            "max_admitted_files_per_scan": 100000,
+                            "max_source_bytes": 524288,
+                            "ignored_files_excluded": true,
+                            "all_results_complete": false
+                        },
+                        "syntax_languages": ["rust", "python", "typescript", "javascript", "cpp"],
+                        "retrieval": ["task-context", "lexical-fts5", "exact-symbol", "syntax-definitions"],
+                        "relationships": {
+                            "requires_explicit_scip_or_lsp_import": true,
+                            "reference_is_proven_call": false,
+                            "complete_typed_call_graph": false
+                        },
+                        "failure_policy": "report incomplete/unavailable; use Claude Read/Grep/Glob",
+                        "models_or_network_calls_per_query": 0
+                    })).unwrap_or_default()}],"isError":false}),
+                )
+            } else if name == Some("findex_context") {
                 let task = request
                     .pointer("/params/arguments/task")
                     .and_then(Value::as_str)
@@ -365,10 +412,7 @@ where
                             id,
                             json!({"content":[{"type":"text","text":report.render()}],"isError":false}),
                         ),
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text","text":format!("Findex index unavailable: {err}")}],"isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "context"),
                     }
                 }
             } else if name == Some("findex_find_symbol") {
@@ -389,10 +433,7 @@ where
                             id,
                             json!({"content":[{"type":"text","text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
                         ),
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text","text":format!("Symbol lookup failed: {err}")}],"isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "symbol lookup"),
                     }
                 }
             } else if name == Some("findex_impact") {
@@ -433,12 +474,7 @@ where
                             "text":serde_json::to_string(&report).unwrap_or_default()}],
                             "isError":false}),
                         ),
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text",
-                            "text":format!("Semantic evidence unavailable: {err}")}],
-                            "isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "reference impact"),
                     }
                 }
             } else if name == Some("findex_graph_symbol") {
@@ -493,10 +529,7 @@ where
                             id,
                             json!({"content":[{"type":"text","text":"Unsupported language; use lexical search."}],"isError":false}),
                         ),
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text","text":format!("Cannot inspect file: {err}")}],"isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "file inspection"),
                     }
                 }
             } else if name != Some("findex_search") {
@@ -523,10 +556,7 @@ where
                                 json!({"content":[{"type":"text", "text":payload}], "isError":false}),
                             )
                         }
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text", "text":format!("Findex index unavailable: {err}")}], "isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "lexical search"),
                     }
                 }
             }
@@ -803,6 +833,86 @@ mod tests {
         );
         let invalid = handle(&json!({"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"findex_context","arguments":{"task":""}}}), Path::new(".")).expect("response");
         assert_eq!(invalid["error"]["code"], -32602);
+    }
+
+    #[test]
+    fn capabilities_report_explicit_limits_without_accessing_repository() {
+        let request = json!({"jsonrpc":"2.0","id":21,"method":"tools/call",
+            "params":{"name":"findex_capabilities","arguments":{}}});
+        let response = handle_with_lookups(
+            &request,
+            Path::new("this-directory-does-not-exist"),
+            |_root, _query, _limit| panic!("search must not run"),
+            |_root, _name, _limit| panic!("symbols must not run"),
+            |_root, _path| panic!("file inspection must not run"),
+            |_root, _task, _budget| panic!("context must not run"),
+        )
+        .expect("response");
+        assert_eq!(response["result"]["isError"], false);
+        let contract: Value = serde_json::from_str(
+            response["result"]["content"][0]["text"]
+                .as_str()
+                .expect("contract"),
+        )
+        .expect("json");
+        assert_eq!(
+            contract["source_policy"]["max_admitted_files_per_scan"],
+            100000
+        );
+        assert_eq!(
+            contract["relationships"]["complete_typed_call_graph"],
+            false
+        );
+        assert_eq!(
+            contract["source_policy"]["selected_tool_results_may_be_sent_to_model"],
+            true
+        );
+        assert_eq!(contract["models_or_network_calls_per_query"], 0);
+        assert_eq!(
+            contract["syntax_languages"]
+                .as_array()
+                .expect("languages")
+                .len(),
+            5
+        );
+    }
+
+    #[test]
+    fn tool_execution_errors_never_expose_paths_or_provider_secrets() {
+        const SECRET: &str = r"C:\\Users\\private-person\\secrets\\token_123456";
+        for (name, arguments) in [
+            (
+                "findex_context",
+                json!({"task":"find path","budget_tokens":1200}),
+            ),
+            ("findex_search", json!({"query":"needle","limit":3})),
+            ("findex_find_symbol", json!({"name":"needle","limit":3})),
+            ("findex_symbols", json!({"path":"src/main.rs"})),
+        ] {
+            let req = json!({"jsonrpc":"2.0","id":6,"method":"tools/call",
+                "params":{"name":name,"arguments":arguments}});
+            let fail = || -> Box<dyn std::error::Error + Send + Sync> {
+                std::io::Error::other(SECRET).into()
+            };
+            let response = handle_with_lookups(
+                &req,
+                Path::new("."),
+                |_root, _query, _limit| Err(fail()),
+                |_root, _name, _limit| Err(fail()),
+                |_root, _path| Err(fail()),
+                |_root, _task, _budget| Err(fail()),
+            )
+            .expect("MCP response");
+            let result = response["result"]["content"][0]["text"]
+                .as_str()
+                .expect("error text");
+            assert_eq!(response["result"]["isError"], true);
+            assert!(
+                !result.contains(SECRET) && !result.contains("private-person"),
+                "{result}"
+            );
+            assert!(result.contains("Read/Grep/Glob"), "{result}");
+        }
     }
 
     #[test]

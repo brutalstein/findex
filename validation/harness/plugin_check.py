@@ -18,7 +18,7 @@ import tempfile
 
 EXPECTED_TOOLS = {
     "findex_context", "findex_search", "findex_find_symbol",
-    "findex_symbols", "findex_impact", "findex_graph_symbol",
+    "findex_symbols", "findex_impact", "findex_graph_symbol", "findex_capabilities",
 }
 SKILLS = {"navigate", "map-project", "trace-impact", "maintenance"}
 
@@ -126,7 +126,7 @@ def main() -> None:
         excerpt = frames[2]["result"]["content"][0]["text"]
         assert "main.rs" in excerpt and "plugin_fixture" in excerpt, excerpt
         report["self_contained_mcp"] = "PASS"
-        report["all_six_tools"] = "PASS"
+        report["all_seven_tools"] = "PASS"
         report["on_demand_model_context"] = "PASS"
         report["fixture_source_evidence"] = "PASS"
 

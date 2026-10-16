@@ -80,27 +80,19 @@ pub fn search(project: &Path, query: &str, limit: usize) -> Result<SearchReport>
 /// 4: FTS5 `secure-delete`, so removed text leaves the index segments.
 const LEXICAL_SCHEMA: i64 = 4;
 
-/// The index is a derived cache: an unreadable database is discarded and
-/// rebuilt from sources instead of leaving search permanently broken.
+/// A corrupt cache must not be automatically deleted or regenerated:
+/// other Findex processes may be using its WAL and automatic deletion can
+/// silently erase forensic evidence. Fail closed and let an operator decide
+/// when and how to back up and recover this derived database.
 fn connect(db: &Path) -> Result<Connection> {
     if let Some(parent) = db.parent() {
         fs::create_dir_all(parent)?;
     }
     match open_schema(db) {
-        Err(err) if is_corrupt(err.as_ref()) => {
-            eprintln!("findex: index cache is corrupt ({err}); rebuilding");
-            for suffix in ["", "-wal", "-shm", "-journal"] {
-                let mut path = db.as_os_str().to_owned();
-                path.push(suffix);
-                match fs::remove_file(PathBuf::from(path)) {
-                    Err(err) if err.kind() != std::io::ErrorKind::NotFound => {
-                        return Err(err.into())
-                    }
-                    _ => {}
-                }
-            }
-            open_schema(db)
-        }
+        Err(err) if is_corrupt(err.as_ref()) => Err(
+            "Findex index cache is corrupt; original database preserved. Use `findex index-check` and back up the cache before explicit recovery."
+                .into(),
+        ),
         other => other,
     }
 }
@@ -219,7 +211,7 @@ pub fn verify_index_into(database: &Path) -> Result<IndexHealth> {
         )
         .into());
     }
-    let check: String = conn.query_row("PRAGMA quick_check", [], |row| row.get(0))?;
+    let check: String = conn.query_row("PRAGMA integrity_check", [], |row| row.get(0))?;
     if check != "ok" {
         return Err("SQLite structural integrity check failed".into());
     }
@@ -964,26 +956,23 @@ mod tests {
     }
 
     #[test]
-    fn corrupt_index_database_is_rebuilt_from_sources() {
+    fn corrupt_index_database_is_preserved_and_fails_closed() {
         let project = tempdir().expect("project");
         let state = tempdir().expect("state");
         fs::write(project.path().join("lib.rs"), "fn recovered_marker() {}\n").expect("source");
         let db = state.path().join("index.sqlite3");
-        fs::write(
-            &db,
-            b"this is not a sqlite database, it is garbage".repeat(200),
-        )
-        .expect("garbage");
-        synchronize_into(project.path(), &db).expect("rebuild corrupt cache");
-        let found = search_in_db(
-            project.path(),
-            &db,
-            "recovered_marker",
-            5,
-            SyncStats::default(),
-        )
-        .expect("search");
-        assert_eq!(found.hits.len(), 1);
+        let original = b"this is not a sqlite database, it is garbage".repeat(200);
+        fs::write(&db, &original).expect("garbage");
+        let err = synchronize_into(project.path(), &db).expect_err("must fail closed");
+        assert!(
+            err.to_string().contains("original database preserved"),
+            "{err}"
+        );
+        assert_eq!(fs::read(&db).expect("preserved"), original);
+        assert!(
+            verify_index_into(&db).is_err(),
+            "corrupt cache must remain visible"
+        );
     }
 
     /// Text of a deleted file must not stay recoverable from the cache files
