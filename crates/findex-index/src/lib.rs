@@ -939,8 +939,7 @@ mod tests {
         fs::create_dir_all(project.path().join(".aws")).expect("secret folder");
         let secret = "pub fn private_exposure_marker_9928() {}\n";
         fs::write(project.path().join(".aws").join("keys.rs"), secret).expect("secret");
-        fs::write(project.path().join("safe.rs"), "pub fn public_ok() {}\n")
-            .expect("normal file");
+        fs::write(project.path().join("safe.rs"), "pub fn public_ok() {}\n").expect("normal file");
         let clean = synchronize_into(project.path(), &db).expect("scan");
         assert_eq!(clean.indexed, 1, "private directory not scanned");
         {
@@ -954,7 +953,8 @@ mod tests {
                 secret,
                 &blake3::hash(secret.as_bytes()).to_hex().to_string(),
                 secret.len() as i64,
-            ).expect("legacy cache insertion");
+            )
+            .expect("legacy cache insertion");
             tx.commit().expect("commit");
         }
         let searched = search_in_db(
@@ -963,16 +963,16 @@ mod tests {
             "private_exposure_marker_9928",
             4,
             SyncStats::default(),
-        ).expect("read old cache");
+        )
+        .expect("read old cache");
         assert!(searched.hits.is_empty(), "{searched:?}");
         assert!(searched.stale_results_discarded > 0);
-        let syntax = inspect_indexed_file_in_db(
-            project.path(), &db, Path::new(".aws/keys.rs"),
-        ).expect("inspect");
+        let syntax = inspect_indexed_file_in_db(project.path(), &db, Path::new(".aws/keys.rs"))
+            .expect("inspect");
         assert!(syntax.is_none());
-        let changed = refresh_known_paths_into(
-            project.path(), &db, &[PathBuf::from(".aws/keys.rs")],
-        ).expect("refresh old sensitive entry");
+        let changed =
+            refresh_known_paths_into(project.path(), &db, &[PathBuf::from(".aws/keys.rs")])
+                .expect("refresh old sensitive entry");
         assert_eq!(changed.sync.removed, 1);
         assert_eq!(verify_index_into(&db).expect("consistent").files, 1);
     }

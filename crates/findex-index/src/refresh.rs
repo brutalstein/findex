@@ -97,7 +97,8 @@ pub fn refresh_known_paths_into(
             match metadata {
                 Some(meta) if meta.file_type().is_file() && meta.len() <= MAX_SOURCE_BYTES => {
                     let inside = match absolute.canonicalize() {
-                        Ok(resolved) => resolved.strip_prefix(&project)
+                        Ok(resolved) => resolved
+                            .strip_prefix(&project)
                             .ok()
                             .is_some_and(|path| !is_disallowed_project_path(path)),
                         Err(err) if err.kind() == std::io::ErrorKind::NotFound => false,

@@ -4,7 +4,9 @@
 mod lsp;
 mod scip_import;
 
-use findex_core::{is_disallowed_project_path, normalized_relative_key, storage_dir, MAX_SOURCE_BYTES};
+use findex_core::{
+    is_disallowed_project_path, normalized_relative_key, storage_dir, MAX_SOURCE_BYTES,
+};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet, VecDeque};
@@ -232,8 +234,11 @@ fn project_file(project: &Path, relative: &Path) -> Result<(String, PathBuf)> {
         return Err("expected non-symlink source file within the size budget".into());
     }
     let resolved = full.canonicalize()?;
-    if !resolved.strip_prefix(&root).ok()
-        .is_some_and(|path| !is_disallowed_project_path(path)) {
+    if !resolved
+        .strip_prefix(&root)
+        .ok()
+        .is_some_and(|path| !is_disallowed_project_path(path))
+    {
         return Err("file escapes workspace or points to excluded material".into());
     }
     Ok((path, full))

@@ -124,7 +124,6 @@ pub fn is_sensitive_filename(path: &Path) -> bool {
         || name.ends_with(".key")
 }
 
-
 /// Admission policy for a *project-relative* path, shared across full scans,
 /// targeted refreshes, indexed reads and semantic graph imports. Apply it
 /// before serving an old cached entry, not only when building a new index.
@@ -233,14 +232,25 @@ mod tests {
     #[test]
     fn rejects_sensitive_project_paths_but_not_ordinary_source() {
         for value in [
-            ".envrc", ".npmrc", ".pypirc", ".netrc", "_netrc",
-            ".git-credentials", "terraform.tfstate",
-            "prod.tfstate.backup", "service-account.json",
-            "config/staging.tfvars", "config/env.tfvars.json",
-            "config/identity.jks", ".aws/credentials",
-            ".kube/config", "src/.docker/config.json",
-            "src/.ssh/id_custom", ".azure/accessTokens.json",
-            ".terraform/terraform.tfstate", ".gcloud/application_default_credentials.json",
+            ".envrc",
+            ".npmrc",
+            ".pypirc",
+            ".netrc",
+            "_netrc",
+            ".git-credentials",
+            "terraform.tfstate",
+            "prod.tfstate.backup",
+            "service-account.json",
+            "config/staging.tfvars",
+            "config/env.tfvars.json",
+            "config/identity.jks",
+            ".aws/credentials",
+            ".kube/config",
+            "src/.docker/config.json",
+            "src/.ssh/id_custom",
+            ".azure/accessTokens.json",
+            ".terraform/terraform.tfstate",
+            ".gcloud/application_default_credentials.json",
             "secrets/team.kdbx",
         ] {
             assert!(
@@ -249,8 +259,10 @@ mod tests {
             );
         }
         for value in [
-            "src/main.rs", "src/secret_manager.rs",
-            "tests/fixtures/aws_settings.rs", "src/auth_config.py",
+            "src/main.rs",
+            "src/secret_manager.rs",
+            "tests/fixtures/aws_settings.rs",
+            "src/auth_config.py",
             "crates/core/src/terraform.rs",
         ] {
             assert!(

@@ -271,8 +271,11 @@ pub fn inspect_indexed_file_in_db(
         return Ok(None);
     }
     let resolved = absolute.canonicalize()?;
-    if !resolved.strip_prefix(&root).ok()
-        .is_some_and(|path| !is_disallowed_project_path(path)) {
+    if !resolved
+        .strip_prefix(&root)
+        .ok()
+        .is_some_and(|path| !is_disallowed_project_path(path))
+    {
         return Ok(None);
     }
     let bytes = fs::read(absolute)?;
@@ -338,11 +341,11 @@ pub fn search_symbols_in_db(
         let candidate = project.join(&path);
         // Defensive path checking also covers databases from earlier versions.
         let meta = fs::symlink_metadata(&candidate).ok();
-        let inside = candidate
-            .canonicalize()
-            .ok()
-            .is_some_and(|p| p.strip_prefix(&project).ok()
-                .is_some_and(|path| !is_disallowed_project_path(path)));
+        let inside = candidate.canonicalize().ok().is_some_and(|p| {
+            p.strip_prefix(&project)
+                .ok()
+                .is_some_and(|path| !is_disallowed_project_path(path))
+        });
         if !meta.is_some_and(|m| m.file_type().is_file() && m.len() <= MAX_SOURCE_BYTES) || !inside
         {
             report.stale_results_discarded += 1;
