@@ -14,7 +14,7 @@ pub use symbols::{
     SymbolHit, SymbolSearchReport,
 };
 
-use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
+use findex_core::{is_disallowed_project_path, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
 use ignore::WalkBuilder;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
@@ -346,11 +346,11 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
         if !entry.file_type().is_some_and(|t| t.is_file()) {
             continue;
         }
-        if is_sensitive_filename(entry.path()) {
+        let rel = entry.path().strip_prefix(project)?;
+        if is_disallowed_project_path(rel) {
             stats.skipped += 1;
             continue;
         }
-        let rel = entry.path().strip_prefix(project)?;
         let rel_string = rel.to_string_lossy().replace('\\', "/");
         if !seen.insert(rel_string.clone()) {
             continue;
@@ -707,12 +707,17 @@ fn excerpt_of(line: &str) -> String {
 /// Current file text, only if it is a regular in-root file whose bytes still
 /// hash to the indexed digest. Symlinks, junction escapes and edits fail closed.
 fn live_source(root: &Path, relative: &str, indexed_hash: &str) -> Option<String> {
+    if is_disallowed_project_path(Path::new(relative)) {
+        return None;
+    }
     let full_path: PathBuf = root.join(relative);
     let metadata = fs::symlink_metadata(&full_path).ok()?;
     if !metadata.file_type().is_file() || metadata.len() > MAX_SOURCE_BYTES {
         return None;
     }
-    if !full_path.canonicalize().ok()?.starts_with(root) {
+    let resolved = full_path.canonicalize().ok()?;
+    let actual = resolved.strip_prefix(root).ok()?;
+    if is_disallowed_project_path(actual) {
         return None;
     }
     let bytes = fs::read(&full_path).ok()?;
@@ -924,6 +929,52 @@ mod tests {
         .expect("search");
         assert_eq!(found.hits[0].path, "together.rs");
         assert_eq!(found.hits[0].line, 41);
+    }
+
+    #[test]
+    fn old_sensitive_cached_rows_never_escape_and_refresh_removes_them() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("cache");
+        let db = state.path().join("index.sqlite3");
+        fs::create_dir_all(project.path().join(".aws")).expect("secret folder");
+        let secret = "pub fn private_exposure_marker_9928() {}\n";
+        fs::write(project.path().join(".aws").join("keys.rs"), secret).expect("secret");
+        fs::write(project.path().join("safe.rs"), "pub fn public_ok() {}\n").expect("normal file");
+        let clean = synchronize_into(project.path(), &db).expect("scan");
+        assert_eq!(clean.indexed, 1, "private directory not scanned");
+        {
+            let mut conn = connect(&db).expect("cache");
+            let tx = conn.transaction().expect("transaction");
+            // Reproduce an older index containing a now-denied but perfectly
+            // hash-matching file. Search must block it before emitting text.
+            store_document(
+                &tx,
+                ".aws/keys.rs",
+                secret,
+                blake3::hash(secret.as_bytes()).to_hex().as_ref(),
+                secret.len() as i64,
+            )
+            .expect("legacy cache insertion");
+            tx.commit().expect("commit");
+        }
+        let searched = search_in_db(
+            project.path(),
+            &db,
+            "private_exposure_marker_9928",
+            4,
+            SyncStats::default(),
+        )
+        .expect("read old cache");
+        assert!(searched.hits.is_empty(), "{searched:?}");
+        assert!(searched.stale_results_discarded > 0);
+        let syntax = inspect_indexed_file_in_db(project.path(), &db, Path::new(".aws/keys.rs"))
+            .expect("inspect");
+        assert!(syntax.is_none());
+        let changed =
+            refresh_known_paths_into(project.path(), &db, &[PathBuf::from(".aws/keys.rs")])
+                .expect("refresh old sensitive entry");
+        assert_eq!(changed.sync.removed, 1);
+        assert_eq!(verify_index_into(&db).expect("consistent").files, 1);
     }
 
     #[test]

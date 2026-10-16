@@ -4,7 +4,7 @@
 //! An extractor version plus BLAKE3 content hash controls cache invalidation.
 
 use crate::{connect, synchronize, Result, SyncStats};
-use findex_core::{is_sensitive_filename, storage_dir, MAX_SOURCE_BYTES};
+use findex_core::{is_disallowed_project_path, storage_dir, MAX_SOURCE_BYTES};
 use rusqlite::{params, Connection, OptionalExtension, Transaction};
 use serde::Serialize;
 use std::fs;
@@ -251,7 +251,7 @@ pub fn inspect_indexed_file_in_db(
     }
     let root = project.canonicalize()?;
     let absolute = root.join(relative);
-    if is_sensitive_filename(&absolute) || !findex_syntax::supports_path(relative) {
+    if is_disallowed_project_path(relative) || !findex_syntax::supports_path(relative) {
         return Ok(None);
     }
     let key = findex_core::normalized_relative_key(relative)?;
@@ -270,7 +270,12 @@ pub fn inspect_indexed_file_in_db(
     if !metadata.file_type().is_file() || metadata.len() > MAX_SOURCE_BYTES {
         return Ok(None);
     }
-    if !absolute.canonicalize()?.starts_with(&root) {
+    let resolved = absolute.canonicalize()?;
+    if !resolved
+        .strip_prefix(&root)
+        .ok()
+        .is_some_and(|path| !is_disallowed_project_path(path))
+    {
         return Ok(None);
     }
     let bytes = fs::read(absolute)?;
@@ -329,13 +334,18 @@ pub fn search_symbols_in_db(
     })?;
     for row in rows {
         let (path, symbol, kind, language, start, end, errors, truncated, digest) = row?;
+        if is_disallowed_project_path(Path::new(&path)) {
+            report.stale_results_discarded += 1;
+            continue;
+        }
         let candidate = project.join(&path);
         // Defensive path checking also covers databases from earlier versions.
         let meta = fs::symlink_metadata(&candidate).ok();
-        let inside = candidate
-            .canonicalize()
-            .ok()
-            .is_some_and(|p| p.starts_with(&project));
+        let inside = candidate.canonicalize().ok().is_some_and(|p| {
+            p.strip_prefix(&project)
+                .ok()
+                .is_some_and(|path| !is_disallowed_project_path(path))
+        });
         if !meta.is_some_and(|m| m.file_type().is_file() && m.len() <= MAX_SOURCE_BYTES) || !inside
         {
             report.stale_results_discarded += 1;
