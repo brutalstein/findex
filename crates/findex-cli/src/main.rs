@@ -31,6 +31,13 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 stats.indexed, stats.unchanged, stats.removed, stats.skipped, stats.examined
             );
         }
+        "overview" => {
+            if args.next().is_some() {
+                return Err("usage: findex overview".into());
+            }
+            let report = findex_index::overview(&project)?;
+            println!("{}", serde_json::to_string_pretty(&report)?);
+        }
         "index-check" => {
             if args.next().is_some() {
                 return Err("usage: findex index-check".into());
@@ -343,6 +350,7 @@ fn print_help() {
     );
     println!("  findex claude [CLAUDE_ARGS...]  Start official Claude Code in this terminal");
     println!("  findex index                    Reconcile project lexical index");
+    println!("  findex overview                 Bounded, source-verified project inventory");
     println!("  findex search <terms...>        Search matching code and line evidence");
     println!("  findex symbols <relative-file>  Parse definitions with Tree-sitter");
     println!("  findex find-symbol <exact-name>  Search persistent project definitions");

@@ -328,6 +328,14 @@ where
                         "additionalProperties": false
                     }
                 },{
+                    "name": "findex_overview",
+                    "description": "On-demand first-contact project inventory. Reconciles indexed files and returns bounded language, module, test, manifest and entry-point CANDIDATES. Source landmarks are hash-verified; not a proven architecture or call graph. Can be expensive for large repositories; use only when needed.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{},
+                        "additionalProperties":false
+                    }
+                },{
                     "name": "findex_capabilities",
                     "description": "Read the static Findex engine compatibility/safety contract: supported extraction modes, index limits, graph uncertainty and safe fallbacks. No scan, indexing or network call.",
                     "inputSchema": {
@@ -364,7 +372,17 @@ where
         ),
         "tools/call" => {
             let name = request.pointer("/params/name").and_then(Value::as_str);
-            if name == Some("findex_capabilities") {
+            if name == Some("findex_overview") {
+                match findex_index::overview(project) {
+                    Ok(report) => success(
+                        id,
+                        json!({"content":[{"type":"text",
+                            "text":serde_json::to_string(&report).unwrap_or_default()}],
+                            "isError":false}),
+                    ),
+                    Err(_err) => unavailable(id, "project inventory"),
+                }
+            } else if name == Some("findex_capabilities") {
                 success(
                     id,
                     json!({"content":[{"type":"text","text": serde_json::to_string(&json!({
@@ -378,7 +396,7 @@ where
                             "all_results_complete": false
                         },
                         "syntax_languages": ["rust", "python", "typescript", "javascript", "cpp"],
-                        "retrieval": ["task-context", "lexical-fts5", "exact-symbol", "syntax-definitions"],
+                        "retrieval": ["task-context", "lexical-fts5", "exact-symbol", "syntax-definitions", "project-inventory"],
                         "relationships": {
                             "requires_explicit_scip_or_lsp_import": true,
                             "reference_is_proven_call": false,
