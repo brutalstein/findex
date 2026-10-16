@@ -1,20 +1,23 @@
 <#
-.SYNOPSIS  Controlled Claude Code study, arms A-E (see claude_ab.py ARMS) -> tokens.json, comparisons.json
-.DESCRIPTION  Spends real model usage on the operator's existing authenticated account.
-              -SessionBudgetUsd caps each session (--max-budget-usd); the run stops scheduling
-              sessions once the estimated spend reaches -TotalBudgetUsd (remaining ones are BLOCKED).
+.SYNOPSIS  Controlled Claude Code study (see claude_ab.py ARMS) -> tokens.json, comparisons.json
+.DESCRIPTION  Off by default: without -EnableLiveModelTests no Claude session starts and
+              tokens.json records NOT_RUN. With it, the harness still requires operator approval
+              (FINDEX_LIVE_MODEL_APPROVAL), a claude.ai subscription sign-in, no API-billing
+              variables, not CI, and at most -MaxSessions new sessions. Spends real subscription
+              usage on the operator's existing account; -SessionBudgetUsd/-TotalBudgetUsd are
+              client-side estimates, not billing guarantees.
 #>
-param([string]$OutDir, [switch]$Offline, [switch]$Quick, [string]$Model = 'haiku', [int]$Reps = 3,
+param([string]$OutDir, [switch]$Offline, [switch]$Quick, [switch]$EnableLiveModelTests, [int]$MaxSessions = 12,
+      [switch]$Resume, [string]$Model = 'haiku', [int]$Reps = 3,
       [double]$SessionBudgetUsd = 0.40, [double]$TotalBudgetUsd = 6.0, [string]$Tasks = '', [string]$Arms = 'A,B,C,D')
 . (Join-Path $PSScriptRoot '_common.ps1')
 $out = Initialize-Results $OutDir
-if ($Offline) {
-    '{"status":"BLOCKED","reason":"-Offline: real Claude sessions need network"}' | Set-Content -Encoding ascii (Join-Path $out 'tokens.json')
-    exit 0
-}
-Assert-ReleaseBuild
+$live = $EnableLiveModelTests -and -not $Offline
+if ($live) { Assert-ReleaseBuild }
 if ($Quick) { $Reps = 1 }
-$extra = @('--out', $out, '--model', $Model, '--reps', $Reps, '--session-budget', $SessionBudgetUsd, '--total-budget', $TotalBudgetUsd)
+$extra = @('--out', $out, '--model', $Model, '--reps', $Reps, '--session-budget', $SessionBudgetUsd,
+           '--total-budget', $TotalBudgetUsd, '--max-sessions', $MaxSessions, '--arms', $Arms)
 if ($Tasks) { $extra += @('--tasks', $Tasks) }
-$extra += @('--arms', $Arms)
+if ($Resume) { $extra += '--resume' }
+if ($live) { $extra += '--enable-live-model-tests' }
 exit (Invoke-Harness 'claude_ab.py' $extra)

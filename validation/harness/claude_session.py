@@ -20,6 +20,59 @@ from common import CORPORA, REPO, WORK, findex_binary
 
 PROXY = REPO / "validation" / "harness" / "mcp_trace_proxy.py"
 
+# Live-model gate: every path that starts the official `claude` client passes
+# it first. Off by default; fails closed (NOT_RUN / BLOCKED) on anything ambiguous.
+LIVE_FLAG = "--enable-live-model-tests"
+APPROVAL_ENV = "FINDEX_LIVE_MODEL_APPROVAL"
+APPROVAL = "I approve Claude subscription usage"
+# Variables that route Claude Code to pay-as-you-go APIs or other providers.
+BILLING_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "CLAUDE_CODE_USE_BEDROCK",
+               "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY", "AWS_BEARER_TOKEN_BEDROCK")
+_gate_passed = False
+
+
+def subscription_status(status: dict) -> str | None:
+    """None for a first-party claude.ai subscription sign-in with no API key source; otherwise why not."""
+    expected = {"loggedIn": True, "authMethod": "claude.ai", "apiProvider": "firstParty"}
+    wrong = [key for key, value in expected.items() if status.get(key) != value]
+    if wrong:
+        return f"BLOCKED: `claude auth status` is not a claude.ai subscription sign-in ({', '.join(wrong)})"
+    if not status.get("subscriptionType"):
+        return "BLOCKED: `claude auth status` reports no subscription type"
+    if status.get("apiKeySource") not in (None, "", "none"):
+        return (f"BLOCKED: an API key source is configured ({status['apiKeySource']}); "
+                "usage could be billed outside the subscription")
+    return None
+
+
+def auth_status() -> dict:
+    """`claude auth status` (no model call). Empty when the client is missing or the output is unreadable."""
+    if not shutil.which("claude"):
+        return {}
+    try:
+        out = subprocess.run(["claude", "auth", "status"], capture_output=True, text=True, timeout=60)
+        return json.loads(out.stdout)
+    except (ValueError, OSError, subprocess.TimeoutExpired):
+        return {}
+
+
+def live_model_gate(enabled: bool, env: dict | None = None, status: dict | None = None) -> str | None:
+    """None when live model sessions may start; otherwise a NOT_RUN/BLOCKED reason."""
+    global _gate_passed
+    env = os.environ if env is None else env
+    if not enabled:
+        return f"NOT_RUN: live model tests are off by default; pass {LIVE_FLAG}"
+    if env.get("CI") or env.get("GITHUB_ACTIONS"):
+        return "BLOCKED: live model tests never run in CI"
+    if env.get(APPROVAL_ENV) != APPROVAL:
+        return f'BLOCKED: operator approval missing: set {APPROVAL_ENV}="{APPROVAL}"'
+    billing = sorted(k for k in BILLING_ENV if env.get(k))
+    if billing:
+        return f"BLOCKED: {', '.join(billing)} set; only the existing subscription sign-in is allowed"
+    reason = subscription_status(auth_status() if status is None else status)
+    _gate_passed = reason is None
+    return reason
+
 
 def fresh_workspace(corpus: str, dest: Path) -> Path:
     if dest.exists():
@@ -58,6 +111,8 @@ def run_claude(repo: Path, prompt: str, *, model: str, max_turns: int, budget_us
                mcp_config_path: Path | None = None, extra: list[str] | None = None,
                effort: str | None = None, timeout: float = 900, executable: list[str] | None = None,
                env: dict | None = None, strict_mcp: bool = True, isolate_memory: bool = True) -> dict:
+    if not _gate_passed:
+        raise RuntimeError("live model gate not passed: call live_model_gate() first")
     argv = (executable or ["claude"]) + [
         "-p", prompt, "--model", model, "--max-turns", str(max_turns), "--max-budget-usd", str(budget_usd),
         "--output-format", "stream-json", "--verbose", "--no-session-persistence",

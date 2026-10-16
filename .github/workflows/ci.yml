@@ -48,6 +48,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Graph security regression suite failed" }
       - name: Build optimized native CLI
         run: cargo build --locked --release -p findex
+      - name: Offline validation never starts a live model client
+        shell: pwsh
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}\target
+        run: |
+          python -m pip install --quiet psutil==7.0.0
+          python validation/harness/test_live_gate.py
+          if ($LASTEXITCODE -ne 0) { throw "Live-model gate regression" }
       - name: Verify native executable and CLI
         shell: pwsh
         run: |
