@@ -17,12 +17,36 @@ pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 pub use lsp::import_lsp_snapshot;
 pub use scip_import::{import_scip, import_scip_bytes};
 
+fn language_for_path(path: &str) -> &'static str {
+    let extension = path
+        .rsplit('.')
+        .next()
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+    match extension.as_str() {
+        "rs" => "rust",
+        "cc" | "cpp" | "cxx" | "hpp" | "hh" | "h" | "c" => "cpp",
+        "ts" | "tsx" => "typescript",
+        "js" | "jsx" | "mjs" => "javascript",
+        "py" | "pyi" => "python",
+        "go" => "go",
+        "java" => "java",
+        "kt" => "kotlin",
+        "swift" => "swift",
+        "cs" => "csharp",
+        _ => "unknown",
+    }
+}
+
 const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
 const MAX_DOCUMENTS: usize = 1_000;
 const MAX_OCCURRENCES: usize = 100_000;
 const MAX_SYMBOL_LENGTH: usize = 2_048;
 const MAX_IMPACT_FILES: usize = 64;
 const MAX_DEPTH: usize = 3;
+/// Relations schema is independent of the lexical index schema.
+const RELATIONS_SCHEMA: i64 = 2;
+const MAX_TYPED_RESULTS: usize = 128;
 
 #[derive(Debug)]
 struct Evidence {
@@ -37,6 +61,51 @@ struct Occurrence {
     line: usize,
     definition: bool,
 }
+/// A source-positioned semantic observation, never an inferred call edge.
+#[derive(Debug)]
+struct SemanticSite {
+    symbol: String,
+    path: String,
+    line: usize,
+    column: usize,
+    language: String,
+    kind: &'static str,
+}
+/// SCIP SymbolInformation.Relationship, not an invented call relationship.
+#[derive(Debug)]
+struct SemanticLink {
+    owner: String,
+    target: String,
+    kind: &'static str,
+    path: String,
+    language: String,
+}
+#[derive(Debug, Serialize)]
+pub struct SymbolSite {
+    pub path: String,
+    pub line: usize,
+    pub column: usize,
+    pub language: String,
+    pub kind: String,
+    pub provider: String,
+}
+#[derive(Debug, Serialize)]
+pub struct SymbolLink {
+    pub target_symbol: String,
+    pub kind: String,
+    pub path: String,
+    pub language: String,
+    pub provider: String,
+}
+#[derive(Debug, Serialize)]
+pub struct SymbolEvidenceReport {
+    pub symbol: String,
+    pub sites: Vec<SymbolSite>,
+    pub relationships: Vec<SymbolLink>,
+    pub stale_evidence_discarded: usize,
+    pub truncated: bool,
+    pub interpretation: &'static str,
+}
 #[derive(Debug, Serialize)]
 pub struct ImportReport {
     pub source: &'static str,
@@ -44,6 +113,9 @@ pub struct ImportReport {
     pub definitions: usize,
     pub references: usize,
     pub storage: &'static str,
+    pub typed_sites: usize,
+    pub typed_relationships: usize,
+    pub schema_version: i64,
 }
 #[derive(Debug, Serialize)]
 pub struct ImpactHit {
@@ -93,32 +165,59 @@ fn open(project: &Path) -> Result<Connection> {
     }
 }
 fn try_open(db: &Path) -> rusqlite::Result<Connection> {
-    let conn = Connection::open(db)?;
+    let mut conn = Connection::open(db)?;
     conn.busy_timeout(Duration::from_secs(5))?;
-    conn.execute_batch(
-        "PRAGMA journal_mode=WAL;
-         CREATE TABLE IF NOT EXISTS snapshot(
-             id INTEGER PRIMARY KEY CHECK(id = 1),
-             source TEXT NOT NULL
-         );
-         CREATE TABLE IF NOT EXISTS evidence_files(
-             path TEXT PRIMARY KEY,
-             digest TEXT NOT NULL
-         );
-         CREATE TABLE IF NOT EXISTS occurrences(
-             symbol TEXT NOT NULL,
-             path TEXT NOT NULL,
-             line INTEGER NOT NULL,
-             is_definition INTEGER NOT NULL CHECK(is_definition IN (0,1)),
-             PRIMARY KEY(symbol,path,line,is_definition)
-         );
-         CREATE INDEX IF NOT EXISTS occ_target ON occurrences(path,is_definition,symbol);
-         CREATE INDEX IF NOT EXISTS occ_symbol ON occurrences(symbol,is_definition,path);
-         CREATE TABLE IF NOT EXISTS symbol_provenance(
-             symbol TEXT PRIMARY KEY,
-             source TEXT NOT NULL
-         );",
+    let version: i64 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;
+    // Never alter or interpret an index created by a newer binary.
+    if version > RELATIONS_SCHEMA {
+        return Err(rusqlite::Error::InvalidQuery);
+    }
+    conn.execute_batch("PRAGMA journal_mode=WAL; PRAGMA secure_delete=ON;")?;
+    let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+    let version: i64 = tx.query_row("PRAGMA user_version", [], |row| row.get(0))?;
+    if version > RELATIONS_SCHEMA {
+        return Err(rusqlite::Error::InvalidQuery);
+    }
+    tx.execute_batch(
+        "CREATE TABLE IF NOT EXISTS snapshot(
+            id INTEGER PRIMARY KEY CHECK(id = 1), source TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS evidence_files(
+            path TEXT PRIMARY KEY, digest TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS occurrences(
+            symbol TEXT NOT NULL, path TEXT NOT NULL, line INTEGER NOT NULL,
+            is_definition INTEGER NOT NULL CHECK(is_definition IN (0,1)),
+            PRIMARY KEY(symbol,path,line,is_definition)
+        );
+        CREATE INDEX IF NOT EXISTS occ_target ON occurrences(path,is_definition,symbol);
+        CREATE INDEX IF NOT EXISTS occ_symbol ON occurrences(symbol,is_definition,path);
+        CREATE TABLE IF NOT EXISTS symbol_provenance(
+            symbol TEXT PRIMARY KEY, source TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS semantic_sites(
+            symbol TEXT NOT NULL, path TEXT NOT NULL, line INTEGER NOT NULL,
+            column INTEGER NOT NULL, language TEXT NOT NULL,
+            kind TEXT NOT NULL CHECK(kind IN ('definition','import','reference')),
+            PRIMARY KEY(symbol,path,line,column,kind)
+        );
+        CREATE INDEX IF NOT EXISTS semantic_sites_symbol
+          ON semantic_sites(symbol,path,line);
+        CREATE TABLE IF NOT EXISTS semantic_links(
+            owner_symbol TEXT NOT NULL, target_symbol TEXT NOT NULL,
+            kind TEXT NOT NULL CHECK(kind IN
+              ('implements','reference_equivalence','type_definition','definition_alias')),
+            path TEXT NOT NULL, language TEXT NOT NULL,
+            PRIMARY KEY(owner_symbol,target_symbol,kind,path)
+        );
+        CREATE INDEX IF NOT EXISTS semantic_links_owner ON semantic_links(owner_symbol);",
     )?;
+    // A schema-0/legacy snapshot cannot provide typed information until
+    // explicitly reimported. Its existing untyped impact evidence is preserved.
+    if version < RELATIONS_SCHEMA {
+        tx.execute_batch(&format!("PRAGMA user_version = {RELATIONS_SCHEMA};"))?;
+    }
+    tx.commit()?;
     Ok(conn)
 }
 fn project_file(project: &Path, relative: &Path) -> Result<(String, PathBuf)> {
@@ -190,6 +289,8 @@ fn persist(
     origin: &'static str,
     files: &[Evidence],
     refs: &[Occurrence],
+    sites: &[SemanticSite],
+    links: &[SemanticLink],
 ) -> Result<ImportReport> {
     let mut conn = open(project)?;
     // IMMEDIATE takes the write lock up front: a deferred read-then-write
@@ -201,6 +302,7 @@ fn persist(
     let incoming: HashSet<&str> = refs
         .iter()
         .map(|reference| reference.symbol.as_str())
+        .chain(links.iter().map(|link| link.owner.as_str()))
         .collect();
     let previous_source: Option<String> = if incremental_lsp {
         tx.query_row("SELECT source FROM snapshot WHERE id=1", [], |row| {
@@ -223,12 +325,28 @@ fn persist(
                 )
                 .optional()?;
             if old.is_some_and(|digest| digest != file.digest) {
+                tx.execute(
+                    "DELETE FROM semantic_links WHERE path=?1",
+                    params![file.path],
+                )?;
+                tx.execute(
+                    "DELETE FROM semantic_sites WHERE path=?1",
+                    params![file.path],
+                )?;
                 let mut stmt =
                     tx.prepare("SELECT DISTINCT symbol FROM occurrences WHERE path=?1")?;
                 let affected = stmt
                     .query_map(params![file.path], |row| row.get::<_, String>(0))?
                     .collect::<std::result::Result<Vec<_>, _>>()?;
                 for symbol in affected {
+                    tx.execute(
+                        "DELETE FROM semantic_sites WHERE symbol=?1",
+                        params![symbol],
+                    )?;
+                    tx.execute(
+                        "DELETE FROM semantic_links WHERE owner_symbol=?1",
+                        params![symbol],
+                    )?;
                     tx.execute("DELETE FROM occurrences WHERE symbol=?1", params![symbol])?;
                     tx.execute(
                         "DELETE FROM symbol_provenance WHERE symbol=?1",
@@ -238,6 +356,14 @@ fn persist(
             }
         }
         for symbol in &incoming {
+            tx.execute(
+                "DELETE FROM semantic_sites WHERE symbol=?1",
+                params![symbol],
+            )?;
+            tx.execute(
+                "DELETE FROM semantic_links WHERE owner_symbol=?1",
+                params![symbol],
+            )?;
             tx.execute("DELETE FROM occurrences WHERE symbol=?1", params![symbol])?;
             tx.execute(
                 "DELETE FROM symbol_provenance WHERE symbol=?1",
@@ -245,6 +371,8 @@ fn persist(
             )?;
         }
     } else {
+        tx.execute("DELETE FROM semantic_sites", [])?;
+        tx.execute("DELETE FROM semantic_links", [])?;
         tx.execute("DELETE FROM occurrences", [])?;
         tx.execute("DELETE FROM evidence_files", [])?;
         tx.execute("DELETE FROM symbol_provenance", [])?;
@@ -279,6 +407,38 @@ fn persist(
             }
         }
     }
+    {
+        let mut insert = tx.prepare(
+            "INSERT OR IGNORE INTO semantic_sites(symbol,path,line,column,language,kind)
+             VALUES(?1,?2,?3,?4,?5,?6)",
+        )?;
+        for site in sites {
+            insert.execute(params![
+                site.symbol,
+                site.path,
+                site.line as i64,
+                site.column as i64,
+                site.language,
+                site.kind,
+            ])?;
+        }
+    }
+    {
+        let mut insert = tx.prepare(
+            "INSERT OR IGNORE INTO semantic_links(
+                 owner_symbol,target_symbol,kind,path,language
+             ) VALUES(?1,?2,?3,?4,?5)",
+        )?;
+        for link in links {
+            insert.execute(params![
+                link.owner,
+                link.target,
+                link.kind,
+                link.path,
+                link.language,
+            ])?;
+        }
+    }
     for symbol in incoming {
         tx.execute(
             "INSERT INTO symbol_provenance(symbol,source) VALUES(?1,?2)
@@ -287,7 +447,9 @@ fn persist(
         )?;
     }
     tx.execute(
-        "DELETE FROM evidence_files WHERE path NOT IN (SELECT DISTINCT path FROM occurrences)",
+        "DELETE FROM evidence_files WHERE path NOT IN (SELECT DISTINCT path FROM occurrences)
+           AND path NOT IN (SELECT DISTINCT path FROM semantic_sites)
+           AND path NOT IN (SELECT DISTINCT path FROM semantic_links)",
         [],
     )?;
     let snapshot_source = if incremental_lsp
@@ -311,6 +473,9 @@ fn persist(
         definitions,
         references,
         storage: "sqlite-wal-atomic-snapshot",
+        typed_sites: sites.len(),
+        typed_relationships: links.len(),
+        schema_version: RELATIONS_SCHEMA,
     })
 }
 fn valid_occurrence(
@@ -355,6 +520,106 @@ fn verify_path(project: &Path, path: &str, digest: &str) -> bool {
         bytes.len() as u64 <= MAX_SOURCE_BYTES && blake3::hash(&bytes).to_hex().as_str() == digest
     })
 }
+
+/// Safe exact-symbol lookup. All returned paths are rechecked against both the
+/// scanner's admission digest and live source bytes, including link-only paths.
+/// Reference observations never imply CALLS_RESOLVED.
+pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<SymbolEvidenceReport> {
+    if symbol.is_empty() || symbol.len() > MAX_SYMBOL_LENGTH || symbol.chars().any(char::is_control)
+    {
+        return Err("invalid semantic symbol identity".into());
+    }
+    let indexed = prepare(project)?;
+    let conn = open(project)?;
+    let max = limit.clamp(1, MAX_TYPED_RESULTS);
+    let mut report = SymbolEvidenceReport {
+        symbol: symbol.to_owned(),
+        sites: Vec::new(),
+        relationships: Vec::new(),
+        stale_evidence_discarded: 0,
+        truncated: false,
+        interpretation:
+            "SCIP/LSP source-backed observations; references are not proven function calls",
+    };
+    let mut stmt = conn.prepare(
+        "SELECT s.path, s.line, s.column, s.language, s.kind,
+                e.digest, COALESCE(p.source, 'unattributed')
+         FROM semantic_sites s
+         JOIN evidence_files e ON e.path=s.path
+         LEFT JOIN symbol_provenance p ON p.symbol=s.symbol
+         WHERE s.symbol=?1
+         ORDER BY s.path, s.line, s.column, s.kind LIMIT ?2",
+    )?;
+    let entries = stmt.query_map(params![symbol, (max + 1) as i64], |r| {
+        Ok((
+            r.get::<_, String>(0)?,
+            r.get::<_, i64>(1)?,
+            r.get::<_, i64>(2)?,
+            r.get::<_, String>(3)?,
+            r.get::<_, String>(4)?,
+            r.get::<_, String>(5)?,
+            r.get::<_, String>(6)?,
+        ))
+    })?;
+    for row in entries {
+        let (path, line, column, language, kind, digest, provider) = row?;
+        if report.sites.len() >= max {
+            report.truncated = true;
+            break;
+        }
+        if !currently_admitted(&indexed, &path, &digest) || !verify_path(project, &path, &digest) {
+            report.stale_evidence_discarded += 1;
+            continue;
+        }
+        report.sites.push(SymbolSite {
+            path,
+            line: usize::try_from(line)?,
+            column: usize::try_from(column)?,
+            language,
+            kind,
+            provider,
+        });
+    }
+    let mut rel_stmt = conn.prepare(
+        "SELECT r.target_symbol, r.kind, r.path, r.language, e.digest,
+                COALESCE(p.source, 'unattributed')
+         FROM semantic_links r
+         JOIN evidence_files e ON e.path=r.path
+         LEFT JOIN symbol_provenance p ON p.symbol=r.owner_symbol
+         WHERE r.owner_symbol=?1
+         ORDER BY r.kind,r.path,r.target_symbol LIMIT ?2",
+    )?;
+    let links = rel_stmt.query_map(params![symbol, (max + 1) as i64], |r| {
+        Ok((
+            r.get::<_, String>(0)?,
+            r.get::<_, String>(1)?,
+            r.get::<_, String>(2)?,
+            r.get::<_, String>(3)?,
+            r.get::<_, String>(4)?,
+            r.get::<_, String>(5)?,
+        ))
+    })?;
+    for row in links {
+        let (target_symbol, kind, path, language, digest, provider) = row?;
+        if report.relationships.len() >= max {
+            report.truncated = true;
+            break;
+        }
+        if !currently_admitted(&indexed, &path, &digest) || !verify_path(project, &path, &digest) {
+            report.stale_evidence_discarded += 1;
+            continue;
+        }
+        report.relationships.push(SymbolLink {
+            target_symbol,
+            kind,
+            path,
+            language,
+            provider,
+        });
+    }
+    Ok(report)
+}
+
 /// Breadth-first *file* impact. A link means "this file references a symbol
 /// defined in that file"; no exact invocation, execution, or impact guarantee.
 pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Result<ImpactReport> {
@@ -483,6 +748,46 @@ mod tests {
         fs::write(root.path().join("hidden.rs"), "fn ignored() {}\n").expect("ignored");
         let data = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[{"path":"b.rs","line":0,"character":18}]}"#;
         (root, data.to_owned())
+    }
+
+    #[test]
+    fn future_relation_schema_is_rejected_without_mutation() {
+        let root = tempdir().expect("workspace");
+        let conn = open(root.path()).expect("create");
+        conn.execute_batch("PRAGMA user_version=99;")
+            .expect("newer");
+        drop(conn);
+        assert!(open(root.path()).is_err());
+        let raw = Connection::open(database(root.path()).expect("db")).expect("inspect");
+        let version: i64 = raw
+            .query_row("PRAGMA user_version", [], |r| r.get(0))
+            .expect("version");
+        assert_eq!(version, 99);
+    }
+
+    #[test]
+    fn legacy_relation_schema_upgrades_preserving_reference_impact() {
+        let (workspace, lsp) = fixture();
+        import_lsp_snapshot(workspace.path(), &lsp).expect("initial");
+        {
+            let conn = open(workspace.path()).expect("open");
+            conn.execute_batch(
+                "DROP TABLE semantic_sites; DROP TABLE semantic_links; PRAGMA user_version=0;",
+            )
+            .expect("simulate prior version");
+        }
+        assert_eq!(
+            impact(workspace.path(), Path::new("a.rs"), 1, 8)
+                .expect("unchanged reference graph")
+                .hits
+                .len(),
+            1
+        );
+        let newer = symbol_evidence(workspace.path(), "lsp:a.rs:0:3", 8).expect("typed");
+        assert!(
+            newer.sites.is_empty(),
+            "old snapshot never fabricated typed evidence"
+        );
     }
 
     #[test]
