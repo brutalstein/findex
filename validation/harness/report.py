@@ -130,7 +130,7 @@ def summary_md(out: Path, data: dict, env: dict, regress: list[dict], fails: dic
     overall = ((data.get("comparisons") or {}).get("overall") or {}).get("__all__")
     if overall:
         lines += ["", "## Claude Code A/B (all tasks)", ""]
-        arms = [arm for arm in "ABCDE" if arm in overall]
+        arms = [arm for arm in "ABCDEF" if arm in overall]
         for arm in arms:
             o = overall[arm]
             lines.append(f"- arm {arm}: success {o['success_rate']}, total tokens mean {o['total_tokens'].get('mean')}, "

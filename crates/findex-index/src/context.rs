@@ -49,6 +49,9 @@ pub struct ContextReport {
     pub used_tokens: usize,
     pub stale_results_discarded: usize,
     pub sync: SyncStats,
+    /// Exhaustiveness of each identifier's site scan; rendered only when the
+    /// report is not truncated, so an agent knows a text search adds nothing.
+    pub coverage: Vec<String>,
 }
 
 /// Standalone entry point: reconcile the project, then answer.
@@ -81,6 +84,7 @@ pub fn context_in_db(
         used_tokens: 0,
         stale_results_discarded: 0,
         sync,
+        coverage: Vec::new(),
     };
     let root = project.canonicalize()?;
     let conn = connect(database)?;
@@ -90,9 +94,9 @@ pub fn context_in_db(
     } else {
         for identifier in report.identifiers.clone() {
             let found = definitions(&root, &conn, &identifier, &mut report)?;
-            let mut sites = Vec::new();
+            let (mut sites, mut scan) = (Vec::new(), None);
             if report.intent != "definition" || found.is_empty() {
-                sites = sites_of(&root, &conn, &identifier, &found, &mut report)?;
+                (sites, scan) = sites_of(&root, &conn, &identifier, &found, &mut report)?;
             }
             if report.intent == "definition" && sites.iter().any(|s| s.kind == "definition") {
                 sites.retain(|s| s.kind == "definition");
@@ -119,6 +123,7 @@ pub fn context_in_db(
                         !(s.path.ends_with(".rs") && only_method_syntax(&s.text, &identifier))
                     });
                     if sites.len() < before {
+                        scan = scan.map(|(files, comments, _)| (files, comments, true));
                         report.missing.push(format!(
                             "excluded {} method-syntax `.{identifier}(` lines: a Rust free function cannot be called that way",
                             before - sites.len()
@@ -140,6 +145,25 @@ pub fn context_in_db(
                         .missing
                         .push(format!("no test code mentions `{identifier}`"));
                 }
+            }
+            if let Some((files, comments, excluded)) = scan {
+                let scanned = match files {
+                    1 => "the 1 indexed file containing it was scanned".to_string(),
+                    n => format!("all {n} indexed files containing it were scanned"),
+                };
+                let omitted = match comments {
+                    0 => String::new(),
+                    1 => " (1 comment line omitted)".to_string(),
+                    n => format!(" ({n} comment lines omitted)"),
+                };
+                let except = if excluded {
+                    "; excluded method-syntax lines are noted under missing"
+                } else {
+                    ""
+                };
+                report.coverage.push(format!(
+                    "coverage `{identifier}`: {scanned}; every code occurrence is shown{omitted}{except}"
+                ));
             }
             candidates.extend(found);
             candidates.extend(sites);
@@ -359,13 +383,17 @@ fn definitions(
 /// Every word-boundary occurrence of `identifier` in files the FTS index
 /// says contain it, classified by the token that follows. Definition lines
 /// and comment lines are skipped.
+/// (files scanned, comment lines omitted, method-syntax lines excluded);
+/// `None` when the file cap cut the scan short.
+type SiteScan = Option<(usize, usize, bool)>;
+
 fn sites_of(
     root: &Path,
     conn: &Connection,
     identifier: &str,
     definitions: &[Evidence],
     report: &mut ContextReport,
-) -> Result<Vec<Evidence>> {
+) -> Result<(Vec<Evidence>, SiteScan)> {
     let defined: BTreeSet<(&str, usize)> = definitions
         .iter()
         .map(|d| (d.path.as_str(), d.line))
@@ -387,7 +415,9 @@ fn sites_of(
             Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
         })?
         .collect::<std::result::Result<Vec<_>, _>>()?;
-    if files.len() > MAX_SITE_FILES {
+    let capped = files.len() > MAX_SITE_FILES;
+    let (mut scanned, mut comments) = (0, 0);
+    if capped {
         report.truncated = true;
         report.missing.push(format!(
             "more than {MAX_SITE_FILES} files mention `{identifier}`; only the first {MAX_SITE_FILES} by path were scanned"
@@ -399,12 +429,14 @@ fn sites_of(
             report.stale_results_discarded += 1;
             continue;
         };
+        scanned += 1;
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if defined.contains(&(path.as_str(), number)) {
                 continue;
             }
             let Some(kind) = classify_line(line, identifier) else {
+                comments += usize::from(contains_word(line, identifier));
                 continue;
             };
             if kind == "definition" && inside_definition(&path, number) {
@@ -432,7 +464,16 @@ fn sites_of(
             });
         }
     }
-    Ok(found)
+    Ok((found, (!capped).then_some((scanned, comments, false))))
+}
+
+/// True when `identifier` occurs in `line` as a whole word.
+fn contains_word(line: &str, identifier: &str) -> bool {
+    let word = |c: char| c.is_ascii_alphanumeric() || c == '_';
+    line.match_indices(identifier).any(|(start, _)| {
+        let end = start + identifier.len();
+        !line[..start].ends_with(word) && !line[end..].starts_with(word)
+    })
 }
 
 /// `call`, `reference` or `import` for the first code occurrence of
@@ -686,6 +727,11 @@ impl ContextReport {
         for missing in &self.missing {
             out.push_str(&format!("missing: {missing}\n"));
         }
+        if !self.truncated {
+            for coverage in &self.coverage {
+                out.push_str(&format!("{coverage}\n"));
+            }
+        }
         let count = |kind: &str| self.evidence.iter().filter(|e| e.kind == kind).count();
         out.push_str(&format!(
             "shown: {} definitions, {} calls, {} references, {} imports, {} matches, {} prose mentions; ~{}/{} tokens; {}\n",
@@ -735,6 +781,40 @@ mod tests {
     const LIB: &str = "pub fn poll_proceed(cx: u32) -> u32 {\n    cx + 1\n}\n\npub fn other() {}\n";
     const USER: &str = "use crate::lib::poll_proceed;\n\nfn poll_read() -> u32 {\n    // poll_proceed is cheap\n    let v = poll_proceed(3);\n    v\n}\n\nfn register() {\n    let f = poll_proceed;\n    let _ = f;\n}\n";
     const TEST: &str = "#[cfg(test)]\nmod tests {\n    #[test]\n    fn proceeds() {\n        assert_eq!(crate::lib::poll_proceed(1), 2);\n    }\n}\n";
+
+    #[test]
+    fn complete_reports_state_exhaustive_coverage_and_omitted_comments() {
+        let (root, _state, db) = project(&[
+            ("src/lib.rs", LIB),
+            ("src/user.rs", USER),
+            ("src/check.rs", TEST),
+        ]);
+        let rendered = ask(&root, &db, "Which functions call `poll_proceed`?", 2000).render();
+        assert!(
+            rendered.contains(
+                "coverage `poll_proceed`: all 3 indexed files containing it were scanned; every code occurrence is shown (1 comment line omitted)"
+            ),
+            "{rendered}"
+        );
+        let many: Vec<(String, String)> = (0..40)
+            .map(|i| {
+                (
+                    format!("src/caller_{i}.rs"),
+                    format!("fn caller_{i}() {{ let _ = crate::lib::poll_proceed({i}); }}\n"),
+                )
+            })
+            .chain([("src/lib.rs".to_string(), LIB.to_string())])
+            .collect();
+        let files: Vec<(&str, &str)> = many.iter().map(|(p, t)| (p.as_str(), t.as_str())).collect();
+        let (root, _state, db) = project(&files);
+        let truncated = ask(&root, &db, "Which functions call `poll_proceed`?", 200);
+        assert!(truncated.truncated);
+        assert!(
+            !truncated.render().contains("coverage"),
+            "{}",
+            truncated.render()
+        );
+    }
 
     #[test]
     fn callers_task_lists_call_sites_with_enclosing_functions() {

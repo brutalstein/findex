@@ -34,6 +34,13 @@ GUIDANCE = ("This repository has Findex MCP tools for code navigation. To locate
             "mcp__findex__findex_find_symbol finds where a named symbol is defined; mcp__findex__findex_search "
             "finds identifiers or code terms and returns file:line evidence. Load them with ToolSearch once. "
             "Read files only to confirm details or to edit.")
+# The trust rule of the Findex MCP instructions, repeated as a system prompt (arm F).
+POLICY = ("Use Findex for code navigation. Call mcp__findex__findex_context first to find definitions, callers, "
+          "references or tests. When its report is not TRUNCATED and has a coverage line for a name, it already lists "
+          "every code occurrence of that name: use it and do not repeat the search with Grep or Glob. If the report is "
+          "TRUNCATED, says missing, or does not answer the question, call findex_context again with a narrower task or a "
+          "larger budget_tokens; use Grep only if that still fails. Read files to edit them or to check a result; if a "
+          "file contradicts the report, trust the file.")
 # A: built-ins only. B: Findex as on main (caf33fa). C: B + concise guidance.
 # D: this build, findex_context loaded upfront, no extra guidance.
 # E: diagnostic only - D without Grep/Glob, so search must go through Findex.
@@ -44,7 +51,16 @@ ARMS = {
     "D": {"binary": "current", "tools": BASE_TOOLS + FINDEX_TOOLS + [CONTEXT_TOOL]},
     "E": {"binary": "current", "tools": ["Read", "Edit"] + FINDEX_TOOLS + [CONTEXT_TOOL],
           "deny": ["Grep", "Glob"]},
+    # F: D + the trust rule as a system prompt.
+    "F": {"binary": "current", "tools": BASE_TOOLS + FINDEX_TOOLS + [CONTEXT_TOOL],
+          "extra": ["--append-system-prompt", POLICY]},
 }
+# Held-out tasks (h*): chosen by fixed rules before any Findex run on them.
+#   callers: a function defined once, called from >= 4 code files, not a C++
+#            standard-library name, first alphabetically (fmt: scan of
+#            include/fmt; requests: held-out golden symbol with most callers).
+#   definition: golden_symbol(corpus), the rule t1 already uses.
+SOURCE_PATH = re.compile(r"[\w./\\-]+\.(?:rs|py|ts|cpp|hpp|cc|h)\b")
 
 
 def golden_symbol(corpus: str) -> dict:
@@ -69,17 +85,50 @@ def cargo_check(repo: Path, test_filter: str, target: Path) -> tuple[bool, str]:
     return proc.returncode == 0 and "test result: ok" in proc.stdout and " 0 passed" not in proc.stdout, proc.stdout[-300:] + proc.stderr[-300:]
 
 
-def make_tasks() -> dict:
-    symbol = golden_symbol("ripgrep")
-    callers = callers_truth()
+def code_callers(corpus: str, name: str) -> set[str]:
+    """Files with a call `name(` outside comments and outside its definition line."""
+    out = subprocess.run(["git", "-C", str(CORPORA / corpus), "grep", "-n", "-w", "-E", rf"{name}\s*\(", "--",
+                          "*.py", "*.h", "*.cc", "*.cpp", "*.ts", "*.rs"], capture_output=True, text=True).stdout
+    definition = re.compile(rf"(\bdef|\bfn|\bauto|\bvoid|\bbool|\bint|\bchar)\s+{name}\s*\(")
+    files = set()
+    for row in out.splitlines():
+        path, _, text = row.split(":", 2)
+        if not definition.search(text) and not text.lstrip().startswith(("//", "#", "*", "/*")):
+            files.add(path)
+    return files
 
-    def judge_find(text, repo, target):
+
+def find_judge(symbol: dict):
+    def judge(text, repo, target):
         expected = symbol["expected"]
         for path, line in expected:
             for match in re.finditer(re.escape(path) + r"\D{0,3}(\d+)", text.replace("\\", "/")):
                 if abs(int(match.group(1)) - line) <= 1:
                     return True, f"found {path}:{match.group(1)}"
         return False, f"expected {expected}"
+    return judge
+
+
+def callers_judge(truth: set[str]):
+    def judge(text, repo, target):
+        named = {m.replace("\\", "/").strip("`'\"(),.:") for m in SOURCE_PATH.findall(text)}
+        named = {next((c for c in truth if c.endswith(p) or p.endswith(c)), p) for p in named}
+        recall = len(truth & named) / len(truth)
+        precision = len(truth & named) / len(named) if named else 0.0
+        return recall >= 0.8 and precision >= 0.8, f"recall={recall:.2f} precision={precision:.2f} expected={len(truth)}"
+    return judge
+
+
+assert callers_judge({"src/a.py", "src/b.py"})("src/a.py\nsrc/b.py", None, None)[0]
+assert not callers_judge({"src/a.py", "src/b.py"})("src/a.py\nsrc/c.py", None, None)[0]
+
+
+def make_tasks() -> dict:
+    symbol = golden_symbol("ripgrep")
+    callers = callers_truth()
+    judge_find = find_judge(symbol)
+    heldout = {"fmt": code_callers("fmt", "to_ascii"), "requests": code_callers("requests", "default_hooks")}
+    zod, pybind = golden_symbol("zod"), golden_symbol("pybind11")
 
     def judge_callers(text, repo, target):
         mentioned = {p for p in mentioned_paths(text) if p.startswith(("tokio", "tests", "src"))}
@@ -161,6 +210,24 @@ def make_tasks() -> dict:
                                  "prompt": "Treat KeePass databases (*.kdbx, case-insensitive) as sensitive files that are never "
                                            "indexed, and add an assertion for it to the existing unit test of that rule. "
                                            "Make a minimal edit. You cannot run commands."},
+        "h1_callers_cpp": {"corpus": "fmt", "judge": callers_judge(heldout["fmt"]), "max_turns": 20,
+                           "markers": tuple(sorted(heldout["fmt"])),
+                           "prompt": "List every source file in this repository that calls the function `to_ascii` "
+                                     "(excluding the file where it is only defined, unless it also calls it). "
+                                     "Give repository-relative paths, one per line."},
+        "h2_callers_python": {"corpus": "requests", "judge": callers_judge(heldout["requests"]), "max_turns": 20,
+                              "markers": tuple(sorted(heldout["requests"])),
+                              "prompt": "List every source file in this repository that calls the function "
+                                        "`default_hooks` (excluding the file where it is only defined, unless it also "
+                                        "calls it). Give repository-relative paths, one per line."},
+        "h3_find_ts": {"corpus": "zod", "judge": find_judge(zod), "max_turns": 12,
+                       "markers": tuple(path for path, _ in zod["expected"]),
+                       "prompt": f"In this repository, where is `{zod['name']}` defined? Answer with the "
+                                 "repository-relative path and 1-based line number as path:line."},
+        "h4_find_cpp": {"corpus": "pybind11", "judge": find_judge(pybind), "max_turns": 12,
+                        "markers": tuple(path for path, _ in pybind["expected"]),
+                        "prompt": f"In this repository, where is `{pybind['name']}` defined? Answer with the "
+                                  "repository-relative path and 1-based line number as path:line."},
     }
 
 
