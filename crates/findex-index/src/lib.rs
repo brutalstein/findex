@@ -2,10 +2,12 @@
 //! CLI searches reconcile file contents first; the MCP server refreshes through `findex-watch`.
 
 mod context;
+mod overview;
 mod refresh;
 mod symbols;
 
 pub use context::{context, context_in_db, ContextReport, Evidence};
+pub use overview::{overview, InventoryCount, ProjectOverview};
 pub use refresh::{refresh_known_paths, refresh_known_paths_into, RefreshReport};
 pub use symbols::{
     inspect_indexed_file, inspect_indexed_file_in_db, search_symbols, search_symbols_in_db,
