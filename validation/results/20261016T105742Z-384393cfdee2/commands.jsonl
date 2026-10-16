@@ -1,0 +1,2 @@
+{"utc": "20261016T105816Z", "argv": ["%LOCALAPPDATA%\\findex-build\\target\\release\\findex.exe", "index"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.2517, "timed_out": false}
+{"utc": "20261016T105816Z", "argv": ["%LOCALAPPDATA%\\findex-build\\target\\release\\findex.exe", "context", "--json", "callers of `storage_dir`"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.0573, "timed_out": false}
