@@ -319,7 +319,14 @@ const CALLER_STEMS: &[&str] = &[
     "eriş",
 ];
 const TEST_STEMS: &[&str] = &[
-    "sına", "test", "verify", "verif", "assert", "suite", "doğrula", "doğrulama",
+    "sına",
+    "test",
+    "verify",
+    "verif",
+    "assert",
+    "suite",
+    "doğrula",
+    "doğrulama",
 ];
 const IMPACT_STEMS: &[&str] = &[
     "adlandır",
@@ -354,8 +361,18 @@ fn route(task: &str) -> &'static str {
         let navigation = words.iter().any(|word| {
             matches!(
                 word.as_str(),
-                "open" | "show" | "display" | "read" | "print" | "inspect"
-                    | "view" | "aç" | "göster" | "gösterir" | "oku" | "listele"
+                "open"
+                    | "show"
+                    | "display"
+                    | "read"
+                    | "print"
+                    | "inspect"
+                    | "view"
+                    | "aç"
+                    | "göster"
+                    | "gösterir"
+                    | "oku"
+                    | "listele"
             )
         });
         if intent == "definition" || (navigation && intent != "impact" && intent != "callers") {
@@ -1235,8 +1252,18 @@ mod tests {
         let (root, _state, db) = project(&[("src/lib.rs", LIB)]);
         let report = ask(&root, &db, "absentmeaninglessjargonwordxx", 400);
         assert!(report.evidence.is_empty(), "{report:?}");
-        assert!(report.missing.iter().any(|s| s.contains("no hash-verified")), "{report:?}");
-        assert!(report.render().contains("bounded lexical evidence"), "{}", report.render());
+        assert!(
+            report
+                .missing
+                .iter()
+                .any(|s| s.contains("no hash-verified")),
+            "{report:?}"
+        );
+        assert!(
+            report.render().contains("bounded lexical evidence"),
+            "{}",
+            report.render()
+        );
     }
 
     /// Routes every `intent<TAB>task` line of `cases`; prints per-intent
