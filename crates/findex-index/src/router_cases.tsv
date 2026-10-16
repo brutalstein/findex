@@ -1,0 +1,263 @@
+# intent<TAB>task. Labels written before the router rules were changed
+# (same author as the rules: see CONTEXT_ENGINE_RESULTS for this bias).
+# Intents: definition | callers | tests | impact | concept | file
+definition	where is `poll_proceed` defined
+definition	Where is the struct `WatchedIndex` declared?
+definition	show me `parse_config`
+definition	find the definition of `SearchBackend`
+definition	what does `normalized_relative_key` do
+definition	open `RefreshReport`
+definition	`storage_dir`
+definition	locate the class `HTTPAdapter`
+definition	where's `default_hooks` implemented
+definition	definition of parseHeaders
+definition	explain the function `redact_secrets`
+definition	what is `MAX_SOURCE_BYTES`
+definition	show the body of `classify_event`
+definition	how is `live_source` implemented?
+definition	where can I find `CatchallOutput`
+definition	go to `to_ascii`
+definition	jump to definition of `Dupe1`
+definition	where does `findexContext` live
+definition	what type is `SyncStats`
+definition	print `camel_parts`
+definition	where is `parse_confg` defined
+definition	find `WatchedIndx`
+definition	`poll_procede` definition
+definition	what is the signature of `search_in_db`
+definition	where is enum `ErrorCode` declared
+definition	show the trait `Searcher`
+definition	`does_not_exist_anywhere` where is it defined
+definition	look up `XyzUnknownThing`
+definition	`foo_bar` nerede tanımlı
+definition	`WatchedIndex` nerede tanımlanmış?
+definition	`parse_config` fonksiyonunun tanımı nerede
+definition	`storage_dir` ne yapıyor
+definition	`SearchBackend` yapısını göster
+definition	`redact_secrets` fonksiyonunu göster
+definition	`live_source` nasıl implement edilmiş
+definition	`MAX_SOURCE_BYTES` değeri ne
+definition	`HTTPAdapter` sınıfı nerede
+definition	`default_hooks` tanımını bul
+definition	`classify_event` gövdesini göster
+definition	`CatchallOutput` nerede?
+definition	`to_ascii` tanımı
+definition	`Dupe1` nerede tanımlı
+definition	`poll_procede` nerede tanımlı
+definition	`parse_confg` tanımını göster
+definition	where is `poll_proceed` tanımlı
+definition	`WatchedIndex` struct nerede defined
+definition	show `search_in_db` kodunu
+definition	`camel_parts` ne işe yarıyor, show it
+definition	`RefreshReport` hangi alanlara sahip
+definition	`SyncStats` tipini aç
+callers	who calls `poll_proceed`
+callers	Which functions call `poll_proceed`?
+callers	find all callers of `storage_dir`
+callers	where is `redact_secrets` used
+callers	list usages of `SearchBackend`
+callers	what references `MAX_SOURCE_BYTES`
+callers	who invokes `classify_event`?
+callers	show call sites of `live_source`
+callers	where is `default_hooks` called from
+callers	which files use `to_ascii`
+callers	callers of `parse_config`
+callers	who uses `WatchedIndex`
+callers	references to `HTTPAdapter`
+callers	where do we call `search_in_db`
+callers	what calls normalizedRelativeKey
+callers	usages of `camel_parts` in the repo
+callers	who calls `poll_procede`
+callers	find references of `WatchedIndx`
+callers	what code invokes `findexContext`
+callers	which modules import `SyncStats`
+callers	where is `CatchallOutput` referenced
+callers	which classes implement `Searcher`
+callers	what implements the trait `Searcher`
+callers	who is using `Dupe1`
+callers	is `XyzUnknownThing` used anywhere
+callers	`poll_proceed` fonksiyonunu kim çağırıyor
+callers	`poll_proceed` nerelerde çağrılıyor?
+callers	`storage_dir` kullanan yerler
+callers	`redact_secrets` nerede kullanılıyor
+callers	`SearchBackend` kullanımları
+callers	`MAX_SOURCE_BYTES` sabitine referans veren dosyalar
+callers	`classify_event` çağıranlar
+callers	`live_source` çağrıları
+callers	`default_hooks` kimler tarafından çağrılıyor
+callers	`to_ascii` hangi dosyalarda kullanılıyor
+callers	`parse_config` çağıran fonksiyonlar
+callers	`WatchedIndex` kim kullanıyor
+callers	`HTTPAdapter` referansları
+callers	`search_in_db` nereden çağrılıyor
+callers	`camel_parts` kullanımlarını listele
+callers	`poll_procede` kim çağırıyor
+callers	`SyncStats` import eden modüller
+callers	`Searcher` traitini implement eden tipler
+callers	`Dupe1` kullanılıyor mu
+callers	`findexContext` çağıran kod
+callers	who calls `poll_proceed` yani çağıranlar
+callers	`storage_dir` callers listesini ver
+callers	`redact_secrets` usage yerleri
+callers	`live_source` call sites göster
+callers	`classify_event` kim invoke ediyor
+tests	which tests cover `poll_proceed`
+tests	find the tests for `storage_dir`
+tests	is `redact_secrets` tested?
+tests	show unit tests of `SearchBackend`
+tests	what tests exercise `classify_event`
+tests	tests for `live_source`
+tests	where are the specs for `parseHeaders`
+tests	is there a test that checks `default_hooks`
+tests	list test functions calling `to_ascii`
+tests	which test files mention `WatchedIndex`
+tests	does anything test `parse_config`
+tests	find tests of `poll_procede`
+tests	how is `search_in_db` tested
+tests	tests covering `camel_parts`
+tests	test cases for `CatchallOutput`
+tests	which spec covers `HTTPAdapter`
+tests	unit tests around `normalized_relative_key`
+tests	is `XyzUnknownThing` covered by tests
+tests	tested behaviour of `Dupe1`
+tests	any testing of `findexContext`?
+tests	`poll_proceed` için testler
+tests	`storage_dir` testleri nerede
+tests	`redact_secrets` test edilmiş mi
+tests	`SearchBackend` birim testleri
+tests	`classify_event` hangi testlerde
+tests	`live_source` testlerini göster
+tests	`default_hooks` için test var mı
+tests	`to_ascii` test kodu
+tests	`WatchedIndex` testleri
+tests	`parse_config` testi
+tests	`search_in_db` nasıl test ediliyor
+tests	`camel_parts` testlerini bul
+tests	`CatchallOutput` test durumları
+tests	`HTTPAdapter` testleri hangi dosyada
+tests	`Dupe1` test ediliyor mu
+tests	`poll_proceed` testleri which files
+tests	`storage_dir` unit test var mı
+tests	`redact_secrets` için test coverage
+tests	`live_source` testlerini listele please
+tests	`normalized_relative_key` sınama kodu
+impact	what breaks if I change `poll_proceed`
+impact	impact of modifying `storage_dir`
+impact	what is affected by changing `redact_secrets`
+impact	if I rename `SearchBackend` what changes
+impact	refactor `classify_event`: what is affected
+impact	ripple effects of changing `live_source`
+impact	what depends on `default_hooks` if I modify it
+impact	change the signature of `to_ascii`: impact
+impact	I want to rename `parse_config` to `load_config`
+impact	what would break if `WatchedIndex` changed
+impact	impact analysis for `search_in_db`
+impact	modifying `camel_parts` affects what
+impact	what does changing `MAX_SOURCE_BYTES` affect
+impact	rename `HTTPAdapter`
+impact	refactoring `normalized_relative_key` safely
+impact	if I change `poll_procede` what breaks
+impact	what breaks when `CatchallOutput` changes
+impact	change `Dupe1` impact
+impact	which code is affected by a change to `findexContext`
+impact	remove the parameter of `SyncStats`, what breaks
+impact	`poll_proceed` değişirse ne bozulur
+impact	`storage_dir` değiştirmenin etkisi
+impact	`redact_secrets` değişirse neler etkilenir
+impact	`SearchBackend` adını değiştirirsem ne olur
+impact	`classify_event` refactor edersem neler etkilenir
+impact	`live_source` değişikliğinin etkileri
+impact	`default_hooks` değiştirilirse etkilenen yerler
+impact	`to_ascii` imzasını değiştirmek neyi bozar
+impact	`parse_config` fonksiyonunu yeniden adlandır
+impact	`WatchedIndex` değişirse ne kırılır
+impact	`search_in_db` etki analizi
+impact	`camel_parts` değiştirince neler etkilenir
+impact	`MAX_SOURCE_BYTES` değeri değişirse ne etkilenir
+impact	`HTTPAdapter` sınıfını yeniden adlandırmak
+impact	`normalized_relative_key` refactor etkisi
+impact	`CatchallOutput` değişirse etkilenen kod
+impact	`Dupe1` değişikliği neyi etkiler
+impact	`poll_proceed` change edersem neler etkilenir
+impact	`storage_dir` modify impact nedir
+impact	`live_source` rename edersem ne bozulur
+concept	how does the watcher handle overflow
+concept	where is the redirect auth header stripped
+concept	how are secrets redacted from excerpts
+concept	explain how incremental refresh works
+concept	where do we rebuild a corrupt index
+concept	how is the MCP protocol version negotiated
+concept	what happens when a file is deleted
+concept	how does ranking work for search results
+concept	where is the database schema migrated
+concept	how are symlinks prevented from escaping the workspace
+concept	crash when the index file is locked
+concept	search returns stale results after branch switch
+concept	slow indexing on large repositories
+concept	where are oversized MCP frames rejected
+concept	how does the plugin launch claude
+concept	what is the architecture of this project
+concept	give me an overview of the codebase
+concept	how is the token budget enforced
+concept	where are gitignore rules applied
+concept	how do we detect binary files
+concept	write a poem about rust
+concept	what is the weather today
+concept	hello
+concept	how to make pancakes
+concept	summarize the README
+concept	izleyici taşmayı nasıl ele alıyor
+concept	yönlendirme sırasında auth başlığı nerede siliniyor
+concept	gizli anahtarlar alıntılardan nasıl maskeleniyor
+concept	artımlı yenileme nasıl çalışıyor anlat
+concept	bozuk indeks nerede yeniden oluşturuluyor
+concept	MCP protokol sürümü nasıl belirleniyor
+concept	bir dosya silinince ne oluyor
+concept	arama sonuçları nasıl sıralanıyor
+concept	veritabanı şeması nerede güncelleniyor
+concept	sembolik bağlantıların çalışma alanından kaçması nasıl engelleniyor
+concept	indeks dosyası kilitliyken çöküyor
+concept	dal değişince eski sonuçlar dönüyor
+concept	büyük depolarda indeksleme yavaş
+concept	büyük MCP mesajları nerede reddediliyor
+concept	eklenti claude'u nasıl başlatıyor
+concept	bu projenin mimarisi nedir
+concept	kod tabanına genel bakış ver
+concept	token bütçesi nasıl uygulanıyor
+concept	gitignore kuralları nerede uygulanıyor
+concept	ikili dosyalar nasıl tespit ediliyor
+concept	rust hakkında bir şiir yaz
+concept	bugün hava nasıl
+concept	merhaba
+concept	README'yi özetle
+concept	how does the watcher taşma durumunu handle ediyor
+file	show me src/lib.rs
+file	open crates/findex-index/src/context.rs
+file	what is in README.md
+file	summarize docs/architecture.md
+file	what does validation/harness/claude_ab.py contain
+file	outline of crates/findex-mcp/src/lib.rs
+file	list the functions in refresh.rs
+file	what is defined in `symbols.rs`
+file	show the structure of main.rs
+file	read Cargo.toml
+file	what's inside .github/workflows/ci.yml
+file	open crates\findex-core\src\lib.rs
+file	overview of src/sessions.py
+file	what classes are in models.py
+file	contents of include/fmt/base.h
+file	show `packages/zod/src/v4/core/schemas.ts`
+file	src/lib.rs dosyasını göster
+file	crates/findex-index/src/context.rs içinde ne var
+file	README.md dosyasını özetle
+file	docs/architecture.md ne anlatıyor
+file	refresh.rs içindeki fonksiyonları listele
+file	`symbols.rs` dosyasında neler tanımlı
+file	main.rs yapısını göster
+file	Cargo.toml dosyasını oku
+file	.github/workflows/ci.yml içinde ne var
+file	crates\findex-core\src\lib.rs dosyasını aç
+file	sessions.py dosyasına genel bakış
+file	models.py içindeki sınıflar
+file	include/fmt/base.h içeriği
+file	`packages/zod/src/v4/core/schemas.ts` dosyasını göster

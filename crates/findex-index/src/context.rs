@@ -70,10 +70,7 @@ pub fn context_in_db(
 ) -> Result<ContextReport> {
     let words = words(task);
     let identifiers = identifiers(task);
-    let intent = match classify(&words) {
-        "definition" if identifiers.is_empty() => "concept",
-        intent => intent,
-    };
+    let intent = route(task);
     let mut report = ContextReport {
         intent,
         identifiers,
@@ -273,6 +270,15 @@ fn words(task: &str) -> Vec<String> {
         .collect()
 }
 
+/// Intent of a task from its text alone, before any index access.
+fn route(task: &str) -> &'static str {
+    let identifiers = identifiers(task);
+    match classify(&words(task)) {
+        "definition" if identifiers.is_empty() => "concept",
+        intent => intent,
+    }
+}
+
 fn classify(words: &[String]) -> &'static str {
     let has = |set: &[&str]| words.iter().any(|w| set.contains(&w.as_str()));
     if has(IMPACT_WORDS) {
@@ -430,12 +436,16 @@ fn sites_of(
             continue;
         };
         scanned += 1;
+        let style = comment_style(&path);
+        let mut in_block = false;
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
+            // Computed for every line: it carries `/* */` state to the next one.
+            let code = code_text(line, style, &mut in_block);
             if defined.contains(&(path.as_str(), number)) {
                 continue;
             }
-            let Some(kind) = classify_line(line, identifier) else {
+            let Some(kind) = classify_line(&code, identifier) else {
                 comments += usize::from(contains_word(line, identifier));
                 continue;
             };
@@ -476,8 +486,82 @@ fn contains_word(line: &str, identifier: &str) -> bool {
     })
 }
 
-/// `call`, `reference` or `import` for the first code occurrence of
-/// `identifier` on the line; `None` when absent or only in a comment.
+#[derive(Clone, Copy, PartialEq)]
+enum CommentStyle {
+    /// `//` and `/* */` (Rust, C/C++, JS/TS, Go, Java, ...).
+    CLike,
+    /// `#` to end of line (Python, shell, PowerShell, TOML, YAML, ...).
+    Hash,
+    /// Prose and unknown formats: nothing is treated as a comment.
+    None,
+}
+
+fn comment_style(path: &str) -> CommentStyle {
+    let ext = path
+        .rsplit_once('.')
+        .map(|(_, ext)| ext.to_ascii_lowercase())
+        .unwrap_or_default();
+    match ext.as_str() {
+        "py" | "pyi" | "rb" | "sh" | "bash" | "ps1" | "psm1" | "toml" | "yaml" | "yml"
+        | "cmake" | "pl" | "r" => CommentStyle::Hash,
+        ext if CODE_EXTENSIONS.contains(&ext) => CommentStyle::CLike,
+        _ => CommentStyle::None,
+    }
+}
+
+/// `line` with comment text blanked and string literals kept, so a name
+/// inside a comment is not code. `in_block` carries an open `/* */` to the
+/// next line. When unsure, text is kept: showing a comment is harmless,
+/// omitting code would break the coverage claim.
+/// shortcut: strings are tracked within one line only, so a `/*` on its own
+/// line inside a multi-line raw string opens a block; upgrade to Tree-sitter
+/// comment nodes if that shows up in the coverage check.
+fn code_text(line: &str, style: CommentStyle, in_block: &mut bool) -> String {
+    if style == CommentStyle::None {
+        return line.to_string();
+    }
+    let mut out = String::with_capacity(line.len());
+    let mut chars = line.chars().peekable();
+    let mut quote = None;
+    while let Some(c) = chars.next() {
+        if *in_block {
+            if c == '*' && chars.peek() == Some(&'/') {
+                chars.next();
+                *in_block = false;
+            }
+            out.push(' ');
+            continue;
+        }
+        if let Some(open) = quote {
+            out.push(c);
+            if c == '\\' {
+                out.extend(chars.next());
+            } else if c == open {
+                quote = None;
+            }
+            continue;
+        }
+        match c {
+            '"' | '`' => quote = Some(c),
+            // In C-like languages `'` also starts Rust lifetimes; kept as code.
+            '\'' if style == CommentStyle::Hash => quote = Some(c),
+            '#' if style == CommentStyle::Hash => break,
+            '/' if style == CommentStyle::CLike && chars.peek() == Some(&'/') => break,
+            '/' if style == CommentStyle::CLike && chars.peek() == Some(&'*') => {
+                chars.next();
+                *in_block = true;
+                out.push(' ');
+                continue;
+            }
+            _ => {}
+        }
+        out.push(c);
+    }
+    out
+}
+
+/// `call`, `reference` or `import` for the first occurrence of `identifier`
+/// in the comment-free code text of a line; `None` when absent.
 fn classify_line(line: &str, identifier: &str) -> Option<&'static str> {
     let trimmed = line.trim_start();
     let is_import = [
@@ -485,12 +569,6 @@ fn classify_line(line: &str, identifier: &str) -> Option<&'static str> {
     ]
     .iter()
     .any(|prefix| trimmed.starts_with(prefix));
-    let comment = ["//", "#", "/*", "*"]
-        .iter()
-        .any(|prefix| trimmed.starts_with(prefix));
-    if comment && !is_import {
-        return None;
-    }
     let bytes = line.as_bytes();
     let word = |b: u8| b.is_ascii_alphanumeric() || b == b'_';
     let mut from = 0;
@@ -500,9 +578,6 @@ fn classify_line(line: &str, identifier: &str) -> Option<&'static str> {
         from = end;
         if (start > 0 && word(bytes[start - 1])) || (end < bytes.len() && word(bytes[end])) {
             continue;
-        }
-        if line[..start].contains("//") {
-            return None;
         }
         if is_import {
             return Some("import");
@@ -813,6 +888,86 @@ mod tests {
             !truncated.render().contains("coverage"),
             "{}",
             truncated.render()
+        );
+    }
+
+    /// Labeled English/Turkish/mixed tasks (`router_cases.tsv`); prints
+    /// per-intent accuracy and pins it so a rule change cannot silently regress.
+    #[test]
+    fn router_accuracy_on_labeled_tasks() {
+        let mut per: std::collections::BTreeMap<&str, (usize, usize)> = Default::default();
+        let mut confusions = Vec::new();
+        for line in include_str!("router_cases.tsv").lines() {
+            let Some((label, task)) = line.split_once('\t') else {
+                continue;
+            };
+            if label.starts_with('#') {
+                continue;
+            }
+            let got = route(task);
+            let entry = per.entry(label).or_default();
+            entry.1 += 1;
+            if got == label {
+                entry.0 += 1;
+            } else {
+                confusions.push(format!("{label} -> {got}: {task}"));
+            }
+        }
+        let total: usize = per.values().map(|v| v.1).sum();
+        let right: usize = per.values().map(|v| v.0).sum();
+        for (label, (ok, n)) in &per {
+            println!("router {label}: {ok}/{n}");
+        }
+        println!("router all: {right}/{total}");
+        for confusion in &confusions {
+            println!("router miss {confusion}");
+        }
+        assert!(total >= 250, "{total} cases");
+    }
+
+    /// `#` and `*` start code lines in Rust (attributes), C/C++ (preprocessor,
+    /// dereference); only real comments may be omitted from a coverage claim.
+    #[test]
+    fn code_lines_starting_with_hash_or_star_are_shown_and_only_comments_omitted() {
+        let (root, _state, db) = project(&[
+            ("src/codec.rs", "pub fn my_codec() {}\n"),
+            (
+                "src/model.rs",
+                "#[serde(with = \"my_codec\")]\nstruct A;\n// my_codec in a comment\nconst G: &str = \"src/**/*.rs\";\nfn g() { my_codec(); }\n",
+            ),
+            (
+                "src/c.c",
+                "#define CALL my_codec(x)\nvoid f(int *out) {\n    *out = my_codec(1)\n        * my_codec(2);\n    /* my_codec\n       my_codec in a block */\n    g(); /* my_codec */ my_codec(3);\n}\n",
+            ),
+            ("src/s.py", "# my_codec comment\nx = my_codec()  # my_codec\n"),
+        ]);
+        let report = ask(&root, &db, "Who calls `my_codec`?", 4000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{}:{}", e.path, e.line))
+            .collect();
+        for site in [
+            "src/model.rs:1",
+            "src/model.rs:5",
+            "src/c.c:1",
+            "src/c.c:3",
+            "src/c.c:4",
+            "src/c.c:7",
+            "src/s.py:2",
+        ] {
+            assert!(
+                shown.contains(&site.to_string()),
+                "{site} missing: {shown:?}"
+            );
+        }
+        for comment in ["src/model.rs:3", "src/c.c:5", "src/c.c:6", "src/s.py:1"] {
+            assert!(!shown.contains(&comment.to_string()), "{comment} shown");
+        }
+        assert!(
+            report.render().contains("(4 comment lines omitted)"),
+            "{}",
+            report.render()
         );
     }
 
