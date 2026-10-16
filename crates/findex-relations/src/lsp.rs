@@ -113,26 +113,43 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
         if !identities.insert(identity.clone()) {
             return Err("duplicate definition anchor in LSP batch".into());
         }
-        let line = capture.definition.line.checked_add(1).ok_or("LSP line overflow")?;
+        let line = capture
+            .definition
+            .line
+            .checked_add(1)
+            .ok_or("LSP line overflow")?;
         occurrences.push(valid_occurrence(definition_file, &identity, line, true)?);
         sites.push(SemanticSite {
-            symbol: identity.clone(), path: definition_file.path.clone(),
-            line, column: capture.definition.character,
-            language: language_for_path(&definition_file.path).to_string(), kind: "definition",
+            symbol: identity.clone(),
+            path: definition_file.path.clone(),
+            line,
+            column: capture.definition.character,
+            language: language_for_path(&definition_file.path).to_string(),
+            kind: "definition",
         });
         for reference in &capture.references {
             let file = docs.get(&reference.path).ok_or("missing LSP file")?;
             let line = reference.line.checked_add(1).ok_or("LSP line overflow")?;
             occurrences.push(valid_occurrence(file, &identity, line, false)?);
             sites.push(SemanticSite {
-                symbol: identity.clone(), path: file.path.clone(), line,
+                symbol: identity.clone(),
+                path: file.path.clone(),
+                line,
                 column: reference.character,
-                language: language_for_path(&file.path).to_string(), kind: "reference",
+                language: language_for_path(&file.path).to_string(),
+                kind: "reference",
             });
         }
     }
 
     let mut files: Vec<_> = docs.into_values().collect();
     files.sort_by(|a, b| a.path.cmp(&b.path));
-    persist(project, "lsp-captured-references", &files, &occurrences, &sites, &[])
+    persist(
+        project,
+        "lsp-captured-references",
+        &files,
+        &occurrences,
+        &sites,
+        &[],
+    )
 }

@@ -450,11 +450,16 @@ where
                     .pointer("/params/arguments/limit")
                     .and_then(Value::as_u64)
                     .unwrap_or(32);
-                if symbol.is_empty() || symbol.len() > 2048
+                if symbol.is_empty()
+                    || symbol.len() > 2048
                     || symbol.chars().any(char::is_control)
                     || !(1..=128).contains(&limit)
                 {
-                    error(id, -32602, "exact symbol ID must be 1-2048 bytes; limit 1-128")
+                    error(
+                        id,
+                        -32602,
+                        "exact symbol ID must be 1-2048 bytes; limit 1-128",
+                    )
                 } else {
                     match findex_relations::symbol_evidence(project, symbol, limit as usize) {
                         Ok(report) => success(

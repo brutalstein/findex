@@ -79,11 +79,20 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
             } else {
                 "reference"
             };
-            rows.push(valid_occurrence(&source, &symbol, start_line + 1, definition)?);
+            rows.push(valid_occurrence(
+                &source,
+                &symbol,
+                start_line + 1,
+                definition,
+            )?);
             let column = usize::try_from(*occurrence.range.get(1).ok_or("missing column")?)?;
             sites.push(SemanticSite {
-                symbol, path: source.path.clone(), line: start_line + 1,
-                column, language: language.clone(), kind,
+                symbol,
+                path: source.path.clone(),
+                line: start_line + 1,
+                column,
+                language: language.clone(),
+                kind,
             });
         }
         for information in &doc.symbols {
@@ -92,7 +101,8 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
             } else {
                 information.symbol.clone()
             };
-            if owner.is_empty() || owner.len() > MAX_SYMBOL_LENGTH
+            if owner.is_empty()
+                || owner.len() > MAX_SYMBOL_LENGTH
                 || owner.chars().any(char::is_control)
             {
                 return Err("invalid SCIP relationship source symbol".into());
@@ -103,21 +113,33 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
                 } else {
                     relation.symbol.clone()
                 };
-                if target.is_empty() || target.len() > MAX_SYMBOL_LENGTH
+                if target.is_empty()
+                    || target.len() > MAX_SYMBOL_LENGTH
                     || target.chars().any(char::is_control)
                 {
                     return Err("invalid SCIP relationship target symbol".into());
                 }
                 let mut add = |kind| {
                     links.push(SemanticLink {
-                        owner: owner.clone(), target: target.clone(), kind,
-                        path: source.path.clone(), language: language.clone(),
+                        owner: owner.clone(),
+                        target: target.clone(),
+                        kind,
+                        path: source.path.clone(),
+                        language: language.clone(),
                     });
                 };
-                if relation.is_reference { add("reference_equivalence"); }
-                if relation.is_implementation { add("implements"); }
-                if relation.is_type_definition { add("type_definition"); }
-                if relation.is_definition { add("definition_alias"); }
+                if relation.is_reference {
+                    add("reference_equivalence");
+                }
+                if relation.is_implementation {
+                    add("implements");
+                }
+                if relation.is_type_definition {
+                    add("type_definition");
+                }
+                if relation.is_definition {
+                    add("definition_alias");
+                }
                 if links.len() > MAX_OCCURRENCES {
                     return Err("too many SCIP semantic relationships".into());
                 }
@@ -173,14 +195,34 @@ mod tests {
     /// checks ingestion semantics, not the accuracy of any specific compiler.
     #[test]
     fn multilang_typed_roles_are_precise_and_same_named_symbols_stay_distinct() {
-        use scip::types::{Relationship, SymbolInformation};
         use crate::symbol_evidence;
+        use scip::types::{Relationship, SymbolInformation};
         let root = tempdir().expect("workspace");
         let cases = [
-            ("a.rs", "rust", "fn shared() {}\n", "rust-analyzer cargo demo 1 a#shared()."),
-            ("b.cpp", "cpp", "int shared() {return 1;}\n", "clang . demo 1 b#shared()."),
-            ("c.ts", "typescript", "function shared() {}\n", "scip-typescript npm demo 1 c#shared()."),
-            ("d.py", "python", "def shared(): pass\n", "scip-python pip demo 1 d#shared()."),
+            (
+                "a.rs",
+                "rust",
+                "fn shared() {}\n",
+                "rust-analyzer cargo demo 1 a#shared().",
+            ),
+            (
+                "b.cpp",
+                "cpp",
+                "int shared() {return 1;}\n",
+                "clang . demo 1 b#shared().",
+            ),
+            (
+                "c.ts",
+                "typescript",
+                "function shared() {}\n",
+                "scip-typescript npm demo 1 c#shared().",
+            ),
+            (
+                "d.py",
+                "python",
+                "def shared(): pass\n",
+                "scip-python pip demo 1 d#shared().",
+            ),
         ];
         let mut docs = Vec::new();
         for (name, language, source, symbol) in cases {
@@ -209,20 +251,34 @@ mod tests {
             }],
             ..SymbolInformation::default()
         });
-        let payload = Index { documents: docs, ..Index::default() };
+        let payload = Index {
+            documents: docs,
+            ..Index::default()
+        };
         let bytes = payload.write_to_bytes().expect("encode");
         let report = import_scip_bytes(root.path(), &bytes).expect("import");
         assert_eq!(report.schema_version, 2);
         assert_eq!(report.typed_relationships, 1);
         let rust = symbol_evidence(root.path(), rust_sym, 16).expect("rust");
         assert_eq!(rust.sites.len(), 2);
-        assert!(rust.sites.iter().any(|site| site.kind == "import"
-            && site.language == "typescript"));
-        assert!(rust.sites.iter().any(|site| site.kind == "definition"
-            && site.language == "rust"));
+        assert!(rust
+            .sites
+            .iter()
+            .any(|site| site.kind == "import" && site.language == "typescript"));
+        assert!(rust
+            .sites
+            .iter()
+            .any(|site| site.kind == "definition" && site.language == "rust"));
         for (_, _, _, unrelated) in [cases[1], cases[2], cases[3]] {
             let result = symbol_evidence(root.path(), unrelated, 16).expect("distinct");
-            assert_eq!(result.sites.iter().filter(|site| site.kind == "definition").count(), 1);
+            assert_eq!(
+                result
+                    .sites
+                    .iter()
+                    .filter(|site| site.kind == "definition")
+                    .count(),
+                1
+            );
             assert!(!result.sites.iter().any(|site| site.path == "a.rs"));
         }
         let ts = symbol_evidence(root.path(), ts_sym, 16).expect("typescript");

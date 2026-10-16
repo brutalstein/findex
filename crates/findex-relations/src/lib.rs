@@ -18,7 +18,11 @@ pub use lsp::import_lsp_snapshot;
 pub use scip_import::{import_scip, import_scip_bytes};
 
 fn language_for_path(path: &str) -> &'static str {
-    let extension = path.rsplit('.').next().unwrap_or_default().to_ascii_lowercase();
+    let extension = path
+        .rsplit('.')
+        .next()
+        .unwrap_or_default()
+        .to_ascii_lowercase();
     match extension.as_str() {
         "rs" => "rust",
         "cc" | "cpp" | "cxx" | "hpp" | "hh" | "h" | "c" => "cpp",
@@ -206,7 +210,7 @@ fn try_open(db: &Path) -> rusqlite::Result<Connection> {
             path TEXT NOT NULL, language TEXT NOT NULL,
             PRIMARY KEY(owner_symbol,target_symbol,kind,path)
         );
-        CREATE INDEX IF NOT EXISTS semantic_links_owner ON semantic_links(owner_symbol);"
+        CREATE INDEX IF NOT EXISTS semantic_links_owner ON semantic_links(owner_symbol);",
     )?;
     // A schema-0/legacy snapshot cannot provide typed information until
     // explicitly reimported. Its existing untyped impact evidence is preserved.
@@ -321,16 +325,28 @@ fn persist(
                 )
                 .optional()?;
             if old.is_some_and(|digest| digest != file.digest) {
-                tx.execute("DELETE FROM semantic_links WHERE path=?1", params![file.path])?;
-                tx.execute("DELETE FROM semantic_sites WHERE path=?1", params![file.path])?;
+                tx.execute(
+                    "DELETE FROM semantic_links WHERE path=?1",
+                    params![file.path],
+                )?;
+                tx.execute(
+                    "DELETE FROM semantic_sites WHERE path=?1",
+                    params![file.path],
+                )?;
                 let mut stmt =
                     tx.prepare("SELECT DISTINCT symbol FROM occurrences WHERE path=?1")?;
                 let affected = stmt
                     .query_map(params![file.path], |row| row.get::<_, String>(0))?
                     .collect::<std::result::Result<Vec<_>, _>>()?;
                 for symbol in affected {
-                    tx.execute("DELETE FROM semantic_sites WHERE symbol=?1", params![symbol])?;
-                    tx.execute("DELETE FROM semantic_links WHERE owner_symbol=?1", params![symbol])?;
+                    tx.execute(
+                        "DELETE FROM semantic_sites WHERE symbol=?1",
+                        params![symbol],
+                    )?;
+                    tx.execute(
+                        "DELETE FROM semantic_links WHERE owner_symbol=?1",
+                        params![symbol],
+                    )?;
                     tx.execute("DELETE FROM occurrences WHERE symbol=?1", params![symbol])?;
                     tx.execute(
                         "DELETE FROM symbol_provenance WHERE symbol=?1",
@@ -340,8 +356,14 @@ fn persist(
             }
         }
         for symbol in &incoming {
-            tx.execute("DELETE FROM semantic_sites WHERE symbol=?1", params![symbol])?;
-            tx.execute("DELETE FROM semantic_links WHERE owner_symbol=?1", params![symbol])?;
+            tx.execute(
+                "DELETE FROM semantic_sites WHERE symbol=?1",
+                params![symbol],
+            )?;
+            tx.execute(
+                "DELETE FROM semantic_links WHERE owner_symbol=?1",
+                params![symbol],
+            )?;
             tx.execute("DELETE FROM occurrences WHERE symbol=?1", params![symbol])?;
             tx.execute(
                 "DELETE FROM symbol_provenance WHERE symbol=?1",
@@ -392,8 +414,12 @@ fn persist(
         )?;
         for site in sites {
             insert.execute(params![
-                site.symbol, site.path, site.line as i64, site.column as i64,
-                site.language, site.kind,
+                site.symbol,
+                site.path,
+                site.line as i64,
+                site.column as i64,
+                site.language,
+                site.kind,
             ])?;
         }
     }
@@ -405,7 +431,11 @@ fn persist(
         )?;
         for link in links {
             insert.execute(params![
-                link.owner, link.target, link.kind, link.path, link.language,
+                link.owner,
+                link.target,
+                link.kind,
+                link.path,
+                link.language,
             ])?;
         }
     }
@@ -495,9 +525,7 @@ fn verify_path(project: &Path, path: &str, digest: &str) -> bool {
 /// scanner's admission digest and live source bytes, including link-only paths.
 /// Reference observations never imply CALLS_RESOLVED.
 pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<SymbolEvidenceReport> {
-    if symbol.is_empty()
-        || symbol.len() > MAX_SYMBOL_LENGTH
-        || symbol.chars().any(char::is_control)
+    if symbol.is_empty() || symbol.len() > MAX_SYMBOL_LENGTH || symbol.chars().any(char::is_control)
     {
         return Err("invalid semantic symbol identity".into());
     }
@@ -510,7 +538,8 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
         relationships: Vec::new(),
         stale_evidence_discarded: 0,
         truncated: false,
-        interpretation: "SCIP/LSP source-backed observations; references are not proven function calls",
+        interpretation:
+            "SCIP/LSP source-backed observations; references are not proven function calls",
     };
     let mut stmt = conn.prepare(
         "SELECT s.path, s.line, s.column, s.language, s.kind,
@@ -523,8 +552,12 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
     )?;
     let entries = stmt.query_map(params![symbol, (max + 1) as i64], |r| {
         Ok((
-            r.get::<_, String>(0)?, r.get::<_, i64>(1)?, r.get::<_, i64>(2)?,
-            r.get::<_, String>(3)?, r.get::<_, String>(4)?, r.get::<_, String>(5)?,
+            r.get::<_, String>(0)?,
+            r.get::<_, i64>(1)?,
+            r.get::<_, i64>(2)?,
+            r.get::<_, String>(3)?,
+            r.get::<_, String>(4)?,
+            r.get::<_, String>(5)?,
             r.get::<_, String>(6)?,
         ))
     })?;
@@ -534,15 +567,17 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
             report.truncated = true;
             break;
         }
-        if !currently_admitted(&indexed, &path, &digest)
-            || !verify_path(project, &path, &digest)
-        {
+        if !currently_admitted(&indexed, &path, &digest) || !verify_path(project, &path, &digest) {
             report.stale_evidence_discarded += 1;
             continue;
         }
         report.sites.push(SymbolSite {
-            path, line: usize::try_from(line)?, column: usize::try_from(column)?,
-            language, kind, provider,
+            path,
+            line: usize::try_from(line)?,
+            column: usize::try_from(column)?,
+            language,
+            kind,
+            provider,
         });
     }
     let mut rel_stmt = conn.prepare(
@@ -556,8 +591,12 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
     )?;
     let links = rel_stmt.query_map(params![symbol, (max + 1) as i64], |r| {
         Ok((
-            r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get::<_, String>(2)?,
-            r.get::<_, String>(3)?, r.get::<_, String>(4)?, r.get::<_, String>(5)?,
+            r.get::<_, String>(0)?,
+            r.get::<_, String>(1)?,
+            r.get::<_, String>(2)?,
+            r.get::<_, String>(3)?,
+            r.get::<_, String>(4)?,
+            r.get::<_, String>(5)?,
         ))
     })?;
     for row in links {
@@ -566,14 +605,16 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
             report.truncated = true;
             break;
         }
-        if !currently_admitted(&indexed, &path, &digest)
-            || !verify_path(project, &path, &digest)
-        {
+        if !currently_admitted(&indexed, &path, &digest) || !verify_path(project, &path, &digest) {
             report.stale_evidence_discarded += 1;
             continue;
         }
         report.relationships.push(SymbolLink {
-            target_symbol, kind, path, language, provider,
+            target_symbol,
+            kind,
+            path,
+            language,
+            provider,
         });
     }
     Ok(report)
@@ -713,11 +754,14 @@ mod tests {
     fn future_relation_schema_is_rejected_without_mutation() {
         let root = tempdir().expect("workspace");
         let conn = open(root.path()).expect("create");
-        conn.execute_batch("PRAGMA user_version=99;").expect("newer");
+        conn.execute_batch("PRAGMA user_version=99;")
+            .expect("newer");
         drop(conn);
         assert!(open(root.path()).is_err());
         let raw = Connection::open(database(root.path()).expect("db")).expect("inspect");
-        let version: i64 = raw.query_row("PRAGMA user_version", [], |r| r.get(0)).expect("version");
+        let version: i64 = raw
+            .query_row("PRAGMA user_version", [], |r| r.get(0))
+            .expect("version");
         assert_eq!(version, 99);
     }
 
@@ -728,15 +772,22 @@ mod tests {
         {
             let conn = open(workspace.path()).expect("open");
             conn.execute_batch(
-                "DROP TABLE semantic_sites; DROP TABLE semantic_links; PRAGMA user_version=0;"
-            ).expect("simulate prior version");
+                "DROP TABLE semantic_sites; DROP TABLE semantic_links; PRAGMA user_version=0;",
+            )
+            .expect("simulate prior version");
         }
         assert_eq!(
             impact(workspace.path(), Path::new("a.rs"), 1, 8)
-                .expect("unchanged reference graph").hits.len(), 1
+                .expect("unchanged reference graph")
+                .hits
+                .len(),
+            1
         );
         let newer = symbol_evidence(workspace.path(), "lsp:a.rs:0:3", 8).expect("typed");
-        assert!(newer.sites.is_empty(), "old snapshot never fabricated typed evidence");
+        assert!(
+            newer.sites.is_empty(),
+            "old snapshot never fabricated typed evidence"
+        );
     }
 
     #[test]
