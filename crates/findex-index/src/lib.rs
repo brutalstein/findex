@@ -374,7 +374,8 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
             Err(err)
                 if err
                     .io_error()
-                    .is_some_and(|io| io.kind() == std::io::ErrorKind::NotFound) => {
+                    .is_some_and(|io| io.kind() == std::io::ErrorKind::NotFound) =>
+            {
                 stats.skipped += 1;
                 continue;
             }
