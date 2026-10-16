@@ -951,7 +951,7 @@ mod tests {
                 &tx,
                 ".aws/keys.rs",
                 secret,
-                &blake3::hash(secret.as_bytes()).to_hex().to_string(),
+                blake3::hash(secret.as_bytes()).to_hex().as_ref(),
                 secret.len() as i64,
             )
             .expect("legacy cache insertion");
