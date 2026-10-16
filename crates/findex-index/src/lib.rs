@@ -185,6 +185,68 @@ fn try_open_schema(db: &Path) -> Result<Connection> {
     Ok(conn)
 }
 
+
+/// Explicit operator health check: no implicit reindex, repair, or schema
+/// migration. Checks SQLite b-trees, FTS5 segment consistency and the 1:1
+/// rowid contract between source metadata and full-text documents.
+///
+/// This maintenance operation may briefly acquire a write lock for the FTS5
+/// integrity-check command. It must not run on every ordinary search.
+#[derive(Debug, Serialize)]
+pub struct IndexHealth {
+    pub schema: i64,
+    pub files: usize,
+    pub documents: usize,
+    pub status: &'static str,
+}
+
+pub fn verify_index(project: &Path) -> Result<IndexHealth> {
+    let db = storage_dir(project)?.join("index.sqlite3");
+    verify_index_into(&db)
+}
+
+pub fn verify_index_into(database: &Path) -> Result<IndexHealth> {
+    if !database.is_file() {
+        return Err("index database absent; run findex index".into());
+    }
+    // Do not call connect(): a verification tool must not silently replace a
+    // damaged cache before it can report what was wrong.
+    let conn = Connection::open(database)?;
+    conn.busy_timeout(Duration::from_secs(30))?;
+    let schema: i64 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;
+    if schema != LEXICAL_SCHEMA {
+        return Err(format!(
+            "expected lexical schema {LEXICAL_SCHEMA}; observed {schema}; no changes made"
+        ).into());
+    }
+    let check: String = conn.query_row("PRAGMA quick_check", [], |row| row.get(0))?;
+    if check != "ok" {
+        return Err("SQLite structural integrity check failed".into());
+    }
+    conn.execute("INSERT INTO docs(docs) VALUES('integrity-check')", [])?;
+    let files: i64 = conn.query_row("SELECT count(*) FROM files", [], |row| row.get(0))?;
+    let documents: i64 = conn.query_row("SELECT count(*) FROM docs", [], |row| row.get(0))?;
+    let dangling: i64 = conn.query_row(
+        "SELECT count(*) FROM files f
+         LEFT JOIN docs d ON d.rowid=f.id WHERE d.rowid IS NULL",
+        [], |row| row.get(0),
+    )?;
+    let orphan: i64 = conn.query_row(
+        "SELECT count(*) FROM docs d
+         LEFT JOIN files f ON f.id=d.rowid WHERE f.id IS NULL",
+        [], |row| row.get(0),
+    )?;
+    if files != documents || dangling != 0 || orphan != 0 {
+        return Err("FTS5 documents and source-file metadata disagree".into());
+    }
+    Ok(IndexHealth {
+        schema,
+        files: usize::try_from(files)?,
+        documents: usize::try_from(documents)?,
+        status: "verified-database-structure-and-fts5",
+    })
+}
+
 /// Extra searchable words that `unicode61` cannot derive on its own:
 /// camelCase sub-words of identifiers and the words of the file path.
 fn identifier_terms(path: &str, body: &str) -> String {
@@ -279,13 +341,12 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
         .build();
 
     for item in walker {
-        let entry = match item {
-            Ok(e) => e,
-            Err(_) => {
-                stats.skipped += 1;
-                continue;
-            }
-        };
+        // A failed directory walk means an entire subtree may have been hidden.
+        // Treat the snapshot as incomplete and roll back: removing all the
+        // unseen paths would otherwise silently destroy still-valid index rows.
+        let entry = item.map_err(|_| {
+            std::io::Error::other("incomplete workspace traversal; previous index preserved")
+        })?;
         if !entry.file_type().is_some_and(|t| t.is_file()) {
             continue;
         }
@@ -308,6 +369,17 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
         }
         let metadata = match entry.metadata() {
             Ok(m) => m,
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+                stats.skipped += 1;
+                continue;
+            }
+            Err(_) if existing.contains_key(&rel_string) => {
+                // NTFS/cloud-sync sharing violations are transient. Preserve
+                // the cached row, while all consumers still validate its hash.
+                admitted.insert(rel_string);
+                stats.skipped += 1;
+                continue;
+            }
             Err(_) => {
                 stats.skipped += 1;
                 continue;
@@ -852,6 +924,36 @@ mod tests {
         .expect("search");
         assert_eq!(found.hits[0].path, "together.rs");
         assert_eq!(found.hits[0].line, 41);
+    }
+
+    #[test]
+    fn index_integrity_detects_missing_fts_rows_without_repairing_them() {
+        let (project, _state, db) = indexed(&[
+            ("a.rs", "fn keep_me() {}\n"),
+            ("b.rs", "fn call_me() { keep_me(); }\n"),
+        ]);
+        let clean = verify_index_into(&db).expect("healthy index");
+        assert_eq!(clean.files, 2);
+        assert_eq!(clean.documents, 2);
+        let conn = Connection::open(&db).expect("db");
+        let id: i64 = conn.query_row(
+            "SELECT id FROM files WHERE path='a.rs'",
+            [], |row| row.get(0),
+        ).expect("file id");
+        conn.execute("DELETE FROM docs WHERE rowid=?1", params![id])
+            .expect("remove one FTS record");
+        drop(conn);
+        assert!(verify_index_into(&db).is_err());
+        // Verification never rewrites, rebuilds or hides the corruption.
+        let raw = Connection::open(&db).expect("original preserved");
+        let remaining: i64 = raw.query_row(
+            "SELECT count(*) FROM docs", [], |row| row.get(0),
+        ).expect("count");
+        assert_eq!(remaining, 1);
+        drop(raw);
+        synchronize_into(project.path(), &db).expect("reconcile");
+        // An unchanged reconcile alone does not repair a missing FTS row.
+        assert!(verify_index_into(&db).is_err());
     }
 
     #[test]
