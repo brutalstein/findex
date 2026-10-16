@@ -2,7 +2,6 @@
 //! an LLM-generated architectural conclusion or a resolved call graph.
 use super::{connect, live_source, synchronize, Result, SyncStats};
 use findex_core::storage_dir;
-use rusqlite::Connection;
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -32,7 +31,11 @@ pub struct ProjectOverview {
 }
 
 fn language(path: &str) -> &'static str {
-    let extension = path.rsplit('.').next().unwrap_or_default().to_ascii_lowercase();
+    let extension = path
+        .rsplit('.')
+        .next()
+        .unwrap_or_default()
+        .to_ascii_lowercase();
     match extension.as_str() {
         "rs" => "rust",
         "py" | "pyi" => "python",
@@ -58,8 +61,10 @@ fn module(path: &str) -> String {
     if parts.len() < 2 {
         return "(root)".into();
     }
-    if matches!(parts[0], "crates" | "packages" | "apps" | "services" | "modules")
-        && parts.len() > 2
+    if matches!(
+        parts[0],
+        "crates" | "packages" | "apps" | "services" | "modules"
+    ) && parts.len() > 2
     {
         return format!("{}/{}", parts[0], parts[1]);
     }
@@ -71,15 +76,34 @@ fn landmarks(path: &str) -> (bool, bool) {
     let filename = lower.rsplit('/').next().unwrap_or_default();
     let manifest = matches!(
         filename,
-        "cargo.toml" | "package.json" | "pyproject.toml" | "cmakelists.txt"
-            | "go.mod" | "pom.xml" | "build.gradle" | "build.gradle.kts"
-            | "meson.build" | "requirements.txt" | "composer.json"
+        "cargo.toml"
+            | "package.json"
+            | "pyproject.toml"
+            | "cmakelists.txt"
+            | "go.mod"
+            | "pom.xml"
+            | "build.gradle"
+            | "build.gradle.kts"
+            | "meson.build"
+            | "requirements.txt"
+            | "composer.json"
     );
     let entry = matches!(
         filename,
-        "main.rs" | "main.py" | "main.ts" | "main.tsx" | "main.cpp"
-            | "main.cc" | "main.c" | "app.py" | "app.ts" | "index.ts"
-            | "index.tsx" | "index.js" | "program.cs" | "manage.py"
+        "main.rs"
+            | "main.py"
+            | "main.ts"
+            | "main.tsx"
+            | "main.cpp"
+            | "main.cc"
+            | "main.c"
+            | "app.py"
+            | "app.ts"
+            | "index.ts"
+            | "index.tsx"
+            | "index.js"
+            | "program.cs"
+            | "manage.py"
     );
     (manifest, entry)
 }
@@ -96,10 +120,9 @@ fn is_test(path: &str) -> bool {
         || name.contains(".spec.")
 }
 
-fn top(mut counts: BTreeMap<String, usize>, cap: usize) -> (Vec<InventoryCount>, bool) {
+fn top(counts: BTreeMap<String, usize>, cap: usize) -> (Vec<InventoryCount>, bool) {
     let truncated = counts.len() > cap;
-    let mut ordered: Vec<_> = std::mem::take(&mut counts)
-        .into_iter()
+    let mut ordered: Vec<_> = counts.into_iter()
         .map(|(name, files)| InventoryCount { name, files })
         .collect();
     ordered.sort_by(|a, b| b.files.cmp(&a.files).then_with(|| a.name.cmp(&b.name)));
@@ -199,7 +222,10 @@ mod tests {
         let project = tempdir().expect("project");
         let state = tempdir().expect("state");
         let files = [
-            ("Cargo.toml", "[package]\nname=\"demo\"\nversion=\"0.1.0\"\n"),
+            (
+                "Cargo.toml",
+                "[package]\nname=\"demo\"\nversion=\"0.1.0\"\n",
+            ),
             ("crates/core/src/main.rs", "fn main() {}\n"),
             ("crates/core/src/lib.rs", "pub fn start() {}\n"),
             ("packages/web/package.json", "{\"name\":\"demo\"}\n"),
@@ -211,27 +237,48 @@ mod tests {
             fs::create_dir_all(destination.parent().expect("parent")).expect("mkdir");
             fs::write(destination, body).expect("write");
         }
-        fs::write(project.path().join(".env"), "PRIVATE_TOKEN_SHOULD_NOT_APPEAR")
-            .expect("private");
+        fs::write(
+            project.path().join(".env"),
+            "PRIVATE_TOKEN_SHOULD_NOT_APPEAR",
+        )
+        .expect("private");
         let db = state.path().join("db.sqlite3");
         synchronize_into(project.path(), &db).expect("sync");
         let report = overview_in_db(project.path(), &db, SyncStats::default()).expect("overview");
         assert_eq!(report.indexed_files, files.len());
         assert_eq!(report.probable_test_files, 1);
-        assert!(report.manifest_candidates.contains(&"Cargo.toml".to_string()));
-        assert!(report.entrypoint_candidates.contains(&"crates/core/src/main.rs".to_string()));
-        assert!(report.entrypoint_candidates.contains(&"packages/web/src/index.ts".to_string()));
-        assert!(!report.manifest_candidates.iter().any(|x| x.contains(".env")));
+        assert!(report
+            .manifest_candidates
+            .contains(&"Cargo.toml".to_string()));
+        assert!(report
+            .entrypoint_candidates
+            .contains(&"crates/core/src/main.rs".to_string()));
+        assert!(report
+            .entrypoint_candidates
+            .contains(&"packages/web/src/index.ts".to_string()));
+        assert!(!report
+            .manifest_candidates
+            .iter()
+            .any(|x| x.contains(".env")));
         assert!(!report.truncated);
-        let modules: Vec<_> = report.top_level_modules.iter().map(|x| x.name.as_str()).collect();
+        let modules: Vec<_> = report
+            .top_level_modules
+            .iter()
+            .map(|x| x.name.as_str())
+            .collect();
         assert!(modules.contains(&"crates/core"));
         assert!(modules.contains(&"packages/web"));
 
-        fs::write(project.path().join("crates/core/src/main.rs"), "fn different() {}\n")
-            .expect("change");
-        let stale = overview_in_db(project.path(), &db, SyncStats::default())
-            .expect("second overview");
-        assert!(!stale.entrypoint_candidates.contains(&"crates/core/src/main.rs".to_string()));
+        fs::write(
+            project.path().join("crates/core/src/main.rs"),
+            "fn different() {}\n",
+        )
+        .expect("change");
+        let stale =
+            overview_in_db(project.path(), &db, SyncStats::default()).expect("second overview");
+        assert!(!stale
+            .entrypoint_candidates
+            .contains(&"crates/core/src/main.rs".to_string()));
         assert_eq!(stale.stale_landmarks_discarded, 1);
     }
 }
