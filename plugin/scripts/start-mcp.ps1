@@ -31,7 +31,14 @@ function Select-FindexBinary {
     # Resolve from PATH, not from the untrusted repository working directory.
     $command = Get-Command -Name 'findex.exe' -CommandType Application -ErrorAction SilentlyContinue
     if ($null -ne $command) {
-        return $command.Source
+        $resolved = (Resolve-Path -LiteralPath $command.Source).ProviderPath
+        $cwd = (Resolve-Path -LiteralPath (Get-Location).Path).ProviderPath.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+        # A repository may place a forged findex.exe on PATH via "." or a
+        # project-local bin directory. Never run that implicitly.
+        if ($resolved.StartsWith($cwd, [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'PATH resolved Findex inside the untrusted working repository; use a verified release outside this repository or explicit FINDEX_BIN.'
+        }
+        return $resolved
     }
     throw 'Findex runtime unavailable. Install a verified Windows Findex release, add findex.exe to PATH, or configure FINDEX_BIN with its absolute path. No download attempted.'
 }

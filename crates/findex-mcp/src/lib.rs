@@ -680,7 +680,7 @@ mod tests {
             "built-in Read/Grep/Glob",
             "contradicts",
             "Read source before edits",
-            "never automatically import",
+            "Never automatically import",
         ] {
             assert!(text.contains(rule), "missing {rule:?} in {text}");
         }
