@@ -84,6 +84,7 @@ PURPOSE = {
     "validation/harness/common.py": "paths, command log, environment record (no claude probe), JSON writing with path sanitizing",
     "validation/harness/corpora.py": "pinned corpora clone/verify, frozen baseline build",
     "validation/harness/coverage_check.py": "coverage-line claims vs git grep -w, independent comment lexer",
+    "docs/engineering/COMPLETE_REPOSITORY_AUDIT.md": "repository audit: findings A1-A12, D1-D4 with status",
     "validation/harness/budget_check.py": "rendered findex context size vs requested token budget",
     "crates/findex-index/src/router_cases.tsv": "router dev set: 260 labeled EN/TR/mixed tasks",
     "crates/findex-index/src/router_heldout.tsv": "router held-out set: 60 tasks, frozen before first run",
