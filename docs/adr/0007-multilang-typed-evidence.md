@@ -58,8 +58,10 @@ MCP `findex_graph_symbol(symbol, limit)` returns the typed evidence as JSON.
 
 - SCIP import is capped at 16 MiB, 1,000 documents and 100,000 occurrences;
   relationships are separately capped at 100,000.
-- The importer currently accepts compact SCIP ranges and does not claim
-  full support for typed_range / all column-offset encodings.
+- The importer accepts legacy compact and current typed SCIP occurrence
+  ranges, verifies the two encodings agree when both appear, and checks bounds
+  against the hash-verified source using the declared offset encoding.
+  Unspecified encodings remain limited and do not guarantee exact offsets.
 - No native live LSP orchestration, call hierarchy, global inter-indexer
   symbol federation, dynamic dispatch resolution, or verified C++ compilation
   database orchestration is implemented.

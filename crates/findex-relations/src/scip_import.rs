@@ -24,10 +24,20 @@ pub fn import_scip(project: &Path, file: &Path) -> Result<ImportReport> {
 fn checked_range(occ: &ScipOccurrence, lines: &[&str], encoding: i32) -> Result<(usize, usize)> {
     let typed = if occ.has_single_line_range() {
         let range = occ.single_line_range();
-        Some((range.line, range.start_character, range.line, range.end_character))
+        Some((
+            range.line,
+            range.start_character,
+            range.line,
+            range.end_character,
+        ))
     } else if occ.has_multi_line_range() {
         let range = occ.multi_line_range();
-        Some((range.start_line, range.start_character, range.end_line, range.end_character))
+        Some((
+            range.start_line,
+            range.start_character,
+            range.end_line,
+            range.end_character,
+        ))
     } else {
         None
     };
@@ -42,9 +52,13 @@ fn checked_range(occ: &ScipOccurrence, lines: &[&str], encoding: i32) -> Result<
             return Err("SCIP typed and packed ranges disagree".into());
         }
     }
-    let (start_line, start, end_line, end) = typed.or(packed)
+    let (start_line, start, end_line, end) = typed
+        .or(packed)
         .ok_or("SCIP occurrence has no source range")?;
-    if start_line < 0 || start < 0 || end_line < start_line || end < 0
+    if start_line < 0
+        || start < 0
+        || end_line < start_line
+        || end < 0
         || (start_line == end_line && end < start)
     {
         return Err("invalid SCIP source range ordering".into());
@@ -53,7 +67,9 @@ fn checked_range(occ: &ScipOccurrence, lines: &[&str], encoding: i32) -> Result<
     let end_line = usize::try_from(end_line)?;
     let start = usize::try_from(start)?;
     let end = usize::try_from(end)?;
-    let first = lines.get(start_line).ok_or("SCIP start line out of bounds")?;
+    let first = lines
+        .get(start_line)
+        .ok_or("SCIP start line out of bounds")?;
     let last = lines.get(end_line).ok_or("SCIP end line out of bounds")?;
     // 0=unspecified: tolerate offsets measured by any of the supported
     // encodings, but do not pretend such offsets are independently verified.
@@ -61,9 +77,13 @@ fn checked_range(occ: &ScipOccurrence, lines: &[&str], encoding: i32) -> Result<
         1 => line.len(),
         2 => line.encode_utf16().count(),
         3 => line.chars().count(),
-        _ => line.len().max(line.encode_utf16().count()).max(line.chars().count()),
+        _ => line
+            .len()
+            .max(line.encode_utf16().count())
+            .max(line.chars().count()),
     };
-    if start > bound(first) || end > bound(last)
+    if start > bound(first)
+        || end > bound(last)
         || (encoding == 1 && (!first.is_char_boundary(start) || !last.is_char_boundary(end)))
     {
         return Err("SCIP source character offset out of bounds".into());
@@ -396,7 +416,9 @@ mod tests {
         let occurrence = &mut parsed.documents[0].occurrences[0];
         occurrence.range = vec![0, 3, 9];
         occurrence.set_single_line_range(SingleLineRange {
-            line: 0, start_character: 3, end_character: 9,
+            line: 0,
+            start_character: 3,
+            end_character: 9,
             ..SingleLineRange::default()
         });
         import_scip_bytes(root.path(), &parsed.write_to_bytes().expect("typed"))
@@ -405,14 +427,22 @@ mod tests {
         assert!(expected.hits.is_empty());
         let original = parsed.clone();
         parsed.documents[0].occurrences[0].range = vec![0, 0, 4];
-        assert!(import_scip_bytes(root.path(), &parsed.write_to_bytes().expect("mismatch")).is_err());
+        assert!(
+            import_scip_bytes(root.path(), &parsed.write_to_bytes().expect("mismatch")).is_err()
+        );
         parsed = original;
         parsed.documents[0].occurrences[0].set_single_line_range(SingleLineRange {
-            line: 0, start_character: 1000, end_character: 1001,
+            line: 0,
+            start_character: 1000,
+            end_character: 1001,
             ..SingleLineRange::default()
         });
         parsed.documents[0].occurrences[0].range.clear();
-        assert!(import_scip_bytes(root.path(), &parsed.write_to_bytes().expect("out of bounds")).is_err());
+        assert!(import_scip_bytes(
+            root.path(),
+            &parsed.write_to_bytes().expect("out of bounds")
+        )
+        .is_err());
     }
 
     #[test]
