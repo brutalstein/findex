@@ -33,6 +33,7 @@ EXCLUDED = re.compile(r"excluded (\d+) method-syntax")
 HASH = {"py", "pyi", "rb", "sh", "bash", "ps1", "psm1", "toml", "yaml", "yml", "cmake", "pl", "r"}
 CLIKE = {"c", "cc", "cjs", "cpp", "cs", "cxx", "go", "h", "hh", "hpp", "hxx", "java", "js", "jsx", "kt", "lua", "m",
          "mjs", "mm", "php", "rs", "scala", "swift", "ts", "tsx"}
+NESTED = {"rs", "swift", "kt", "scala"}
 
 
 def comment_spans(path: str, text: str) -> dict[int, list[tuple[int, int]]]:
@@ -50,28 +51,40 @@ def comment_spans(path: str, text: str) -> dict[int, list[tuple[int, int]]]:
     if ext not in HASH and ext not in CLIKE:
         return spans
     clike = ext in CLIKE
+    nested = ext in NESTED  # Rust/Swift/Kotlin/Scala block comments nest
     quotes = ('"', "`") if clike else ('"', "'")
-    line, col, i, state, start = 1, 0, 0, None, 0
+    line, col, i, state, start, depth = 1, 0, 0, None, 0, 0
     while i < len(text):
         c, nxt = text[i], text[i + 1] if i + 1 < len(text) else ""
         if state == "block" and c == "*" and nxt == "/":
-            spans.setdefault(line, []).append((start, col + 2))
-            state, i, col = None, i + 2, col + 2
+            depth -= 1
+            i, col = i + 2, col + 2
+            if depth == 0:
+                spans.setdefault(line, []).append((start, col))
+                state = None
+            continue
+        if state == "block" and nested and c == "/" and nxt == "*":
+            depth, i, col = depth + 1, i + 2, col + 2
             continue
         if state == "line" and c == "\n":
             spans.setdefault(line, []).append((start, col))
             state = None
         elif state in quotes:
-            if c == "\\":
+            if c == "\\" and nxt != "\n":
                 i, col = i + 2, col + 2
                 continue
-            if c == state or c == "\n":
+            # C-like strings may span lines (Rust, C++ raw, JS templates); hash-language ones end here.
+            if c == state or (c == "\n" and not clike):
                 state = None
         elif state is None:
+            char_literal = re.match(r"'(\\.[^']{0,8}|[^\\\n])'", text[i:i + 12]) if clike and c == "'" else None
+            if char_literal:
+                i, col = i + char_literal.end(), col + char_literal.end()
+                continue
             if (clike and c == "/" and nxt == "/") or (not clike and c == "#"):
                 state, start = "line", col
             elif clike and c == "/" and nxt == "*":
-                state, start, i, col = "block", col, i + 2, col + 2
+                state, start, depth, i, col = "block", col, 1, i + 2, col + 2
                 continue
             elif c in quotes:
                 state = c
@@ -97,6 +110,9 @@ def is_comment(text: str, name: str, spans: list[tuple[int, int]]) -> bool:
 _C = '#define F f(x)\nint *o = f(1); // f\n/* f\n f */ g("/*");\nh(); // f\n'
 assert [is_comment(line, "f", comment_spans("a.c", _C).get(n, [])) for n, line in enumerate(_C.splitlines(), 1)] \
     == [False, False, True, True, True], comment_spans("a.c", _C)
+_R = '/*! a `src/**/f.rs`\n f */\nlet q = \'"\'; f();\nlet s = "a\\\n f";\n// f\n'
+assert [is_comment(line, "f", comment_spans("a.rs", _R).get(n, [])) for n, line in enumerate(_R.splitlines(), 1)] \
+    == [True, True, False, False, False, True], comment_spans("a.rs", _R)
 _P = "# f\nx = f()  # f\ns = '# f'\n"
 assert [is_comment(line, "f", comment_spans("a.py", _P).get(n, [])) for n, line in enumerate(_P.splitlines(), 1)] \
     == [True, False, False]

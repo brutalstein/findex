@@ -437,7 +437,7 @@ fn sites_of(
         };
         scanned += 1;
         let style = comment_style(&path);
-        let mut in_block = false;
+        let mut in_block = 0;
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             // Computed for every line: it carries `/* */` state to the next one.
@@ -488,8 +488,9 @@ fn contains_word(line: &str, identifier: &str) -> bool {
 
 #[derive(Clone, Copy, PartialEq)]
 enum CommentStyle {
-    /// `//` and `/* */` (Rust, C/C++, JS/TS, Go, Java, ...).
-    CLike,
+    /// `//` and `/* */` (Rust, C/C++, JS/TS, Go, Java, ...); `nested` when
+    /// block comments nest (Rust, Swift, Kotlin, Scala).
+    CLike { nested: bool },
     /// `#` to end of line (Python, shell, PowerShell, TOML, YAML, ...).
     Hash,
     /// Prose and unknown formats: nothing is treated as a comment.
@@ -504,19 +505,20 @@ fn comment_style(path: &str) -> CommentStyle {
     match ext.as_str() {
         "py" | "pyi" | "rb" | "sh" | "bash" | "ps1" | "psm1" | "toml" | "yaml" | "yml"
         | "cmake" | "pl" | "r" => CommentStyle::Hash,
-        ext if CODE_EXTENSIONS.contains(&ext) => CommentStyle::CLike,
+        "rs" | "swift" | "kt" | "scala" => CommentStyle::CLike { nested: true },
+        ext if CODE_EXTENSIONS.contains(&ext) => CommentStyle::CLike { nested: false },
         _ => CommentStyle::None,
     }
 }
 
 /// `line` with comment text blanked and string literals kept, so a name
-/// inside a comment is not code. `in_block` carries an open `/* */` to the
-/// next line. When unsure, text is kept: showing a comment is harmless,
+/// inside a comment is not code. `in_block` carries the depth of open
+/// `/* */` comments to the next line. When unsure, text is kept: showing a comment is harmless,
 /// omitting code would break the coverage claim.
 /// shortcut: strings are tracked within one line only, so a `/*` on its own
 /// line inside a multi-line raw string opens a block; upgrade to Tree-sitter
 /// comment nodes if that shows up in the coverage check.
-fn code_text(line: &str, style: CommentStyle, in_block: &mut bool) -> String {
+fn code_text(line: &str, style: CommentStyle, in_block: &mut u32) -> String {
     if style == CommentStyle::None {
         return line.to_string();
     }
@@ -524,10 +526,16 @@ fn code_text(line: &str, style: CommentStyle, in_block: &mut bool) -> String {
     let mut chars = line.chars().peekable();
     let mut quote = None;
     while let Some(c) = chars.next() {
-        if *in_block {
+        if *in_block > 0 {
             if c == '*' && chars.peek() == Some(&'/') {
                 chars.next();
-                *in_block = false;
+                *in_block -= 1;
+            } else if c == '/'
+                && chars.peek() == Some(&'*')
+                && style == (CommentStyle::CLike { nested: true })
+            {
+                chars.next();
+                *in_block += 1;
             }
             out.push(' ');
             continue;
@@ -546,10 +554,10 @@ fn code_text(line: &str, style: CommentStyle, in_block: &mut bool) -> String {
             // In C-like languages `'` also starts Rust lifetimes; kept as code.
             '\'' if style == CommentStyle::Hash => quote = Some(c),
             '#' if style == CommentStyle::Hash => break,
-            '/' if style == CommentStyle::CLike && chars.peek() == Some(&'/') => break,
-            '/' if style == CommentStyle::CLike && chars.peek() == Some(&'*') => {
+            '/' if style != CommentStyle::Hash && chars.peek() == Some(&'/') => break,
+            '/' if style != CommentStyle::Hash && chars.peek() == Some(&'*') => {
                 chars.next();
-                *in_block = true;
+                *in_block = 1;
                 out.push(' ');
                 continue;
             }
@@ -966,6 +974,40 @@ mod tests {
         }
         assert!(
             report.render().contains("(4 comment lines omitted)"),
+            "{}",
+            report.render()
+        );
+    }
+
+    /// Rust block comments nest (`/*! src/**/x.rs */` closes once); C ones do
+    /// not, so code after the first `*/` in C is still shown.
+    #[test]
+    fn nested_block_comments_follow_the_language() {
+        let (root, _state, db) = project(&[
+            ("src/codec.rs", "pub fn my_codec() {}\n"),
+            (
+                "src/doc.rs",
+                "/*! see `src/**/x.rs`\n my_codec */\n/// my_codec\nfn h() { my_codec(); }\n",
+            ),
+            ("src/c.c", "/* a /* b */ my_codec(4);\n"),
+        ]);
+        let report = ask(&root, &db, "Who calls `my_codec`?", 4000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{}:{}", e.path, e.line))
+            .collect();
+        for site in ["src/doc.rs:4", "src/c.c:1"] {
+            assert!(
+                shown.contains(&site.to_string()),
+                "{site} missing: {shown:?}"
+            );
+        }
+        for comment in ["src/doc.rs:2", "src/doc.rs:3"] {
+            assert!(!shown.contains(&comment.to_string()), "{comment} shown");
+        }
+        assert!(
+            report.render().contains("(2 comment lines omitted)"),
             "{}",
             report.render()
         );
