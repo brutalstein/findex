@@ -169,6 +169,72 @@ mod tests {
         };
         index.write_to_bytes().expect("protobuf serialization")
     }
+    /// Four distinct languages using opaque SCIP symbol identities. This
+    /// checks ingestion semantics, not the accuracy of any specific compiler.
+    #[test]
+    fn multilang_typed_roles_are_precise_and_same_named_symbols_stay_distinct() {
+        use scip::types::{Relationship, SymbolInformation};
+        use crate::symbol_evidence;
+        let root = tempdir().expect("workspace");
+        let cases = [
+            ("a.rs", "rust", "fn shared() {}\n", "rust-analyzer cargo demo 1 a#shared()."),
+            ("b.cpp", "cpp", "int shared() {return 1;}\n", "clang . demo 1 b#shared()."),
+            ("c.ts", "typescript", "function shared() {}\n", "scip-typescript npm demo 1 c#shared()."),
+            ("d.py", "python", "def shared(): pass\n", "scip-python pip demo 1 d#shared()."),
+        ];
+        let mut docs = Vec::new();
+        for (name, language, source, symbol) in cases {
+            fs::write(root.path().join(name), source).expect("source");
+            docs.push(Document {
+                relative_path: name.to_owned(),
+                language: language.to_owned(),
+                occurrences: vec![occurrence(symbol, true, 0)],
+                ..Document::default()
+            });
+        }
+        let ts_sym = "scip-typescript npm demo 1 c#shared().";
+        let rust_sym = "rust-analyzer cargo demo 1 a#shared().";
+        docs[2].occurrences.push(Occurrence {
+            symbol: rust_sym.to_owned(),
+            symbol_roles: SymbolRole::Import as i32,
+            range: vec![0, 0, 4],
+            ..Occurrence::default()
+        });
+        docs[2].symbols.push(SymbolInformation {
+            symbol: ts_sym.to_owned(),
+            relationships: vec![Relationship {
+                symbol: rust_sym.to_owned(),
+                is_implementation: true,
+                ..Relationship::default()
+            }],
+            ..SymbolInformation::default()
+        });
+        let payload = Index { documents: docs, ..Index::default() };
+        let bytes = payload.write_to_bytes().expect("encode");
+        let report = import_scip_bytes(root.path(), &bytes).expect("import");
+        assert_eq!(report.schema_version, 2);
+        assert_eq!(report.typed_relationships, 1);
+        let rust = symbol_evidence(root.path(), rust_sym, 16).expect("rust");
+        assert_eq!(rust.sites.len(), 2);
+        assert!(rust.sites.iter().any(|site| site.kind == "import"
+            && site.language == "typescript"));
+        assert!(rust.sites.iter().any(|site| site.kind == "definition"
+            && site.language == "rust"));
+        for (_, _, _, unrelated) in [cases[1], cases[2], cases[3]] {
+            let result = symbol_evidence(root.path(), unrelated, 16).expect("distinct");
+            assert_eq!(result.sites.iter().filter(|site| site.kind == "definition").count(), 1);
+            assert!(!result.sites.iter().any(|site| site.path == "a.rs"));
+        }
+        let ts = symbol_evidence(root.path(), ts_sym, 16).expect("typescript");
+        assert_eq!(ts.relationships.len(), 1);
+        assert_eq!(ts.relationships[0].kind, "implements");
+        assert_eq!(ts.relationships[0].target_symbol, rust_sym);
+        fs::write(root.path().join("c.ts"), "function updated() {}\n").expect("edit");
+        let stale = symbol_evidence(root.path(), ts_sym, 16).expect("stale");
+        assert!(stale.relationships.is_empty());
+        assert!(stale.stale_evidence_discarded > 0);
+    }
+
     #[test]
     fn native_scip_binary_produces_reference_impact() {
         let root = tempdir().expect("workspace");

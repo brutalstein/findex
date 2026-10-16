@@ -710,6 +710,36 @@ mod tests {
     }
 
     #[test]
+    fn future_relation_schema_is_rejected_without_mutation() {
+        let root = tempdir().expect("workspace");
+        let conn = open(root.path()).expect("create");
+        conn.execute_batch("PRAGMA user_version=99;").expect("newer");
+        drop(conn);
+        assert!(open(root.path()).is_err());
+        let raw = Connection::open(database(root.path()).expect("db")).expect("inspect");
+        let version: i64 = raw.query_row("PRAGMA user_version", [], |r| r.get(0)).expect("version");
+        assert_eq!(version, 99);
+    }
+
+    #[test]
+    fn legacy_relation_schema_upgrades_preserving_reference_impact() {
+        let (workspace, lsp) = fixture();
+        import_lsp_snapshot(workspace.path(), &lsp).expect("initial");
+        {
+            let conn = open(workspace.path()).expect("open");
+            conn.execute_batch(
+                "DROP TABLE semantic_sites; DROP TABLE semantic_links; PRAGMA user_version=0;"
+            ).expect("simulate prior version");
+        }
+        assert_eq!(
+            impact(workspace.path(), Path::new("a.rs"), 1, 8)
+                .expect("unchanged reference graph").hits.len(), 1
+        );
+        let newer = symbol_evidence(workspace.path(), "lsp:a.rs:0:3", 8).expect("typed");
+        assert!(newer.sites.is_empty(), "old snapshot never fabricated typed evidence");
+    }
+
+    #[test]
     fn concurrent_first_opens_of_a_new_database_all_succeed() {
         for _ in 0..20 {
             let root = tempdir().expect("root");
