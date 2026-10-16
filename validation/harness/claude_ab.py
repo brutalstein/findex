@@ -6,7 +6,9 @@ session runs in a fresh git-initialised copy with its own Findex state.
 Order is counterbalanced (ABBA per task and repetition). Correctness is
 judged by scripts and predefined acceptance criteria, never by the model.
 
-Usage: claude_ab.py [--model haiku] [--reps 3] [--tasks t1,t2] [--session-budget 0.40] [--total-budget 6]
+Live model sessions run only with --enable-live-model-tests and operator
+approval (claude_session.live_model_gate), at most --max-sessions per run.
+Usage: claude_ab.py --enable-live-model-tests [--max-sessions 12] [--model haiku] [--reps 3] [--tasks t1,t2] [--session-budget 0.40] [--total-budget 6]
 Writes tokens.json and comparisons.json.
 """
 from __future__ import annotations
@@ -21,7 +23,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from claude_session import fresh_workspace, mcp_config, run_claude, summarize_session
+from claude_session import LIVE_FLAG, fresh_workspace, live_model_gate, mcp_config, run_claude, summarize_session
 from common import CORPORA, VALIDATION, WORK, results_dir, write_json
 
 BASE_TOOLS = ["Read", "Grep", "Glob", "Edit"]
@@ -243,8 +245,17 @@ def main() -> int:
     parser.add_argument("--out", default=None)
     parser.add_argument("--resume", action="store_true",
                         help="keep EXECUTED sessions already in --out/tokens.json and run only the rest")
+    parser.add_argument(LIVE_FLAG, dest="live", action="store_true", help="allow real Claude sessions")
+    parser.add_argument("--max-sessions", type=int, default=12,
+                        help="refuse a plan that needs more new sessions than this")
     args = parser.parse_args()
     out = results_dir(args.out)
+    # Before anything else: without the gate no process is started at all.
+    reason = live_model_gate(args.live)
+    if reason:
+        write_json(out / "tokens.json", {"status": reason.split(":")[0], "reason": reason, "sessions": []})
+        print(reason, file=sys.stderr)
+        return 0
     tasks = make_tasks()
     selected = [t for t in tasks if not args.tasks or t in args.tasks.split(",")]
     arms = args.arms.split(",")
@@ -254,6 +265,13 @@ def main() -> int:
         previous = json.loads((out / "tokens.json").read_text(encoding="utf-8"))
         done = {(s["task"], s["arm"], s["rep"]): s for s in previous["sessions"] if s.get("status") == "EXECUTED"}
         spent = sum(s.get("total_cost_usd_estimate") or 0.0 for s in done.values())
+    new = sum((t, a, r) not in done for r in range(args.reps) for t in selected for a in arms)
+    if new > args.max_sessions:
+        # Never trim the plan silently: a smaller study must be chosen explicitly.
+        reason = f"NOT_RUN: plan needs {new} new sessions, more than --max-sessions {args.max_sessions}"
+        write_json(out / "tokens.json", {"status": "NOT_RUN", "reason": reason, "sessions": list(done.values())})
+        print(reason, file=sys.stderr)
+        return 0
 
     def save():
         # Written after every session: an interrupted study keeps what it measured.

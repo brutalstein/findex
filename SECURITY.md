@@ -1,6 +1,6 @@
 # Security policy
 
-Findex v0.1 is an early prototype. **Do not assume that the first release has been security-audited.**
+Findex (version 0.1) is an early prototype. **Do not assume that the first release has been security-audited.**
 
 ## Reporting vulnerabilities
 
@@ -15,9 +15,11 @@ Please do **not** disclose proof-of-concept secrets or sensitive repository cont
 - MCP is a child stdio process, not a remote access interface.
 - All text read from indexed source should be treated as untrusted data, not instructions.
 
-## Known v0.1 limitations
+## Known limitations
 
-- Full-directory reconciliation for each search can be slow on monorepos.
+- CLI searches reconcile the whole directory before each query, which can be slow on monorepos; the MCP server uses a native watcher.
 - File-system permission errors may result in partial indexes, reported as skipped files.
-- SQLite records contain source excerpts and should be protected as sensitive local data.
-- No binary signing, SBOM, dependency audit or sandboxed LSP execution yet.
+- SQLite records contain source text and should be protected as sensitive local data. Freed pages are zeroed (`secure_delete`), but while another Findex process holds the index open, WAL frames written before a removal can persist until the last connection closes.
+- An index written by a newer Findex is refused rather than read.
+- Binaries are not Authenticode-signed, and LSP execution is not sandboxed. Release ZIPs carry a CycloneDX SBOM, a SHA-256 file and (outside pull requests) a build-provenance attestation; CI runs `cargo audit` against RustSec.
+- Validation never starts a live Claude session unless `--enable-live-model-tests` and an explicit approval are given and the subscription checks pass (see `validation/README.md`).

@@ -120,7 +120,7 @@ fn invalid_utf8_oversized_and_binary_files_are_skipped_not_indexed() {
 }
 
 #[test]
-fn exclusively_locked_file_is_dropped_instead_of_served_stale() {
+fn exclusively_locked_file_is_kept_but_never_served_unverified() {
     use std::os::windows::fs::OpenOptionsExt;
     let project = tempdir().expect("project");
     let state = tempdir().expect("state");
@@ -137,10 +137,11 @@ fn exclusively_locked_file_is_dropped_instead_of_served_stale() {
         .open(&path)
         .expect("exclusive open");
     let stats = synchronize_into(project.path(), &db).expect("sync while locked");
-    assert_eq!(stats.removed, 1);
+    // Kept (a save in progress is not a deletion), but a hit whose hash
+    // cannot be re-verified is never returned.
+    assert_eq!(stats.removed, 0);
     assert!(search(project.path(), &db, "locked_marker").hits.is_empty());
     drop(guard);
-    synchronize_into(project.path(), &db).expect("sync after unlock");
     assert_eq!(search(project.path(), &db, "locked_marker").hits.len(), 1);
 }
 

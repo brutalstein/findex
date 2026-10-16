@@ -22,23 +22,45 @@ quality, performance, security and Claude Code integration. Every number in
 
 ```powershell
 py -3.12 -m pip install psutil
-.\validation\scripts\run-all.ps1 -Quick -Offline      # no network, no model usage
-.\validation\scripts\run-all.ps1 -TotalBudgetUsd 6    # full run incl. real Claude Code sessions
+.\validation\scripts\run-all.ps1 -Quick               # offline: no model session ever starts
+.\validation\scripts\run-all.ps1 -Quick -Offline      # also no network (corpora only verified)
 ```
 
 `run-all.ps1` first runs `harness/corpora.py`, which clones the pinned corpora
 into `%LOCALAPPDATA%\findex-validation\corpora` and builds the frozen baseline
-binary (commit `44f1a38`). With `-Offline` it only verifies them.
+binary (commit `44f1a38`). With `-Offline` it only verifies them. `-Steps`
+selects components (e.g. `-Steps unit,security`).
 
 Single components: `run-unit.ps1`, `run-retrieval.ps1`, `run-performance.ps1`,
 `run-security.ps1`, `run-integration.ps1`, `run-claude-ab.ps1`. Pass the same
 `-OutDir` to collect several components in one run directory, then
 `generate-report.ps1 -OutDir <dir>`.
 
-Flags: `-Quick` / `-Extended` (scope), `-Offline` (records Claude components as
-BLOCKED), `-OutDir`, `-Priority BelowNormal|Idle` (resource limit for
-performance runs), `-SessionBudgetUsd` / `-TotalBudgetUsd` (spending limits for
-real model usage).
+Flags: `-Quick` / `-Extended` (scope), `-Offline`, `-Steps`, `-OutDir`,
+`-Priority BelowNormal|Idle` (resource limit for performance runs).
+
+## Live model tests (off by default)
+
+No validation command starts Claude Code (or any model client) unless all of
+these hold; otherwise the components are recorded `NOT_RUN` or `BLOCKED`:
+
+1. `-EnableLiveModelTests` (PowerShell) / `--enable-live-model-tests` (harness);
+2. operator approval in the environment, separate from the command:
+   `$env:FINDEX_LIVE_MODEL_APPROVAL = "I approve Claude subscription usage"`;
+3. not CI (`CI` / `GITHUB_ACTIONS` unset);
+4. no API-billing or alternative-provider variables (`ANTHROPIC_API_KEY`,
+   `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, `CLAUDE_CODE_USE_BEDROCK`,
+   `CLAUDE_CODE_USE_VERTEX`, `CLAUDE_CODE_USE_FOUNDRY`, `AWS_BEARER_TOKEN_BEDROCK`);
+5. `claude auth status` reports a first-party claude.ai subscription sign-in
+   with no API key source (anything else fails closed);
+6. the A/B plan needs at most `-MaxSessions` new sessions (default 12); a
+   larger plan is refused, never trimmed.
+
+Sessions run one at a time, `tokens.json` is saved after every session,
+`-Resume` keeps completed sessions, and a plan limit or sign-in failure stops
+scheduling without retry. `-SessionBudgetUsd` / `-TotalBudgetUsd` are
+client-side estimates, not billing guarantees. `harness/test_live_gate.py`
+(run in CI) checks all of this with an instrumented process-spawn shim.
 
 ## Status vocabulary
 

@@ -1,0 +1,28 @@
+{
+  "status": "EXECUTED",
+  "corpus": "ripgrep",
+  "names": 40,
+  "budgets": {
+    "200": {
+      "p50": 0.80625,
+      "p95": 1.29125,
+      "max": 1.32375,
+      "over_budget": 24,
+      "reports": 80
+    },
+    "500": {
+      "p50": 0.4025,
+      "p95": 1.062,
+      "max": 1.124,
+      "over_budget": 8,
+      "reports": 80
+    },
+    "2000": {
+      "p50": 0.105,
+      "p95": 0.5175,
+      "max": 1.001625,
+      "over_budget": 1,
+      "reports": 80
+    }
+  }
+}

@@ -1,14 +1,15 @@
 <#
-.SYNOPSIS  Real Claude Code <-> Findex integration (MCP config, --plugin-dir, launcher) -> compatibility.json
-.DESCRIPTION  Uses the already-authenticated official `claude` CLI. Records BLOCKED when it is
-              missing or not logged in, or when -Offline is given. Credentials are never read.
+.SYNOPSIS  Claude Code <-> Findex integration (MCP config, --plugin-dir, launcher) -> compatibility.json
+.DESCRIPTION  Offline checks (CLI, plugin packaging, doctor) always run. Real Claude sessions run
+              only with -EnableLiveModelTests and the harness live-model gate (operator approval,
+              subscription sign-in, not CI); otherwise they are recorded NOT_RUN or BLOCKED.
+              Credentials are never read.
 #>
-param([string]$OutDir, [switch]$Offline, [string]$Model = 'haiku', [double]$SessionBudgetUsd = 0.30)
+param([string]$OutDir, [switch]$Offline, [switch]$EnableLiveModelTests, [string]$Model = 'haiku',
+      [double]$SessionBudgetUsd = 0.30)
 . (Join-Path $PSScriptRoot '_common.ps1')
 $out = Initialize-Results $OutDir
-if ($Offline) {
-    '{"status":"BLOCKED","reason":"-Offline: real Claude sessions need network"}' | Set-Content -Encoding ascii (Join-Path $out 'compatibility.json')
-    exit 0
-}
 Assert-ReleaseBuild
-exit (Invoke-Harness 'claude_integration.py' @('--out', $out, '--model', $Model, '--budget-usd', $SessionBudgetUsd))
+$extra = @('--out', $out, '--model', $Model, '--budget-usd', $SessionBudgetUsd)
+if ($EnableLiveModelTests -and -not $Offline) { $extra += '--enable-live-model-tests' }
+exit (Invoke-Harness 'claude_integration.py' $extra)

@@ -240,7 +240,7 @@ evidence and action).
 
 ```powershell
 py -3.12 -m pip install psutil
-.\validation\scripts\run-all.ps1 -TotalBudgetUsd 6     # everything, incl. real Claude sessions
+.\validation\scripts\run-all.ps1 -Quick                # offline default (live sessions: see validation/README.md)
 .\validation\scripts\run-all.ps1 -Quick -Offline       # no network, no model usage
 .\validation\scripts\generate-report.ps1 -OutDir validation\results\<run>
 ```

@@ -92,18 +92,42 @@ pub(crate) fn definitions_by_identifier(
     )?;
     let rows = stmt.query_map(
         params![identifier, EXTRACTOR_REVISION, limit as i64],
-        |row| {
-            Ok(DefinitionRow {
-                path: row.get(0)?,
-                name: row.get(1)?,
-                kind: row.get(2)?,
-                start_line: usize::try_from(row.get::<_, i64>(3)?).unwrap_or(0),
-                end_line: usize::try_from(row.get::<_, i64>(4)?).unwrap_or(0),
-                hash: row.get(5)?,
-            })
-        },
+        definition_row,
     )?;
     Ok(rows.collect::<std::result::Result<Vec<_>, _>>()?)
+}
+
+/// Definitions cached for `path` at content `hash`, in source order.
+pub(crate) fn definitions_in_file(
+    conn: &Connection,
+    path: &str,
+    hash: &str,
+    limit: usize,
+) -> Result<Vec<DefinitionRow>> {
+    let mut stmt = conn.prepare_cached(
+        "SELECT s.path, s.name, s.kind, s.start_line, s.end_line, st.hash
+         FROM symbols AS s
+         JOIN symbol_state AS st ON st.path = s.path AND st.extractor_revision = ?3
+         WHERE s.path = ?1 AND st.hash = ?2
+         ORDER BY s.start_line ASC, s.end_line DESC
+         LIMIT ?4",
+    )?;
+    let rows = stmt.query_map(
+        params![path, hash, EXTRACTOR_REVISION, limit as i64],
+        definition_row,
+    )?;
+    Ok(rows.collect::<std::result::Result<Vec<_>, _>>()?)
+}
+
+fn definition_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<DefinitionRow> {
+    Ok(DefinitionRow {
+        path: row.get(0)?,
+        name: row.get(1)?,
+        kind: row.get(2)?,
+        start_line: usize::try_from(row.get::<_, i64>(3)?).unwrap_or(0),
+        end_line: usize::try_from(row.get::<_, i64>(4)?).unwrap_or(0),
+        hash: row.get(5)?,
+    })
 }
 
 /// Definitions in `path` whose span contains `line`, innermost first. Only

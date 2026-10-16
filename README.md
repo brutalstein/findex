@@ -9,13 +9,14 @@ Findex is designed as a local-first, modular code intelligence engine that helps
 
 - Native Rust CLI for **Windows 10/11 x64** (`findex.exe`).
 - `findex claude [flags...]` launches the official `claude.exe` in the existing terminal and working directory, forwarding arguments.
-- Optional adjacent Claude plugin contributes a `findex_search` MCP tool using the normal Claude Code plugin loader.
+- Optional adjacent Claude plugin contributes the MCP tools `findex_context` (always loaded), `findex_search`, `findex_find_symbol`, `findex_symbols` and `findex_impact` using the normal Claude Code plugin loader.
+- Task-oriented context (`findex context <task>`, MCP `findex_context`): for a named identifier, its definition, every call site with the enclosing function, or its tests; for a named file, its definitions; otherwise a text search over the task words. Intent words are recognised in English and Turkish. A report with a coverage line and no truncation lists every code occurrence of the name; this claim is checked against `git grep` by `validation/harness/coverage_check.py`.
 - Definition-first retrieval: queries matching a defined identifier (`GitignoreBuilder`, `gitignore builder`, `gitignore_builder`) return the definition first; other queries use SQLite FTS5 with camelCase-aware terms, ranked by query-term coverage, same-line co-occurrence and BM25. Every returned hit is source-hash verified; excerpts mask common credential shapes.
 - Persisted Tree-sitter definitions with language-aware extraction for Rust, Python, TypeScript/JavaScript and C++.
 - Native Windows file watcher and incremental refresh of indexed files, with conservative full-scan fallbacks.
 - Explicit SCIP protobuf imports and mergeable, captured LSP symbol-reference evidence. Neither launches an LSP server.
 - Reverse file-impact lookup using source-backed semantic references; indirect impacts are only *potential*.
-- Indexing does not upload source; excludes common secret filenames but is **not a secret scanner**.
+- Indexing does not upload source; excludes common secret filenames but is **not a secret scanner**. Text of removed or excluded files is zeroed from the index database (SQLite `secure_delete`, FTS5 `secure-delete`).
 - Native Windows CI: stable/MSRV Rust, format, lint, tests, build, MCP smoke and unsigned ZIP packaging.
 
 ### What is **not** implemented
@@ -46,7 +47,7 @@ If Findex's bundled plugin is not present, the official Claude Code still launch
 
 ### Important compatibility scope
 
-- In v0.1, the launcher specifically invokes official **native** `claude.exe`; legacy npm-based `.cmd` entrypoints are not supported. It never silently impersonates or overwrites a Claude executable.
+- The launcher specifically invokes official **native** `claude.exe`; legacy npm-based `.cmd` entrypoints are not supported. It never silently impersonates or overwrites a Claude executable.
 - Findex does not change the user's Claude Code settings or take over authentication.
 - Local indexing has a 100,000-file reconciliation safety limit and scans UTF-8 files at most 512 KiB each. These are provisional bootstrap defaults.
 - Git-ignore rules, hidden directories and common vendor/build directory filters apply. Ignored files will not be retrieved.
@@ -59,14 +60,17 @@ If Findex's bundled plugin is not present, the official Claude Code still launch
 | Crate | Responsibility |
 | --- | --- |
 | `findex-core` | Canonical project root, local storage identity, scan policies |
-| `findex-index` | Atomic SQLite/FTS5 lexical index and evidence-backed file/line retrieval |
-| `findex-mcp` | JSON-RPC over stdio exposing a bounded project search tool |
+| `findex-index` | Atomic SQLite/FTS5 lexical index, persisted definitions, evidence-backed retrieval and the task context engine |
+| `findex-syntax` | Bounded Tree-sitter definition extraction |
+| `findex-watch` | Native Windows watcher and incremental refresh |
+| `findex-relations` | SCIP and captured-LSP reference evidence, file impact |
+| `findex-mcp` | JSON-RPC over stdio exposing bounded project tools |
 | `findex-cli` | Windows executable, CLI commands, official Claude process launching |
 | `plugin/` | Official Claude Code plugin manifest and MCP registration |
 
 ## Why measurements matter
 
-A smaller snippet is **not** verified token savings. The validation suite measures total model input/output/cache tokens and task success in matched Claude Code runs with and without Findex ([report](validation/FINAL_VALIDATION_REPORT.md)). The CLI still shows token savings as unavailable: a small study on a handful of tasks does not justify a per-session savings figure.
+A smaller snippet is **not** verified token savings. The validation suite measures total model input/output/cache tokens and task success in matched Claude Code runs with and without Findex ([report](validation/FINAL_VALIDATION_REPORT.md)). The CLI still shows token savings as unavailable: a small study on a handful of tasks does not justify a per-session savings figure. The validation runner never starts a Claude session by default; live model tests need an explicit flag and approval ([validation/README.md](validation/README.md)).
 
 See [Architecture](docs/architecture.md), [Roadmap](docs/roadmap.md), [Security](SECURITY.md), [Contributing](CONTRIBUTING.md), and [ADR-0001](docs/adr/0001-native-cli-and-local-index.md).
 
@@ -82,8 +86,11 @@ whole project. Deleted or newly binary files lose their indexed entries. Paths
 that are not already indexed are reported as **unknown** and require
 `findex index` to discover them; this is intentional so arbitrary paths cannot
 bypass Git exclusions or secret-file filters. An invalid or escaping path aborts
-the entire batch. Searches still perform a full reconciliation in v0.1: native
-filesystem notifications and watcher overflow recovery remain in issue #6.
+the entire batch. A known file that cannot be read for a reason other than
+deletion (for example locked by an editor mid-save) keeps its entry; hits are
+re-verified against the live file hash, so it is never returned unverified.
+CLI searches perform a full reconciliation; the MCP server uses the native
+watcher described below.
 
 ## Native watcher-backed MCP (development milestone)
 
@@ -117,9 +124,8 @@ TypeScript/TSX/JavaScript-family and C++ are supported initially.
 This **does not** infer callers, implementations, types, or semantic
 cross-file references. Unsupported languages report an explicit fallback,
 and files with syntax errors report that limitation. The analysis is
-on-demand and does not yet persist AST symbols across the project; that
-is the next indexing milestone. No extra model tokens or remote service
-are used by the parser itself.
+on-demand; project-wide definitions are persisted by the index described
+below. No extra model tokens or remote service are used by the parser itself.
 
 ## Persistent AST definition index (experimental)
 

@@ -1,4 +1,4 @@
-# Findex Architecture — Technical Foundation v0.1
+# Findex Architecture
 
 ## North-star outcomes
 
@@ -22,15 +22,17 @@ Windows Terminal / PowerShell
 
 No source upload or HTTP listener is performed by Findex. Claude Code itself may transmit evidence returned by MCP to Anthropic as part of a task; respect user consent and enterprise policy.
 
-## Implemented paths (v0.1)
+## Implemented paths
 
 - Project identity: nearest ancestor containing `.git` (folder or linked-worktree file), otherwise supplied directory.
 - Local state: `%LOCALAPPDATA%/Findex/indexes/<BLAKE3(canonical-root)>/index.sqlite3`.
 - Scan: `ignore` walker, no symlink following, 512 KiB per-file max, 100k files per reconciliation. Binary/invalid UTF-8 excluded.
-- Indexed state: SQLite `files` metadata, FTS5 `docs(path, body, terms)` where `terms` holds camelCase sub-words and path words, and a Tree-sitter `symbols` table with an expression index on the normalized identifier (`lower(replace(name,'_',''))`); WAL enabled. `PRAGMA user_version` versions the lexical schema; an older or corrupt database is rebuilt from sources.
-- Update: hash every accepted file, replace changed content, remove absent/disallowed paths in a single `BEGIN IMMEDIATE` transaction (concurrent writers wait on the busy timeout instead of failing). Roll back if the safety cap is exceeded.
+- Indexed state: SQLite `files` metadata, FTS5 `docs(path, body, terms)` where `terms` holds camelCase sub-words and path words, and a Tree-sitter `symbols` table with an expression index on the normalized identifier (`lower(replace(name,'_',''))`); WAL and `secure_delete` enabled, FTS5 `secure-delete` on, so removed text does not stay in free pages or index segments. `PRAGMA user_version` versions the lexical schema; an older or corrupt database is rebuilt from sources, a newer one is refused.
+- Update: hash every accepted file, replace changed content, remove absent/disallowed paths in a single `BEGIN IMMEDIATE` transaction (concurrent writers wait on the busy timeout instead of failing). Roll back if the safety cap is exceeded. A known file whose read fails for a reason other than absence (locked mid-save) keeps its entry until a later reconciliation can read it.
 - Query: (1) definitions whose normalized name equals the concatenated query (`GitignoreBuilder`, `gitignore builder`, `gitignore_builder`), types before functions before methods; (2) FTS5 candidates ranked by query-term coverage per file, then same-line co-occurrence, then BM25. Only returned hits are re-verified against the current file hash; stale hits are counted, never returned; `truncated` reports remaining candidates. Excerpts pass through `redact_secrets`.
-- MCP: stdio JSON-RPC. Legacy `initialize` (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05) and the 2026-07-28 stateless era (`server/discover`, per-request `_meta` protocol version, `-32022` for unsupported versions) are both served. Oversized frames, invalid JSON and invalid requests get JSON-RPC errors and the server keeps reading. `findex_search`, `findex_symbols`, `findex_find_symbol` and `findex_impact` are exposed; server `instructions` mark returned source as untrusted data.
+- MCP: stdio JSON-RPC. Legacy `initialize` (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05) and the 2026-07-28 stateless era (`server/discover`, per-request `_meta` protocol version, `-32022` for unsupported versions) are both served. Oversized frames, invalid JSON and invalid requests get JSON-RPC errors and the server keeps reading. `findex_context` (marked `anthropic/alwaysLoad`), `findex_search`, `findex_symbols`, `findex_find_symbol` and `findex_impact` are exposed; server `instructions` mark returned source as untrusted data.
+- Context engine (`findex-index/src/context.rs`): a rule-based router maps the task text (English and Turkish intent words) to `definition`, `callers`, `tests`, `impact`, `file` or `concept`. Identifier tasks get Tree-sitter definitions plus every word-boundary occurrence in files the FTS index lists, classified as call/reference/import by the following token, with comment lines omitted by a per-language lexer (`//`/`/* */` with nesting for Rust/Swift/Kotlin/Scala, `#`, multi-line and raw strings) and counted. File tasks list the named file's definitions; concept tasks run the lexical query. Evidence is packed greedily under a character/4 token budget; an untruncated report states exhaustive coverage. Call sites are name matches, not type-resolved; relations/SCIP data are not used here.
+- Validation: the runner is offline by default; real Claude sessions need `--enable-live-model-tests`, an approval string and subscription checks (`validation/harness/claude_session.py`), and CI asserts that no Claude process is spawned.
 - CLI: no fabricated saving metrics. `findex claude` launches original native CLI; `doctor` warns when environment API key is present without reading its value.
 
 ## Next subsystems (design, not shipped)

@@ -1,18 +1,19 @@
 """Genuine Claude Code <-> Findex integration checks (small, budget-capped).
 
-Records PASS / FAIL / BLOCKED into compatibility.json. BLOCKED when the
-official client is missing or not authenticated; offline checks still run.
+Records PASS / FAIL / BLOCKED / NOT_RUN into compatibility.json. Offline
+checks always run; model sessions only behind claude_session.live_model_gate
+(--enable-live-model-tests plus operator approval).
 """
 from __future__ import annotations
 
 import argparse
-import json
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-from claude_session import fresh_workspace, mcp_config, run_claude, summarize_session, trace
+from claude_session import (LIVE_FLAG, fresh_workspace, live_model_gate, mcp_config, run_claude,
+                            summarize_session, trace)
 from common import REPO, WORK, findex_binary, results_dir, write_json
 
 CHECKS: list[dict] = []
@@ -28,21 +29,12 @@ def outcome(ok: bool, summary: dict) -> str:
     return "BLOCKED" if summary.get("limit_hit") else ("PASS" if ok else "FAIL")
 
 
-def authenticated() -> bool:
-    if not shutil.which("claude"):
-        return False
-    try:
-        out = subprocess.run(["claude", "auth", "status"], capture_output=True, text=True, timeout=60)
-        return bool(json.loads(out.stdout).get("loggedIn"))
-    except (ValueError, OSError, subprocess.TimeoutExpired):
-        return False
-
-
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="haiku")
     parser.add_argument("--budget-usd", type=float, default=0.30, help="per session cap")
     parser.add_argument("--out", default=None)
+    parser.add_argument(LIVE_FLAG, dest="live", action="store_true", help="allow real Claude sessions")
     args = parser.parse_args()
     out = results_dir(args.out)
     base = WORK / "claude" / f"integration-{out.name}"
@@ -64,8 +56,9 @@ def main() -> int:
           "PASS" if "present" in doctor.stdout and "found" in doctor.stdout else "FAIL",
           doctor.stdout.strip().splitlines()[3:5])
 
-    if not authenticated():
-        check("real Claude Code session", "BLOCKED", "claude CLI missing or not authenticated")
+    reason = live_model_gate(args.live)
+    if reason:
+        check("real Claude Code session", reason.split(":")[0], reason)
         write_json(out / "compatibility.json", {"checks": CHECKS})
         return 0
 

@@ -132,7 +132,8 @@ def environment() -> dict:
             ["rustc", "-vV"], capture_output=True, text=True).stdout.splitlines() if line.startswith("host: ")), None),
         "cargo": tool_version(["cargo", "--version"]),
         "git": tool_version(["git", "--version"]),
-        "claude_code": tool_version(["claude", "--version"]),
+        # Never probed here: offline validation must not start the claude client (test_live_gate.py).
+        "claude_code": "not queried",
     }
     if sys.platform == "win32":
         ps = ("Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty Name;"
@@ -141,15 +142,6 @@ def environment() -> dict:
         lines = [line.strip() for line in out.stdout.splitlines() if line.strip()]
         info["cpu_model"] = lines[0] if lines else None
         info["storage"] = lines[1:]
-    # Authentication *availability* only: the method name, never tokens.
-    if shutil.which("claude"):
-        try:
-            status = json.loads(subprocess.run(["claude", "auth", "status"], capture_output=True,
-                                               text=True, timeout=60).stdout)
-            info["claude_auth"] = {"logged_in": status.get("loggedIn"), "method": status.get("authMethod"),
-                                   "plan": status.get("subscriptionType")}
-        except (ValueError, OSError, subprocess.TimeoutExpired):
-            info["claude_auth"] = {"logged_in": None}
     info["ci_run_url"] = os.environ.get("GITHUB_SERVER_URL", "") and (
         f"{os.environ['GITHUB_SERVER_URL']}/{os.environ.get('GITHUB_REPOSITORY')}/actions/runs/{os.environ.get('GITHUB_RUN_ID')}")
     return info

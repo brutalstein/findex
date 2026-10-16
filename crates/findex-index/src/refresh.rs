@@ -1,8 +1,8 @@
 //! Bounded event-driven refresh for files already admitted by the full scanner.
 //!
 //! Never admit a new path here: doing so would bypass ignore rules. New files
-//! are discovered by `synchronize`, while a future watcher can cheaply refresh
-//! known files as filesystem events arrive.
+//! are discovered by `synchronize`, while the watcher (`findex-watch`) cheaply
+//! refreshes known files as filesystem events arrive.
 
 use super::{connect, symbols, Result, SyncStats};
 use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
@@ -17,6 +17,10 @@ pub struct RefreshReport {
     pub sync: SyncStats,
     /// Unknown paths are intentionally not indexed until a full reconciliation.
     pub unknown_paths: usize,
+    /// Known files whose read failed for a reason other than absence (a
+    /// Windows sharing violation during a save); their entries are kept
+    /// until the next full reconciliation.
+    pub unreadable: usize,
 }
 
 pub fn refresh_known_paths(project: &Path, paths: &[PathBuf]) -> Result<RefreshReport> {
@@ -89,11 +93,20 @@ pub fn refresh_known_paths_into(
                 Some(meta)
                     if meta.file_type().is_file() && meta.len() <= MAX_SOURCE_BYTES && inside =>
                 {
-                    fs::read(&absolute).ok().filter(|bytes| {
-                        (bytes.len() as u64) <= MAX_SOURCE_BYTES
-                            && !bytes.contains(&0)
-                            && std::str::from_utf8(bytes).is_ok()
-                    })
+                    match fs::read(&absolute) {
+                        Ok(bytes) => Some(bytes).filter(|bytes| {
+                            (bytes.len() as u64) <= MAX_SOURCE_BYTES
+                                && !bytes.contains(&0)
+                                && std::str::from_utf8(bytes).is_ok()
+                        }),
+                        Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+                        // Hits re-verify the hash, so the kept entry can cost
+                        // a miss but never return stale text.
+                        Err(_) => {
+                            report.unreadable += 1;
+                            continue;
+                        }
+                    }
                 }
                 _ => None,
             }
@@ -178,6 +191,42 @@ mod tests {
         )
         .expect("search unaffected");
         assert_eq!(unaffected.hits.len(), 1);
+    }
+
+    /// An editor holding a file open without sharing (Windows sharing
+    /// violation) must not drop it from the index until the next full scan.
+    #[cfg(windows)]
+    #[test]
+    fn locked_file_keeps_its_index_entry() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let workspace = tempdir().expect("workspace");
+        let database = tempdir().expect("state");
+        let db = database.path().join("index.db");
+        let file = workspace.path().join("locked.rs");
+        fs::write(&file, "fn locked_marker() {}").expect("file");
+        synchronize_into(workspace.path(), &db).expect("initial reconciliation");
+
+        let lock = fs::OpenOptions::new()
+            .read(true)
+            .share_mode(0)
+            .open(&file)
+            .expect("exclusive open");
+        let report = refresh_known_paths_into(workspace.path(), &db, &[PathBuf::from("locked.rs")])
+            .expect("refresh while locked");
+        let full = synchronize_into(workspace.path(), &db).expect("full scan while locked");
+        drop(lock);
+        assert_eq!(full.removed, 0);
+        assert_eq!(report.sync.removed, 0);
+        assert_eq!(report.unreadable, 1);
+        let found = search_in_db(
+            workspace.path(),
+            &db,
+            "locked_marker",
+            5,
+            SyncStats::default(),
+        )
+        .expect("search after unlock");
+        assert_eq!(found.hits.len(), 1);
     }
 
     #[test]
