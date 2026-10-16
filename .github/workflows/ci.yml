@@ -73,6 +73,16 @@ jobs:
           name: findex-claude-plugin-validation
           path: plugin-validation.json
           if-no-files-found: error
+      - name: Sensitive path privacy gate (offline, real Windows executable)
+        shell: pwsh
+        run: |
+          python validation/harness/sensitive_paths.py target/release/findex.exe --output sensitive-paths.json
+          if ($LASTEXITCODE -ne 0) { throw "Sensitive-path scan boundary failed" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 pinned
+        with:
+          name: findex-sensitive-paths-offline
+          path: sensitive-paths.json
+          if-no-files-found: error
       - name: Offline hardening regression (corrupt cache and MCP privacy)
         shell: pwsh
         run: |
