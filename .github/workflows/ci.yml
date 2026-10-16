@@ -175,6 +175,23 @@ jobs:
           if ($result.hits.Count -ne 1 -or $result.hits[0].path -ne 'ci-impact-fixture/reference.rs') {
             throw "MCP impact emitted unexpected evidence"
           }
+          $symbol = 'lsp:ci-impact-fixture/definition.rs:0:3'
+          $evidence = .\\target\\release\\findex.exe graph-symbol $symbol | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $evidence.sites.Count -ne 2) {
+            throw "Typed graph CLI did not preserve definition and reference sites"
+          }
+          if ((@($evidence.sites | Where-Object { $_.kind -eq 'definition' })).Count -ne 1) {
+            throw "Missing proven definition kind"
+          }
+          $tool = '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"findex_graph_symbol","arguments":{"symbol":"lsp:ci-impact-fixture/definition.rs:0:3","limit":16}}}'
+          $reply = $tool | .\\target\\release\\findex.exe mcp | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $reply.result.isError) {
+            throw "Typed graph MCP lookup failed"
+          }
+          $typed = $reply.result.content[0].text | ConvertFrom-Json
+          if ($typed.sites.Count -ne 2 -or $typed.interpretation -notmatch 'NOT') {
+            throw "Typed graph MCP response missing explicit non-call guarantee"
+          }
           Remove-Item -Recurse -Force ci-impact-fixture
       - name: Package Findex and bundled Claude plugin
         shell: pwsh
