@@ -106,6 +106,12 @@ pub fn context_in_db(
             concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
         }
     } else if report.identifiers.is_empty() {
+        if report.intent == "impact" && !file_paths(task).is_empty() {
+            report.missing.push(
+                "file-level impact is not resolved by this lexical context tool; use the verified impact graph separately"
+                    .to_string(),
+            );
+        }
         concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
     } else {
         for identifier in report.identifiers.clone() {
@@ -358,6 +364,12 @@ fn route(task: &str) -> &'static str {
     // Opening a named file is not the same as asking what tests cover it.
     // Explicit file navigation takes precedence over names like tests/util.rs.
     if !named_files.is_empty() {
+        // A question about deleting or changing a file is an impact request,
+        // not a request to open that file. The evidence stage must say when
+        // a cross-file dependency cannot be verified.
+        if intent == "impact" {
+            return "impact";
+        }
         let navigation = words.iter().any(|word| {
             matches!(
                 word.as_str(),
