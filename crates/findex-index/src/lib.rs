@@ -932,6 +932,52 @@ mod tests {
     }
 
     #[test]
+    fn old_sensitive_cached_rows_never_escape_and_refresh_removes_them() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("cache");
+        let db = state.path().join("index.sqlite3");
+        fs::create_dir_all(project.path().join(".aws")).expect("secret folder");
+        let secret = "pub fn private_exposure_marker_9928() {}\n";
+        fs::write(project.path().join(".aws").join("keys.rs"), secret).expect("secret");
+        fs::write(project.path().join("safe.rs"), "pub fn public_ok() {}\n")
+            .expect("normal file");
+        let clean = synchronize_into(project.path(), &db).expect("scan");
+        assert_eq!(clean.indexed, 1, "private directory not scanned");
+        {
+            let mut conn = connect(&db).expect("cache");
+            let tx = conn.transaction().expect("transaction");
+            // Reproduce an older index containing a now-denied but perfectly
+            // hash-matching file. Search must block it before emitting text.
+            store_document(
+                &tx,
+                ".aws/keys.rs",
+                secret,
+                &blake3::hash(secret.as_bytes()).to_hex().to_string(),
+                secret.len() as i64,
+            ).expect("legacy cache insertion");
+            tx.commit().expect("commit");
+        }
+        let searched = search_in_db(
+            project.path(),
+            &db,
+            "private_exposure_marker_9928",
+            4,
+            SyncStats::default(),
+        ).expect("read old cache");
+        assert!(searched.hits.is_empty(), "{searched:?}");
+        assert!(searched.stale_results_discarded > 0);
+        let syntax = inspect_indexed_file_in_db(
+            project.path(), &db, Path::new(".aws/keys.rs"),
+        ).expect("inspect");
+        assert!(syntax.is_none());
+        let changed = refresh_known_paths_into(
+            project.path(), &db, &[PathBuf::from(".aws/keys.rs")],
+        ).expect("refresh old sensitive entry");
+        assert_eq!(changed.sync.removed, 1);
+        assert_eq!(verify_index_into(&db).expect("consistent").files, 1);
+    }
+
+    #[test]
     fn index_integrity_detects_missing_fts_rows_without_repairing_them() {
         let (project, _state, db) = indexed(&[
             ("a.rs", "fn keep_me() {}\n"),
