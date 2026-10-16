@@ -1,0 +1,63 @@
+# intent<TAB>task. Held-out router set, written 2026-10-16 after the rules
+# were tuned on router_cases.tsv and before its first run; frozen: never edit
+# after seeing results (same author as the rules, so still not independent).
+definition	can you show me how `merge_ranges` is written
+definition	`TokenBucket` neyi temsil ediyor
+definition	what fields does `IndexConfig` have
+definition	declaration of `flush_pending`
+definition	`parse_args` fonksiyonunun içeriği
+definition	where does the `Watcher` type come from
+definition	`retry_after` nasıl çalışıyor
+definition	print the source of `build_query`
+definition	`LexState` enum'unu göster
+definition	what is `DEFAULT_TIMEOUT` set to
+callers	who depends on `flush_pending`
+callers	`merge_ranges` hangi fonksiyonlardan çağrılıyor
+callers	find every place that calls `build_query`
+callers	is `retry_after` invoked from the CLI
+callers	`IndexConfig` nerelerde kullanılmış
+callers	what code paths reach `parse_args`
+callers	`TokenBucket` örneğini kim oluşturuyor
+callers	where do we instantiate `Watcher`
+callers	callsites for `LexState`
+callers	`DEFAULT_TIMEOUT` kullanan modüller hangileri
+tests	`merge_ranges` için birim test yazılmış mı
+tests	what test covers the `retry_after` edge case
+tests	show the integration tests touching `IndexConfig`
+tests	`flush_pending` testlerde nasıl kullanılıyor
+tests	are there regression tests for `parse_args`
+tests	`Watcher` hangi test dosyasında doğrulanıyor
+tests	find a spec exercising `build_query`
+tests	unit test coverage of `LexState`
+tests	`TokenBucket` test senaryoları
+tests	does the suite verify `DEFAULT_TIMEOUT`
+impact	what happens if I delete `flush_pending`
+impact	`merge_ranges` silinirse ne olur
+impact	is it safe to change the return type of `build_query`
+impact	`retry_after` imzasını güncellersem hangi yerler etkilenir
+impact	blast radius of editing `IndexConfig`
+impact	`parse_args` parametre eklersem neler kırılır
+impact	consequences of renaming `Watcher`
+impact	`LexState` değiştirilirse hangi testler bozulur
+impact	who is affected if `TokenBucket` changes
+impact	`DEFAULT_TIMEOUT` arttırılırsa etkisi ne olur
+concept	how do we retry failed network requests
+concept	where is the configuration file loaded
+concept	ağ istekleri başarısız olunca ne yapılıyor
+concept	yapılandırma dosyası nerede okunuyor
+concept	why is startup slow on Windows
+concept	how are file change events debounced
+concept	dosya değişiklik olayları nasıl birleştiriliyor
+concept	what logging framework does this use
+concept	explain the caching strategy
+concept	önbellekleme stratejisini açıkla
+file	what does src/main.rs do
+file	show tests/util.rs
+file	src/config.py dosyası ne yapıyor
+file	list everything defined in pkg/server/handler.go
+file	`lib/parser.ts` içeriğini göster
+file	give me an outline of app\models\user.rb
+file	what's in CHANGELOG.md
+file	package.json içinde hangi scriptler var
+file	walk me through include/fmt/core.h
+file	setup.cfg dosyasını aç

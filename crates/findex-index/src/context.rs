@@ -5,7 +5,7 @@
 //! Relationship kinds are named for what was actually checked. Call sites are
 //! lexical name matches followed by a call token, not type-resolved calls.
 
-use crate::symbols::{containing, definitions_by_identifier};
+use crate::symbols::{containing, definitions_by_identifier, definitions_in_file};
 use crate::{connect, excerpt_of, live_source, search_in_db, synchronize, Result, SyncStats};
 use findex_core::storage_dir;
 use rusqlite::{params, Connection};
@@ -20,6 +20,10 @@ const MAX_IDENTIFIERS: usize = 3;
 const MAX_BUDGET: usize = 8000;
 /// Lines shown from a definition body when the task asks for the definition.
 const MAX_BODY_LINES: usize = 40;
+/// Indexed files one named file (`lib.rs`) may match, and definitions
+/// listed per file, before the report is marked truncated.
+const MAX_NAMED_FILES: usize = 5;
+const MAX_FILE_DEFINITIONS: usize = 200;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Evidence {
@@ -86,7 +90,19 @@ pub fn context_in_db(
     let root = project.canonicalize()?;
     let conn = connect(database)?;
     let mut candidates = Vec::new();
-    if report.identifiers.is_empty() {
+    if report.intent == "file" {
+        files_named(
+            &root,
+            &conn,
+            &file_paths(task),
+            &mut report,
+            &mut candidates,
+        )?;
+        if candidates.is_empty() {
+            report.intent = "concept";
+            concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
+        }
+    } else if report.identifiers.is_empty() {
         concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
     } else {
         for identifier in report.identifiers.clone() {
@@ -270,32 +286,112 @@ fn words(task: &str) -> Vec<String> {
         .collect()
 }
 
-/// Intent of a task from its text alone, before any index access.
+/// Router-only word prefixes (Turkish is agglutinative: `çağır` matches
+/// `çağırıyor`, `çağıranlar`), kept out of the `*_WORDS` lists so concept
+/// search terms stay unchanged.
+const CALLER_STEMS: &[&str] = &[
+    "calling",
+    "çağır",
+    "çağrı",
+    "implementations",
+    "implementers",
+    "implementors",
+    "implements",
+    "import",
+    "invoking",
+    "kullan",
+    "referans",
+    "referencing",
+    "using",
+];
+const TEST_STEMS: &[&str] = &["sına", "test"];
+const IMPACT_STEMS: &[&str] = &[
+    "adlandır",
+    "bozar",
+    "bozul",
+    "changed",
+    "changes",
+    "değiş",
+    "etki",
+    "kırar",
+    "kırıl",
+    "modif",
+    "refactor",
+    "renam",
+];
+
+/// Intent of a task from its text alone, before any index access. Callers
+/// and impact need a named identifier; without one the task is a concept
+/// search, or a file request when it names a file.
 fn route(task: &str) -> &'static str {
-    let identifiers = identifiers(task);
     match classify(&words(task)) {
-        "definition" if identifiers.is_empty() => "concept",
-        intent => intent,
+        intent if intent == "tests" || !identifiers(task).is_empty() => intent,
+        _ if file_paths(task).is_empty() => "concept",
+        _ => "file",
     }
 }
 
 fn classify(words: &[String]) -> &'static str {
-    let has = |set: &[&str]| words.iter().any(|w| set.contains(&w.as_str()));
-    if has(IMPACT_WORDS) {
+    let has = |set: &[&str], stems: &[&str]| {
+        words
+            .iter()
+            .any(|w| set.contains(&w.as_str()) || stems.iter().any(|s| w.starts_with(s)))
+    };
+    if has(IMPACT_WORDS, IMPACT_STEMS) {
         "impact"
-    } else if has(TEST_WORDS) {
+    } else if has(TEST_WORDS, TEST_STEMS) {
         "tests"
-    } else if has(CALLER_WORDS) {
+    } else if has(CALLER_WORDS, CALLER_STEMS) {
         "callers"
     } else {
         "definition"
     }
 }
 
+const TEXT_EXTENSIONS: &[&str] = &[
+    "cfg", "css", "html", "ini", "json", "md", "rst", "sql", "toml", "txt", "xml", "yaml", "yml",
+];
+
+/// Files a task names by path or file name (`src/lib.rs`, `a\b.py`,
+/// `README.md`), with `/` separators: tokens whose last segment has a known
+/// source or text extension. A Turkish suffix after `'` is dropped.
+fn file_paths(task: &str) -> Vec<String> {
+    let mut found: Vec<String> = Vec::new();
+    for token in task.split_whitespace() {
+        let token = token
+            .trim_matches(|c: char| {
+                matches!(c, '`' | '"' | '\'' | '(' | ')' | ',' | ';' | '?' | '!')
+            })
+            .trim_end_matches(['.', ':'])
+            .split('\'')
+            .next()
+            .unwrap_or_default()
+            .replace('\\', "/");
+        let named = token.rsplit('/').next().unwrap_or_default();
+        let known = named.rsplit_once('.').is_some_and(|(stem, ext)| {
+            let ext = ext.to_ascii_lowercase();
+            !stem.is_empty()
+                && (CODE_EXTENSIONS.contains(&ext.as_str())
+                    || TEXT_EXTENSIONS.contains(&ext.as_str()))
+        });
+        if known && !token.contains("://") && !found.contains(&token) {
+            found.push(token);
+        }
+    }
+    found
+}
+
 /// Code identifiers named in the task: backticked names, snake_case and
 /// camelCase/PascalCase tokens, and the last segment of `a::b` / `a.b`.
 /// Plain English words are never treated as identifiers.
 fn identifiers(task: &str) -> Vec<String> {
+    // A file name is not an identifier: `claude_ab.py` names a file.
+    let task = task
+        .split_whitespace()
+        .filter(|token| file_paths(token).is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
+    let task = task.as_str();
     let mut found: Vec<String> = Vec::new();
     let mut push = |name: &str| {
         let name = name.trim_matches(|c: char| !(c.is_alphanumeric() || c == '_'));
@@ -386,6 +482,88 @@ fn definitions(
     Ok(found)
 }
 
+/// Definitions of each file the task names, or the head of a file without
+/// any. A bare name (`lib.rs`) matches every indexed file of that name.
+fn files_named(
+    root: &Path,
+    conn: &Connection,
+    paths: &[String],
+    report: &mut ContextReport,
+    candidates: &mut Vec<Evidence>,
+) -> Result<()> {
+    let mut stmt = conn.prepare(
+        "SELECT path, hash FROM files
+         WHERE lower(path) = lower(?1) OR substr(lower(path), -length(?1) - 1) = '/' || lower(?1)
+         ORDER BY path LIMIT ?2",
+    )?;
+    for named in paths {
+        let files = stmt
+            .query_map(params![named, (MAX_NAMED_FILES + 1) as i64], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+            })?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        if files.is_empty() {
+            report
+                .missing
+                .push(format!("no indexed file matches `{named}`"));
+        } else if files.len() > MAX_NAMED_FILES {
+            report.truncated = true;
+            report.missing.push(format!(
+                "`{named}` matches more than {MAX_NAMED_FILES} indexed files; only the first {MAX_NAMED_FILES} by path are shown"
+            ));
+        }
+        for (path, hash) in files.into_iter().take(MAX_NAMED_FILES) {
+            let Some(text) = live_source(root, &path, &hash) else {
+                report.stale_results_discarded += 1;
+                continue;
+            };
+            let lines: Vec<&str> = text.lines().collect();
+            let rows = definitions_in_file(conn, &path, &hash, MAX_FILE_DEFINITIONS + 1)?;
+            if rows.len() > MAX_FILE_DEFINITIONS {
+                report.truncated = true;
+                report.missing.push(format!(
+                    "`{path}` has more than {MAX_FILE_DEFINITIONS} definitions; only the first {MAX_FILE_DEFINITIONS} are listed"
+                ));
+            }
+            let redacted = |range: std::ops::Range<usize>| {
+                lines
+                    .get(range)
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|line| findex_core::redact_secrets(line).into_owned())
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            };
+            if rows.is_empty() {
+                let end = lines.len().clamp(1, MAX_BODY_LINES);
+                candidates.push(Evidence {
+                    kind: "file",
+                    in_test: is_test_path(&path),
+                    path,
+                    line: 1,
+                    end_line: end,
+                    enclosing: None,
+                    text: redacted(0..end.min(lines.len())),
+                });
+                continue;
+            }
+            for row in rows.into_iter().take(MAX_FILE_DEFINITIONS) {
+                let start = row.start_line.clamp(1, lines.len().max(1));
+                candidates.push(Evidence {
+                    kind: "definition",
+                    enclosing: Some(format!("{} {}", row.kind, row.name)),
+                    in_test: is_test_path(&path),
+                    path: path.clone(),
+                    line: start,
+                    end_line: row.end_line.max(start),
+                    text: redacted(start - 1..start),
+                });
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Every word-boundary occurrence of `identifier` in files the FTS index
 /// says contain it, classified by the token that follows. Definition lines
 /// and comment lines are skipped.
@@ -437,11 +615,11 @@ fn sites_of(
         };
         scanned += 1;
         let style = comment_style(&path);
-        let mut in_block = 0;
+        let mut carry = Carry::default();
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
-            // Computed for every line: it carries `/* */` state to the next one.
-            let code = code_text(line, style, &mut in_block);
+            // Computed for every line: it carries comment and string state to the next one.
+            let code = code_text(line, style, &mut carry);
             if defined.contains(&(path.as_str(), number)) {
                 continue;
             }
@@ -511,61 +689,124 @@ fn comment_style(path: &str) -> CommentStyle {
     }
 }
 
+/// Lexer state carried from one line of a file to the next.
+#[derive(Default)]
+struct Carry {
+    /// Depth of open `/* */` comments.
+    block: u32,
+    /// Open string: its quote and, for a Rust raw string, the number of `#`
+    /// that close it (no escapes apply inside).
+    string: Option<(char, Option<usize>)>,
+}
+
 /// `line` with comment text blanked and string literals kept, so a name
-/// inside a comment is not code. `in_block` carries the depth of open
-/// `/* */` comments to the next line. When unsure, text is kept: showing a comment is harmless,
-/// omitting code would break the coverage claim.
-/// shortcut: strings are tracked within one line only, so a `/*` on its own
-/// line inside a multi-line raw string opens a block; upgrade to Tree-sitter
-/// comment nodes if that shows up in the coverage check.
-fn code_text(line: &str, style: CommentStyle, in_block: &mut u32) -> String {
+/// inside a comment is not code. `carry` holds open block comments and
+/// C-like strings (Rust strings span lines) across lines. When unsure, text
+/// is kept: showing a comment is harmless, omitting code would break the
+/// coverage claim.
+/// shortcut: C++ `R"(...)"` raw strings and Python triple-quoted strings are
+/// not recognised; upgrade to Tree-sitter comment nodes if the coverage check
+/// finds them.
+fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
     if style == CommentStyle::None {
         return line.to_string();
     }
+    let chars: Vec<char> = line.chars().collect();
     let mut out = String::with_capacity(line.len());
-    let mut chars = line.chars().peekable();
-    let mut quote = None;
-    while let Some(c) = chars.next() {
-        if *in_block > 0 {
-            if c == '*' && chars.peek() == Some(&'/') {
-                chars.next();
-                *in_block -= 1;
+    let mut i = 0;
+    while i < chars.len() {
+        let (c, next) = (chars[i], chars.get(i + 1).copied());
+        if carry.block > 0 {
+            if c == '*' && next == Some('/') {
+                carry.block -= 1;
+                i += 1;
             } else if c == '/'
-                && chars.peek() == Some(&'*')
+                && next == Some('*')
                 && style == (CommentStyle::CLike { nested: true })
             {
-                chars.next();
-                *in_block += 1;
+                carry.block += 1;
+                i += 1;
             }
             out.push(' ');
+            i += 1;
             continue;
         }
-        if let Some(open) = quote {
-            out.push(c);
-            if c == '\\' {
-                out.extend(chars.next());
-            } else if c == open {
-                quote = None;
+        if let Some((quote, raw)) = carry.string {
+            let mut end = i + 1;
+            match raw {
+                None if c == '\\' => end = (i + 2).min(chars.len()),
+                None if c == quote => carry.string = None,
+                Some(hashes)
+                    if c == quote
+                        && chars[i + 1..].iter().take_while(|&&h| h == '#').count() >= hashes =>
+                {
+                    end += hashes;
+                    carry.string = None;
+                }
+                _ => {}
             }
+            out.extend(&chars[i..end]);
+            i = end;
             continue;
         }
         match c {
-            '"' | '`' => quote = Some(c),
-            // In C-like languages `'` also starts Rust lifetimes; kept as code.
-            '\'' if style == CommentStyle::Hash => quote = Some(c),
+            '"' => carry.string = Some(('"', raw_hashes(&chars[..i]))),
+            '`' => carry.string = Some(('`', None)),
+            '\'' if style == CommentStyle::Hash => carry.string = Some(('\'', None)),
+            // A char literal such as `'"'`; a lone `'` (Rust lifetime) is code.
+            '\'' => {
+                if let Some(len) = char_literal(&chars[i..]) {
+                    out.extend(&chars[i..i + len]);
+                    i += len;
+                    continue;
+                }
+            }
             '#' if style == CommentStyle::Hash => break,
-            '/' if style != CommentStyle::Hash && chars.peek() == Some(&'/') => break,
-            '/' if style != CommentStyle::Hash && chars.peek() == Some(&'*') => {
-                chars.next();
-                *in_block = 1;
-                out.push(' ');
+            '/' if next == Some('/') => break,
+            '/' if next == Some('*') => {
+                carry.block = 1;
+                out.push_str("  ");
+                i += 2;
                 continue;
             }
             _ => {}
         }
         out.push(c);
+        i += 1;
+    }
+    if style == CommentStyle::Hash {
+        // Hash-language strings are tracked within one line.
+        carry.string = None;
     }
     out
+}
+
+/// `#` count of a Rust raw string whose `"` follows `before` (`r"`, `r#"`,
+/// `br##"`); `None` for an ordinary string.
+fn raw_hashes(before: &[char]) -> Option<usize> {
+    let hashes = before.iter().rev().take_while(|&&c| c == '#').count();
+    let rest = &before[..before.len() - hashes];
+    let rest = rest.strip_suffix(&['r'])?;
+    let rest = rest.strip_suffix(&['b']).unwrap_or(rest);
+    match rest.last() {
+        Some(&c) if c.is_alphanumeric() || c == '_' => None,
+        _ => Some(hashes),
+    }
+}
+
+/// Length of a char literal (`'a'`, `'"'`, `'\''`, `'\u{1F600}'`) at the
+/// start of `chars`.
+fn char_literal(chars: &[char]) -> Option<usize> {
+    match chars.get(1)? {
+        '\\' => chars
+            .iter()
+            .skip(3)
+            .take(10)
+            .position(|&c| c == '\'')
+            .map(|p| p + 4),
+        '\'' => None,
+        _ => (chars.get(2) == Some(&'\'')).then_some(3),
+    }
 }
 
 /// `call`, `reference` or `import` for the first occurrence of `identifier`
@@ -899,13 +1140,12 @@ mod tests {
         );
     }
 
-    /// Labeled English/Turkish/mixed tasks (`router_cases.tsv`); prints
-    /// per-intent accuracy and pins it so a rule change cannot silently regress.
-    #[test]
-    fn router_accuracy_on_labeled_tasks() {
+    /// Routes every `intent<TAB>task` line of `cases`; prints per-intent
+    /// accuracy and the misses. Returns (right, total).
+    fn router_score(set: &str, cases: &str) -> (usize, usize) {
         let mut per: std::collections::BTreeMap<&str, (usize, usize)> = Default::default();
         let mut confusions = Vec::new();
-        for line in include_str!("router_cases.tsv").lines() {
+        for line in cases.lines() {
             let Some((label, task)) = line.split_once('\t') else {
                 continue;
             };
@@ -921,16 +1161,35 @@ mod tests {
                 confusions.push(format!("{label} -> {got}: {task}"));
             }
         }
-        let total: usize = per.values().map(|v| v.1).sum();
-        let right: usize = per.values().map(|v| v.0).sum();
         for (label, (ok, n)) in &per {
-            println!("router {label}: {ok}/{n}");
+            println!("router {set} {label}: {ok}/{n}");
         }
-        println!("router all: {right}/{total}");
         for confusion in &confusions {
-            println!("router miss {confusion}");
+            println!("router {set} miss {confusion}");
         }
+        let right = per.values().map(|v| v.0).sum();
+        let total = per.values().map(|v| v.1).sum();
+        println!("router {set} all: {right}/{total}");
+        (right, total)
+    }
+
+    /// Labeled English/Turkish/mixed tasks the rules were tuned on
+    /// (`router_cases.tsv`; 178/260 before Turkish stems and file intent).
+    /// Pinned so a rule change cannot silently regress.
+    #[test]
+    fn router_accuracy_on_labeled_tasks() {
+        let (right, total) = router_score("dev", include_str!("router_cases.tsv"));
         assert!(total >= 250, "{total} cases");
+        assert!(right >= 258, "{right}/{total}");
+    }
+
+    /// Frozen held-out tasks written after tuning (`router_heldout.tsv`):
+    /// 30/60 with the rules before Turkish stems and file intent, 50/60 after.
+    #[test]
+    fn router_accuracy_on_held_out_tasks() {
+        let (right, total) = router_score("held-out", include_str!("router_heldout.tsv"));
+        assert_eq!(total, 60);
+        assert!(right >= 50, "{right}/{total}");
     }
 
     /// `#` and `*` start code lines in Rust (attributes), C/C++ (preprocessor,
@@ -979,6 +1238,46 @@ mod tests {
         );
     }
 
+    /// A task naming a file lists that file's definitions (or its head when
+    /// it has none); an unknown file falls back to a text search.
+    #[test]
+    fn file_task_lists_definitions_of_the_named_file() {
+        let (root, _state, db) = project(&[
+            ("src/lib.rs", "pub fn alpha() {}\n\npub struct Beta;\n"),
+            ("src/other.rs", "pub fn gamma() { alpha(); }\n"),
+            ("docs/notes.md", "# Notes\nalpha is the entry point\n"),
+        ]);
+        for task in [
+            "show me src/lib.rs",
+            "list the functions in lib.rs",
+            "src\\lib.rs dosyasını göster",
+        ] {
+            let report = ask(&root, &db, task, 4000);
+            assert_eq!(report.intent, "file", "{task}");
+            let shown: Vec<String> = report
+                .evidence
+                .iter()
+                .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+                .collect();
+            assert_eq!(
+                shown,
+                ["definition src/lib.rs:1", "definition src/lib.rs:3"],
+                "{task}"
+            );
+        }
+        let prose = ask(&root, &db, "notes.md dosyasını özetle", 4000);
+        assert_eq!(prose.intent, "file");
+        assert_eq!(prose.evidence.len(), 1);
+        assert!(prose.evidence[0].text.contains("alpha is the entry point"));
+        let unknown = ask(&root, &db, "open src/missing.rs", 4000);
+        assert_eq!(unknown.intent, "concept");
+        assert!(
+            unknown.missing.iter().any(|m| m.contains("src/missing.rs")),
+            "{:?}",
+            unknown.missing
+        );
+    }
+
     /// Rust block comments nest (`/*! src/**/x.rs */` closes once); C ones do
     /// not, so code after the first `*/` in C is still shown.
     #[test]
@@ -987,7 +1286,7 @@ mod tests {
             ("src/codec.rs", "pub fn my_codec() {}\n"),
             (
                 "src/doc.rs",
-                "/*! see `src/**/x.rs`\n my_codec */\n/// my_codec\nfn h() { my_codec(); }\n",
+                "/*! see `src/**/x.rs`\n my_codec */\n/// my_codec\nfn h() { my_codec(); }\nconst M: &str = r#\"x foo/** \"q\" \\\n\"#; fn k() { my_codec(); }\nconst Q: char = '\"'; fn l() { my_codec(); }\nconst S: &str = \"a\n// b\"; fn n() { my_codec(); }\n",
             ),
             ("src/c.c", "/* a /* b */ my_codec(4);\n"),
         ]);
@@ -997,7 +1296,13 @@ mod tests {
             .iter()
             .map(|e| format!("{}:{}", e.path, e.line))
             .collect();
-        for site in ["src/doc.rs:4", "src/c.c:1"] {
+        for site in [
+            "src/doc.rs:4",
+            "src/doc.rs:6",
+            "src/doc.rs:7",
+            "src/doc.rs:9",
+            "src/c.c:1",
+        ] {
             assert!(
                 shown.contains(&site.to_string()),
                 "{site} missing: {shown:?}"
