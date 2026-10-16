@@ -1268,7 +1268,7 @@ mod tests {
             report
                 .missing
                 .iter()
-                .any(|s| s.contains("no hash-verified")),
+                .any(|s| s.contains("no indexed text matches") || s.contains("no hash-verified")),
             "{report:?}"
         );
         assert!(

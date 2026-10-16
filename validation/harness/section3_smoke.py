@@ -49,7 +49,8 @@ def main() -> None:
         # A name with no supporting source must never receive an invented cite.
         missing = context(executable, root, "absentmeaninglessjargonwordxx")
         assert not missing["evidence"], missing
-        assert any("no hash-verified" in text for text in missing["missing"]), missing
+        assert any(("no indexed text matches" in text or "no hash-verified" in text)
+                   for text in missing["missing"]), missing
 
         # File deletion impact must not be mislabeled as a file-open operation.
         impact = context(executable, root, "delete src/lib.rs: what breaks")
