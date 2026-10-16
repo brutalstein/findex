@@ -1058,7 +1058,7 @@ fn pack(mut candidates: Vec<Evidence>, report: &mut ContextReport) {
             _ => 4,
         };
         if tests_first {
-            (!e.in_test, rank)
+            (!e.in_test, false, rank)
         } else if concept {
             (!is_code_path(&e.path), e.in_test, rank)
         } else {
