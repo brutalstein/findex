@@ -3,8 +3,8 @@
 //! This does not launch a language server or implement the LSP lifecycle.
 
 use super::{
-    admitted, persist, prepare, valid_occurrence, Evidence, ImportReport, Result, MAX_DOCUMENTS,
-    MAX_INPUT_BYTES, MAX_OCCURRENCES,
+    admitted, language_for_path, persist, prepare, valid_occurrence, Evidence, ImportReport,
+    Result, SemanticSite, MAX_DOCUMENTS, MAX_INPUT_BYTES, MAX_OCCURRENCES,
 };
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
@@ -60,6 +60,7 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
     let mut docs = HashMap::<String, Evidence>::new();
     let mut line_lengths = HashMap::<String, Vec<usize>>::new();
     let mut occurrences = Vec::with_capacity(occurrences_count);
+    let mut sites = Vec::with_capacity(occurrences_count);
     let mut identities = HashSet::<String>::new();
 
     // Validate the complete batch before persisting anything. Read and hash
@@ -112,31 +113,26 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
         if !identities.insert(identity.clone()) {
             return Err("duplicate definition anchor in LSP batch".into());
         }
-        occurrences.push(valid_occurrence(
-            definition_file,
-            &identity,
-            capture
-                .definition
-                .line
-                .checked_add(1)
-                .ok_or("LSP line overflow")?,
-            true,
-        )?);
+        let line = capture.definition.line.checked_add(1).ok_or("LSP line overflow")?;
+        occurrences.push(valid_occurrence(definition_file, &identity, line, true)?);
+        sites.push(SemanticSite {
+            symbol: identity.clone(), path: definition_file.path.clone(),
+            line, column: capture.definition.character,
+            language: language_for_path(&definition_file.path).to_string(), kind: "definition",
+        });
         for reference in &capture.references {
             let file = docs.get(&reference.path).ok_or("missing LSP file")?;
-            occurrences.push(valid_occurrence(
-                file,
-                &identity,
-                reference
-                    .line
-                    .checked_add(1)
-                    .ok_or("LSP reference line overflow")?,
-                false,
-            )?);
+            let line = reference.line.checked_add(1).ok_or("LSP line overflow")?;
+            occurrences.push(valid_occurrence(file, &identity, line, false)?);
+            sites.push(SemanticSite {
+                symbol: identity.clone(), path: file.path.clone(), line,
+                column: reference.character,
+                language: language_for_path(&file.path).to_string(), kind: "reference",
+            });
         }
     }
 
     let mut files: Vec<_> = docs.into_values().collect();
     files.sort_by(|a, b| a.path.cmp(&b.path));
-    persist(project, "lsp-captured-references", &files, &occurrences)
+    persist(project, "lsp-captured-references", &files, &occurrences, &sites, &[])
 }

@@ -17,6 +17,23 @@ pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 pub use lsp::import_lsp_snapshot;
 pub use scip_import::{import_scip, import_scip_bytes};
 
+fn language_for_path(path: &str) -> &'static str {
+    let extension = path.rsplit('.').next().unwrap_or_default().to_ascii_lowercase();
+    match extension.as_str() {
+        "rs" => "rust",
+        "cc" | "cpp" | "cxx" | "hpp" | "hh" | "h" | "c" => "cpp",
+        "ts" | "tsx" => "typescript",
+        "js" | "jsx" | "mjs" => "javascript",
+        "py" | "pyi" => "python",
+        "go" => "go",
+        "java" => "java",
+        "kt" => "kotlin",
+        "swift" => "swift",
+        "cs" => "csharp",
+        _ => "unknown",
+    }
+}
+
 const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
 const MAX_DOCUMENTS: usize = 1_000;
 const MAX_OCCURRENCES: usize = 100_000;
@@ -281,6 +298,7 @@ fn persist(
     let incoming: HashSet<&str> = refs
         .iter()
         .map(|reference| reference.symbol.as_str())
+        .chain(links.iter().map(|link| link.owner.as_str()))
         .collect();
     let previous_source: Option<String> = if incremental_lsp {
         tx.query_row("SELECT source FROM snapshot WHERE id=1", [], |row| {
@@ -303,6 +321,8 @@ fn persist(
                 )
                 .optional()?;
             if old.is_some_and(|digest| digest != file.digest) {
+                tx.execute("DELETE FROM semantic_links WHERE path=?1", params![file.path])?;
+                tx.execute("DELETE FROM semantic_sites WHERE path=?1", params![file.path])?;
                 let mut stmt =
                     tx.prepare("SELECT DISTINCT symbol FROM occurrences WHERE path=?1")?;
                 let affected = stmt

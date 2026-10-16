@@ -2,8 +2,9 @@
 //! no arbitrary indexing executable or network request is launched.
 
 use super::{
-    admitted, persist, prepare, valid_occurrence, Evidence, ImportReport, Occurrence, Result,
-    MAX_DOCUMENTS, MAX_INPUT_BYTES, MAX_OCCURRENCES,
+    admitted, language_for_path, persist, prepare, valid_occurrence, Evidence, ImportReport,
+    Occurrence, Result, SemanticLink, SemanticSite, MAX_DOCUMENTS, MAX_INPUT_BYTES,
+    MAX_OCCURRENCES, MAX_SYMBOL_LENGTH,
 };
 use protobuf::Message;
 use scip::types::{Index, SymbolRole};
@@ -35,11 +36,21 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
     let indexed = prepare(project)?;
     let mut files = HashMap::<String, Evidence>::new();
     let mut rows = Vec::<Occurrence>::with_capacity(total);
+    let mut sites = Vec::<SemanticSite>::with_capacity(total);
+    let mut links = Vec::<SemanticLink>::new();
     for doc in &index.documents {
         if files.contains_key(&doc.relative_path) {
             return Err("duplicate SCIP document path".into());
         }
         let source = admitted(project, &indexed, &doc.relative_path)?;
+        if doc.language.len() > 64 || doc.language.chars().any(char::is_control) {
+            return Err("invalid SCIP document language".into());
+        }
+        let language = if doc.language.is_empty() {
+            language_for_path(&source.path).to_string()
+        } else {
+            doc.language.clone()
+        };
         for occurrence in &doc.occurrences {
             if occurrence.symbol.is_empty() {
                 continue;
@@ -61,18 +72,62 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
                 occurrence.symbol.clone()
             };
             let definition = (occurrence.symbol_roles & SymbolRole::Definition as i32) != 0;
-            rows.push(valid_occurrence(
-                &source,
-                &symbol,
-                start_line + 1,
-                definition,
-            )?);
+            let kind = if definition {
+                "definition"
+            } else if (occurrence.symbol_roles & SymbolRole::Import as i32) != 0 {
+                "import"
+            } else {
+                "reference"
+            };
+            rows.push(valid_occurrence(&source, &symbol, start_line + 1, definition)?);
+            let column = usize::try_from(*occurrence.range.get(1).ok_or("missing column")?)?;
+            sites.push(SemanticSite {
+                symbol, path: source.path.clone(), line: start_line + 1,
+                column, language: language.clone(), kind,
+            });
+        }
+        for information in &doc.symbols {
+            let owner = if information.symbol.starts_with("local ") {
+                format!("scip-local:{}:{}", source.path, information.symbol)
+            } else {
+                information.symbol.clone()
+            };
+            if owner.is_empty() || owner.len() > MAX_SYMBOL_LENGTH
+                || owner.chars().any(char::is_control)
+            {
+                return Err("invalid SCIP relationship source symbol".into());
+            }
+            for relation in &information.relationships {
+                let target = if relation.symbol.starts_with("local ") {
+                    format!("scip-local:{}:{}", source.path, relation.symbol)
+                } else {
+                    relation.symbol.clone()
+                };
+                if target.is_empty() || target.len() > MAX_SYMBOL_LENGTH
+                    || target.chars().any(char::is_control)
+                {
+                    return Err("invalid SCIP relationship target symbol".into());
+                }
+                let mut add = |kind| {
+                    links.push(SemanticLink {
+                        owner: owner.clone(), target: target.clone(), kind,
+                        path: source.path.clone(), language: language.clone(),
+                    });
+                };
+                if relation.is_reference { add("reference_equivalence"); }
+                if relation.is_implementation { add("implements"); }
+                if relation.is_type_definition { add("type_definition"); }
+                if relation.is_definition { add("definition_alias"); }
+                if links.len() > MAX_OCCURRENCES {
+                    return Err("too many SCIP semantic relationships".into());
+                }
+            }
         }
         files.insert(source.path.clone(), source);
     }
     let mut docs: Vec<_> = files.into_values().collect();
     docs.sort_by(|a, b| a.path.cmp(&b.path));
-    persist(project, "scip-protobuf", &docs, &rows)
+    persist(project, "scip-protobuf", &docs, &rows, &sites, &links)
 }
 
 #[cfg(test)]
