@@ -32,7 +32,7 @@ Do not set `FINDEX_BIN` to a binary from an untrusted code repository. The launc
 
 ## Native Claude tools
 
-All seven tools are available as ordinary MCP tools:
+All eight tools are available as ordinary MCP tools:
 - `findex_context` — small task-focused source excerpts, always discoverable.
 - `findex_search` — lexical FTS5 code/file finding.
 - `findex_find_symbol` — exact definitions.
@@ -40,6 +40,7 @@ All seven tools are available as ordinary MCP tools:
 - `findex_impact` — optional imported SCIP/LSP reference-backed *potential* file impact.
 - `findex_graph_symbol` — source-verified typed observations by exact opaque symbol identity.
 - `findex_capabilities` — optional, zero-scan capability and safety-limit contract to help Claude decide when to fall back.
+- `findex_overview` — on-demand, bounded project file inventory and hash-verified manifest/entry-point candidates; not an inferred architecture.
 
 The skill descriptions load cheaply; instruction bodies load only when relevant:
 - `/findex:navigate`: task-focused code location and verified edits.
