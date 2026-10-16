@@ -1,0 +1,12 @@
+{
+  "name": "findex-marketplace",
+  "description": "Findex native code intelligence for Claude Code on Windows",
+  "owner": {"name": "Findex contributors"},
+  "plugins": [
+    {
+      "name": "findex",
+      "source": "./plugin",
+      "description": "Local code navigation and source-backed context orchestration for Claude Code"
+    }
+  ]
+}

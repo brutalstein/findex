@@ -1,5 +1,7 @@
 {
   "name": "findex",
-  "version": "0.1.0",
-  "description": "Local-first, evidence-backed lexical code search for Claude Code. Initial Windows prototype."
+  "displayName": "Findex — Local Code Navigation",
+  "version": "0.1.1",
+  "description": "Local-first Windows code navigation for Claude Code: source-backed retrieval, exact symbols, optional SCIP/LSP relationships, and task-aware project exploration.",
+  "author": {"name": "Findex contributors"}
 }
