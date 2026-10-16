@@ -122,7 +122,8 @@ fn is_test(path: &str) -> bool {
 
 fn top(counts: BTreeMap<String, usize>, cap: usize) -> (Vec<InventoryCount>, bool) {
     let truncated = counts.len() > cap;
-    let mut ordered: Vec<_> = counts.into_iter()
+    let mut ordered: Vec<_> = counts
+        .into_iter()
         .map(|(name, files)| InventoryCount { name, files })
         .collect();
     ordered.sort_by(|a, b| b.files.cmp(&a.files).then_with(|| a.name.cmp(&b.name)));
