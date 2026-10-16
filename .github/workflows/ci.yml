@@ -62,6 +62,11 @@ jobs:
           .\target\release\findex.exe --version
           .\target\release\findex.exe help
           .\target\release\findex.exe doctor
+      - name: Adaptive context offline black-box smoke
+        shell: pwsh
+        run: |
+          python validation/harness/section3_smoke.py target/release/findex.exe
+          if ($LASTEXITCODE -ne 0) { throw "Adaptive context offline smoke failed" }
       - name: MCP protocol and lexical search smoke
         shell: pwsh
         run: |
