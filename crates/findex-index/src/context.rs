@@ -983,7 +983,9 @@ fn pack(mut candidates: Vec<Evidence>, report: &mut ContextReport) {
         };
         (tests_last && e.in_test, rank)
     });
-    let mut used = render_header(report).len().div_ceil(4);
+    // Everything but the evidence (header, missing, coverage, footer), plus
+    // slack for the footer's TRUNCATED wording and wider counts.
+    let mut used = (report.render().len() + 32).div_ceil(4);
     for evidence in candidates {
         let needed = render_evidence(&evidence).len().div_ceil(4);
         if used + needed > report.budget_tokens {
@@ -1058,13 +1060,14 @@ impl ContextReport {
         }
         let count = |kind: &str| self.evidence.iter().filter(|e| e.kind == kind).count();
         out.push_str(&format!(
-            "shown: {} definitions, {} calls, {} references, {} imports, {} matches, {} prose mentions; ~{}/{} tokens; {}\n",
+            "shown: {} definitions, {} calls, {} references, {} imports, {} matches, {} prose mentions, {} file heads; ~{}/{} tokens; {}\n",
             count("definition"),
             count("call"),
             count("reference"),
             count("import"),
             count("match"),
             count("mention"),
+            count("file"),
             self.used_tokens,
             self.budget_tokens,
             if self.truncated {
@@ -1564,6 +1567,43 @@ void render_duration() {}
             ("definition", "src/lib.rs", 1, 3)
         );
         assert!(first.text.contains("cx + 1"), "{}", first.text);
+    }
+
+    /// The whole rendered report, not only header and evidence, fits the
+    /// budget whenever evidence was dropped to make room.
+    #[test]
+    fn rendered_report_stays_within_budget() {
+        let callers: Vec<(String, String)> = (0..30)
+            .map(|i| {
+                (
+                    format!("src/caller_{i}.rs"),
+                    format!("fn caller_{i}() {{ crate::lib::poll_proceed({i}); }}\n"),
+                )
+            })
+            .chain([
+                ("src/lib.rs".to_string(), LIB.to_string()),
+                (
+                    "src/other.rs".to_string(),
+                    "pub fn poll_proceed() {}\n".to_string(),
+                ),
+            ])
+            .collect();
+        let files: Vec<(&str, &str)> = callers
+            .iter()
+            .map(|(p, t)| (p.as_str(), t.as_str()))
+            .collect();
+        let (root, _state, db) = project(&files);
+        for budget in [200, 400, 800] {
+            let report = ask(&root, &db, "Which functions call `poll_proceed`?", budget);
+            assert!(report.truncated, "{budget}");
+            let rendered = report.render();
+            assert!(
+                rendered.len().div_ceil(4) <= budget,
+                "{} > {budget}:\n{rendered}",
+                rendered.len().div_ceil(4)
+            );
+            assert!(report.used_tokens >= rendered.len().div_ceil(4) - 1);
+        }
     }
 
     #[test]
