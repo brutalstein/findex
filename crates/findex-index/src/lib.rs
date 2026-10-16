@@ -371,7 +371,10 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
         }
         let metadata = match entry.metadata() {
             Ok(m) => m,
-            Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            Err(err)
+                if err
+                    .io_error()
+                    .is_some_and(|io| io.kind() == std::io::ErrorKind::NotFound) => {
                 stats.skipped += 1;
                 continue;
             }
