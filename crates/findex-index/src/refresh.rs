@@ -1,8 +1,8 @@
 //! Bounded event-driven refresh for files already admitted by the full scanner.
 //!
 //! Never admit a new path here: doing so would bypass ignore rules. New files
-//! are discovered by `synchronize`, while a future watcher can cheaply refresh
-//! known files as filesystem events arrive.
+//! are discovered by `synchronize`, while the watcher (`findex-watch`) cheaply
+//! refreshes known files as filesystem events arrive.
 
 use super::{connect, symbols, Result, SyncStats};
 use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};

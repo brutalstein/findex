@@ -309,7 +309,9 @@ fn doctor(project: &Path) {
     println!(
         "Index engine: SQLite/FTS5, Tree-sitter symbols, optional imported SCIP/LSP references"
     );
-    println!("Limitations: no live LSP service, semantic task planner, or measured token savings");
+    println!(
+        "Limitations: no live LSP service; context routing is rule-based, not semantic; no measured token savings"
+    );
 }
 
 fn print_help() {

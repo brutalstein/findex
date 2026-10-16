@@ -1,5 +1,5 @@
 //! SQLite/FTS5-backed *lexical* code discovery. No embeddings or model calls.
-//! v0.1 reconciles file contents before each search; a native watcher is a planned optimization.
+//! CLI searches reconcile file contents first; the MCP server refreshes through `findex-watch`.
 
 mod context;
 mod refresh;
