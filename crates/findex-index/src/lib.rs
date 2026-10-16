@@ -14,7 +14,7 @@ pub use symbols::{
     SymbolHit, SymbolSearchReport,
 };
 
-use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
+use findex_core::{is_disallowed_project_path, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
 use ignore::WalkBuilder;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
@@ -346,11 +346,11 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
         if !entry.file_type().is_some_and(|t| t.is_file()) {
             continue;
         }
-        if is_sensitive_filename(entry.path()) {
+        let rel = entry.path().strip_prefix(project)?;
+        if is_disallowed_project_path(rel) {
             stats.skipped += 1;
             continue;
         }
-        let rel = entry.path().strip_prefix(project)?;
         let rel_string = rel.to_string_lossy().replace('\\', "/");
         if !seen.insert(rel_string.clone()) {
             continue;
@@ -707,12 +707,17 @@ fn excerpt_of(line: &str) -> String {
 /// Current file text, only if it is a regular in-root file whose bytes still
 /// hash to the indexed digest. Symlinks, junction escapes and edits fail closed.
 fn live_source(root: &Path, relative: &str, indexed_hash: &str) -> Option<String> {
+    if is_disallowed_project_path(Path::new(relative)) {
+        return None;
+    }
     let full_path: PathBuf = root.join(relative);
     let metadata = fs::symlink_metadata(&full_path).ok()?;
     if !metadata.file_type().is_file() || metadata.len() > MAX_SOURCE_BYTES {
         return None;
     }
-    if !full_path.canonicalize().ok()?.starts_with(root) {
+    let resolved = full_path.canonicalize().ok()?;
+    let actual = resolved.strip_prefix(root).ok()?;
+    if is_disallowed_project_path(actual) {
         return None;
     }
     let bytes = fs::read(&full_path).ok()?;

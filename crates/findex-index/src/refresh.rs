@@ -5,7 +5,7 @@
 //! refreshes known files as filesystem events arrive.
 
 use super::{connect, symbols, Result, SyncStats};
-use findex_core::{is_sensitive_filename, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
+use findex_core::{is_disallowed_project_path, storage_dir, MAX_FILES_PER_SYNC, MAX_SOURCE_BYTES};
 use rusqlite::{params, OptionalExtension};
 use serde::Serialize;
 use std::collections::BTreeSet;
@@ -80,7 +80,7 @@ pub fn refresh_known_paths_into(
         report.sync.examined += 1;
 
         let absolute = project.join(relative);
-        let verified = if is_sensitive_filename(&absolute) {
+        let verified = if is_disallowed_project_path(relative) {
             None
         } else {
             // A transient NTFS/cloud-sync metadata or canonicalization error
@@ -97,7 +97,9 @@ pub fn refresh_known_paths_into(
             match metadata {
                 Some(meta) if meta.file_type().is_file() && meta.len() <= MAX_SOURCE_BYTES => {
                     let inside = match absolute.canonicalize() {
-                        Ok(resolved) => resolved.starts_with(&project),
+                        Ok(resolved) => resolved.strip_prefix(&project)
+                            .ok()
+                            .is_some_and(|path| !is_disallowed_project_path(path)),
                         Err(err) if err.kind() == std::io::ErrorKind::NotFound => false,
                         Err(_) => {
                             report.unreadable += 1;
