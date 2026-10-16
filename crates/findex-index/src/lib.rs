@@ -77,7 +77,8 @@ pub fn search(project: &Path, query: &str, limit: usize) -> Result<SearchReport>
 /// Lexical schema revision kept in `PRAGMA user_version`.
 /// 2: FTS `terms` column with camelCase sub-words and path words.
 /// 3: `docs.rowid` = `files.id`, so updates never scan the FTS table by path.
-const LEXICAL_SCHEMA: i64 = 3;
+/// 4: FTS5 `secure-delete`, so removed text leaves the index segments.
+const LEXICAL_SCHEMA: i64 = 4;
 
 /// The index is a derived cache: an unreadable database is discarded and
 /// rebuilt from sources instead of leaving search permanently broken.
@@ -141,8 +142,18 @@ fn is_busy(err: &(dyn Error + Send + Sync + 'static)) -> bool {
 fn try_open_schema(db: &Path) -> Result<Connection> {
     let mut conn = Connection::open(db)?;
     conn.busy_timeout(Duration::from_secs(30))?;
-    conn.execute_batch("PRAGMA journal_mode=WAL;")?;
     let version: i64 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;
+    if version > LEXICAL_SCHEMA {
+        // Written by a newer Findex: its layout is unknown here, so neither
+        // read nor rewrite it.
+        return Err(format!(
+            "index cache schema {version} is newer than this Findex supports ({LEXICAL_SCHEMA}); upgrade Findex or delete the index cache"
+        )
+        .into());
+    }
+    // Freed pages are zeroed: text of removed or excluded files must not
+    // stay recoverable from the cache.
+    conn.execute_batch("PRAGMA journal_mode=WAL; PRAGMA secure_delete=ON;")?;
     if version < LEXICAL_SCHEMA {
         // Rebuild lexical rows under a write lock; forgetting file hashes
         // makes the next reconciliation re-ingest every admitted source.
@@ -164,6 +175,7 @@ fn try_open_schema(db: &Path) -> Result<Connection> {
                      terms,
                      tokenize='unicode61'
                  );
+                 INSERT INTO docs(docs, rank) VALUES('secure-delete', 1);
                  PRAGMA user_version = {LEXICAL_SCHEMA};"
             ))?;
         }
@@ -307,7 +319,12 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
         }
         let bytes = match fs::read(entry.path()) {
             Ok(b) => b,
-            Err(_) => {
+            Err(err) => {
+                if err.kind() != std::io::ErrorKind::NotFound && existing.contains_key(&rel_string)
+                {
+                    // Locked mid-save: keep the entry; hits re-verify the hash.
+                    admitted.insert(rel_string);
+                }
                 stats.skipped += 1;
                 continue;
             }
@@ -858,6 +875,57 @@ mod tests {
         )
         .expect("search");
         assert_eq!(found.hits.len(), 1);
+    }
+
+    /// Text of a deleted file must not stay recoverable from the cache files
+    /// (SQLite free pages, FTS5 segments, WAL frames).
+    #[test]
+    fn removed_file_text_is_not_left_in_index_bytes() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        let marker = "zq_removed_marker_8841";
+        fs::write(project.path().join("keep.rs"), "fn kept() {}\n").expect("keep");
+        let secret = project.path().join("secret.rs");
+        fs::write(
+            &secret,
+            format!("fn {marker}() {{}}\n// {marker} body text\n"),
+        )
+        .expect("secret");
+        synchronize_into(project.path(), &db).expect("sync");
+        fs::remove_file(&secret).expect("delete");
+        let stats = synchronize_into(project.path(), &db).expect("sync after delete");
+        assert_eq!(stats.removed, 1);
+        for suffix in ["", "-wal"] {
+            let mut path = db.as_os_str().to_owned();
+            path.push(suffix);
+            let bytes = fs::read(PathBuf::from(path)).unwrap_or_default();
+            assert!(
+                !bytes.windows(marker.len()).any(|w| w == marker.as_bytes()),
+                "marker left in index{suffix}"
+            );
+        }
+    }
+
+    /// After a downgrade, an index written by a newer Findex is refused
+    /// instead of being read with an older idea of its schema.
+    #[test]
+    fn newer_index_schema_is_refused_and_left_intact() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        fs::write(project.path().join("lib.rs"), "fn marker() {}\n").expect("source");
+        let db = state.path().join("index.sqlite3");
+        Connection::open(&db)
+            .expect("db")
+            .execute_batch(&format!("PRAGMA user_version = {};", LEXICAL_SCHEMA + 1))
+            .expect("newer version");
+        let err = synchronize_into(project.path(), &db).expect_err("newer schema refused");
+        assert!(err.to_string().contains("newer"), "{err}");
+        let version: i64 = Connection::open(&db)
+            .expect("db")
+            .query_row("PRAGMA user_version", [], |row| row.get(0))
+            .expect("version");
+        assert_eq!(version, LEXICAL_SCHEMA + 1);
     }
 
     #[test]
