@@ -328,6 +328,14 @@ where
                         "additionalProperties": false
                     }
                 },{
+                    "name": "findex_capabilities",
+                    "description": "Read the static Findex engine compatibility/safety contract: supported extraction modes, index limits, graph uncertainty and safe fallbacks. No scan, indexing or network call.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{},
+                        "additionalProperties":false
+                    }
+                },{
                     "name": "findex_symbols",
                     "description": "Read one project-relative Rust, Python, TypeScript/TSX or C++ file and return bounded Tree-sitter syntax definitions with 1-based line ranges. No LSP references or call graph.",
                     "inputSchema": {
@@ -356,7 +364,30 @@ where
         ),
         "tools/call" => {
             let name = request.pointer("/params/name").and_then(Value::as_str);
-            if name == Some("findex_context") {
+            if name == Some("findex_capabilities") {
+                success(
+                    id,
+                    json!({"content":[{"type":"text","text": serde_json::to_string(&json!({
+                        "engine_version": env!("CARGO_PKG_VERSION"),
+                        "source_policy": {
+                            "local_only": true,
+                            "max_admitted_files_per_scan": 100000,
+                            "max_source_bytes": 524288,
+                            "ignored_files_excluded": true,
+                            "all_results_complete": false
+                        },
+                        "syntax_languages": ["rust", "python", "typescript", "javascript", "cpp"],
+                        "retrieval": ["task-context", "lexical-fts5", "exact-symbol", "syntax-definitions"],
+                        "relationships": {
+                            "requires_explicit_scip_or_lsp_import": true,
+                            "reference_is_proven_call": false,
+                            "complete_typed_call_graph": false
+                        },
+                        "failure_policy": "report incomplete/unavailable; use Claude Read/Grep/Glob",
+                        "models_or_network_calls_per_query": 0
+                    })).unwrap_or_default()}],"isError":false}),
+                )
+            } else if name == Some("findex_context") {
                 let task = request
                     .pointer("/params/arguments/task")
                     .and_then(Value::as_str)
@@ -801,6 +832,28 @@ mod tests {
         );
         let invalid = handle(&json!({"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"findex_context","arguments":{"task":""}}}), Path::new(".")).expect("response");
         assert_eq!(invalid["error"]["code"], -32602);
+    }
+
+    #[test]
+    fn capabilities_report_explicit_limits_without_accessing_repository() {
+        let request = json!({"jsonrpc":"2.0","id":21,"method":"tools/call",
+            "params":{"name":"findex_capabilities","arguments":{}}});
+        let response = handle_with_lookups(
+            &request,
+            Path::new("this-directory-does-not-exist"),
+            |_root, _query, _limit| panic!("search must not run"),
+            |_root, _name, _limit| panic!("symbols must not run"),
+            |_root, _path| panic!("file inspection must not run"),
+            |_root, _task, _budget| panic!("context must not run"),
+        ).expect("response");
+        assert_eq!(response["result"]["isError"], false);
+        let contract: Value = serde_json::from_str(
+            response["result"]["content"][0]["text"].as_str().expect("contract")
+        ).expect("json");
+        assert_eq!(contract["source_policy"]["max_admitted_files_per_scan"], 100000);
+        assert_eq!(contract["relationships"]["complete_typed_call_graph"], false);
+        assert_eq!(contract["models_or_network_calls_per_query"], 0);
+        assert_eq!(contract["syntax_languages"].as_array().expect("languages").len(), 5);
     }
 
     #[test]
