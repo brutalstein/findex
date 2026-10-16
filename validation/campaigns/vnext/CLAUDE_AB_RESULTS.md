@@ -1,8 +1,88 @@
 # Claude Code A/B/C/D/E results
 
-Status: **EXECUTED (Run 3, 120/120 sessions). Result: negative.** With Haiku,
-no Findex arm saved tokens; `findex_context` (D) used **+31 % total tokens**
-vs built-ins only (A), 95 % CI excluding zero.
+Status: **EXECUTED.** Run 3 (code `397bf78`) was negative: `findex_context`
+used +31 % tokens because Haiku re-checked every report with Grep. After the
+trust rule and coverage line (`ac4ea21`), **Run 4 is positive**: D used
+**−23.7 % tokens on held-out tasks** (95 % CI excluding zero) and −15.9 %
+over all 12 tasks, with 36/36 correct.
+
+## Run 4 — `results/20261016T105620Z-ac4ea21dd692` (code `ac4ea21`)
+
+What changed since Run 3 (designed from the Run 3 diagnosis, not tuned on
+Run 4 data):
+- every `findex_context` report states, per name, that all indexed files
+  containing it were scanned and every code occurrence is shown, with the
+  number of omitted comment lines. Rendered only when nothing was truncated.
+  The claim was verified against `git grep -w` for 279/279 golden names in 7
+  corpora (`results/20261016T105518Z-ac4ea21dd692/coverage/`);
+- the MCP instructions and the tool description carry a trust rule: a
+  complete report makes Grep redundant; if unsure, ask Findex again; if a
+  file contradicts the report, trust the file.
+
+Arms: A (built-ins only), D (Findex incl. `findex_context`, rule in MCP
+instructions only), F (D + the same rule as `--append-system-prompt`).
+12 tasks × 3 arms × 3 repetitions = 108 sessions, all EXECUTED. Estimated
+client-side spend 3.46 USD (subscription; not an invoice). Four tasks are
+**held out** (h1–h4: fmt C++ callers of `to_ascii`, requests Python callers
+of `default_hooks`, zod TS definition of `CatchallOutput`, pybind11 C++
+definition of `Dupe1`), chosen by fixed rules written into `claude_ab.py`
+before any Findex run on them. Statistics: `ab_stats.json` (paired by task
+and repetition, bootstrap 10,000 draws, seed 11).
+
+| Group (pairs) | Arm | Δ tokens / session vs A | 95 % CI | Relative | Δ turns [95 % CI] | Correct (arm / A) |
+|---|---|---|---|---|---|---|
+| **held-out h1–h4 (12)** | **D** | **−15.1k** | **[−21.4k, −8.7k]** | **−23.7 %** | **−1.50 [−2.67, −0.58]** | **12/12 / 12/12** |
+| held-out h1–h4 (12) | F | −14.9k | [−21.1k, −8.6k] | −23.4 % | −1.50 [−2.67, −0.58] | 12/12 / 12/12 |
+| dev t1–t6 (18) | D | −24.7k | [−50.0k, +1.1k] | −15.2 % | −0.33 [−1.50, +0.83] | 18/18 / 18/18 |
+| dev t1–t6 (18) | F | −24.7k | [−54.2k, +4.1k] | −15.2 % | −0.94 [−2.17, +0.39] | 17/18 / 18/18 |
+| negative n1–n2 (6) | D | +0.8k | [+0.6k, +1.0k] | +2.2 % | 0 | 6/6 / 6/6 |
+| negative n1–n2 (6) | F | +1.0k | [+0.8k, +1.3k] | +3.0 % | 0 | 6/6 / 6/6 |
+| **all 12 tasks (36)** | **D** | **−17.3k** | **[−31.2k, −4.0k]** | **−15.9 %** | −0.67 [−1.39, +0.03] | **36/36 / 36/36** |
+| all 12 tasks (36) | F | −17.1k | [−32.6k, −2.6k] | −15.8 % | −0.97 [−1.69, −0.22] | 35/36 / 36/36 |
+
+Per task (mean of 3; correct/3; `g` = built-in Grep/Glob calls summed over 3 sessions):
+
+| Task | A | D | F |
+|---|---|---|---|
+| h1 callers C++ | 73k 3/3 4.7 turns g11 | **49k** 3/3 2.0 g0 | 49k 3/3 2.0 g0 |
+| h2 callers Python | 64k 3/3 4.0 g9 | **49k** 3/3 2.0 g0 | 49k 3/3 2.0 g0 |
+| h3 definition TS | 55k 3/3 2.7 g5 | **48k** 3/3 2.0 g0 | 49k 3/3 2.0 g0 |
+| h4 definition C++ | 63k 3/3 2.7 g4 | **49k** 3/3 2.0 g0 | 48k 3/3 2.0 g0 |
+| t1 find function | 87k 3/3 3.7 g8 | **49k** 3/3 2.0 g0 | 49k 3/3 2.0 g0 |
+| t2 callers | 135k 3/3 5.3 g13 | **50k** 3/3 2.0 g0 | 51k 3/3 2.0 g0 |
+| t3 concept | 96k 3/3 4.3 g6 | 110k 3/3 4.3 g0 | 102k 3/3 4.0 g0 |
+| t4 cross-file trace | 203k 3/3 6.3 g6 | 246k 3/3 8.3 g6 | 204k **2/3** 6.3 g2 |
+| t5 fix bug | 210k 3/3 7.7 g10 | 193k 3/3 9.0 g15 | 202k 3/3 8.3 g12 |
+| t6 feature + test | 243k 3/3 9.0 g14 | 178k 3/3 8.7 g11 | 219k 3/3 8.0 g5 |
+| n1 named file | 47k 3/3 2.0 | 48k 3/3 2.0 | 49k 3/3 2.0 |
+| n2 no repository | 23k 3/3 1.0 | 24k 3/3 1.0 | 24k 3/3 1.0 |
+
+D minus A per task with CIs excluding zero: h1 −23.8k [−24.6, −23.3]; t1
+−38.5k [−46.3, −23.0]; t2 −85.0k [−160.3, −47.0]; t6 −65.0k [−70.9, −53.7];
+and one **cost**: t3 (concept question) **+14.0k [+2.4, +20.0]**. h2–h4 are
+negative with CIs touching zero.
+
+### Mechanism (Run 3 → Run 4, arm D on t1/t2)
+
+| | Run 3 (`397bf78`) | Run 4 (`ac4ea21`) |
+|---|---|---|
+| sessions that called Grep/Glob after Findex | 6 / 6 | **0 / 6** |
+| ToolSearch calls | 3 | **0** |
+| turns per session | 3–8 | **2 in every session** |
+
+### Reading
+
+- On navigation tasks (definitions, callers), with the coverage line and trust
+  rule, Haiku answers from one `findex_context` call in 2 turns and does not
+  re-search. This holds on the four held-out tasks in three other languages.
+- Concept questions (t3) cost more with Findex; cross-file trace (t4) and
+  code-change tasks (t5, t6) show no significant difference.
+- Putting the rule into the system prompt as well (F) adds nothing over the
+  MCP instructions (D). No user or global Claude setting is needed.
+- Arm A's cost varies between runs (t2: 28k in Run 3, 135k in Run 4), so only
+  within-run paired comparisons are valid. Run 3 and Run 4 are not pooled.
+- Run 3's numbers below were computed by `ab_stats.py` before the `groups`
+  field was added; its committed `ab_stats.json` is kept unchanged.
 
 ## Run 3 — `results/20261012T105254Z-397bf78730ba` (code `397bf78`)
 
@@ -142,8 +222,10 @@ these partial directories is committed.
 
 ## Conclusion
 
-Token savings with Claude Code are **refuted for Haiku 4.5 on these tasks**,
-not merely undemonstrated. The single-session pilot (Run 1) suggested fewer
-turns for D/E; Run 3 with three repetitions does not reproduce it. Findex's
-measured value is in retrieval quality (RETRIEVAL_RESULTS), not in reducing
-this model's token use.
+Run 3 (`397bf78`): token savings were **refuted for Haiku 4.5**, because the
+model repeated every Findex answer with Grep. Run 4 (`ac4ea21`), after the
+coverage line and trust rule: **D saves tokens and turns on navigation tasks,
+including four held-out tasks** (−23.7 %, 95 % CI [−21.4k, −8.7k] per
+session), with no loss of correctness (36/36). Not demonstrated: savings on
+concept questions (t3 costs +14.0k), cross-file traces and code changes;
+models other than Haiku 4.5; repositories other than the 7 corpora.

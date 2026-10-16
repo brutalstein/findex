@@ -50,9 +50,15 @@ or reporting gap.
    covered 25 edits/creates/renames/deletes per run. Mass changes (checkout of
    another branch touching thousands of files) rely on the full-rescan
    fallback and were not stress-tested.
+   **Tested in vNext (`384393c`):** ripgrep 14.1.1 ↔ 13.0.0 (148 files) under
+   a running MCP watcher; correct after each switch within ~1.1 s
+   (`results/20261016T105742Z-384393cfdee2`). Thousands-of-files switches
+   not tested.
 9. **OneDrive / network volumes not tested** (medium). Corpora and state ran
    on a local NVMe volume. Cloud placeholder files and SMB shares were not
    exercised.
+   **Partly tested in vNext:** this repository indexed in place in a OneDrive
+   folder, 0 stale results. Cloud-only placeholders and SMB still untested.
 
 ## Claude Code and tokens
 
@@ -63,6 +69,9 @@ or reporting gap.
     Per-task standard deviations reach 65 % of the mean (t3 B). Results must
     not be extrapolated to Sonnet/Opus or to large tasks. *Action:* more
     repetitions, a stronger model, tasks sized to large repositories.
+    **vNext:** Run 4 (108 sessions, 12 tasks incl. 4 held-out): D −23.7 %
+    tokens on held-out tasks, CI excludes zero (campaigns/vnext/CLAUDE_AB_RESULTS).
+    Still one model.
 11. **Shared prompt cache across sessions** (medium, measurement). Cache
     reuse is account-wide, so cache-creation vs cache-read splits depend on
     run order. Counterbalancing (ABBA) spreads but does not remove this; total
@@ -73,6 +82,9 @@ or reporting gap.
     depend on tool choice, which Findex cannot force. *Action:* measure with
     tool-use guidance in the project's `CLAUDE.md`, reported as a separate
     arm.
+    **vNext:** with the trust rule in the MCP instructions, Haiku called
+    `findex_context` in every navigation session of arm D and did not
+    re-search (Run 4).
 13. **Only Claude Code 2.1.281 tested; it negotiates 2025-11-25** (low). The
     2026-07-28 stateless path is covered by unit and black-box tests, not by a
     real client.

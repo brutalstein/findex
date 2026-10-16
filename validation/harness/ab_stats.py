@@ -49,7 +49,14 @@ def main() -> int:
             "pooled_relative_tokens": sum(total(x) for x, _ in pairs) / sum(total(a) for _, a in pairs) - 1,
             "pooled_turns": ci([(x["num_turns"] or 0) - (a["num_turns"] or 0) for x, a in pairs], rng),
             "success": [sum(bool(x["correct"]) for x, _ in pairs), sum(bool(a["correct"]) for _, a in pairs), len(pairs)],
-            "per_task": per_task}
+            "per_task": per_task,
+            # Task groups by id prefix: h = held-out, t = development, n = negative controls.
+            "groups": {group: {"tokens": ci([total(x) - total(a) for x, a in sub], rng),
+                               "relative_tokens": sum(total(x) for x, _ in sub) / sum(total(a) for _, a in sub) - 1,
+                               "turns": ci([(x["num_turns"] or 0) - (a["num_turns"] or 0) for x, a in sub], rng),
+                               "success": [sum(bool(x["correct"]) for x, _ in sub), sum(bool(a["correct"]) for _, a in sub), len(sub)]}
+                       for group, prefix in (("heldout", "h"), ("dev", "t"), ("negative", "n"))
+                       if (sub := [(x, a) for x, a in pairs if x["task"].startswith(prefix)])}}
     write_json(out / "ab_stats.json", result)
     return 0
 

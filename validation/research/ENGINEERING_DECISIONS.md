@@ -123,3 +123,21 @@ issues: query = GitHub issue title, gold = non-test source files changed by
 the closing commit, evaluated at its parent. Split by issue parity, fixed
 before any result was seen: odd = dev (may be inspected), even = held-out
 (reported only in aggregate).
+
+## D9. Exhaustive coverage line and a trust rule instead of forcing tool use
+
+*Evidence.* Run 3 (`397bf78`): in every D session on t1/t2 (6/6) Haiku called
+`findex_context`, then repeated the search with Grep/Glob, so Findex added
+tokens (+31 %). The report gave no way to tell a complete answer from a
+partial one.
+
+*Decision.* When a report is not truncated, it states per name that every
+indexed file containing it was scanned and every code occurrence is shown
+(with omitted comment lines counted). The MCP instructions say: a complete
+report needs no Grep; if unsure, ask Findex again; if a file contradicts the
+report, trust the file. No user or global Claude setting is changed; a
+system-prompt copy of the rule (arm F) was measured and adds nothing.
+
+*Verification.* The claim holds for 279/279 golden names against
+`git grep -w` (7 corpora). Run 4 (`ac4ea21`): D sessions re-searching on
+t1/t2 fell to 0/6; held-out tasks −23.7 % tokens, 12/12 correct.

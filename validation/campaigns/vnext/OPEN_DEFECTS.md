@@ -16,6 +16,8 @@
 | F10 | A/B sessions loaded the operator's CLAUDE.md and skills | `CLAUDE_CODE_DISABLE_CLAUDE_MDS=1`, Skill denied | probe; CLAUDE_AB_RESULTS |
 | F11 | Expired sign-in sessions scored as wrong answers | `blocked_session()` → BLOCKED, run stops | harness self-checks; run `96295ee75261` reclassified |
 | F12 | Study results written only at the end (lost on interruption) | save after every session, `--resume` | `claude_ab.py` |
+| F13 | Haiku re-checked complete `findex_context` reports with Grep (Run 3: 6/6 D sessions on t1/t2; +31 % tokens) | per-name exhaustive coverage line (only when not truncated) + trust rule in MCP instructions | `complete_reports_state_exhaustive_coverage_and_omitted_comments`, `instructions_say_when_a_report_needs_no_second_search`; coverage 279/279 vs `git grep`; Run 4: 0/6, −23.7 % held-out |
+| F14 | Study workspace copy crashed on ripgrep `target/` (MAX_PATH) | copy `git ls-files` tracked files only | `claude_session.py` `fresh_workspace` |
 
 ## Root-caused, not changed
 
@@ -31,5 +33,5 @@
 | O2 | medium | Vendored packages inside a project (`requests/packages/urllib3`) outrank the project's code | no reliable language-independent vendored-code signal without false negatives |
 | O3 | medium | hit@10 on held-out localization not improved (0.750 vs 0.786 main) | concept fallback ranks by lexical coverage; top-10 breadth unchanged |
 | O4 | low | `findex context --json` output is not budgeted (max 41.8 KB); the MCP text output is | CLI JSON is for tooling |
-| O5 | high | With Findex available, Haiku 4.5 uses more tokens (D +31 %, E +70 %); it re-verifies `findex_context` results with Grep | model behaviour; no change found that is not tuned on the study tasks themselves |
+| O5 | medium | Concept questions (t3) cost more with Findex (+14.0k tokens [+2.4k, +20.0k], Run 4) | concept reports are long and the model still reads files; not fixed to avoid tuning on study tasks |
 | O6 | medium | Cross-language edge precision unmeasured | SCIP indexers for Python/TS/C++ not installed |
