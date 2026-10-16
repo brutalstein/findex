@@ -964,9 +964,15 @@ mod tests {
         let original = b"this is not a sqlite database, it is garbage".repeat(200);
         fs::write(&db, &original).expect("garbage");
         let err = synchronize_into(project.path(), &db).expect_err("must fail closed");
-        assert!(err.to_string().contains("original database preserved"), "{err}");
+        assert!(
+            err.to_string().contains("original database preserved"),
+            "{err}"
+        );
         assert_eq!(fs::read(&db).expect("preserved"), original);
-        assert!(verify_index_into(&db).is_err(), "corrupt cache must remain visible");
+        assert!(
+            verify_index_into(&db).is_err(),
+            "corrupt cache must remain visible"
+        );
     }
 
     /// Text of a deleted file must not stay recoverable from the cache files

@@ -845,22 +845,41 @@ mod tests {
             |_root, _name, _limit| panic!("symbols must not run"),
             |_root, _path| panic!("file inspection must not run"),
             |_root, _task, _budget| panic!("context must not run"),
-        ).expect("response");
+        )
+        .expect("response");
         assert_eq!(response["result"]["isError"], false);
         let contract: Value = serde_json::from_str(
-            response["result"]["content"][0]["text"].as_str().expect("contract")
-        ).expect("json");
-        assert_eq!(contract["source_policy"]["max_admitted_files_per_scan"], 100000);
-        assert_eq!(contract["relationships"]["complete_typed_call_graph"], false);
+            response["result"]["content"][0]["text"]
+                .as_str()
+                .expect("contract"),
+        )
+        .expect("json");
+        assert_eq!(
+            contract["source_policy"]["max_admitted_files_per_scan"],
+            100000
+        );
+        assert_eq!(
+            contract["relationships"]["complete_typed_call_graph"],
+            false
+        );
         assert_eq!(contract["models_or_network_calls_per_query"], 0);
-        assert_eq!(contract["syntax_languages"].as_array().expect("languages").len(), 5);
+        assert_eq!(
+            contract["syntax_languages"]
+                .as_array()
+                .expect("languages")
+                .len(),
+            5
+        );
     }
 
     #[test]
     fn tool_execution_errors_never_expose_paths_or_provider_secrets() {
         const SECRET: &str = r"C:\\Users\\private-person\\secrets\\token_123456";
         for (name, arguments) in [
-            ("findex_context", json!({"task":"find path","budget_tokens":1200})),
+            (
+                "findex_context",
+                json!({"task":"find path","budget_tokens":1200}),
+            ),
             ("findex_search", json!({"query":"needle","limit":3})),
             ("findex_find_symbol", json!({"name":"needle","limit":3})),
             ("findex_symbols", json!({"path":"src/main.rs"})),
@@ -879,10 +898,14 @@ mod tests {
                 |_root, _task, _budget| Err(fail()),
             )
             .expect("MCP response");
-            let result = response["result"]["content"][0]["text"].as_str()
+            let result = response["result"]["content"][0]["text"]
+                .as_str()
                 .expect("error text");
             assert_eq!(response["result"]["isError"], true);
-            assert!(!result.contains(SECRET) && !result.contains("private-person"), "{result}");
+            assert!(
+                !result.contains(SECRET) && !result.contains("private-person"),
+                "{result}"
+            );
             assert!(result.contains("Read/Grep/Glob"), "{result}");
         }
     }
