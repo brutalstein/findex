@@ -31,6 +31,16 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 stats.indexed, stats.unchanged, stats.removed, stats.skipped, stats.examined
             );
         }
+        "index-check" => {
+            if args.next().is_some() {
+                return Err("usage: findex index-check".into());
+            }
+            let health = findex_index::verify_index(&project)?;
+            println!(
+                "Index integrity: {} (schema {}, {} files, {} documents)",
+                health.status, health.schema, health.files, health.documents
+            );
+        }
         "refresh" => {
             let paths: Vec<PathBuf> = args.map(PathBuf::from).collect();
             if paths.is_empty() {

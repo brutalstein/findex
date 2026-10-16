@@ -83,29 +83,42 @@ pub fn refresh_known_paths_into(
         let verified = if is_sensitive_filename(&absolute) {
             None
         } else {
-            // Never follow symlinked files, junctions or paths outside this root.
-            let metadata = fs::symlink_metadata(&absolute).ok();
-            let inside = absolute
-                .canonicalize()
-                .ok()
-                .is_some_and(|resolved| resolved.starts_with(&project));
+            // A transient NTFS/cloud-sync metadata or canonicalization error
+            // is not proof that the file was removed. Keep the previous record,
+            // but hash verification prevents it from being returned while stale.
+            let metadata = match fs::symlink_metadata(&absolute) {
+                Ok(meta) => Some(meta),
+                Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+                Err(_) => {
+                    report.unreadable += 1;
+                    continue;
+                }
+            };
             match metadata {
-                Some(meta)
-                    if meta.file_type().is_file() && meta.len() <= MAX_SOURCE_BYTES && inside =>
-                {
-                    match fs::read(&absolute) {
-                        Ok(bytes) => Some(bytes).filter(|bytes| {
-                            (bytes.len() as u64) <= MAX_SOURCE_BYTES
-                                && !bytes.contains(&0)
-                                && std::str::from_utf8(bytes).is_ok()
-                        }),
-                        Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
-                        // Hits re-verify the hash, so the kept entry can cost
-                        // a miss but never return stale text.
+                Some(meta) if meta.file_type().is_file() && meta.len() <= MAX_SOURCE_BYTES => {
+                    let inside = match absolute.canonicalize() {
+                        Ok(resolved) => resolved.starts_with(&project),
+                        Err(err) if err.kind() == std::io::ErrorKind::NotFound => false,
                         Err(_) => {
                             report.unreadable += 1;
                             continue;
                         }
+                    };
+                    if inside {
+                        match fs::read(&absolute) {
+                            Ok(bytes) => Some(bytes).filter(|bytes| {
+                                (bytes.len() as u64) <= MAX_SOURCE_BYTES
+                                    && !bytes.contains(&0)
+                                    && std::str::from_utf8(bytes).is_ok()
+                            }),
+                            Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+                            Err(_) => {
+                                report.unreadable += 1;
+                                continue;
+                            }
+                        }
+                    } else {
+                        None
                     }
                 }
                 _ => None,

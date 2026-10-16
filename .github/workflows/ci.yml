@@ -62,6 +62,20 @@ jobs:
           .\target\release\findex.exe --version
           .\target\release\findex.exe help
           .\target\release\findex.exe doctor
+      - name: Offline Section 5 index durability and FTS5 integrity
+        shell: pwsh
+        run: |
+          python validation/harness/section5_stress.py target/release/findex.exe --files 1200 --out section5-stress.json
+          if ($LASTEXITCODE -ne 0) { throw "1.2k-file index durability verification failed" }
+          python validation/harness/section5_stress.py target/release/findex.exe --files 10000 --out section5-stress-10k.json
+          if ($LASTEXITCODE -ne 0) { throw "10k-file index durability verification failed" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: section5-windows-index-stress
+          path: |
+            section5-stress.json
+            section5-stress-10k.json
+          if-no-files-found: error
       - name: MCP protocol and lexical search smoke
         shell: pwsh
         run: |
