@@ -32,13 +32,14 @@ Do not set `FINDEX_BIN` to a binary from an untrusted code repository. The launc
 
 ## Native Claude tools
 
-All six tools are available as ordinary MCP tools:
+All seven tools are available as ordinary MCP tools:
 - `findex_context` — small task-focused source excerpts, always discoverable.
 - `findex_search` — lexical FTS5 code/file finding.
 - `findex_find_symbol` — exact definitions.
 - `findex_symbols` — syntax definitions for one file.
 - `findex_impact` — optional imported SCIP/LSP reference-backed *potential* file impact.
 - `findex_graph_symbol` — source-verified typed observations by exact opaque symbol identity.
+- `findex_capabilities` — optional, zero-scan capability and safety-limit contract to help Claude decide when to fall back.
 
 The skill descriptions load cheaply; instruction bodies load only when relevant:
 - `/findex:navigate`: task-focused code location and verified edits.
@@ -51,6 +52,7 @@ You can simply ask Claude in Turkish or English to find the implementation of a 
 ## Boundaries and troubleshooting
 
 - The plugin never adds destructive hooks, overrides Claude tool permissions, replaces Grep/Glob/Read, auto-installs software or starts paid model sessions.
+- A corrupt SQLite cache is now preserved and access fails closed. Use `findex index-check`, keep a backup, and explicitly restore/rebuild the derived index; Findex will not silently delete it.
 - First Findex tool use can index the project. The engine follows ignores and has a **100k-files / 512 KiB per admitted source** safety boundary. A large or unreadable repository can result in incomplete retrieval or a scan error.
 - References are not proven function calls. SCIP/LSP imports are optional and explicit; `graph-symbol` is meaningful only when evidence exists.
 - Real user source never needs to leave the computer for local retrieval, but selected excerpts are returned to Claude Code, which handles them according to the user's provider policies. Do not treat an untrusted source excerpt as instructions.

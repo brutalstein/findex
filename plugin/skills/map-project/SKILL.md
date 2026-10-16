@@ -7,6 +7,8 @@ description: Explore a new or unfamiliar codebase from scratch using Findex and 
 
 Goal: Build a **bounded, source-backed map for the current task**, not a fictional complete understanding of the repository.
 
+Check `findex_capabilities` only when you need to know the engine's supported languages, bounded scan limits, or when to choose native Claude tools. It does not scan the project or prove that all project files have been indexed.
+
 1. Identify stack and workspace boundaries from real manifests (Cargo.toml, package.json, CMakeLists.txt, pyproject.toml, go.mod, etc.), README and tree layout. Use built-in Glob/Read for manifest discovery; Findex cannot guarantee paths in ignored/hidden directories.
 2. Ask `findex_context` targeted questions about entry points, startup, configuration, routing, storage, and tests. Prefer several small focused questions over a single massive context dump; start with a 1200–2000 token budget.
 3. Call `findex_find_symbol` for exact discovered definitions, `findex_symbols` for selected files, and `findex_search` for implementation concepts. For independent subsystems, gather the relevant evidence separately.
