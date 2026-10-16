@@ -56,6 +56,23 @@ jobs:
           python -m pip install --quiet psutil==7.0.0
           python validation/harness/test_live_gate.py
           if ($LASTEXITCODE -ne 0) { throw "Live-model gate regression" }
+      - name: Validate Claude Code native plugin and offline MCP package
+        shell: pwsh
+        run: |
+          python validation/harness/plugin_check.py --plugin plugin --marketplace .claude-plugin/marketplace.json --binary target/release/findex.exe --out plugin-validation.json
+          if ($LASTEXITCODE -ne 0) { throw "Findex Claude plugin offline validation failed" }
+          $claude = Get-Command claude.exe -CommandType Application -ErrorAction SilentlyContinue
+          if ($null -ne $claude) {
+            & $claude.Source plugin validate ./plugin --strict
+            if ($LASTEXITCODE -ne 0) { throw "Official Claude Code plugin validation failed" }
+          } else {
+            Write-Host "Official Claude Code plugin validator unavailable on CI runner; the native plugin contract was checked offline."
+          }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: findex-claude-plugin-validation
+          path: plugin-validation.json
+          if-no-files-found: error
       - name: Verify native executable and CLI
         shell: pwsh
         run: |
@@ -214,6 +231,14 @@ jobs:
           Copy-Item target\release\findex.exe dist\findex\findex.exe
           Copy-Item -Recurse plugin dist\findex\plugin
           Copy-Item README.md, LICENSE, Cargo.lock dist\findex\
+          # Independently installable Claude plugin ZIP: bundled trusted native
+          # executable, no PATH dependency and no runtime downloads.
+          Copy-Item -Recurse plugin dist\findex-plugin
+          New-Item -ItemType Directory -Force -Path dist\findex-plugin\bin | Out-Null
+          Copy-Item target\release\findex.exe dist\findex-plugin\bin\findex.exe
+          Compress-Archive -Path dist\findex-plugin -DestinationPath dist\findex-claude-plugin.zip
+          $pluginHash = (Get-FileHash -Algorithm SHA256 dist\findex-claude-plugin.zip).Hash.ToLowerInvariant()
+          "$pluginHash  findex-claude-plugin.zip" | Set-Content -Encoding utf8 dist\findex-claude-plugin.sha256
           python validation/harness/sbom.py dist\findex\sbom.cdx.json
           if ($LASTEXITCODE -ne 0) { throw 'SBOM generation failed' }
           "git-commit=$env:GITHUB_SHA" | Set-Content dist\findex\BUILD-INFO.txt
@@ -229,6 +254,14 @@ jobs:
           path: |
             dist/findex-windows-x64.zip
             dist/findex-windows-x64.sha256
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: findex-claude-plugin-windows-x64
+          path: |
+            dist/findex-claude-plugin.zip
+            dist/findex-claude-plugin.sha256
           if-no-files-found: error
           retention-days: 14
       # Pull requests (including forks) get no id-token; attest pushes to main and manual runs.

@@ -9,7 +9,7 @@ Findex is designed as a local-first, modular code intelligence engine that helps
 
 - Native Rust CLI for **Windows 10/11 x64** (`findex.exe`).
 - `findex claude [flags...]` launches the official `claude.exe` in the existing terminal and working directory, forwarding arguments.
-- Optional adjacent Claude plugin contributes the MCP tools `findex_context` (always loaded), `findex_search`, `findex_find_symbol`, `findex_symbols` and `findex_impact` using the normal Claude Code plugin loader.
+- Claude Code native plugin works with **official `claude` directly** (no `findex claude` required): on-demand navigation/project-map/impact skills and the MCP tools `findex_context` (discoverable upfront), `findex_search`, `findex_find_symbol`, `findex_symbols`, `findex_impact`, `findex_graph_symbol`. Self-contained signed-checksum ZIP artifacts and a source marketplace are available; the native binary is unsigned.
 - Task-oriented context (`findex context <task>`, MCP `findex_context`): for a named identifier, its definition, every call site with the enclosing function, or its tests; for a named file, its definitions; otherwise a text search over the task words. Intent words are recognised in English and Turkish. A report with a coverage line and no truncation lists every code occurrence of the name; this claim is checked against `git grep` by `validation/harness/coverage_check.py`.
 - Definition-first retrieval: queries matching a defined identifier (`GitignoreBuilder`, `gitignore builder`, `gitignore_builder`) return the definition first; other queries use SQLite FTS5 with camelCase-aware terms, ranked by query-term coverage, same-line co-occurrence and BM25. Every returned hit is source-hash verified; excerpts mask common credential shapes.
 - Persisted Tree-sitter definitions with language-aware extraction for Rust, Python, TypeScript/JavaScript and C++.
@@ -22,6 +22,18 @@ Findex is designed as a local-first, modular code intelligence engine that helps
 ### What is **not** implemented
 
 Live LSP orchestration, complete cross-language/type/call graph, hybrid embeddings, a general adaptive search planner, verified project memory, full source-code secret scanning (only excerpt redaction of common credential shapes exists) and token telemetry inside the CLI. Retrieval, performance, security, real Claude Code integration and a small matched Claude Code A/B study are measured by the [validation suite](validation/README.md); see its report for what was and was not shown. Findex is still experimental. CLI searches reconcile before each query; warm MCP lexical and symbol lookups use a native watcher with safe fallbacks.
+
+## Claude Code native plugin (no `findex claude` required)
+
+Findex can run as a **normal Claude Code plugin**, without opening a Findex launcher. It adds six local MCP tools for context, lexical search, exact symbol lookup, per-file syntax, optional reference impact and typed symbol evidence, plus on-demand skills for code navigation, mapping an unfamiliar project and tracing change impact. Claude's built-in Read/Grep/Glob remain available and should be used whenever Findex evidence is missing, incomplete or not enough to justify editing.
+
+**Recommended evaluation:** obtain the SHA-256-verified `findex-claude-plugin.zip` artifact from a successful Windows CI run, extract its `findex-plugin` directory, then run the official `claude --plugin-dir "C:\\Tools\\findex-plugin"` in any repository. This artifact includes `bin/findex.exe`; it does **not** download or install binaries at runtime.
+
+**Developer/marketplace installation:** `claude plugin marketplace add brutalstein/findex`, then `claude plugin install findex@findex-marketplace`. The source marketplace provides plugin files **only**. Configure an existing verified `findex.exe` on PATH or set `FINDEX_BIN` to its absolute path. The plugin never secretly rebuilds or installs native code.
+
+Try `/findex:navigate`, `/findex:map-project`, `/findex:trace-impact` or ask Claude naturally (English or Turkish). The maintenance skill requires an explicit user invocation. Technical boundaries and verified installation steps: [plugin/README.md](plugin/README.md).
+
+**Trust boundary:** Tools report hash-verified *admitted* source evidence, not an exhaustive model of all code or type-resolved call edges. No plugin can guarantee zero risk or guaranteed token savings on all project sizes; large repositories, ignored files and incomplete indexers need conservative fallback and separate evidence.
 
 ## Build
 
