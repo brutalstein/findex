@@ -6,7 +6,7 @@ A local-first, on-demand code-navigation plugin for **the official Claude Code C
 
 ### Self-contained plugin ZIP (recommended for evaluation)
 
-Download the **findex-claude-plugin.zip** build artifact from a successful Windows CI run. Verify its SHA-256 file against the downloaded ZIP, then extract to a trusted folder. The extracted `findex-plugin/` includes its native `bin/findex.exe`.
+Download the **findex-claude-plugin.zip** build artifact from a successful Windows CI run. Verify its SHA-256 file against the downloaded ZIP, then extract to a trusted folder. SHA-256 checks accidental or unauthorized file changes against a separately trusted reference; it is **not** Authenticode publisher signing. Trust the GitHub repository and CI provenance rather than accepting a checksum supplied by an untrusted mirror. The extracted `findex-plugin/` includes its native `bin/findex.exe`.
 
 Start official Claude Code in any project with the plugin:
 ```powershell
