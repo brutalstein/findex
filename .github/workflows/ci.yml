@@ -67,7 +67,7 @@ jobs:
         run: |
           python validation/harness/section5_stress.py target/release/findex.exe --files 1200 --out section5-stress.json
           if ($LASTEXITCODE -ne 0) { throw "Index durability verification failed" }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
         with:
           name: section5-windows-index-stress
           path: section5-stress.json

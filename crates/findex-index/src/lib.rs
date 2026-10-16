@@ -185,7 +185,6 @@ fn try_open_schema(db: &Path) -> Result<Connection> {
     Ok(conn)
 }
 
-
 /// Explicit operator health check: no implicit reindex, repair, or schema
 /// migration. Checks SQLite b-trees, FTS5 segment consistency and the 1:1
 /// rowid contract between source metadata and full-text documents.
@@ -217,7 +216,8 @@ pub fn verify_index_into(database: &Path) -> Result<IndexHealth> {
     if schema != LEXICAL_SCHEMA {
         return Err(format!(
             "expected lexical schema {LEXICAL_SCHEMA}; observed {schema}; no changes made"
-        ).into());
+        )
+        .into());
     }
     let check: String = conn.query_row("PRAGMA quick_check", [], |row| row.get(0))?;
     if check != "ok" {
@@ -229,12 +229,14 @@ pub fn verify_index_into(database: &Path) -> Result<IndexHealth> {
     let dangling: i64 = conn.query_row(
         "SELECT count(*) FROM files f
          LEFT JOIN docs d ON d.rowid=f.id WHERE d.rowid IS NULL",
-        [], |row| row.get(0),
+        [],
+        |row| row.get(0),
     )?;
     let orphan: i64 = conn.query_row(
         "SELECT count(*) FROM docs d
          LEFT JOIN files f ON f.id=d.rowid WHERE f.id IS NULL",
-        [], |row| row.get(0),
+        [],
+        |row| row.get(0),
     )?;
     if files != documents || dangling != 0 || orphan != 0 {
         return Err("FTS5 documents and source-file metadata disagree".into());
@@ -936,19 +938,20 @@ mod tests {
         assert_eq!(clean.files, 2);
         assert_eq!(clean.documents, 2);
         let conn = Connection::open(&db).expect("db");
-        let id: i64 = conn.query_row(
-            "SELECT id FROM files WHERE path='a.rs'",
-            [], |row| row.get(0),
-        ).expect("file id");
+        let id: i64 = conn
+            .query_row("SELECT id FROM files WHERE path='a.rs'", [], |row| {
+                row.get(0)
+            })
+            .expect("file id");
         conn.execute("DELETE FROM docs WHERE rowid=?1", params![id])
             .expect("remove one FTS record");
         drop(conn);
         assert!(verify_index_into(&db).is_err());
         // Verification never rewrites, rebuilds or hides the corruption.
         let raw = Connection::open(&db).expect("original preserved");
-        let remaining: i64 = raw.query_row(
-            "SELECT count(*) FROM docs", [], |row| row.get(0),
-        ).expect("count");
+        let remaining: i64 = raw
+            .query_row("SELECT count(*) FROM docs", [], |row| row.get(0))
+            .expect("count");
         assert_eq!(remaining, 1);
         drop(raw);
         synchronize_into(project.path(), &db).expect("reconcile");
