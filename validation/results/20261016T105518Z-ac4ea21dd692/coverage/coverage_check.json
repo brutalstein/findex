@@ -1,0 +1,3043 @@
+{
+  "status": "EXECUTED",
+  "truth": "git grep -n -w -I -F over golden.admitted_files",
+  "corpora": {
+    "findex": {
+      "names": 40,
+      "claims": 40,
+      "claims_hold": 40,
+      "violations": [],
+      "rows": [
+        {
+          "name": "Analysis",
+          "truth_lines": 10,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "CapturedInput",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "CapturedReferences",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Evidence",
+          "truth_lines": 11,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "docs/adr/0006-scip-lsp-evidence-graph.md",
+              1
+            ],
+            [
+              "docs/roadmap.md",
+              52
+            ]
+          ]
+        },
+        {
+          "name": "ImpactHit",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ImpactReport",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "RefreshReport",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "WatchedIndex",
+          "truth_lines": 9,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "admitted",
+          "truth_lines": 12,
+          "uncovered": 3,
+          "allowed_omissions": 3,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/findex-index/src/refresh.rs",
+              1
+            ],
+            [
+              "crates/findex-index/src/symbols.rs",
+              146
+            ],
+            [
+              "crates/findex-relations/src/lsp.rs",
+              66
+            ]
+          ]
+        },
+        {
+          "name": "analyze",
+          "truth_lines": 13,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "caches_definitions_and_reuses_identical_source",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "changed_imported_file_does_not_revalidate_unrelated_stale_edges",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "clear",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "connect",
+          "truth_lines": 15,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "cpp_declarator_name",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "currently_admitted",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "disallows_unrecognized_tool_and_unbounded_limits",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "excludes_secrets_and_binary_files",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "file_access_rejects_traversal_and_secrets",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "file_inspection_obeys_ignore_admission_and_detects_stale_edits",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "finds_code_and_handles_edits_and_removal",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ignored_build_churn_does_not_force_full_scan",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "import_scip_bytes",
+          "truth_lines": 10,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "injected_change_updates_symbol_names_and_respects_admission",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "inspect_indexed_file",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "invalid_import_does_not_replace_valid_snapshot",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "javascript_arrow_function_is_a_named_definition_not_a_constant",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "migrates_existing_lexical_index_without_changing_file_hash",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "native_scip_binary_produces_reference_impact",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "oversized_payload_and_missing_documents_are_rejected",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "parser_reports_syntax_errors_without_claiming_type_resolution",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "prefers_files_and_excerpts_covering_more_query_terms",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "print_help",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "project_file",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "refresh_and_delete_invalidate_definitions",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "sensitive_filename_rules",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "serve",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "synchronize",
+          "truth_lines": 13,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/findex-index/src/refresh.rs",
+              4
+            ],
+            [
+              "crates/findex-index/src/refresh.rs",
+              30
+            ]
+          ]
+        },
+        {
+          "name": "upsert",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "verify_path",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        }
+      ]
+    },
+    "fmt": {
+      "names": 40,
+      "claims": 40,
+      "claims_hold": 40,
+      "violations": [],
+      "rows": [
+        {
+          "name": "BeginEndDistanceIsMatcher",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "BranchPattern",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "DefaultValueHolderFactory",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "EndsWithMatcher",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "EqMatcher",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "IndexSequence",
+          "truth_lines": 19,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gtest/gtest.h",
+              4540
+            ]
+          ]
+        },
+        {
+          "name": "InvokeWithoutArgs",
+          "truth_lines": 6,
+          "uncovered": 4,
+          "allowed_omissions": 4,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gmock/gmock.h",
+              1849
+            ],
+            [
+              "test/gtest/gmock/gmock.h",
+              1851
+            ],
+            [
+              "test/gtest/gmock/gmock.h",
+              1857
+            ]
+          ]
+        },
+        {
+          "name": "KeyMatcher",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "KindOf",
+          "truth_lines": 4,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gmock/gmock.h",
+              429
+            ]
+          ]
+        },
+        {
+          "name": "MakePredicateFormatterFromMatcher",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "NanSensitiveFloatEq",
+          "truth_lines": 3,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gmock/gmock.h",
+              4580
+            ]
+          ]
+        },
+        {
+          "name": "ParamIteratorInterface",
+          "truth_lines": 27,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gtest/gtest.h",
+              8075
+            ]
+          ]
+        },
+        {
+          "name": "RelationToSourceReference",
+          "truth_lines": 5,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gtest/gtest.h",
+              4459
+            ]
+          ]
+        },
+        {
+          "name": "StaticAssertTypeEq",
+          "truth_lines": 6,
+          "uncovered": 5,
+          "allowed_omissions": 5,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gtest/gtest.h",
+              12189
+            ],
+            [
+              "test/gtest/gtest/gtest.h",
+              12192
+            ],
+            [
+              "test/gtest/gtest/gtest.h",
+              12194
+            ]
+          ]
+        },
+        {
+          "name": "ThisRefAdjuster",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Throws",
+          "truth_lines": 8,
+          "uncovered": 5,
+          "allowed_omissions": 5,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gmock/gmock.h",
+              8039
+            ],
+            [
+              "test/gtest/gmock/gmock.h",
+              8040
+            ],
+            [
+              "test/gtest/gmock/gmock.h",
+              8050
+            ]
+          ]
+        },
+        {
+          "name": "UniversalTersePrint",
+          "truth_lines": 6,
+          "uncovered": 4,
+          "allowed_omissions": 4,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/gtest/gtest/gtest.h",
+              5131
+            ],
+            [
+              "test/gtest/gtest/gtest.h",
+              5134
+            ],
+            [
+              "test/gtest/gtest/gtest.h",
+              6046
+            ]
+          ]
+        },
+        {
+          "name": "__attribute__",
+          "truth_lines": 19,
+          "uncovered": 9,
+          "allowed_omissions": 9,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "include/fmt/base.h",
+              219
+            ],
+            [
+              "include/fmt/base.h",
+              231
+            ],
+            [
+              "include/fmt/format.h",
+              104
+            ]
+          ]
+        },
+        {
+          "name": "basic_format_arg",
+          "truth_lines": 37,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "include/fmt/args.h",
+              105
+            ],
+            [
+              "include/fmt/args.h",
+              109
+            ]
+          ]
+        },
+        {
+          "name": "compute_mul_parity_result",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "concat",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "context",
+          "truth_lines": 79,
+          "uncovered": 26,
+          "allowed_omissions": 26,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "include/fmt/base.h",
+              337
+            ],
+            [
+              "include/fmt/base.h",
+              748
+            ],
+            [
+              "include/fmt/base.h",
+              814
+            ]
+          ]
+        },
+        {
+          "name": "convertible_to_std_string_view",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "float_specs",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "formal_usage",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "format_handler",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "format_string_checker",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "has_flip",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "is_contiguous",
+          "truth_lines": 9,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "is_set",
+          "truth_lines": 3,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "test/ranges-test.cc",
+              128
+            ]
+          ]
+        },
+        {
+          "name": "is_tuple_formattable",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "parse_arg_id",
+          "truth_lines": 14,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "parse_pattern",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "parse_tail",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "parse_test_specs",
+          "truth_lines": 14,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "report_truncation",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "streamable_and_unformattable",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "struct_as_const_reference",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "utf8_system_category",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "year",
+          "truth_lines": 75,
+          "uncovered": 6,
+          "allowed_omissions": 6,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "include/fmt/chrono.h",
+              784
+            ],
+            [
+              "include/fmt/chrono.h",
+              1251
+            ],
+            [
+              "include/fmt/chrono.h",
+              1519
+            ]
+          ]
+        }
+      ]
+    },
+    "pybind11": {
+      "names": 40,
+      "claims": 40,
+      "claims_hold": 40,
+      "violations": [],
+      "rows": [
+        {
+          "name": "A_Repeat",
+          "truth_lines": 15,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Comparable",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "DoesNotSupportAsync",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Dupe1",
+          "truth_lines": 7,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Field",
+          "truth_lines": 10,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "include/pybind11/numpy.h",
+              1612
+            ],
+            [
+              "include/pybind11/numpy.h",
+              1621
+            ]
+          ]
+        },
+        {
+          "name": "HashMe",
+          "truth_lines": 7,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "tests/test_operator_overloading.cpp",
+              123
+            ]
+          ]
+        },
+        {
+          "name": "Literal",
+          "truth_lines": 7,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "MyException3",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "MyObject1",
+          "truth_lines": 21,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "MyObject4",
+          "truth_lines": 13,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "OstreamRedirect",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ReferenceSensitiveOptional",
+          "truth_lines": 12,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "StringLiteral",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "StringWrapper",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "TypeIs",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "VStruct",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "VanillaDictMix2",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "_sanitize_docstring",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "adjust_matrix",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "all_type_info_populate",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "any_struct",
+          "truth_lines": 9,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "args_are_all_positional",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "as_unsigned",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "auxiliaries",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "const_name",
+          "truth_lines": 170,
+          "uncovered": 4,
+          "allowed_omissions": 4,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "docs/changelog.rst",
+              1163
+            ],
+            [
+              "include/pybind11/detail/descr.h",
+              103
+            ],
+            [
+              "include/pybind11/detail/descr.h",
+              105
+            ]
+          ]
+        },
+        {
+          "name": "constexpr_last",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "deprecated_call",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "dict_getitem",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "gen_f",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "generate_dummy_code_pybind11",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "globals",
+          "truth_lines": 18,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "include/pybind11/eval.h",
+              24
+            ],
+            [
+              "tests/test_embed/test_interpreter.cpp",
+              367
+            ]
+          ]
+        },
+        {
+          "name": "local_internals",
+          "truth_lines": 10,
+          "uncovered": 5,
+          "allowed_omissions": 5,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "include/pybind11/detail/internals.h",
+              577
+            ],
+            [
+              "include/pybind11/detail/internals.h",
+              579
+            ],
+            [
+              "include/pybind11/detail/internals.h",
+              590
+            ]
+          ]
+        },
+        {
+          "name": "make_index_sequence_impl",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "negation",
+          "truth_lines": 13,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "include/pybind11/detail/common.h",
+              728
+            ],
+            [
+              "include/pybind11/detail/common.h",
+              1279
+            ]
+          ]
+        },
+        {
+          "name": "object_api",
+          "truth_lines": 52,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "offset_at",
+          "truth_lines": 15,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "register_exception_translator",
+          "truth_lines": 12,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "register_instance_impl",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "stderr",
+          "truth_lines": 73,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "times_ten",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        }
+      ]
+    },
+    "requests": {
+      "names": 40,
+      "claims": 39,
+      "claims_hold": 39,
+      "violations": [],
+      "rows": [
+        {
+          "name": "CustomRedirectSession",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "DummyAuth",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "HTTPError",
+          "truth_lines": 20,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "HTTPProxyAuth",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "JSONDecodeError",
+          "truth_lines": 29,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "src/requests/models.py",
+              976
+            ],
+            [
+              "src/requests/models.py",
+              977
+            ]
+          ]
+        },
+        {
+          "name": "MyString",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "NoLenBoomFile",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "TLSServer",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "__bool__",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "_check_cryptography",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "_handle_requests",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "check_header_validity",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "default_hooks",
+          "truth_lines": 12,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "tests/test_requests.py",
+              2611
+            ]
+          ]
+        },
+        {
+          "name": "deregister_hook",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "generate",
+          "truth_lines": 6,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "docs/conf.py",
+              310
+            ],
+            [
+              "docs/requirements.txt",
+              2
+            ]
+          ]
+        },
+        {
+          "name": "get_auth_from_url",
+          "truth_lines": 10,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "get_cookie_header",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "get_new_headers",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "get_unicode_from_response",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "handler",
+          "truth_lines": 19,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "src/requests/__init__.py",
+              147
+            ]
+          ]
+        },
+        {
+          "name": "httpbin",
+          "claim": false
+        },
+        {
+          "name": "initialize_options",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "iteritems",
+          "truth_lines": 9,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "list_paths",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "mount",
+          "truth_lines": 21,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "no_proxy",
+          "truth_lines": 47,
+          "uncovered": 7,
+          "allowed_omissions": 7,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "src/requests/utils.py",
+              777
+            ],
+            [
+              "src/requests/utils.py",
+              778
+            ],
+            [
+              "src/requests/utils.py",
+              799
+            ]
+          ]
+        },
+        {
+          "name": "origin_req_host",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "parse_header_links",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "prepare_method",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "proxy_bypass_registry",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "read_mock",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "rebuild_proxies",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "resolve_redirects",
+          "truth_lines": 12,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "src/requests/sessions.py",
+              691
+            ],
+            [
+              "tests/test_requests.py",
+              319
+            ]
+          ]
+        },
+        {
+          "name": "sha256_utf8",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "sha512_utf8",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "super_len",
+          "truth_lines": 20,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "text",
+          "truth_lines": 104,
+          "uncovered": 9,
+          "allowed_omissions": 9,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "docs/conf.py",
+              90
+            ],
+            [
+              "docs/conf.py",
+              94
+            ],
+            [
+              "docs/conf.py",
+              216
+            ]
+          ]
+        },
+        {
+          "name": "to_native_string",
+          "truth_lines": 17,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "src/requests/utils.py",
+              27
+            ]
+          ]
+        },
+        {
+          "name": "unquote_header_value",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "urldefragauth",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        }
+      ]
+    },
+    "ripgrep": {
+      "names": 40,
+      "claims": 40,
+      "claims_hold": 40,
+      "violations": [],
+      "rows": [
+        {
+          "name": "AutoHybridRegex",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "BlockBuffered",
+          "truth_lines": 13,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ColorChoice",
+          "truth_lines": 39,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/cli/src/wtr.rs",
+              22
+            ]
+          ]
+        },
+        {
+          "name": "GitignoreBuilder",
+          "truth_lines": 25,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/ignore/src/gitignore.rs",
+              95
+            ],
+            [
+              "crates/ignore/src/gitignore.rs",
+              102
+            ]
+          ]
+        },
+        {
+          "name": "GlobSetBuilder",
+          "truth_lines": 33,
+          "uncovered": 3,
+          "allowed_omissions": 3,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/globset/src/lib.rs",
+              307
+            ],
+            [
+              "crates/globset/src/lib.rs",
+              488
+            ],
+            [
+              "crates/globset/src/lib.rs",
+              496
+            ]
+          ]
+        },
+        {
+          "name": "NoIgnoreFiles",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "NoIgnoreMessages",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Parser",
+          "truth_lines": 19,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/core/flags/parse.rs",
+              150
+            ],
+            [
+              "crates/core/flags/parse.rs",
+              151
+            ]
+          ]
+        },
+        {
+          "name": "PathSeparator",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "PatternSetPoolFn",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ReadByLine",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Token",
+          "truth_lines": 70,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "allow_directories",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "as_slice",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "base64_standard",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "basic",
+          "truth_lines": 10,
+          "uncovered": 4,
+          "allowed_omissions": 4,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/core/flags/complete/rg.zsh",
+              444
+            ],
+            [
+              "crates/core/flags/complete/rg.zsh",
+              635
+            ],
+            [
+              "crates/globset/src/glob.rs",
+              302
+            ]
+          ]
+        },
+        {
+          "name": "clone",
+          "truth_lines": 200,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "benchsuite/benchsuite",
+              1041
+            ],
+            [
+              "crates/searcher/src/searcher/mod.rs",
+              125
+            ]
+          ]
+        },
+        {
+          "name": "context_code1",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "from_ast_impl",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "from_sink_context",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "git_global",
+          "truth_lines": 13,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/ignore/src/walk.rs",
+              715
+            ]
+          ]
+        },
+        {
+          "name": "glob_deserialize_error",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "handle_alias",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "has_uppercase_literal",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "into_word",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "invalid_non_digit",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "is_absolute_parent",
+          "truth_lines": 9,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "is_fixed_strings",
+          "truth_lines": 3,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/regex/src/config.rs",
+              214
+            ]
+          ]
+        },
+        {
+          "name": "is_line_by_line_fast",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "is_suffix",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "max_jit_stack_size",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "new_regex_set",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "parse_backslash",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "push_ignore_io",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "repeat",
+          "truth_lines": 9,
+          "uncovered": 6,
+          "allowed_omissions": 6,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/cli/src/process.rs",
+              52
+            ],
+            [
+              "crates/core/flags/doc/help.rs",
+              104
+            ],
+            [
+              "crates/core/flags/doc/help.rs",
+              186
+            ]
+          ]
+        },
+        {
+          "name": "sink_fast",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "stdout_buffered_block",
+          "truth_lines": 8,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "crates/cli/src/wtr.rs",
+              19
+            ]
+          ]
+        },
+        {
+          "name": "tagged",
+          "truth_lines": 8,
+          "uncovered": 5,
+          "allowed_omissions": 5,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "RELEASE-CHECKLIST.md",
+              38
+            ],
+            [
+              "crates/ignore/src/lib.rs",
+              260
+            ],
+            [
+              "crates/ignore/src/lib.rs",
+              268
+            ]
+          ]
+        },
+        {
+          "name": "to_regex",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "try_create",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        }
+      ]
+    },
+    "tokio": {
+      "names": 40,
+      "claims": 40,
+      "claims_hold": 40,
+      "violations": [],
+      "rows": [
+        {
+          "name": "InjectGuard",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Pidfd",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "TransitionToNotifiedByRef",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "as_inner",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "basic_usage_v4",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "block_in_blocking",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "blocking_lock",
+          "truth_lines": 5,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "tokio/src/sync/mutex.rs",
+              498
+            ],
+            [
+              "tokio/src/sync/mutex.rs",
+              525
+            ]
+          ]
+        },
+        {
+          "name": "budgeting",
+          "truth_lines": 15,
+          "uncovered": 9,
+          "allowed_omissions": 9,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "tokio/src/runtime/blocking/task.rs",
+              37
+            ],
+            [
+              "tokio/src/runtime/blocking/task.rs",
+              39
+            ],
+            [
+              "tokio/src/runtime/coop.rs",
+              125
+            ]
+          ]
+        },
+        {
+          "name": "canonicalize_root_dir_unix",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "chunks_timeout",
+          "truth_lines": 11,
+          "uncovered": 2,
+          "allowed_omissions": 2,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "tokio-stream/src/stream_ext.rs",
+              1161
+            ],
+            [
+              "tokio-stream/src/stream_ext/chunks_timeout.rs",
+              12
+            ]
+          ]
+        },
+        {
+          "name": "close_read",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "contention_resubscribe",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "create_child_token_after_parent_was_cancelled",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "create_clock",
+          "truth_lines": 3,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "dropping_tx_notifies_rx",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "empty_join",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "extra_semicolon",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "interval_at",
+          "truth_lines": 19,
+          "uncovered": 5,
+          "allowed_omissions": 5,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "tokio/src/time/interval.rs",
+              19
+            ],
+            [
+              "tokio/src/time/interval.rs",
+              94
+            ],
+            [
+              "tokio/src/time/interval.rs",
+              99
+            ]
+          ]
+        },
+        {
+          "name": "interval_zero_duration",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "join_output",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "might_be_registered",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "mock_panics_write_data_left",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "next_action",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "num_unparked",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "parse_int",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "pause_time_in_spawn_threads",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "poll_send_to",
+          "truth_lines": 11,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "push_batch_inner",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "readable_mut",
+          "truth_lines": 5,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "tokio/src/io/async_fd.rs",
+              1101
+            ]
+          ]
+        },
+        {
+          "name": "send_to_addr",
+          "truth_lines": 2,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "signal_enable",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "single_capacity_recvs_after_drop_1",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "sink_send_then_close",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "spawn_by_idx",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "spawn_inner",
+          "truth_lines": 5,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "task_id_future_destructor_completion",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "timeout_panics_when_no_tokio_context",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "token_len",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "unbounded_sender_strong_and_weak_conut",
+          "truth_lines": 1,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "worker_thread_id",
+          "truth_lines": 11,
+          "uncovered": 1,
+          "allowed_omissions": 1,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "tokio/src/runtime/metrics/runtime.rs",
+              163
+            ]
+          ]
+        }
+      ]
+    },
+    "zod": {
+      "names": 40,
+      "claims": 40,
+      "claims_hold": 40,
+      "violations": [],
+      "rows": [
+        {
+          "name": "AgeInput",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "CatchallInput",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "CatchallOutput",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "CustomErrorParams",
+          "truth_lines": 10,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "CustomParams",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Enum",
+          "truth_lines": 19,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Exactly",
+          "truth_lines": 10,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "FilterEnum",
+          "truth_lines": 10,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "OutputTypeOfTupleWithRest",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ParsePathComponent",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "UnknownKeysParam",
+          "truth_lines": 16,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "Values",
+          "truth_lines": 19,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodArray",
+          "truth_lines": 59,
+          "uncovered": 10,
+          "allowed_omissions": 10,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "deno/lib/helpers/partialUtil.ts",
+              19
+            ],
+            [
+              "deno/lib/helpers/partialUtil.ts",
+              20
+            ],
+            [
+              "deno/lib/helpers/partialUtil.ts",
+              25
+            ]
+          ]
+        },
+        {
+          "name": "ZodCustomIssue",
+          "truth_lines": 8,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodDefaultDef",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodDiscriminatedUnionOption",
+          "truth_lines": 12,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodFormattedError",
+          "truth_lines": 16,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodInvalidReturnTypeIssue",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodIssueBase",
+          "truth_lines": 34,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodNeverDef",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodNotMultipleOfIssue",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodNullableDef",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodNumber",
+          "truth_lines": 42,
+          "uncovered": 9,
+          "allowed_omissions": 9,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": [
+            [
+              "CHANGELOG.md",
+              108
+            ],
+            [
+              "CHANGELOG.md",
+              111
+            ],
+            [
+              "README.md",
+              1868
+            ]
+          ]
+        },
+        {
+          "name": "ZodNumberDef",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodReadonlyDef",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodTupleDef",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "ZodUnknownDef",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "baseObjectOutputType",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "datetimeRegex",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "deepPartialify",
+          "truth_lines": 14,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "finalizeSet",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "floatSafeRemainder",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "isValidIP",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "joinValues",
+          "truth_lines": 12,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "nativeEnumTest",
+          "truth_lines": 6,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "noUndefined",
+          "truth_lines": 12,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "recordWithEnumKeys",
+          "truth_lines": 12,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "recordWithLiteralKeys",
+          "truth_lines": 12,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "recursiveZodFormattedError",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        },
+        {
+          "name": "requiredKeys",
+          "truth_lines": 4,
+          "uncovered": 0,
+          "allowed_omissions": 0,
+          "extra_lines": 0,
+          "holds": true,
+          "examples": []
+        }
+      ]
+    }
+  }
+}
