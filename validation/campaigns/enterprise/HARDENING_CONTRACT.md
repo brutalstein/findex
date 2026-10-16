@@ -19,6 +19,8 @@ hardening stage **not** a claim of universal zero-risk operation.
 4. Optional `findex_capabilities` MCP tool exposes supported language
    syntax, project scan limits and absence of a complete resolved call graph.
    The contract is static and requires no scan, network or model call.
+   Retrieval/indexing run locally, but selected excerpts returned to Claude
+   may reach the model provider; this is not local-only inference.
 5. CI runs an isolated real binary test for corruption preservation,
    internal schema checks, privacy-safe MCP error, capability discovery and
    source retention. Existing 1,200- and 10,000-file Windows stress suites,

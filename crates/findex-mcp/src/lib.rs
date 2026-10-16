@@ -370,7 +370,8 @@ where
                     json!({"content":[{"type":"text","text": serde_json::to_string(&json!({
                         "engine_version": env!("CARGO_PKG_VERSION"),
                         "source_policy": {
-                            "local_only": true,
+                            "retrieval_runs_locally": true,
+                            "selected_tool_results_may_be_sent_to_model": true,
                             "max_admitted_files_per_scan": 100000,
                             "max_source_bytes": 524288,
                             "ignored_files_excluded": true,
@@ -862,6 +863,7 @@ mod tests {
             contract["relationships"]["complete_typed_call_graph"],
             false
         );
+        assert_eq!(contract["source_policy"]["selected_tool_results_may_be_sent_to_model"], true);
         assert_eq!(contract["models_or_network_calls_per_query"], 0);
         assert_eq!(
             contract["syntax_languages"]
