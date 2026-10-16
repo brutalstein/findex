@@ -68,7 +68,7 @@ jobs:
           } else {
             Write-Host "Official Claude Code plugin validator unavailable on CI runner; the native plugin contract was checked offline."
           }
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6, pinned
         with:
           name: findex-claude-plugin-validation
           path: plugin-validation.json
@@ -78,7 +78,7 @@ jobs:
         run: |
           python validation/harness/sensitive_paths.py target/release/findex.exe --output sensitive-paths.json
           if ($LASTEXITCODE -ne 0) { throw "Sensitive-path scan boundary failed" }
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 pinned
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6 pinned
         with:
           name: findex-sensitive-paths-offline
           path: sensitive-paths.json
@@ -88,7 +88,7 @@ jobs:
         run: |
           python validation/harness/hardening_offline.py target/release/findex.exe --output hardening-offline.json
           if ($LASTEXITCODE -ne 0) { throw "Hardening regression failed" }
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 pinned
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6 pinned
         with:
           name: findex-hardening-offline-evidence
           path: hardening-offline.json
@@ -98,7 +98,7 @@ jobs:
         run: |
           python validation/harness/project_overview_smoke.py target/release/findex.exe --output project-overview-smoke.json
           if ($LASTEXITCODE -ne 0) { throw "Project overview smoke failed" }
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6, pinned
         with:
           name: findex-project-overview-evidence
           path: project-overview-smoke.json
@@ -116,7 +116,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "1.2k-file index durability verification failed" }
           python validation/harness/section5_stress.py target/release/findex.exe --files 10000 --out section5-stress-10k.json
           if ($LASTEXITCODE -ne 0) { throw "10k-file index durability verification failed" }
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6, pinned
         with:
           name: section5-windows-index-stress
           path: |
@@ -278,7 +278,7 @@ jobs:
           $hash = (Get-FileHash -Algorithm SHA256 dist\findex-windows-x64.zip).Hash.ToLowerInvariant()
           "$hash  findex-windows-x64.zip" | Set-Content -Encoding utf8 dist\findex-windows-x64.sha256
           Write-Output "Findex ZIP SHA256: $hash"
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, Node.js 24
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6, Node.js 24
         with:
           name: findex-windows-x64
           path: |
@@ -286,7 +286,7 @@ jobs:
             dist/findex-windows-x64.sha256
           if-no-files-found: error
           retention-days: 14
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6, pinned
         with:
           name: findex-claude-plugin-windows-x64
           path: |
