@@ -142,6 +142,21 @@ fn success(id: Value, value: Value) -> Value {
     json!({"jsonrpc":"2.0","id":id,"result":value})
 }
 
+/// Execution errors are intentionally stable, bounded and devoid of local
+/// absolute paths, usernames, credential strings, or raw SQLite diagnostics.
+/// A model can use built-in file tools if Findex is unavailable. Detailed OS
+/// errors must never be interpolated into MCP responses.
+fn unavailable(id: Value, kind: &'static str) -> Value {
+    success(
+        id,
+        json!({
+            "content": [{"type":"text",
+              "text":format!("Findex {kind} unavailable. Use Claude Read/Grep/Glob; verify source directly. No project file was changed by this lookup.")}],
+            "isError":true
+        }),
+    )
+}
+
 /// Pure protocol dispatch, except for the intentionally bounded tool invocation.
 /// Unknown notifications are ignored; calls receive JSON-RPC errors.
 pub fn handle(request: &Value, project: &Path) -> Option<Value> {
@@ -365,10 +380,7 @@ where
                             id,
                             json!({"content":[{"type":"text","text":report.render()}],"isError":false}),
                         ),
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text","text":format!("Findex index unavailable: {err}")}],"isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "context"),
                     }
                 }
             } else if name == Some("findex_find_symbol") {
@@ -389,10 +401,7 @@ where
                             id,
                             json!({"content":[{"type":"text","text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
                         ),
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text","text":format!("Symbol lookup failed: {err}")}],"isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "symbol lookup"),
                     }
                 }
             } else if name == Some("findex_impact") {
@@ -433,12 +442,7 @@ where
                             "text":serde_json::to_string(&report).unwrap_or_default()}],
                             "isError":false}),
                         ),
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text",
-                            "text":format!("Semantic evidence unavailable: {err}")}],
-                            "isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "reference impact"),
                     }
                 }
             } else if name == Some("findex_graph_symbol") {
@@ -493,10 +497,7 @@ where
                             id,
                             json!({"content":[{"type":"text","text":"Unsupported language; use lexical search."}],"isError":false}),
                         ),
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text","text":format!("Cannot inspect file: {err}")}],"isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "file inspection"),
                     }
                 }
             } else if name != Some("findex_search") {
@@ -523,10 +524,7 @@ where
                                 json!({"content":[{"type":"text", "text":payload}], "isError":false}),
                             )
                         }
-                        Err(err) => success(
-                            id,
-                            json!({"content":[{"type":"text", "text":format!("Findex index unavailable: {err}")}], "isError":true}),
-                        ),
+                        Err(_err) => unavailable(id, "lexical search"),
                     }
                 }
             }
@@ -803,6 +801,37 @@ mod tests {
         );
         let invalid = handle(&json!({"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"findex_context","arguments":{"task":""}}}), Path::new(".")).expect("response");
         assert_eq!(invalid["error"]["code"], -32602);
+    }
+
+    #[test]
+    fn tool_execution_errors_never_expose_paths_or_provider_secrets() {
+        const SECRET: &str = r"C:\\Users\\private-person\\secrets\\token_123456";
+        for (name, arguments) in [
+            ("findex_context", json!({"task":"find path","budget_tokens":1200})),
+            ("findex_search", json!({"query":"needle","limit":3})),
+            ("findex_find_symbol", json!({"name":"needle","limit":3})),
+            ("findex_symbols", json!({"path":"src/main.rs"})),
+        ] {
+            let req = json!({"jsonrpc":"2.0","id":6,"method":"tools/call",
+                "params":{"name":name,"arguments":arguments}});
+            let fail = || -> Box<dyn std::error::Error + Send + Sync> {
+                std::io::Error::other(SECRET).into()
+            };
+            let response = handle_with_lookups(
+                &req,
+                Path::new("."),
+                |_root, _query, _limit| Err(fail()),
+                |_root, _name, _limit| Err(fail()),
+                |_root, _path| Err(fail()),
+                |_root, _task, _budget| Err(fail()),
+            )
+            .expect("MCP response");
+            let result = response["result"]["content"][0]["text"].as_str()
+                .expect("error text");
+            assert_eq!(response["result"]["isError"], true);
+            assert!(!result.contains(SECRET) && !result.contains("private-person"), "{result}");
+            assert!(result.contains("Read/Grep/Glob"), "{result}");
+        }
     }
 
     #[test]
