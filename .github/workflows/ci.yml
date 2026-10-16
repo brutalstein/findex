@@ -83,6 +83,16 @@ jobs:
           name: findex-hardening-offline-evidence
           path: hardening-offline.json
           if-no-files-found: error
+      - name: Offline first-contact project overview and MCP test
+        shell: pwsh
+        run: |
+          python validation/harness/project_overview_smoke.py target/release/findex.exe --output project-overview-smoke.json
+          if ($LASTEXITCODE -ne 0) { throw "Project overview smoke failed" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: findex-project-overview-evidence
+          path: project-overview-smoke.json
+          if-no-files-found: error
       - name: Verify native executable and CLI
         shell: pwsh
         run: |
