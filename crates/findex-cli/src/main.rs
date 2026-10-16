@@ -178,6 +178,18 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 imported.documents, imported.definitions, imported.references, imported.source
             );
         }
+        "graph-symbol" => {
+            let symbol = args
+                .next()
+                .ok_or("usage: findex graph-symbol <exact-scip-or-lsp-id>")?
+                .to_string_lossy()
+                .into_owned();
+            if args.next().is_some() {
+                return Err("usage: findex graph-symbol <exact-scip-or-lsp-id>".into());
+            }
+            let report = findex_relations::symbol_evidence(&project, &symbol, 64)?;
+            println!("{}", serde_json::to_string_pretty(&report)?);
+        }
         "impact" => {
             let file = args
                 .next()

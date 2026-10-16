@@ -301,6 +301,18 @@ where
                         "additionalProperties":false
                     }
                 },{
+                    "name": "findex_graph_symbol",
+                    "description": "Inspect exact opaque SCIP/LSP symbol identity after an explicit semantic import. Returns verified typed definition/import/reference occurrences and producer-asserted implementation/type relationships with language and source provenance. A reference is NOT necessarily a function call; never infer CALLS_RESOLVED.",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "symbol": {"type":"string","minLength":1,"maxLength":2048},
+                            "limit": {"type":"integer","minimum":1,"maximum":128,"default":32}
+                        },
+                        "required": ["symbol"],
+                        "additionalProperties": false
+                    }
+                },{
                     "name": "findex_symbols",
                     "description": "Read one project-relative Rust, Python, TypeScript/TSX or C++ file and return bounded Tree-sitter syntax definitions with 1-based line ranges. No LSP references or call graph.",
                     "inputSchema": {
@@ -426,6 +438,36 @@ where
                             json!({"content":[{"type":"text",
                             "text":format!("Semantic evidence unavailable: {err}")}],
                             "isError":true}),
+                        ),
+                    }
+                }
+            } else if name == Some("findex_graph_symbol") {
+                let symbol = request
+                    .pointer("/params/arguments/symbol")
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let limit = request
+                    .pointer("/params/arguments/limit")
+                    .and_then(Value::as_u64)
+                    .unwrap_or(32);
+                if symbol.is_empty() || symbol.len() > 2048
+                    || symbol.chars().any(char::is_control)
+                    || !(1..=128).contains(&limit)
+                {
+                    error(id, -32602, "exact symbol ID must be 1-2048 bytes; limit 1-128")
+                } else {
+                    match findex_relations::symbol_evidence(project, symbol, limit as usize) {
+                        Ok(report) => success(
+                            id,
+                            json!({"content":[{"type":"text",
+                                "text":serde_json::to_string(&report).unwrap_or_default()}],
+                                "isError":false}),
+                        ),
+                        Err(_err) => success(
+                            id,
+                            json!({"content":[{"type":"text",
+                                "text":"Typed semantic graph unavailable; import SCIP/LSP evidence and retry"}],
+                                "isError":true}),
                         ),
                     }
                 }
