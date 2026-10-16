@@ -20,6 +20,9 @@ const MAX_IDENTIFIERS: usize = 3;
 const MAX_BUDGET: usize = 8000;
 /// Lines shown from a definition body when the task asks for the definition.
 const MAX_BODY_LINES: usize = 40;
+/// More lexical candidates than the old top-12 window for concept navigation.
+/// The budget packer still decides how many source-backed excerpts are returned.
+const MAX_CONCEPT_FILES: usize = 24;
 /// Indexed files one named file (`lib.rs`) may match, and definitions
 /// listed per file, before the report is marked truncated.
 const MAX_NAMED_FILES: usize = 5;
@@ -191,6 +194,11 @@ pub fn context_in_db(
             concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
         }
     }
+    if candidates.is_empty() && report.missing.is_empty() {
+        report.missing.push(
+            "no hash-verified source evidence found in the indexed, admitted files".to_string(),
+        );
+    }
     pack(candidates, &mut report);
     Ok(report)
 }
@@ -303,8 +311,16 @@ const CALLER_STEMS: &[&str] = &[
     "referans",
     "referencing",
     "using",
+    "callsite",
+    "dependent",
+    "depend",
+    "instantiat",
+    "oluştur",
+    "eriş",
 ];
-const TEST_STEMS: &[&str] = &["sına", "test"];
+const TEST_STEMS: &[&str] = &[
+    "sına", "test", "verify", "verif", "assert", "suite", "doğrula", "doğrulama",
+];
 const IMPACT_STEMS: &[&str] = &[
     "adlandır",
     "bozar",
@@ -318,16 +334,39 @@ const IMPACT_STEMS: &[&str] = &[
     "modif",
     "refactor",
     "renam",
+    "delet",
+    "remov",
+    "sil",
+    "blast",
+    "kaldır",
 ];
 
 /// Intent of a task from its text alone, before any index access. Callers
 /// and impact need a named identifier; without one the task is a concept
 /// search, or a file request when it names a file.
 fn route(task: &str) -> &'static str {
-    match classify(&words(task)) {
-        intent if intent == "tests" || !identifiers(task).is_empty() => intent,
-        _ if file_paths(task).is_empty() => "concept",
-        _ => "file",
+    let words = words(task);
+    let intent = classify(&words);
+    let named_files = file_paths(task);
+    // Opening a named file is not the same as asking what tests cover it.
+    // Explicit file navigation takes precedence over names like tests/util.rs.
+    if !named_files.is_empty() {
+        let navigation = words.iter().any(|word| {
+            matches!(
+                word.as_str(),
+                "open" | "show" | "display" | "read" | "print" | "inspect"
+                    | "view" | "aç" | "göster" | "gösterir" | "oku" | "listele"
+            )
+        });
+        if intent == "definition" || (navigation && intent != "impact" && intent != "callers") {
+            return "file";
+        }
+    }
+    match intent {
+        "tests" => "tests",
+        _ if !identifiers(task).is_empty() => intent,
+        _ if !named_files.is_empty() => "file",
+        _ => "concept",
     }
 }
 
@@ -916,7 +955,15 @@ fn concept(
             .push("the task names no code identifiers or content words".to_string());
         return Ok(());
     }
-    let found = search_in_db(root, database, &content.join(" "), 12, SyncStats::default())?;
+    let found = search_in_db(
+        root,
+        database,
+        &content.join(" "),
+        MAX_CONCEPT_FILES,
+        SyncStats::default(),
+    )?;
+    // A finite lexical shortlist cannot establish exhaustive conceptual coverage.
+    report.truncated |= found.truncated;
     report.stale_results_discarded += found.stale_results_discarded;
     let mut hash_of = conn.prepare_cached("SELECT hash FROM files WHERE path = ?1")?;
     for hit in found.hits {
@@ -970,18 +1017,24 @@ fn concept(
 /// imports. Order inside a group is preserved (ranked, or by path and line).
 fn pack(mut candidates: Vec<Evidence>, report: &mut ContextReport) {
     let tests_first = report.intent == "tests";
-    // A concept task asks how the code works, so test code ranks after source.
-    let tests_last = report.intent == "concept";
+    // Source is better than prose or tests for general architecture questions.
+    // Exact symbol/caller queries retain their definition-first preference.
+    let concept = report.intent == "concept";
     candidates.sort_by_key(|e| {
-        let rank = match (e.kind, tests_first && e.in_test) {
-            ("definition", _) => 0,
-            (_, true) => 1,
-            ("call" | "match", _) => 2,
-            ("reference", _) => 3,
-            ("import", _) => 4,
-            _ => 5,
+        let rank = match e.kind {
+            "definition" => 0,
+            "call" | "match" => 1,
+            "reference" => 2,
+            "import" => 3,
+            _ => 4,
         };
-        (tests_last && e.in_test, rank)
+        if tests_first {
+            (!e.in_test, rank)
+        } else if concept {
+            (!is_code_path(&e.path), e.in_test, rank)
+        } else {
+            (false, false, rank)
+        }
     });
     // Everything but the evidence (header, missing, coverage, footer), plus
     // slack for the footer's TRUNCATED wording and wider counts.
@@ -1073,7 +1126,11 @@ impl ContextReport {
             if self.truncated {
                 "TRUNCATED: raise budget or narrow the task"
             } else {
-                "complete for the indexed files"
+                if self.intent == "concept" {
+                    "bounded lexical evidence; not an exhaustive architecture analysis"
+                } else {
+                    "complete for the indexed files"
+                }
             },
         ));
         out
@@ -1141,6 +1198,45 @@ mod tests {
             "{}",
             truncated.render()
         );
+    }
+
+    #[test]
+    fn file_navigation_wins_over_test_directory_name() {
+        assert_eq!(route("show tests/util.rs"), "file");
+        assert_eq!(route("dosyayı aç: tests/util.rs"), "file");
+        assert_eq!(route("which tests cover src/lib.rs"), "tests");
+        assert_eq!(route("delete src/lib.rs: what breaks"), "impact");
+    }
+
+    #[test]
+    fn multilingual_call_test_and_impact_intents_have_general_signals() {
+        assert_eq!(route("callsite for `poll_proceed`"), "callers");
+        assert_eq!(route("who depends on `poll_proceed`"), "callers");
+        assert_eq!(route("`poll_proceed` örneğini kim oluşturuyor"), "callers");
+        assert_eq!(route("does the suite verify `poll_proceed`"), "tests");
+        assert_eq!(route("deleting `poll_proceed` blast radius"), "impact");
+        assert_eq!(route("`poll_proceed` silinirse ne olur"), "impact");
+    }
+
+    #[test]
+    fn test_evidence_precedes_definitions_under_small_budget() {
+        let (root, _state, db) = project(&[
+            ("src/lib.rs", LIB),
+            ("tests/poll_test.rs", TEST),
+            ("src/user.rs", USER),
+        ]);
+        let result = ask(&root, &db, "which tests cover `poll_proceed`", 600);
+        assert!(!result.evidence.is_empty(), "{result:?}");
+        assert!(result.evidence[0].in_test, "{:?}", result.evidence);
+    }
+
+    #[test]
+    fn conceptual_negative_query_marks_insufficient_source_evidence() {
+        let (root, _state, db) = project(&[("src/lib.rs", LIB)]);
+        let report = ask(&root, &db, "absentmeaninglessjargonwordxx", 400);
+        assert!(report.evidence.is_empty(), "{report:?}");
+        assert!(report.missing.iter().any(|s| s.contains("no hash-verified")), "{report:?}");
+        assert!(report.render().contains("bounded lexical evidence"), "{}", report.render());
     }
 
     /// Routes every `intent<TAB>task` line of `cases`; prints per-intent
