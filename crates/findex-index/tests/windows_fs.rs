@@ -229,3 +229,59 @@ fn hidden_and_build_directories_are_excluded() {
         .hits
         .is_empty());
 }
+
+/// 8.3 short name of `path`, or `None` when the volume does not generate one.
+fn short_name(path: &Path) -> Option<String> {
+    let out = Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "(New-Object -ComObject Scripting.FileSystemObject).GetFile($env:FINDEX_SHORT_PROBE).ShortName",
+        ])
+        .env("FINDEX_SHORT_PROBE", path)
+        .output()
+        .expect("powershell");
+    let name = String::from_utf8_lossy(&out.stdout).trim().to_string();
+    let long = path.file_name()?.to_string_lossy().to_string();
+    (out.status.success() && !name.is_empty() && !name.eq_ignore_ascii_case(&long)).then_some(name)
+}
+
+/// An 8.3 alias (`ENVPRO~1.PRO` for `.env.production`) must not bypass the
+/// sensitive-name filter or reach a file under a key it was not indexed as.
+#[test]
+fn short_8dot3_names_cannot_reach_excluded_or_unindexed_files() {
+    let project = tempdir().expect("project");
+    let state = tempdir().expect("state");
+    let db = state.path().join("index.sqlite3");
+    let secret = project.path().join(".env.production.rs");
+    let long = project.path().join("a_long_module_name.rs");
+    fs::write(&secret, "fn env_secret_marker() {}\n").expect("secret");
+    fs::write(&long, "fn long_module_marker() {}\n").expect("long");
+    synchronize_into(project.path(), &db).expect("sync");
+    assert!(search(project.path(), &db, "env_secret_marker")
+        .hits
+        .is_empty());
+    let (Some(secret_alias), Some(long_alias)) = (short_name(&secret), short_name(&long)) else {
+        eprintln!("8.3 name generation is disabled on this volume: NOT_RUN");
+        return;
+    };
+    for alias in [&secret_alias, &long_alias] {
+        let result = inspect_indexed_file_in_db(project.path(), &db, Path::new(alias));
+        assert!(
+            result.as_ref().map_or(true, Option::is_none),
+            "{alias} must not return evidence: {result:?}"
+        );
+    }
+    let refreshed = findex_index::refresh_known_paths_into(
+        project.path(),
+        &db,
+        &[PathBuf::from(&secret_alias)],
+    )
+    .expect("refresh");
+    assert_eq!(refreshed.sync.indexed, 0);
+    assert!(search(project.path(), &db, "env_secret_marker")
+        .hits
+        .is_empty());
+    eprintln!("8.3 aliases checked: {secret_alias}, {long_alias}");
+}

@@ -667,8 +667,9 @@ fn contains_word(line: &str, identifier: &str) -> bool {
 #[derive(Clone, Copy, PartialEq)]
 enum CommentStyle {
     /// `//` and `/* */` (Rust, C/C++, JS/TS, Go, Java, ...); `nested` when
-    /// block comments nest (Rust, Swift, Kotlin, Scala).
-    CLike { nested: bool },
+    /// block comments nest (Rust, Swift, Kotlin, Scala); `single_quoted`
+    /// when `'...'` is a string, not a char literal (JS/TS, PHP).
+    CLike { nested: bool, single_quoted: bool },
     /// `#` to end of line (Python, shell, PowerShell, TOML, YAML, ...).
     Hash,
     /// Prose and unknown formats: nothing is treated as a comment.
@@ -683,10 +684,34 @@ fn comment_style(path: &str) -> CommentStyle {
     match ext.as_str() {
         "py" | "pyi" | "rb" | "sh" | "bash" | "ps1" | "psm1" | "toml" | "yaml" | "yml"
         | "cmake" | "pl" | "r" => CommentStyle::Hash,
-        "rs" | "swift" | "kt" | "scala" => CommentStyle::CLike { nested: true },
-        ext if CODE_EXTENSIONS.contains(&ext) => CommentStyle::CLike { nested: false },
+        // Lua comments are `--`; its `//` is integer division.
+        "lua" => CommentStyle::None,
+        "rs" | "swift" | "kt" | "scala" => CommentStyle::CLike {
+            nested: true,
+            single_quoted: false,
+        },
+        "js" | "jsx" | "mjs" | "cjs" | "ts" | "tsx" | "php" => CommentStyle::CLike {
+            nested: false,
+            single_quoted: true,
+        },
+        ext if CODE_EXTENSIONS.contains(&ext) => CommentStyle::CLike {
+            nested: false,
+            single_quoted: false,
+        },
         _ => CommentStyle::None,
     }
+}
+
+/// An open string literal.
+enum Str {
+    /// Closed by the same quote; backslash escapes apply.
+    Quoted(char),
+    /// `"""` or `'''` (Python, TOML); spans lines, escapes apply.
+    Triple(char),
+    /// Rust raw string closed by `"` and this many `#`; no escapes.
+    RustRaw(usize),
+    /// C++ raw string closed by `)`, this delimiter and `"`; no escapes.
+    CppRaw(Vec<char>),
 }
 
 /// Lexer state carried from one line of a file to the next.
@@ -694,9 +719,7 @@ fn comment_style(path: &str) -> CommentStyle {
 struct Carry {
     /// Depth of open `/* */` comments.
     block: u32,
-    /// Open string: its quote and, for a Rust raw string, the number of `#`
-    /// that close it (no escapes apply inside).
-    string: Option<(char, Option<usize>)>,
+    string: Option<Str>,
 }
 
 /// `line` with comment text blanked and string literals kept, so a name
@@ -704,9 +727,6 @@ struct Carry {
 /// C-like strings (Rust strings span lines) across lines. When unsure, text
 /// is kept: showing a comment is harmless, omitting code would break the
 /// coverage claim.
-/// shortcut: C++ `R"(...)"` raw strings and Python triple-quoted strings are
-/// not recognised; upgrade to Tree-sitter comment nodes if the coverage check
-/// finds them.
 fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
     if style == CommentStyle::None {
         return line.to_string();
@@ -722,7 +742,7 @@ fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
                 i += 1;
             } else if c == '/'
                 && next == Some('*')
-                && style == (CommentStyle::CLike { nested: true })
+                && matches!(style, CommentStyle::CLike { nested: true, .. })
             {
                 carry.block += 1;
                 i += 1;
@@ -731,28 +751,68 @@ fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
             i += 1;
             continue;
         }
-        if let Some((quote, raw)) = carry.string {
-            let mut end = i + 1;
-            match raw {
-                None if c == '\\' => end = (i + 2).min(chars.len()),
-                None if c == quote => carry.string = None,
-                Some(hashes)
-                    if c == quote
-                        && chars[i + 1..].iter().take_while(|&&h| h == '#').count() >= hashes =>
-                {
-                    end += hashes;
-                    carry.string = None;
+        if let Some(open) = &carry.string {
+            let rest = &chars[i + 1..];
+            let (end, closed) = match open {
+                Str::Quoted(_) | Str::Triple(_) if c == '\\' => ((i + 2).min(chars.len()), false),
+                Str::Quoted(quote) => (i + 1, c == *quote),
+                Str::Triple(quote) if c == *quote && rest.starts_with(&[*quote; 2]) => {
+                    (i + 3, true)
                 }
-                _ => {}
+                Str::RustRaw(hashes)
+                    if c == '"' && rest.iter().take_while(|&&h| h == '#').count() >= *hashes =>
+                {
+                    (i + 1 + hashes, true)
+                }
+                Str::CppRaw(delim)
+                    if c == ')'
+                        && rest.starts_with(delim)
+                        && rest.get(delim.len()) == Some(&'"') =>
+                {
+                    (i + 2 + delim.len(), true)
+                }
+                _ => (i + 1, false),
+            };
+            if closed {
+                carry.string = None;
             }
             out.extend(&chars[i..end]);
             i = end;
             continue;
         }
+        let clike = matches!(style, CommentStyle::CLike { .. });
+        let opened = match c {
+            '"' | '\'' if style == CommentStyle::Hash && chars[i + 1..].starts_with(&[c; 2]) => {
+                Some((Str::Triple(c), 3))
+            }
+            '"' if clike => match cpp_raw_delimiter(&chars[..i], &chars[i + 1..]) {
+                Some(delim) => Some((Str::CppRaw(delim.to_vec()), 2 + delim.len())),
+                None => Some((
+                    raw_hashes(&chars[..i]).map_or(Str::Quoted('"'), Str::RustRaw),
+                    1,
+                )),
+            },
+            '"' | '`' => Some((Str::Quoted(c), 1)),
+            '\'' if matches!(
+                style,
+                CommentStyle::Hash
+                    | CommentStyle::CLike {
+                        single_quoted: true,
+                        ..
+                    }
+            ) =>
+            {
+                Some((Str::Quoted('\''), 1))
+            }
+            _ => None,
+        };
+        if let Some((open, len)) = opened {
+            carry.string = Some(open);
+            out.extend(&chars[i..(i + len).min(chars.len())]);
+            i += len;
+            continue;
+        }
         match c {
-            '"' => carry.string = Some(('"', raw_hashes(&chars[..i]))),
-            '`' => carry.string = Some(('`', None)),
-            '\'' if style == CommentStyle::Hash => carry.string = Some(('\'', None)),
             // A char literal such as `'"'`; a lone `'` (Rust lifetime) is code.
             '\'' => {
                 if let Some(len) = char_literal(&chars[i..]) {
@@ -761,9 +821,11 @@ fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
                     continue;
                 }
             }
-            '#' if style == CommentStyle::Hash => break,
-            '/' if next == Some('/') => break,
-            '/' if next == Some('*') => {
+            // `$#`, `${#a}`, `a#b` are shell/YAML/Perl code, so `#` starts
+            // a comment only at a word start. Keeping a comment is harmless.
+            '#' if style == CommentStyle::Hash && (i == 0 || chars[i - 1].is_whitespace()) => break,
+            '/' if clike && next == Some('/') => break,
+            '/' if clike && next == Some('*') => {
                 carry.block = 1;
                 out.push_str("  ");
                 i += 2;
@@ -774,11 +836,36 @@ fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
         out.push(c);
         i += 1;
     }
-    if style == CommentStyle::Hash {
-        // Hash-language strings are tracked within one line.
+    // Hash-language and `'` strings end with their line; `"""`, C-like `"`
+    // and template strings span lines.
+    if matches!(carry.string, Some(Str::Quoted('\'')))
+        || (style == CommentStyle::Hash && matches!(carry.string, Some(Str::Quoted(_))))
+    {
         carry.string = None;
     }
     out
+}
+
+/// Delimiter of a C++ raw string `R"delim(` whose `"` follows `before` and
+/// precedes `after` (`R`, `u8R`, `uR`, `UR`, `LR` prefixes).
+fn cpp_raw_delimiter<'a>(before: &[char], after: &'a [char]) -> Option<&'a [char]> {
+    let rest = before.strip_suffix(&['R'])?;
+    let rest = ["u8", "u", "U", "L"]
+        .iter()
+        .find_map(|p| rest.strip_suffix(p.chars().collect::<Vec<_>>().as_slice()))
+        .unwrap_or(rest);
+    if rest
+        .last()
+        .is_some_and(|&c| c.is_alphanumeric() || c == '_')
+    {
+        return None;
+    }
+    let open = after.iter().take(17).position(|&c| c == '(')?;
+    let delim = &after[..open];
+    delim
+        .iter()
+        .all(|&c| !c.is_whitespace() && !matches!(c, '\\' | ')' | '"'))
+        .then_some(delim)
 }
 
 /// `#` count of a Rust raw string whose `"` follows `before` (`r"`, `r#"`,
@@ -1312,6 +1399,66 @@ mod tests {
             );
         }
         for comment in ["src/doc.rs:2", "src/doc.rs:3"] {
+            assert!(!shown.contains(&comment.to_string()), "{comment} shown");
+        }
+        assert!(
+            report.render().contains("(2 comment lines omitted)"),
+            "{}",
+            report.render()
+        );
+    }
+
+    /// Comment and string syntax follows each language: `//` is Python and
+    /// Lua division, `/*` a shell or YAML glob, `$#` shell code, `'...'` a JS
+    /// string, `"""` a Python string spanning lines, `R"(...)"` a C++ raw
+    /// string. None of them may hide a code line.
+    #[test]
+    fn language_specific_strings_and_operators_never_hide_code() {
+        let (root, _state, db) = project(&[
+            ("src/codec.rs", "pub fn my_codec() {}\n"),
+            (
+                "src/a.py",
+                "total = 10 // my_codec(2)\ndoc = \"\"\"\nuses my_codec # inside a string\n\"\"\"\n# my_codec comment\n",
+            ),
+            ("ci.yml", "paths:\n  - src/**\nrun: my_codec\n"),
+            (
+                "run.sh",
+                "if [ $# -eq 0 ]; then my_codec; fi\nls /* ; my_codec\n",
+            ),
+            (
+                "src/web.js",
+                "fetch('http://x'); my_codec();\nconst s = 'a /* b'; my_codec();\n// my_codec\n",
+            ),
+            ("src/m.lua", "local n = a // my_codec(b)\n"),
+            (
+                "src/r.cpp",
+                "auto p = R\"(x \" y)\"; f(\"//\"); my_codec();\nauto q = u8R\"d(a)\" // b)d\"; my_codec();\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "Who calls `my_codec`?", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{}:{}", e.path, e.line))
+            .collect();
+        for site in [
+            "src/a.py:1",
+            "src/a.py:3",
+            "ci.yml:3",
+            "run.sh:1",
+            "run.sh:2",
+            "src/web.js:1",
+            "src/web.js:2",
+            "src/m.lua:1",
+            "src/r.cpp:1",
+            "src/r.cpp:2",
+        ] {
+            assert!(
+                shown.contains(&site.to_string()),
+                "{site} missing: {shown:?}"
+            );
+        }
+        for comment in ["src/a.py:5", "src/web.js:3"] {
             assert!(!shown.contains(&comment.to_string()), "{comment} shown");
         }
         assert!(

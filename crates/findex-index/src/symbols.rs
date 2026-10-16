@@ -271,10 +271,10 @@ pub fn inspect_indexed_file_in_db(
         return Ok(None);
     }
     let resolved = absolute.canonicalize()?;
-    if !resolved
+    if resolved
         .strip_prefix(&root)
         .ok()
-        .is_some_and(|path| !is_disallowed_project_path(path))
+        .is_none_or(is_disallowed_project_path)
     {
         return Ok(None);
     }

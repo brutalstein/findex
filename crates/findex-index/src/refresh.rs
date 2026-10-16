@@ -17,9 +17,9 @@ pub struct RefreshReport {
     pub sync: SyncStats,
     /// Unknown paths are intentionally not indexed until a full reconciliation.
     pub unknown_paths: usize,
-    /// Known files whose read failed for a reason other than absence (a
-    /// Windows sharing violation during a save); their entries are kept
-    /// until the next full reconciliation.
+    /// Known files whose read failed for a reason other than absence or
+    /// revoked access (a Windows sharing violation during a save); their
+    /// entries are kept until the next full reconciliation.
     pub unreadable: usize,
 }
 
@@ -88,7 +88,7 @@ pub fn refresh_known_paths_into(
             // but hash verification prevents it from being returned while stale.
             let metadata = match fs::symlink_metadata(&absolute) {
                 Ok(meta) => Some(meta),
-                Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+                Err(err) if !super::keeps_entry(&err) => None,
                 Err(_) => {
                     report.unreadable += 1;
                     continue;
@@ -101,7 +101,7 @@ pub fn refresh_known_paths_into(
                             .strip_prefix(&project)
                             .ok()
                             .is_some_and(|path| !is_disallowed_project_path(path)),
-                        Err(err) if err.kind() == std::io::ErrorKind::NotFound => false,
+                        Err(err) if !super::keeps_entry(&err) => false,
                         Err(_) => {
                             report.unreadable += 1;
                             continue;
@@ -114,7 +114,7 @@ pub fn refresh_known_paths_into(
                                     && !bytes.contains(&0)
                                     && std::str::from_utf8(bytes).is_ok()
                             }),
-                            Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+                            Err(err) if !super::keeps_entry(&err) => None,
                             Err(_) => {
                                 report.unreadable += 1;
                                 continue;
@@ -155,6 +155,9 @@ pub fn refresh_known_paths_into(
     }
 
     tx.commit()?;
+    if report.sync.indexed + report.sync.removed > 0 {
+        super::flush_wal(&conn)?;
+    }
     Ok(report)
 }
 
@@ -207,6 +210,46 @@ mod tests {
         )
         .expect("search unaffected");
         assert_eq!(unaffected.hits.len(), 1);
+    }
+
+    /// Refresh removes a file whose read access was revoked, and its text
+    /// leaves the database and WAL although another connection stays open.
+    #[cfg(windows)]
+    #[test]
+    fn refresh_removes_access_denied_text_from_database_and_wal() {
+        let workspace = tempdir().expect("workspace");
+        let database = tempdir().expect("state");
+        let db = database.path().join("index.db");
+        let marker = "zq_refresh_denied_4410";
+        let file = workspace.path().join("denied.rs");
+        fs::write(workspace.path().join("keep.rs"), "fn kept() {}").expect("keep");
+        fs::write(&file, format!("fn {marker}() {{}}")).expect("file");
+        synchronize_into(workspace.path(), &db).expect("initial reconciliation");
+        let holder = rusqlite::Connection::open(&db).expect("holder");
+        let _: i64 = holder
+            .query_row("SELECT count(*) FROM files", [], |row| row.get(0))
+            .expect("read");
+        let status = std::process::Command::new("icacls")
+            .arg(&file)
+            .arg("/inheritance:r")
+            .stdout(std::process::Stdio::null())
+            .status()
+            .expect("icacls");
+        assert!(status.success());
+        let report = refresh_known_paths_into(workspace.path(), &db, &[PathBuf::from("denied.rs")])
+            .expect("refresh");
+        assert_eq!(report.sync.removed, 1);
+        assert_eq!(report.unreadable, 0);
+        for suffix in ["", "-wal"] {
+            let mut path = db.as_os_str().to_owned();
+            path.push(suffix);
+            let bytes = fs::read(PathBuf::from(path)).unwrap_or_default();
+            assert!(
+                !bytes.windows(marker.len()).any(|w| w == marker.as_bytes()),
+                "marker left in index{suffix}"
+            );
+        }
+        drop(holder);
     }
 
     /// An editor holding a file open without sharing (Windows sharing

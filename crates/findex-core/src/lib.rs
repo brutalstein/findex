@@ -185,6 +185,62 @@ pub fn redact_secrets(text: &str) -> std::borrow::Cow<'_, str> {
 mod tests {
     use super::*;
 
+    /// SIDs of allow ACEs on `dir` that let a broad group read it: Everyone,
+    /// Anonymous, Authenticated Users, Users, Guests.
+    #[cfg(windows)]
+    fn broad_readers(dir: &Path) -> Vec<String> {
+        let script = "$a = (Get-Acl -LiteralPath $env:FINDEX_ACL_PROBE).Access | Where-Object { $_.AccessControlType -eq 'Allow' -and ($_.FileSystemRights -band 1) }; \
+            $a | ForEach-Object { $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value }";
+        let out = std::process::Command::new("powershell")
+            .args(["-NoProfile", "-NonInteractive", "-Command", script])
+            .env("FINDEX_ACL_PROBE", dir)
+            .output()
+            .expect("powershell");
+        assert!(out.status.success(), "{out:?}");
+        String::from_utf8_lossy(&out.stdout)
+            .lines()
+            .map(str::trim)
+            .filter(|sid| {
+                [
+                    "S-1-1-0",
+                    "S-1-5-7",
+                    "S-1-5-11",
+                    "S-1-5-32-545",
+                    "S-1-5-32-546",
+                ]
+                .contains(sid)
+            })
+            .map(String::from)
+            .collect()
+    }
+
+    /// The index cache holds raw source text: its directory must not be
+    /// readable by other local accounts (THREAT_MODEL T5).
+    #[cfg(windows)]
+    #[test]
+    fn index_directory_is_not_readable_by_other_local_accounts() {
+        let probe = Path::new(r"C:\findex-acl-probe").join(std::process::id().to_string());
+        let dir = storage_dir(&probe).expect("storage dir");
+        std::fs::create_dir_all(&dir).expect("create");
+        let readers = broad_readers(&dir);
+        // The check itself must see a broad grant when one exists.
+        let granted = dir.join("granted");
+        std::fs::create_dir(&granted).expect("granted");
+        let status = std::process::Command::new("icacls")
+            .arg(&granted)
+            .arg("/grant")
+            .arg("*S-1-1-0:(R)")
+            .stdout(std::process::Stdio::null())
+            .status()
+            .expect("icacls");
+        let detected = broad_readers(&granted);
+        std::fs::remove_dir(&granted).expect("cleanup granted");
+        std::fs::remove_dir(&dir).expect("cleanup");
+        assert!(status.success());
+        assert_eq!(detected, ["S-1-1-0"]);
+        assert!(readers.is_empty(), "{readers:?}");
+    }
+
     #[test]
     fn redaction_masks_known_credential_shapes_and_keeps_code() {
         for (input, leaked) in [
