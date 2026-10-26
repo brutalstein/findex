@@ -5,7 +5,7 @@
 //! Relationship kinds are named for what was actually checked. Call sites are
 //! lexical name matches followed by a call token, not type-resolved calls.
 
-use crate::symbols::{containing, definitions_by_identifier, definitions_in_file};
+use crate::symbols::{containing, definitions_by_identifier, definitions_in_file, DefinitionRow};
 use crate::{connect, excerpt_of, live_source, search_in_db, synchronize, Result, SyncStats};
 use findex_core::storage_dir;
 use rusqlite::{params, Connection};
@@ -24,6 +24,8 @@ const MAX_BODY_LINES: usize = 40;
 /// listed per file, before the report is marked truncated.
 const MAX_NAMED_FILES: usize = 5;
 const MAX_FILE_DEFINITIONS: usize = 200;
+/// Same-named definitions weighed to resolve an `Owner::name` target.
+const MAX_OWNER_DEFINITIONS: usize = 4096;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Evidence {
@@ -74,6 +76,7 @@ pub fn context_in_db(
 ) -> Result<ContextReport> {
     let words = words(task);
     let identifiers = identifiers(task);
+    let qualifiers = qualifiers(task);
     let intent = route(task);
     let mut report = ContextReport {
         intent,
@@ -106,10 +109,21 @@ pub fn context_in_db(
         concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
     } else {
         for identifier in report.identifiers.clone() {
-            let found = definitions(&root, &conn, &identifier, &mut report)?;
+            let scope = match qualifiers.iter().find(|(name, _)| *name == identifier) {
+                Some((_, owner)) => owner_scope(&conn, owner, &identifier, &mut report)?,
+                None => None,
+            };
+            let found = definitions(&root, &conn, &identifier, scope.as_ref(), &mut report)?;
             let (mut sites, mut scan) = (Vec::new(), None);
             if report.intent != "definition" || found.is_empty() {
-                (sites, scan) = sites_of(&root, &conn, &identifier, &found, &mut report)?;
+                (sites, scan) = sites_of(
+                    &root,
+                    &conn,
+                    &identifier,
+                    &found,
+                    scope.as_ref(),
+                    &mut report,
+                )?;
             }
             if report.intent == "definition" && sites.iter().any(|s| s.kind == "definition") {
                 sites.retain(|s| s.kind == "definition");
@@ -406,8 +420,8 @@ fn identifiers(task: &str) -> Vec<String> {
             found.push(name.to_string());
         }
     };
-    for (index, part) in task.split('`').enumerate() {
-        if index % 2 == 1 {
+    for part in qualified_parts(task) {
+        {
             if let Some(last) = part
                 .trim_end_matches("()")
                 .rsplit(|c: char| c == ':' || c == '.' || c.is_whitespace())
@@ -432,14 +446,349 @@ fn identifiers(task: &str) -> Vec<String> {
     found
 }
 
+/// Backticked names plus unbackticked `a::b` paths of a task.
+fn qualified_parts(task: &str) -> Vec<&str> {
+    let mut parts: Vec<&str> = task.split('`').skip(1).step_by(2).collect();
+    parts.extend(
+        task.split('`')
+            .step_by(2)
+            .flat_map(str::split_whitespace)
+            .filter(|token| token.contains("::"))
+            .map(|token| token.trim_matches(|c: char| !(c.is_alphanumeric() || c == '_'))),
+    );
+    parts
+}
+
+/// (name, owner) for each `Owner::name` / `Owner.name` the task names; the
+/// owner is the segment right before the name (`a::Disk::flush` -> `Disk`).
+fn qualifiers(task: &str) -> Vec<(String, String)> {
+    let named = |s: &str| {
+        s.chars()
+            .next()
+            .is_some_and(|c| c.is_alphabetic() || c == '_')
+            && s.chars().all(|c| c.is_alphanumeric() || c == '_')
+    };
+    let mut found = Vec::new();
+    for part in qualified_parts(task) {
+        let segments: Vec<&str> = part
+            .trim_end_matches("()")
+            .split([':', '.'])
+            .filter(|s| !s.is_empty())
+            .collect();
+        let [.., owner, name] = segments.as_slice() else {
+            continue;
+        };
+        let owner = owner.split('<').next().unwrap_or_default();
+        if named(owner) && named(name) && !matches!(owner, "self" | "Self" | "crate" | "super") {
+            found.push((name.to_string(), owner.to_string()));
+        }
+    }
+    found
+}
+
+/// The owner a task qualified a target with, after narrowing its definitions.
+struct Scope {
+    owner: String,
+    /// Every kept definition is a method (callable as `.name(` or `Owner::name`).
+    method: bool,
+    /// Owners of the excluded same-named definitions.
+    others: BTreeSet<String>,
+    /// Those of them a file can name to show it means another target: types
+    /// for a method (a module name says nothing about a receiver), modules
+    /// for a free function.
+    rivals: BTreeSet<String>,
+    /// (path, start line) of the owner's definitions.
+    owned: BTreeSet<(String, usize)>,
+    files: BTreeSet<String>,
+}
+
+/// (types, modules) that own a definition: type/impl/trait/class spans; module
+/// spans and its file's module (`misc.rs`, `misc/mod.rs`, `misc/__init__.py`).
+fn owners_of(
+    conn: &Connection,
+    definition: &DefinitionRow,
+) -> Result<(BTreeSet<String>, BTreeSet<String>)> {
+    let mut segments = definition.path.rsplit('/');
+    let stem = segments
+        .next()
+        .unwrap_or_default()
+        .split('.')
+        .next()
+        .unwrap_or_default();
+    let parent = segments.next().unwrap_or_default();
+    let mut types = BTreeSet::new();
+    let mut modules = BTreeSet::from([stem.to_string()]);
+    if matches!(stem, "mod" | "lib" | "__init__" | "index") {
+        modules.insert(parent.to_string());
+    }
+    for (name, kind) in containing(
+        conn,
+        &definition.path,
+        &definition.hash,
+        definition.start_line,
+    )? {
+        let name = name
+            .trim_start_matches(['&', '*'])
+            .trim_start_matches("mut ")
+            .to_string();
+        match kind.as_str() {
+            "impl" | "type" | "class" => {
+                types.insert(name);
+            }
+            "module" => {
+                modules.insert(name);
+            }
+            _ => {}
+        }
+    }
+    Ok((types, modules))
+}
+
+/// Resolve `owner::identifier` over every same-named definition; `None`
+/// (nothing narrowed) when the owner owns none of them.
+fn owner_scope(
+    conn: &Connection,
+    owner: &str,
+    identifier: &str,
+    report: &mut ContextReport,
+) -> Result<Option<Scope>> {
+    let key = identifier.to_lowercase().replace('_', "");
+    let rows = definitions_by_identifier(conn, &key, MAX_OWNER_DEFINITIONS + 1)?;
+    if rows.len() > MAX_OWNER_DEFINITIONS {
+        report.missing.push(format!(
+            "more than {MAX_OWNER_DEFINITIONS} definitions match `{identifier}`; owner `{owner}` was not applied"
+        ));
+        return Ok(None);
+    }
+    let mut owned = BTreeSet::new();
+    let mut method = true;
+    let (mut other_types, mut other_modules) = (BTreeSet::new(), BTreeSet::new());
+    let mut elsewhere = 0;
+    for row in rows.iter().filter(|r| r.name == identifier) {
+        let (types, modules) = owners_of(conn, row)?;
+        if types.contains(owner) || modules.contains(owner) {
+            owned.insert((row.path.clone(), row.start_line));
+            method &= row.kind == "method";
+        } else {
+            elsewhere += 1;
+            other_types.extend(types);
+            other_modules.extend(modules);
+        }
+    }
+    // A definition Tree-sitter cannot see (inside a macro such as `cfg_rt! {}`)
+    // still belongs to its module file: `owner.rs` or `owner/mod.rs`.
+    let module_files: BTreeSet<String> = if owned.is_empty() {
+        let mut stmt = conn.prepare_cached(
+            // GLOB is case-sensitive (`Handle` is not `handle.rs`); the owner
+            // is an identifier, so it holds no GLOB metacharacters.
+            "SELECT path FROM files WHERE path IN (?1, ?2)
+             OR path GLOB '*/' || ?1 OR path GLOB '*/' || ?2",
+        )?;
+        let rows = stmt.query_map(
+            params![format!("{owner}.rs"), format!("{owner}/mod.rs")],
+            |row| row.get::<_, String>(0),
+        )?;
+        rows.collect::<std::result::Result<_, _>>()?
+    } else {
+        BTreeSet::new()
+    };
+    if owned.is_empty() && module_files.is_empty() {
+        report.missing.push(format!(
+            "`{owner}` owns no definition of `{identifier}`; every `{identifier}` is shown"
+        ));
+        return Ok(None);
+    }
+    if !module_files.is_empty() {
+        method = false;
+    }
+    if elsewhere > 0 {
+        report.missing.push(format!(
+            "`{owner}::{identifier}`: excluded {elsewhere} definitions of `{identifier}` owned elsewhere"
+        ));
+    }
+    other_types.remove(owner);
+    other_modules.remove(owner);
+    let rivals = if method {
+        other_types.clone()
+    } else {
+        other_modules.clone()
+    };
+    Ok(Some(Scope {
+        owner: owner.to_string(),
+        method,
+        others: other_types.into_iter().chain(other_modules).collect(),
+        rivals,
+        files: owned
+            .iter()
+            .map(|(path, _)| path.clone())
+            .chain(module_files)
+            .collect(),
+        owned,
+    }))
+}
+
+/// How a Rust code line relates to `scope.owner`'s `identifier`, best
+/// occurrence first.
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
+enum Reach {
+    /// Positive evidence of another target: a path through another owner
+    /// (`Socket::flush`), a call form the target cannot take (`.f(` for a
+    /// free function, bare `f(` for a method), a receiver named after another
+    /// owner, or a file naming other owners and never this one.
+    No,
+    /// A method call on a receiver of unknown type, or one named after
+    /// another owner in a file that also names this one.
+    Possible,
+    /// `Owner::name`, a receiver named after the owner, or a file that names
+    /// it (re-export paths are kept: a module path is no evidence against).
+    Yes,
+}
+
+/// Last identifier of a method receiver or path, past one trailing balanced
+/// `(...)` or `<...>`: `x.rt_disk().` -> `rt_disk`, `Sender<u8>::` -> `Sender`.
+fn receiver(before_dot: &str) -> &str {
+    let mut end = before_dot.trim_end();
+    for (open, close) in [('(', ')'), ('<', '>')] {
+        if !end.ends_with(close) {
+            continue;
+        }
+        let mut depth = 0;
+        for (index, c) in end.char_indices().rev() {
+            if c == close {
+                depth += 1;
+            } else if c == open {
+                depth -= 1;
+                if depth == 0 {
+                    end = &end[..index];
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    let start = end
+        .rfind(|c: char| !(c.is_alphanumeric() || c == '_'))
+        .map_or(0, |i| i + 1);
+    &end[start..]
+}
+
+/// `rt_handle` names `Handle`, `worker` names `SearchWorker`: one
+/// underscore-free, lower-case form ends with the other (4+ characters).
+fn names_type(receiver: &str, owner: &str) -> bool {
+    let fold = |s: &str| s.to_lowercase().replace('_', "");
+    let (receiver, owner) = (fold(receiver), fold(owner));
+    receiver.len() >= 4 && (receiver.ends_with(&owner) || owner.ends_with(&receiver))
+}
+
+/// `self_ty`: the innermost impl or type around the line, which `Self::`
+/// and `self.` name.
+fn reach(
+    code: &str,
+    identifier: &str,
+    scope: &Scope,
+    owner_visible: bool,
+    other_only: bool,
+    self_ty: Option<&str>,
+) -> Reach {
+    let word = |c: char| c.is_alphanumeric() || c == '_';
+    let typed = |q: &str| q.starts_with(char::is_uppercase) && q != "Self";
+    // shortcut: an impl that defines the name itself is taken to call its
+    // own; a trait-provided method of the owner trait reached through such
+    // a type is missed.
+    let through_self = || match self_ty {
+        Some(ty) if ty == scope.owner => Some(Reach::Yes),
+        Some(ty) if scope.method && scope.rivals.contains(ty) => Some(Reach::No),
+        _ => None,
+    };
+    code.match_indices(identifier)
+        .map(|(start, _)| {
+            let before = &code[..start];
+            if before.ends_with(word) || code[start + identifier.len()..].starts_with(word) {
+                return Reach::No;
+            }
+            if let Some(path) = before.strip_suffix("::") {
+                let qualifier = receiver(path);
+                if qualifier == "Self" {
+                    if let Some(reached) = through_self() {
+                        return reached;
+                    }
+                }
+                // shortcut: a one-letter path (`U::extend`) is taken as a type
+                // parameter, reached like an unknown receiver; longer
+                // parameter names are not recognised.
+                if scope.method && qualifier.len() == 1 && typed(qualifier) {
+                    return if owner_visible {
+                        Reach::Yes
+                    } else {
+                        Reach::Possible
+                    };
+                }
+                // A method is reached only as `Owner::` or `Self::`; a free
+                // function never through a type. Another lower-case path may
+                // be a re-export module: only a known other owner excludes it.
+                let other = if scope.method {
+                    qualifier != "Self"
+                } else {
+                    scope.others.contains(qualifier) || typed(qualifier)
+                };
+                return if qualifier == scope.owner || !other {
+                    Reach::Yes
+                } else {
+                    Reach::No
+                };
+            }
+            let Some(before_dot) = before.strip_suffix('.') else {
+                // Bare `f(`: a free function, reached through an import.
+                return if scope.method || other_only {
+                    Reach::No
+                } else {
+                    Reach::Yes
+                };
+            };
+            if !scope.method {
+                return Reach::No;
+            }
+            let named = receiver(before_dot);
+            if let Some(reached) = (named == "self").then(through_self).flatten() {
+                reached
+            } else if names_type(named, &scope.owner) {
+                Reach::Yes
+            } else if other_only {
+                Reach::No
+            } else if scope.rivals.iter().any(|r| names_type(named, r)) {
+                // A rival-named receiver (`self.inner`) in a file naming the
+                // owner is conflicting evidence: kept, as a possible call.
+                if owner_visible {
+                    Reach::Possible
+                } else {
+                    Reach::No
+                }
+            } else if owner_visible {
+                Reach::Yes
+            } else {
+                Reach::Possible
+            }
+        })
+        .fold(Reach::No, |best, r| if r > best { r } else { best })
+}
+
 fn definitions(
     root: &Path,
     conn: &Connection,
     identifier: &str,
+    scope: Option<&Scope>,
     report: &mut ContextReport,
 ) -> Result<Vec<Evidence>> {
     let key = identifier.to_lowercase().replace('_', "");
-    let mut rows = definitions_by_identifier(conn, &key, 16)?;
+    let mut rows = match scope {
+        Some(scope) => {
+            let mut rows = definitions_by_identifier(conn, &key, MAX_OWNER_DEFINITIONS)?;
+            rows.retain(|r| scope.owned.contains(&(r.path.clone(), r.start_line)));
+            rows.truncate(16);
+            rows
+        }
+        None => definitions_by_identifier(conn, &key, 16)?,
+    };
     // Exact spelling first, so `poll_proceed` outranks a `PollProceed` type.
     rows.sort_by(|a, b| {
         (a.name != identifier, &a.path, a.start_line).cmp(&(
@@ -576,6 +925,7 @@ fn sites_of(
     conn: &Connection,
     identifier: &str,
     definitions: &[Evidence],
+    scope: Option<&Scope>,
     report: &mut ContextReport,
 ) -> Result<(Vec<Evidence>, SiteScan)> {
     let defined: BTreeSet<(&str, usize)> = definitions
@@ -608,12 +958,19 @@ fn sites_of(
         ));
     }
     let mut found = Vec::new();
+    let mut excluded = 0;
     for (path, hash) in files.into_iter().take(MAX_SITE_FILES) {
         let Some(text) = live_source(root, &path, &hash) else {
             report.stale_results_discarded += 1;
             continue;
         };
         scanned += 1;
+        // Owner rules follow Rust call syntax; other languages keep every line.
+        let scope = scope.filter(|_| path.ends_with(".rs"));
+        let owner_visible =
+            scope.is_some_and(|s| s.files.contains(&path) || contains_word(&text, &s.owner));
+        let other_only = !owner_visible
+            && scope.is_some_and(|s| s.rivals.iter().any(|o| contains_word(&text, o)));
         let style = comment_style(&path);
         let mut carry = Carry::default();
         for (index, line) in text.lines().enumerate() {
@@ -630,9 +987,28 @@ fn sites_of(
             if kind == "definition" && inside_definition(&path, number) {
                 continue;
             }
-            // Prose and config files can name an identifier but never call it.
-            let kind = if is_code_path(&path) { kind } else { "mention" };
+            if kind == "definition" && scope.is_some_and(|s| !s.files.contains(&path)) {
+                // Another owner's definition: counted with the excluded definitions.
+                continue;
+            }
             let spans = containing(conn, &path, &hash, number)?;
+            let reached = scope.map_or(Reach::Yes, |s| {
+                let self_ty = spans
+                    .iter()
+                    .find(|(_, kind)| matches!(kind.as_str(), "impl" | "type"))
+                    .map(|(name, _)| name.as_str());
+                reach(&code, identifier, s, owner_visible, other_only, self_ty)
+            });
+            if reached == Reach::No {
+                excluded += 1;
+                continue;
+            }
+            // Prose and config files can name an identifier but never call it.
+            let kind = match (is_code_path(&path), reached, kind) {
+                (false, _, _) => "mention",
+                (true, Reach::Possible, "call") => "possible call",
+                (true, _, kind) => kind,
+            };
             let enclosing = spans
                 .iter()
                 .find(|(name, _)| name != identifier)
@@ -652,7 +1028,13 @@ fn sites_of(
             });
         }
     }
-    Ok((found, (!capped).then_some((scanned, comments, false))))
+    if let (Some(scope), true) = (scope, excluded > 0) {
+        report.missing.push(format!(
+            "excluded {excluded} lines that cannot reach `{owner}::{identifier}`: another owner's path, a call form `{identifier}` cannot take, or a Rust file naming only other owners of `{identifier}`; not type-resolved",
+            owner = scope.owner
+        ));
+    }
+    Ok((found, (!capped).then_some((scanned, comments, excluded > 0))))
 }
 
 /// True when `identifier` occurs in `line` as a whole word.
@@ -1065,8 +1447,9 @@ fn pack(mut candidates: Vec<Evidence>, report: &mut ContextReport) {
             (_, true) => 1,
             ("call" | "match", _) => 2,
             ("reference", _) => 3,
-            ("import", _) => 4,
-            _ => 5,
+            ("possible call", _) => 4,
+            ("import", _) => 5,
+            _ => 6,
         };
         (tests_last && e.in_test, rank)
     });
@@ -1147,9 +1530,10 @@ impl ContextReport {
         }
         let count = |kind: &str| self.evidence.iter().filter(|e| e.kind == kind).count();
         out.push_str(&format!(
-            "shown: {} definitions, {} calls, {} references, {} imports, {} matches, {} prose mentions, {} file heads; ~{}/{} tokens; {}\n",
+            "shown: {} definitions, {} calls, {} possible calls, {} references, {} imports, {} matches, {} prose mentions, {} file heads; ~{}/{} tokens; {}\n",
             count("definition"),
             count("call"),
+            count("possible call"),
             count("reference"),
             count("import"),
             count("match"),
@@ -1406,6 +1790,261 @@ mod tests {
             "{}",
             report.render()
         );
+    }
+
+    /// `Type::name` and `module::name` narrow a same-named target: other
+    /// owners' definitions and Rust lines that cannot reach this owner are
+    /// excluded and counted; a line Findex cannot decide is kept.
+    #[test]
+    fn qualified_target_excludes_other_owners_and_reports_it() {
+        let (root, _state, db) = project(&[
+            (
+                "src/disk.rs",
+                "pub struct Disk;\nimpl Disk {\n    pub fn flush(&self) {}\n    fn sync(&self) { self.flush(); Self::flush(self); }\n}\n",
+            ),
+            (
+                "src/net.rs",
+                "pub struct Socket;\nimpl Socket {\n    pub fn flush(&self) {}\n}\nfn send(s: &Socket) { s.flush(); Socket::flush(s); }\n",
+            ),
+            (
+                "src/app.rs",
+                "use crate::disk::Disk;\nfn save(d: &Disk) { d.flush(); }\nfn both(d: &Disk, s: &crate::net::Socket) { Disk::flush(d); s.flush(); }\n",
+            ),
+            ("src/log.rs", "fn rotate(w: &mut W) { w.flush(); }\n"),
+            (
+                "src/tcp.rs",
+                "use crate::net::Socket;\nfn close(s: &Socket) { s.flush(); }\n",
+            ),
+            ("src/misc.rs", "pub fn reset() {}\nfn again() { reset(); }\n"),
+            ("src/other.rs", "pub fn reset() {}\nfn twice() { reset(); misc::reset(); }\n"),
+            (
+                "src/user.rs",
+                "fn a() { crate::util::reset(); }\nfn b() { other::reset(); }\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "who calls `Disk::flush`?", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        for site in [
+            "definition src/disk.rs:3",
+            "call src/disk.rs:4",
+            "call src/app.rs:2",
+            "call src/app.rs:3",
+            // Receiver type unknown and no other owner named: kept, marked.
+            "possible call src/log.rs:1",
+        ] {
+            assert!(shown.contains(&site.to_string()), "{site}: {shown:?}");
+        }
+        for other in [
+            "definition src/net.rs:3",
+            "call src/net.rs:5",
+            "call src/tcp.rs:2",
+        ] {
+            assert!(!shown.contains(&other.to_string()), "{other}: {shown:?}");
+        }
+        assert!(
+            report
+                .missing
+                .iter()
+                .any(|m| m.contains("excluded 2 lines") && m.contains("`Disk::flush`")),
+            "{:?}",
+            report.missing
+        );
+        let module = ask(&root, &db, "callers of `misc::reset`", 8000);
+        let shown: Vec<String> = module
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        for site in [
+            "definition src/misc.rs:1",
+            "call src/misc.rs:2",
+            "call src/other.rs:2",
+            // A re-export path is not evidence of another owner.
+            "call src/user.rs:1",
+        ] {
+            assert!(shown.contains(&site.to_string()), "{site}: {shown:?}");
+        }
+        for other in ["definition src/other.rs:1", "call src/user.rs:2"] {
+            assert!(!shown.contains(&other.to_string()), "{other}: {shown:?}");
+        }
+        let unknown = ask(&root, &db, "callers of `Nowhere::flush`", 8000);
+        assert!(
+            unknown
+                .missing
+                .iter()
+                .any(|m| m.contains("`Nowhere` owns no definition")),
+            "{:?}",
+            unknown.missing
+        );
+        assert!(unknown
+            .evidence
+            .iter()
+            .any(|e| e.path == "src/log.rs" && e.kind == "call"));
+    }
+
+    /// A receiver named after the owner (`disk.flush()`, `rt_disk.flush()`,
+    /// `self.disk().flush()`) is a call; one named after another owner is
+    /// excluded; an unknown receiver is only a `possible call`, ranked last.
+    #[test]
+    fn receiver_names_decide_method_calls_and_unknown_ones_are_possible() {
+        let (root, _state, db) = project(&[
+            (
+                "src/disk.rs",
+                "pub struct Disk;\nimpl Disk {\n    pub fn flush(&self) {}\n}\n",
+            ),
+            (
+                "src/net.rs",
+                "pub struct Socket;\nimpl Socket {\n    pub fn flush(&self) {}\n}\n",
+            ),
+            (
+                "src/run.rs",
+                "fn a(x: X) { x.disk.flush(); }\nfn b(x: X) { x.rt_disk().flush(); }\nfn c(x: X) { x.socket.flush(); }\nfn d(w: W) { w.flush(); }\n",
+            ),
+            // Names the owner but the receiver another owner: conflicting
+            // evidence stays visible as a possible call.
+            (
+                "src/wrap.rs",
+                "use crate::disk::Disk;\nfn e(x: X) { x.socket.flush(); }\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "callers of `Disk::flush`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        assert_eq!(
+            shown,
+            [
+                "definition src/disk.rs:3",
+                "call src/run.rs:1",
+                "call src/run.rs:2",
+                "possible call src/run.rs:4",
+                "possible call src/wrap.rs:2",
+            ],
+            "{:?}",
+            report.missing
+        );
+        assert!(report.render().contains("2 possible calls"), "{}", report.render());
+    }
+
+    /// A function defined inside a macro (no syntax symbol) is still owned by
+    /// its module file, so `block::run` narrows to it.
+    #[test]
+    fn module_file_owns_a_macro_hidden_definition() {
+        let (root, _state, db) = project(&[
+            ("src/block.rs", "cfg_rt! {\n    pub fn run() {}\n}\nfn local() { run(); }\n"),
+            (
+                "src/rt.rs",
+                "pub struct Rt;\nimpl Rt {\n    pub fn run(&self) {}\n}\nfn go(rt: &Rt) { rt.run(); }\n",
+            ),
+            ("src/main.rs", "fn main() { crate::block::run(); }\n"),
+        ]);
+        let report = ask(&root, &db, "callers of `block::run`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        assert_eq!(
+            shown,
+            [
+                "definition src/block.rs:2",
+                "call src/block.rs:4",
+                "call src/main.rs:1",
+            ],
+            "{:?}",
+            report.missing
+        );
+    }
+
+    /// Generic paths still reach a method: `Sender<u8>::reserve` names the
+    /// owner, and a type parameter (`U::extend`) is a receiver of unknown
+    /// type: a call where the file names the owner, else a possible call.
+    #[test]
+    fn generic_paths_reach_a_method() {
+        let (root, _state, db) = project(&[
+            (
+                "src/mpsc.rs",
+                "pub struct Sender<T>(T);\nimpl<T> Sender<T> {\n    pub fn reserve(&self) {}\n}\n",
+            ),
+            (
+                "src/pool.rs",
+                "pub struct Pool;\nimpl Pool {\n    pub fn reserve(&self) {}\n    pub fn extend(&mut self) {}\n}\n",
+            ),
+            ("src/check.rs", "assert_fn!(crate::mpsc::Sender<u8>::reserve(_));\n"),
+            (
+                "src/collect.rs",
+                "pub trait FromStreamPriv {\n    fn extend(&mut self);\n}\nfn go<U: FromStreamPriv>(u: &mut U) { U::extend(u); }\n",
+            ),
+            ("src/other.rs", "fn go<U>(u: &mut U) { U::extend(u); }\n"),
+        ]);
+        let shown = |task: &str| -> Vec<String> {
+            ask(&root, &db, task, 8000)
+                .evidence
+                .iter()
+                .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+                .collect()
+        };
+        let reserve = shown("callers of `Sender::reserve`");
+        assert!(reserve.contains(&"call src/check.rs:1".to_string()), "{reserve:?}");
+        let extend = shown("callers of `FromStreamPriv::extend`");
+        for site in ["call src/collect.rs:4", "possible call src/other.rs:1"] {
+            assert!(extend.contains(&site.to_string()), "{site}: {extend:?}");
+        }
+    }
+
+    /// `Self::name` and `self.name` resolve to the enclosing impl: inside
+    /// another owner's impl that defines `name`, they never reach the target.
+    #[test]
+    fn self_calls_resolve_to_the_enclosing_impl() {
+        let (root, _state, db) = project(&[
+            (
+                "src/disk.rs",
+                "pub struct Disk;\nimpl Disk {\n    pub fn new() -> Self { Disk }\n    fn twice() { Self::new(); }\n    fn go(&self) { self.flush(); }\n    pub fn flush(&self) {}\n}\n",
+            ),
+            (
+                "src/net.rs",
+                "use crate::disk::Disk;\npub struct Socket;\nimpl Socket {\n    pub fn new() -> Self { Socket }\n    fn twice() { Self::new(); }\n    pub fn flush(&self) {}\n    fn go(&self) { self.flush(); }\n}\n",
+            ),
+        ]);
+        let shown = |task: &str| -> Vec<String> {
+            ask(&root, &db, task, 8000)
+                .evidence
+                .iter()
+                .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+                .collect()
+        };
+        let new = shown("callers of `Disk::new`");
+        assert!(new.contains(&"call src/disk.rs:4".to_string()), "{new:?}");
+        assert!(!new.iter().any(|s| s.contains("src/net.rs:5")), "{new:?}");
+        let flush = shown("callers of `Disk::flush`");
+        assert!(flush.contains(&"call src/disk.rs:5".to_string()), "{flush:?}");
+        assert!(!flush.iter().any(|s| s.contains("src/net.rs:7")), "{flush:?}");
+    }
+
+    /// Module files match case-sensitively: `Handle` is a type, never
+    /// `handle.rs`, so a macro-hidden `Handle::clock` narrows nothing.
+    #[test]
+    fn module_file_fallback_is_case_sensitive() {
+        let (root, _state, db) = project(&[
+            (
+                "src/driver.rs",
+                "pub struct Handle;\nimpl Handle {\n    cfg_time! {\n        pub fn clock(&self) {}\n    }\n}\n",
+            ),
+            ("src/handle.rs", "fn now(rt_handle: &Rt) { rt_handle.clock(); }\n"),
+        ]);
+        let report = ask(&root, &db, "callers of `Handle::clock`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        assert!(shown.contains(&"call src/handle.rs:1".to_string()), "{shown:?}");
     }
 
     /// Comment and string syntax follows each language: `//` is Python and

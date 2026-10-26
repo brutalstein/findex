@@ -7,7 +7,11 @@ symbol is a true reference site. Findex sees only the name (`callers of
 `name``), so same-named functions elsewhere count against its precision.
 Reported: precision of Findex `call` lines, recall of oracle lines by any
 Findex site kind, and caller-file precision/recall.
-Usage: callsites.py [--corpus ripgrep] [--sample 80]
+With --qualified the task names the function the way a developer would,
+`Type::name` or `module::name` from the SCIP symbol (unchanged name-only task
+when the symbol has no type or module). --split heldout draws a disjoint
+sample (seed 11) that was frozen before any qualifier heuristic was written.
+Usage: callsites.py [--corpus ripgrep] [--sample 80] [--qualified] [--split dev|heldout]
 """
 from __future__ import annotations
 
@@ -85,11 +89,36 @@ def function_name(symbol: str) -> str | None:
     return match.group(1) if match else None
 
 
+IMPL = re.compile(r"impl#\[`?&?(?:'\w+ )?(?:mut )?([A-Za-z_]\w*)[^\]]*\](?:\[([A-Za-z_]\w*)[^\]]*\])?[A-Za-z_]\w*\([^)]*\)\.$")
+OWNER = re.compile(r"([A-Za-z_]\w*)[#/][A-Za-z_]\w*\([^)]*\)\.$")
+
+
+def qualifier(symbol: str) -> str | None:
+    """`Type` or `module` that owns a SCIP function symbol; None at a crate root."""
+    descriptors = symbol.split(" ", 4)[-1]
+    impl = IMPL.search(descriptors)
+    if impl:
+        # A one-letter type is a generic parameter (`impl<M> Trait for &M`): name the trait.
+        return impl.group(2) if len(impl.group(1)) == 1 and impl.group(2) else impl.group(1)
+    owner = OWNER.search(descriptors)
+    return owner.group(1) if owner and owner.group(1) != "impl" else None
+
+
+assert qualifier("rust-analyzer cargo r 1 search/impl#[`SearchWorker<W>`]should_preprocess().") == "SearchWorker"
+assert qualifier("rust-analyzer cargo g 1 impl#[`&'a M`][Matcher]capture_index().") == "Matcher"
+assert qualifier("rust-analyzer cargo r 1 flags/defs/impl#[IgnoreCase][Flag]doc_long().") == "IgnoreCase"
+assert qualifier("rust-analyzer cargo r 1 misc/ignore_hidden().") == "misc"
+assert qualifier("rust-analyzer cargo t 1 io/Ready#is_empty().") == "Ready"
+assert qualifier("rust-analyzer cargo tokio 1.40.0 join_size().") is None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--corpus", default="ripgrep")
     parser.add_argument("--sample", type=int, default=80)
     parser.add_argument("--out", default=None)
+    parser.add_argument("--qualified", action="store_true")
+    parser.add_argument("--split", choices=("dev", "heldout"), default="dev")
     args = parser.parse_args()
     out = results_dir(args.out)
     log = CommandLog(out)
@@ -110,6 +139,9 @@ def main() -> int:
         names[function_name(symbol)].append(symbol)
     candidates = sorted(s for s in defs if 1 <= len(refs[s]) <= 200 and len(function_name(s)) >= 3)
     sample = random.Random(7).sample(candidates, min(args.sample, len(candidates)))
+    if args.split == "heldout":
+        rest = sorted(set(candidates) - set(sample))
+        sample = random.Random(11).sample(rest, min(args.sample, len(rest)))
     exe = findex_binary("current")
     root = CORPORA / args.corpus
     state = WORK / "callsites-state"
@@ -118,17 +150,26 @@ def main() -> int:
     rows = []
     for symbol in sample:
         name = function_name(symbol)
-        proc = log.run([str(exe), "context", "--json", "--budget", "8000", f"callers of `{name}`"],
+        owner = qualifier(symbol) if args.qualified else None
+        target = f"{owner}::{name}" if owner else name
+        proc = log.run([str(exe), "context", "--json", "--budget", "8000", f"callers of `{target}`"],
                        cwd=root, env=isolated_env(state), timeout=300)
         report = json.loads(proc.stdout)
-        sites = [(e["path"], e["line"], e["kind"]) for e in report["evidence"] if e["kind"] in ("call", "reference", "import")]
+        sites = [(e["path"], e["line"], e["kind"]) for e in report["evidence"]
+                 if e["kind"] in ("call", "possible call", "reference", "import")]
         truth = refs[symbol]
         calls = {(p, l) for p, l, k in sites if k == "call"}
+        # `possible call`: Findex marks the receiver type unknown; reported separately.
+        possible = {(p, l) for p, l, k in sites if k == "possible call"}
         found = {(p, l) for p, l, _ in sites}
         truth_files, call_files = {p for p, _ in truth}, {p for p, _ in calls}
-        rows.append({"symbol": symbol, "name": name, "same_name_definitions": len(names[name]),
+        rows.append({"symbol": symbol, "name": name, "task_target": target,
+                     "same_name_definitions": len(names[name]),
                      "oracle_sites": len(truth), "findex_calls": len(calls), "findex_sites": len(found),
                      "call_precision": len(calls & truth) / len(calls) if calls else None,
+                     "possible_calls": len(possible),
+                     "call_or_possible_precision": len((calls | possible) & truth) / len(calls | possible)
+                     if calls | possible else None,
                      "site_recall": len(found & truth) / len(truth),
                      "caller_file_precision": len(call_files & truth_files) / len(call_files) if call_files else None,
                      "caller_file_recall": len(call_files & truth_files) / len(truth_files),
@@ -144,8 +185,11 @@ def main() -> int:
     micro_calls = sum(r["findex_calls"] for r in rows)
     write_json(out / "callsites.json", {
         "status": "EXECUTED", "corpus": args.corpus, "oracle": "rust-analyzer SCIP non-definition occurrences",
-        "functions": len(rows), "seed": 7,
-        "macro": {k: mean(k) for k in ("call_precision", "site_recall", "caller_file_precision", "caller_file_recall")},
+        "functions": len(rows), "seed": 7 if args.split == "dev" else "11 (disjoint from seed 7)",
+        "split": args.split, "qualified_task": args.qualified,
+        "qualified_functions": sum(r["task_target"] != r["name"] for r in rows),
+        "macro": {k: mean(k) for k in ("call_precision", "call_or_possible_precision", "site_recall",
+                                        "caller_file_precision", "caller_file_recall")},
         "macro_unique_names": {k: mean(k, unique) for k in ("call_precision", "site_recall", "caller_file_precision", "caller_file_recall")},
         "unique_name_functions": len(unique),
         "micro": {"call_precision": sum((r["call_precision"] or 0) * r["findex_calls"] for r in rows) / micro_calls if micro_calls else None,

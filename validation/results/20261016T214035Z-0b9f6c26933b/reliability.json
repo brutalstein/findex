@@ -1,0 +1,48 @@
+{
+  "branch_switch": {
+    "status": "EXECUTED",
+    "corpus": "ripgrep",
+    "revisions": [
+      "14.1.1",
+      "13.0.0"
+    ],
+    "files_changed": 148,
+    "only_new_function": "activate_worker",
+    "only_old_function": "adjust_match",
+    "initial": {
+      "present_found": true,
+      "absent_cited": false,
+      "seconds_to_correct": 1.4,
+      "pass": true
+    },
+    "switches": [
+      {
+        "checkout": "13.0.0",
+        "present_found": true,
+        "absent_cited": false,
+        "seconds_to_correct": 1.34,
+        "pass": true
+      },
+      {
+        "checkout": "14.1.1",
+        "present_found": true,
+        "absent_cited": false,
+        "seconds_to_correct": 1.15,
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
+  "onedrive": {
+    "status": "EXECUTED",
+    "root_kind": "OneDrive-synced folder (files present locally; cloud-only placeholders not tested: creating them would change the user's OneDrive)",
+    "index_exit_code": 0,
+    "index_output": "Indexed 273 changed, 0 unchanged, 0 removed, 0 skipped (examined 273)",
+    "tracked_admitted_files": 263,
+    "examined_reported": 273,
+    "note": "examined also counts untracked, non-ignored files; tracked_admitted_files counts tracked only",
+    "context_evidence": 38,
+    "stale_results_discarded": 0,
+    "pass": true
+  }
+}

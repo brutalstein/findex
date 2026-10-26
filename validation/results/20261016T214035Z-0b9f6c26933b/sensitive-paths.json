@@ -1,0 +1,9 @@
+{
+  "model_sessions": 0,
+  "paid_api_calls": 0,
+  "normal_source_admitted": "PASS",
+  "secrets_excluded_at_scan": 17,
+  "all_sensitive_markers_absent_from_search": "PASS",
+  "ordinary_code_still_found": "PASS",
+  "status": "PASS"
+}

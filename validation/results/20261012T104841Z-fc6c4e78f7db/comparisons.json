@@ -1,0 +1,272 @@
+{
+  "per_task": {},
+  "overall": {
+    "__all__": {
+      "A": {
+        "success_rate": null,
+        "findex_used_rate": null,
+        "evidence_found_rate": null,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 0
+        },
+        "output_tokens": {
+          "n": 0
+        },
+        "cache_creation_input_tokens": {
+          "n": 0
+        },
+        "cache_read_input_tokens": {
+          "n": 0
+        },
+        "total_tokens": {
+          "n": 0
+        },
+        "total_cost_usd_estimate": {
+          "n": 0
+        },
+        "num_turns": {
+          "n": 0
+        },
+        "tool_call_count": {
+          "n": 0
+        },
+        "mcp_call_count": {
+          "n": 0
+        },
+        "toolsearch_calls": {
+          "n": 0
+        },
+        "builtin_search_calls": {
+          "n": 0
+        },
+        "read_calls": {
+          "n": 0
+        },
+        "files_read": {
+          "n": 0
+        },
+        "tool_result_bytes": {
+          "n": 0
+        },
+        "wall_s": {
+          "n": 0
+        }
+      },
+      "B": {
+        "success_rate": null,
+        "findex_used_rate": null,
+        "evidence_found_rate": null,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 0
+        },
+        "output_tokens": {
+          "n": 0
+        },
+        "cache_creation_input_tokens": {
+          "n": 0
+        },
+        "cache_read_input_tokens": {
+          "n": 0
+        },
+        "total_tokens": {
+          "n": 0
+        },
+        "total_cost_usd_estimate": {
+          "n": 0
+        },
+        "num_turns": {
+          "n": 0
+        },
+        "tool_call_count": {
+          "n": 0
+        },
+        "mcp_call_count": {
+          "n": 0
+        },
+        "toolsearch_calls": {
+          "n": 0
+        },
+        "builtin_search_calls": {
+          "n": 0
+        },
+        "read_calls": {
+          "n": 0
+        },
+        "files_read": {
+          "n": 0
+        },
+        "tool_result_bytes": {
+          "n": 0
+        },
+        "wall_s": {
+          "n": 0
+        }
+      },
+      "C": {
+        "success_rate": null,
+        "findex_used_rate": null,
+        "evidence_found_rate": null,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 0
+        },
+        "output_tokens": {
+          "n": 0
+        },
+        "cache_creation_input_tokens": {
+          "n": 0
+        },
+        "cache_read_input_tokens": {
+          "n": 0
+        },
+        "total_tokens": {
+          "n": 0
+        },
+        "total_cost_usd_estimate": {
+          "n": 0
+        },
+        "num_turns": {
+          "n": 0
+        },
+        "tool_call_count": {
+          "n": 0
+        },
+        "mcp_call_count": {
+          "n": 0
+        },
+        "toolsearch_calls": {
+          "n": 0
+        },
+        "builtin_search_calls": {
+          "n": 0
+        },
+        "read_calls": {
+          "n": 0
+        },
+        "files_read": {
+          "n": 0
+        },
+        "tool_result_bytes": {
+          "n": 0
+        },
+        "wall_s": {
+          "n": 0
+        }
+      },
+      "D": {
+        "success_rate": null,
+        "findex_used_rate": null,
+        "evidence_found_rate": null,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 0
+        },
+        "output_tokens": {
+          "n": 0
+        },
+        "cache_creation_input_tokens": {
+          "n": 0
+        },
+        "cache_read_input_tokens": {
+          "n": 0
+        },
+        "total_tokens": {
+          "n": 0
+        },
+        "total_cost_usd_estimate": {
+          "n": 0
+        },
+        "num_turns": {
+          "n": 0
+        },
+        "tool_call_count": {
+          "n": 0
+        },
+        "mcp_call_count": {
+          "n": 0
+        },
+        "toolsearch_calls": {
+          "n": 0
+        },
+        "builtin_search_calls": {
+          "n": 0
+        },
+        "read_calls": {
+          "n": 0
+        },
+        "files_read": {
+          "n": 0
+        },
+        "tool_result_bytes": {
+          "n": 0
+        },
+        "wall_s": {
+          "n": 0
+        }
+      },
+      "E": {
+        "success_rate": null,
+        "findex_used_rate": null,
+        "evidence_found_rate": null,
+        "first_evidence_tool_call": {
+          "n": 0
+        },
+        "input_tokens": {
+          "n": 0
+        },
+        "output_tokens": {
+          "n": 0
+        },
+        "cache_creation_input_tokens": {
+          "n": 0
+        },
+        "cache_read_input_tokens": {
+          "n": 0
+        },
+        "total_tokens": {
+          "n": 0
+        },
+        "total_cost_usd_estimate": {
+          "n": 0
+        },
+        "num_turns": {
+          "n": 0
+        },
+        "tool_call_count": {
+          "n": 0
+        },
+        "mcp_call_count": {
+          "n": 0
+        },
+        "toolsearch_calls": {
+          "n": 0
+        },
+        "builtin_search_calls": {
+          "n": 0
+        },
+        "read_calls": {
+          "n": 0
+        },
+        "files_read": {
+          "n": 0
+        },
+        "tool_result_bytes": {
+          "n": 0
+        },
+        "wall_s": {
+          "n": 0
+        }
+      }
+    }
+  }
+}
