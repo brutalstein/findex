@@ -94,7 +94,7 @@ fn connect(db: &Path) -> Result<Connection> {
     }
     match open_schema(db) {
         Err(err) if is_corrupt(err.as_ref()) => Err(
-            "Findex index cache is corrupt; original database preserved. Use `findex index-check` and back up the cache before explicit recovery."
+            "Findex index cache is corrupt; original database preserved. Use `findex index-check`, back up the cache if needed, then `findex forget` and `findex index` to rebuild."
                 .into(),
         ),
         other => other,
@@ -143,7 +143,7 @@ fn try_open_schema(db: &Path) -> Result<Connection> {
         // Written by a newer Findex: its layout is unknown here, so neither
         // read nor rewrite it.
         return Err(format!(
-            "index cache schema {version} is newer than this Findex supports ({LEXICAL_SCHEMA}); upgrade Findex or delete the index cache"
+            "index cache schema {version} is newer than this Findex supports ({LEXICAL_SCHEMA}); upgrade Findex or run `findex forget` to rebuild it"
         )
         .into());
     }

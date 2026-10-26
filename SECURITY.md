@@ -1,6 +1,6 @@
 # Security policy
 
-Findex (version 0.1) is an early prototype. **Do not assume that the first release has been security-audited.**
+Findex (version 0.2.0 release candidate) is experimental. **Do not assume that the first release has been security-audited.**
 
 ## Reporting vulnerabilities
 

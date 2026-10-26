@@ -255,7 +255,22 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         "status" | "stats" => {
             println!("Project: {}", project.display());
             println!("Index: {}", findex_core::storage_dir(&project)?.display());
-            println!("Token savings: unavailable (requires a measured baseline, not implemented in v0.1)");
+            println!(
+                "Token savings: not measured per session; study results are in docs/EVIDENCE.md"
+            );
+        }
+        "forget" => {
+            if args.next().is_some() {
+                return Err("usage: findex forget".into());
+            }
+            // The per-project cache only; source files and other projects' indexes are untouched.
+            let dir = findex_core::storage_dir(&project)?;
+            if dir.exists() {
+                std::fs::remove_dir_all(&dir)?;
+                println!("Removed the index of this project: {}", dir.display());
+            } else {
+                println!("No index for this project: {}", dir.display());
+            }
         }
         "mcp" => findex_mcp::serve(&project)?,
         _ => {
@@ -358,14 +373,18 @@ fn print_help() {
     println!("  findex index                    Reconcile project lexical index");
     println!("  findex overview                 Bounded, source-verified project inventory");
     println!("  findex search <terms...>        Search matching code and line evidence");
+    println!("  findex context <task> [--budget N] [--json]  Definitions, call sites or tests for a task");
     println!("  findex symbols <relative-file>  Parse definitions with Tree-sitter");
     println!("  findex find-symbol <exact-name>  Search persistent project definitions");
     println!("  findex graph-import-scip <file> Import bounded SCIP protobuf references");
     println!("  findex graph-import-lsp <file>  Import normalized captured LSP references");
     println!("  findex impact <relative-file> [depth:1-3]  Find reference-backed file impact");
+    println!("  findex graph-symbol <symbol-id> Show imported definition/reference sites");
     println!("  findex refresh <paths...>       Refresh known relative files without a full scan");
     println!("  findex doctor                   Check local integration and system");
     println!("  findex status                   Show current project and index location");
+    println!("  findex index-check              Verify index integrity");
+    println!("  findex forget                   Delete this project's cached indexes");
     println!("  findex mcp                      Start MCP stdio server (for Claude plugin)");
     println!("  findex version                  Print build version");
 }

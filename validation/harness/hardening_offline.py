@@ -98,6 +98,38 @@ def main() -> None:
         assert cap["models_or_network_calls_per_query"] == 0
         checks["capability_contract_works_with_corrupt_cache"] = "PASS"
 
+        invalid = execute(exe, project, env, "forget", "unexpected")
+        assert invalid.returncode != 0 and "usage: findex forget" in invalid.stderr, invalid
+        assert db.read_bytes() == original, "invalid forget removed the cache"
+        checks["forget_rejects_arguments_without_deleting"] = "PASS"
+
+        other = root / "other project"
+        other.mkdir()
+        other_source = other / "other.rs"
+        other_source.write_text("pub fn other_marker() {}\n", encoding="utf-8")
+        other_indexed = execute(exe, other, env, "index")
+        assert other_indexed.returncode == 0, other_indexed.stderr
+        other_db, = [p for p in db.parent.parent.glob("*/index.sqlite3") if p != db]
+        other_bytes = other_db.read_bytes()
+
+        forgot = execute(exe, project, env, "forget")
+        assert forgot.returncode == 0 and "Removed the index" in forgot.stdout, forgot
+        assert not db.parent.exists(), "forget left the index directory"
+        assert other_db.read_bytes() == other_bytes, "forget changed another project's cache"
+        rebuilt = execute(exe, project, env, "index")
+        assert rebuilt.returncode == 0, rebuilt.stderr
+        healthy = execute(exe, project, env, "index-check")
+        assert healthy.returncode == 0 and "1 files, 1 documents" in healthy.stdout, healthy
+        again = execute(exe, project, env, "forget")
+        assert again.returncode == 0 and "Removed the index" in again.stdout
+        assert source.read_text(encoding="utf-8") == "pub fn safe_marker() -> u32 { 17 }\n"
+        absent = execute(exe, project, env, "forget")
+        assert absent.returncode == 0 and "No index for this project" in absent.stdout, absent
+        assert not db.parent.exists(), "forget recreated the absent index directory"
+        assert other_db.read_bytes() == other_bytes and other_source.exists()
+        checks["forget_then_rebuild_recovers_corrupt_cache"] = "PASS"
+        checks["forget_is_project_scoped_and_repeatable"] = "PASS"
+
     results["status"] = "PASS"
     output = json.dumps(results, indent=2)
     if opts.output:

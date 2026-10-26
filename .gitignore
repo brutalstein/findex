@@ -17,3 +17,6 @@ validation/results/*/raw/
 validation/results/**/*.stream.jsonl
 validation/results/**/transcripts/
 __pycache__/
+
+# Local Graphify graph of this repository (derived, regenerated on demand)
+graphify-out/

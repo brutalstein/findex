@@ -1,7 +1,7 @@
 # Findex
 
 **Native Windows code discovery for official Claude Code.**  
-**Status: experimental v0.1 foundation; not production-ready.**
+**Status: experimental v0.2.0 release candidate; not production-ready.**
 
 Findex is designed as a local-first, modular code intelligence engine that helps the official Claude Code client retrieve small, verifiable code contexts instead of blindly reading whole projects. It does **not** emulate Claude, proxy requests, collect Claude credentials, or claim 100% understanding/token savings.
 
@@ -56,6 +56,15 @@ findex claude --resume
 ```
 
 If Findex's bundled plugin is not present, the official Claude Code still launches, but will not have a Findex search tool. Do not infer MCP usage from installation alone: inspect Claude's tools and benchmark actual task outcomes.
+
+### Index recovery
+
+Run `findex index-check` to check the current project's cache without rebuilding
+it. A corrupt cache is preserved. To rebuild it, stop Findex MCP sessions for
+this project, back up the cache if needed, then run `findex forget` followed by
+`findex index`. `forget` deletes only this project's cached indexes; source
+files and other projects' indexes are preserved. Imported SCIP/LSP evidence
+must be imported again after deletion.
 
 ### Important compatibility scope
 
