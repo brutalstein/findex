@@ -16,6 +16,8 @@ use std::path::Path;
 /// Files scanned for sites of one identifier. More candidates are reported
 /// as truncation instead of being read.
 const MAX_SITE_FILES: usize = 400;
+/// Cargo manifests read to tell external crates from project ones.
+const MAX_MANIFESTS: usize = 200;
 const MAX_IDENTIFIERS: usize = 3;
 const MAX_BUDGET: usize = 8000;
 /// Lines shown from a definition body when the task asks for the definition.
@@ -680,6 +682,125 @@ fn names_type(receiver: &str, owner: &str) -> bool {
     receiver.len() >= 4 && (receiver.ends_with(&owner) || owner.ends_with(&receiver))
 }
 
+/// Whether byte `at` of a Rust code line sits inside a `"..."` literal.
+fn in_string(code: &str, at: usize) -> bool {
+    let bytes = code.as_bytes();
+    let (mut inside, mut i) = (false, 0);
+    while i < at {
+        match (bytes[i], bytes.get(i + 1), bytes.get(i + 2)) {
+            (b'\\', _, _) if inside => i += 1,
+            (b'"', _, _) => inside = !inside,
+            // `'"'` and `'\"'` are char literals, not quotes.
+            (b'\'', Some(b'"'), Some(b'\'')) if !inside => i += 2,
+            (b'\'', Some(b'\\'), Some(b'"')) if !inside => i += 3,
+            _ => {}
+        }
+        i += 1;
+    }
+    inside
+}
+
+/// Crate names a Rust path can start with outside this project: `std`,
+/// `core`, `alloc` and Cargo dependencies that no project manifest names as
+/// its package or library.
+fn external_crates(root: &Path, conn: &Connection) -> Result<BTreeSet<String>> {
+    let mut stmt = conn.prepare_cached(
+        "SELECT path, hash FROM files
+         WHERE path = 'Cargo.toml' OR path GLOB '*/Cargo.toml' ORDER BY path LIMIT ?1",
+    )?;
+    let manifests = stmt
+        .query_map(params![MAX_MANIFESTS as i64], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+        })?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    let crate_name = |s: &str| s.trim().trim_matches('"').replace('-', "_");
+    let mut external: BTreeSet<String> = ["std", "core", "alloc"].map(String::from).into();
+    let mut own = BTreeSet::new();
+    for (path, hash) in manifests {
+        let Some(text) = live_source(root, &path, &hash) else {
+            continue;
+        };
+        let mut section = "";
+        for line in text.lines().map(str::trim) {
+            if let Some(header) = line.strip_prefix('[') {
+                section = header.trim_end_matches(']');
+                // `[dependencies.tempfile]`
+                if let Some((table, name)) = section.rsplit_once('.') {
+                    if table.ends_with("dependencies") {
+                        external.insert(crate_name(name));
+                    }
+                }
+                continue;
+            }
+            let Some((key, value)) = line.split_once('=') else {
+                continue;
+            };
+            if section.ends_with("dependencies") {
+                // `futures = "0.3"`, `tokio.workspace = true`
+                external.insert(crate_name(key.split('.').next().unwrap_or(key)));
+            } else if matches!(section, "package" | "lib") && key.trim() == "name" {
+                own.insert(crate_name(value));
+            }
+        }
+    }
+    Ok(external.difference(&own).cloned().collect())
+}
+
+/// Whether every occurrence of `identifier` on a Rust code line goes through
+/// an external crate: a path rooted in one (`futures::executor::block_on`),
+/// or a bare name the file imports only from one.
+fn foreign(code: &str, identifier: &str, external: &BTreeSet<String>, imported: bool) -> bool {
+    let word = |c: char| c.is_alphanumeric() || c == '_';
+    let mut any = false;
+    for (start, _) in code.match_indices(identifier) {
+        let before = &code[..start];
+        if before.ends_with(word)
+            || code[start + identifier.len()..].starts_with(word)
+            || in_string(code, start)
+        {
+            continue;
+        }
+        any = true;
+        let through_crate = match before.strip_suffix("::") {
+            Some(path) => {
+                let tail = path.trim_end_matches(|c: char| word(c) || c == ':');
+                let root = path[tail.len()..].trim_start_matches(':');
+                external.contains(root.split("::").next().unwrap_or_default())
+            }
+            None => imported && !before.ends_with('.'),
+        };
+        if !through_crate {
+            return false;
+        }
+    }
+    any
+}
+
+/// The file imports `identifier` (`use a::b::name;`) and every such import is
+/// rooted in an external crate. shortcut: multi-line `use` groups are not
+/// read, so they never mark a name external.
+fn imported_externally(text: &str, identifier: &str, external: &BTreeSet<String>) -> bool {
+    let mut roots = text
+        .lines()
+        .filter_map(|line| {
+            let line = line.trim();
+            // `pub use`, `pub(crate) use`
+            let line = line.strip_prefix("pub").map_or(line, |rest| {
+                rest.trim_start_matches(|c: char| c != ' ').trim_start()
+            });
+            line.strip_prefix("use ")
+        })
+        .filter(|path| contains_word(path, identifier))
+        .map(|path| {
+            path.trim_start_matches(':')
+                .split("::")
+                .next()
+                .unwrap_or_default()
+        })
+        .peekable();
+    roots.peek().is_some() && roots.all(|root| external.contains(root))
+}
+
 /// `self_ty`: the innermost impl or type around the line, which `Self::`
 /// and `self.` name.
 fn reach(
@@ -703,7 +824,10 @@ fn reach(
     code.match_indices(identifier)
         .map(|(start, _)| {
             let before = &code[..start];
-            if before.ends_with(word) || code[start + identifier.len()..].starts_with(word) {
+            if before.ends_with(word)
+                || code[start + identifier.len()..].starts_with(word)
+                || in_string(code, start)
+            {
                 return Reach::No;
             }
             if let Some(path) = before.strip_suffix("::") {
@@ -958,13 +1082,21 @@ fn sites_of(
         ));
     }
     let mut found = Vec::new();
-    let mut excluded = 0;
+    let (mut excluded, mut foreign_lines) = (0, 0);
+    // Only a project definition can be missed through an external crate.
+    let external = if definitions.is_empty() {
+        BTreeSet::new()
+    } else {
+        external_crates(root, conn)?
+    };
     for (path, hash) in files.into_iter().take(MAX_SITE_FILES) {
         let Some(text) = live_source(root, &path, &hash) else {
             report.stale_results_discarded += 1;
             continue;
         };
         scanned += 1;
+        let rust = path.ends_with(".rs") && !external.is_empty();
+        let imported = rust && imported_externally(&text, identifier, &external);
         // Owner rules follow Rust call syntax; other languages keep every line.
         let scope = scope.filter(|_| path.ends_with(".rs"));
         let owner_visible =
@@ -991,6 +1123,12 @@ fn sites_of(
                 // Another owner's definition: counted with the excluded definitions.
                 continue;
             }
+            // A line inside a listed definition is covered by it, not excluded.
+            let covered = inside_definition(&path, number);
+            if rust && foreign(&code, identifier, &external, imported) {
+                foreign_lines += usize::from(!covered);
+                continue;
+            }
             let spans = containing(conn, &path, &hash, number)?;
             let reached = scope.map_or(Reach::Yes, |s| {
                 let self_ty = spans
@@ -1000,7 +1138,7 @@ fn sites_of(
                 reach(&code, identifier, s, owner_visible, other_only, self_ty)
             });
             if reached == Reach::No {
-                excluded += 1;
+                excluded += usize::from(!covered);
                 continue;
             }
             // Prose and config files can name an identifier but never call it.
@@ -1034,7 +1172,16 @@ fn sites_of(
             owner = scope.owner
         ));
     }
-    Ok((found, (!capped).then_some((scanned, comments, excluded > 0))))
+    if foreign_lines > 0 {
+        report.missing.push(format!(
+            "excluded {foreign_lines} Rust lines that reach `{identifier}` only through an external crate (a Cargo dependency or `std`/`core`/`alloc` path or import); they cannot call this project's `{identifier}`"
+        ));
+    }
+    let excluded = excluded + foreign_lines;
+    Ok((
+        found,
+        (!capped).then_some((scanned, comments, excluded > 0)),
+    ))
 }
 
 /// True when `identifier` occurs in `line` as a whole word.
@@ -1929,7 +2076,11 @@ mod tests {
             "{:?}",
             report.missing
         );
-        assert!(report.render().contains("2 possible calls"), "{}", report.render());
+        assert!(
+            report.render().contains("2 possible calls"),
+            "{}",
+            report.render()
+        );
     }
 
     /// A function defined inside a macro (no syntax symbol) is still owned by
@@ -1991,7 +2142,10 @@ mod tests {
                 .collect()
         };
         let reserve = shown("callers of `Sender::reserve`");
-        assert!(reserve.contains(&"call src/check.rs:1".to_string()), "{reserve:?}");
+        assert!(
+            reserve.contains(&"call src/check.rs:1".to_string()),
+            "{reserve:?}"
+        );
         let extend = shown("callers of `FromStreamPriv::extend`");
         for site in ["call src/collect.rs:4", "possible call src/other.rs:1"] {
             assert!(extend.contains(&site.to_string()), "{site}: {extend:?}");
@@ -2023,8 +2177,80 @@ mod tests {
         assert!(new.contains(&"call src/disk.rs:4".to_string()), "{new:?}");
         assert!(!new.iter().any(|s| s.contains("src/net.rs:5")), "{new:?}");
         let flush = shown("callers of `Disk::flush`");
-        assert!(flush.contains(&"call src/disk.rs:5".to_string()), "{flush:?}");
-        assert!(!flush.iter().any(|s| s.contains("src/net.rs:7")), "{flush:?}");
+        assert!(
+            flush.contains(&"call src/disk.rs:5".to_string()),
+            "{flush:?}"
+        );
+        assert!(
+            !flush.iter().any(|s| s.contains("src/net.rs:7")),
+            "{flush:?}"
+        );
+    }
+
+    /// A name inside a string literal (`m.read("read 1")`) is no call form.
+    #[test]
+    fn string_literal_names_are_no_call_evidence() {
+        let (root, _state, db) = project(&[
+            ("src/read.rs", "pub fn read(b: &mut [u8]) {}\n"),
+            (
+                "src/x.rs",
+                "pub struct X;\nimpl X {\n    pub fn read(&self) {}\n}\n",
+            ),
+            (
+                "src/t.rs",
+                "fn t(m: M) { m.read(\"read 1\"); }\nfn u() { read(&mut []); }\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "callers of `read::read`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        assert!(shown.contains(&"call src/t.rs:2".to_string()), "{shown:?}");
+        assert!(
+            !shown.iter().any(|s| s.ends_with("src/t.rs:1")),
+            "{shown:?}"
+        );
+    }
+
+    /// A path rooted in an external crate (a Cargo dependency or `std`), or a
+    /// bare call imported only from one, never reaches a project definition.
+    #[test]
+    fn external_crate_paths_never_reach_project_definitions() {
+        let (root, _state, db) = project(&[
+            (
+                "Cargo.toml",
+                "[package]\nname = \"app\"\n\n[dependencies]\nfutures = \"0.3\"\n\n[dev-dependencies.tempfile]\nversion = \"3\"\n",
+            ),
+            ("src/block.rs", "pub fn block_on() {}\nfn a() { block_on(); }\n"),
+            ("src/b.rs", "use futures::executor::block_on;\nfn b() { block_on(); }\n"),
+            (
+                "src/c.rs",
+                "fn c() { futures::executor::block_on(); std::thread::block_on(); }\nfn e() { tempfile::block_on(); }\n",
+            ),
+            (
+                "src/d.rs",
+                "use crate::block::block_on;\nfn d() { block_on(); app::block::block_on(); }\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "callers of `block_on`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        for site in ["call src/block.rs:2", "call src/d.rs:2"] {
+            assert!(shown.contains(&site.to_string()), "{site}: {shown:?}");
+        }
+        for path in ["src/b.rs", "src/c.rs"] {
+            assert!(!shown.iter().any(|s| s.contains(path)), "{path}: {shown:?}");
+        }
+        assert!(
+            report.missing.iter().any(|m| m.contains("external crate")),
+            "{:?}",
+            report.missing
+        );
     }
 
     /// Module files match case-sensitively: `Handle` is a type, never
@@ -2044,7 +2270,10 @@ mod tests {
             .iter()
             .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
             .collect();
-        assert!(shown.contains(&"call src/handle.rs:1".to_string()), "{shown:?}");
+        assert!(
+            shown.contains(&"call src/handle.rs:1".to_string()),
+            "{shown:?}"
+        );
     }
 
     /// Comment and string syntax follows each language: `//` is Python and

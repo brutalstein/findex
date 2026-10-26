@@ -9,8 +9,8 @@ when Findex lists it or it lies inside a listed definition span. The claim
 holds for a name when every uncovered line is a comment by this checker's own
 whole-file lexer (Python: the stdlib `tokenize`; other languages: a scanner
 written independently of Findex's per-line rule), their number equals the
-omitted-comment count, and only reported method-syntax lines are otherwise
-missing.
+omitted-comment count, and only reported method-syntax and external-crate
+lines are otherwise missing (their number equals the reported exclusions).
 Usage: coverage_check.py [--corpora ripgrep,tokio,...]  -> coverage_check.json
 """
 from __future__ import annotations
@@ -29,7 +29,7 @@ from golden import admitted_files
 
 NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{2,}$")
 COMMENTS = re.compile(r"\((\d+) comment lines? omitted\)")
-EXCLUDED = re.compile(r"excluded (\d+) method-syntax")
+EXCLUDED = re.compile(r"excluded (\d+) (?:method-syntax|Rust lines that reach `\w+` only through an external crate)")
 HASH = {"py", "pyi", "rb", "sh", "bash", "ps1", "psm1", "toml", "yaml", "yml", "cmake", "pl", "r"}
 # Lua is absent: its comments are `--` and `//` is integer division.
 CLIKE = {"c", "cc", "cjs", "cpp", "cs", "cxx", "go", "h", "hh", "hpp", "hxx", "java", "js", "jsx", "kt", "m",
@@ -191,6 +191,10 @@ assert check({"truncated": False, "coverage": ["coverage `f`: ... (1 comment lin
 # A code line counted as an omitted comment is a violation even when the counts match.
 assert not check({"truncated": False, "coverage": ["coverage `f`: ... (1 comment line omitted)"], "missing": [],
                   "evidence": []}, {("a.rs", 1): ("#[x(f)]", False)}, "f")["holds"]
+# Reported external-crate exclusions account for omitted code lines.
+assert check({"truncated": False, "coverage": ["coverage `f`: ..."], "evidence": [],
+              "missing": ["excluded 1 Rust lines that reach `f` only through an external crate (...)"]},
+             {("a.rs", 1): ("dep::f()", False)}, "f")["holds"]
 assert check({"truncated": True, "coverage": ["x"], "missing": [], "evidence": []}, {}, "f") is None
 
 
