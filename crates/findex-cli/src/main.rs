@@ -30,6 +30,12 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 "Indexed {} changed, {} unchanged, {} removed, {} skipped (examined {})",
                 stats.indexed, stats.unchanged, stats.removed, stats.skipped, stats.examined
             );
+            if stats.cloud_only > 0 {
+                println!(
+                    "{} cloud-only files were not downloaded or indexed; make them available offline to include them",
+                    stats.cloud_only
+                );
+            }
         }
         "overview" => {
             if args.next().is_some() {

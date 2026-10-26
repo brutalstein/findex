@@ -95,6 +95,10 @@ pub fn refresh_known_paths_into(
                 }
             };
             match metadata {
+                Some(meta) if meta.file_type().is_file() && findex_core::is_cloud_only(&meta) => {
+                    report.sync.cloud_only += 1;
+                    None
+                }
                 Some(meta) if meta.file_type().is_file() && meta.len() <= MAX_SOURCE_BYTES => {
                     let inside = match absolute.canonicalize() {
                         Ok(resolved) => resolved

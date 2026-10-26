@@ -33,6 +33,8 @@ pub struct SyncStats {
     pub unchanged: usize,
     pub removed: usize,
     pub skipped: usize,
+    /// Cloud-only placeholders (counted in `skipped`): never read, so never downloaded.
+    pub cloud_only: usize,
     pub symbols_parsed: usize,
     pub symbols_reused: usize,
 }
@@ -411,6 +413,11 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
             stats.skipped += 1;
             continue;
         }
+        if findex_core::is_cloud_only(&metadata) {
+            stats.skipped += 1;
+            stats.cloud_only += 1;
+            continue;
+        }
         let bytes = match fs::read(entry.path()) {
             Ok(b) => b,
             Err(err) => {
@@ -733,7 +740,10 @@ fn live_source(root: &Path, relative: &str, indexed_hash: &str) -> Option<String
     }
     let full_path: PathBuf = root.join(relative);
     let metadata = fs::symlink_metadata(&full_path).ok()?;
-    if !metadata.file_type().is_file() || metadata.len() > MAX_SOURCE_BYTES {
+    if !metadata.file_type().is_file()
+        || metadata.len() > MAX_SOURCE_BYTES
+        || findex_core::is_cloud_only(&metadata)
+    {
         return None;
     }
     let resolved = full_path.canonicalize().ok()?;

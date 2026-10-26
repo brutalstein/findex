@@ -93,6 +93,20 @@ jobs:
           name: findex-hardening-offline-evidence
           path: hardening-offline.json
           if-no-files-found: error
+      - name: Cloud-only placeholders are never downloaded; SMB path and watcher
+        shell: pwsh
+        run: |
+          python validation/harness/cloud_placeholders.py target/release/findex.exe --output cloud-placeholders.json
+          if ($LASTEXITCODE -ne 0) { throw "Cloud Files placeholder regression" }
+          python validation/harness/network_volume.py target/release/findex.exe --output network-volume.json
+          if ($LASTEXITCODE -ne 0) { throw "SMB network path regression" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: findex-cloud-and-network-evidence
+          path: |
+            cloud-placeholders.json
+            network-volume.json
+          if-no-files-found: error
       - name: Offline first-contact project overview and MCP test
         shell: pwsh
         run: |

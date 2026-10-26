@@ -143,6 +143,25 @@ pub fn is_disallowed_project_path(relative: &Path) -> bool {
     !any
 }
 
+/// A cloud-sync placeholder whose data is not on this device (OneDrive Files
+/// On-Demand or any other Cloud Files provider, or HSM offline storage).
+/// Reading it would download it, so it is never read and never indexed.
+pub fn is_cloud_only(metadata: &std::fs::Metadata) -> bool {
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        const OFFLINE: u32 = 0x1000;
+        const RECALL_ON_OPEN: u32 = 0x4_0000;
+        const RECALL_ON_DATA_ACCESS: u32 = 0x40_0000;
+        metadata.file_attributes() & (OFFLINE | RECALL_ON_OPEN | RECALL_ON_DATA_ACCESS) != 0
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = metadata;
+        false
+    }
+}
+
 /// Best-effort masking of common credential shapes in text returned to a
 /// model. This is a pattern list, not a guarantee that no secret survives.
 pub fn redact_secrets(text: &str) -> std::borrow::Cow<'_, str> {

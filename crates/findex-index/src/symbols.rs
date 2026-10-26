@@ -267,7 +267,10 @@ pub fn inspect_indexed_file_in_db(
         return Ok(None);
     };
     let metadata = fs::symlink_metadata(&absolute)?;
-    if !metadata.file_type().is_file() || metadata.len() > MAX_SOURCE_BYTES {
+    if !metadata.file_type().is_file()
+        || metadata.len() > MAX_SOURCE_BYTES
+        || findex_core::is_cloud_only(&metadata)
+    {
         return Ok(None);
     }
     let resolved = absolute.canonicalize()?;
@@ -346,7 +349,11 @@ pub fn search_symbols_in_db(
                 .ok()
                 .is_some_and(|path| !is_disallowed_project_path(path))
         });
-        if !meta.is_some_and(|m| m.file_type().is_file() && m.len() <= MAX_SOURCE_BYTES) || !inside
+        if !meta.is_some_and(|m| {
+            m.file_type().is_file()
+                && m.len() <= MAX_SOURCE_BYTES
+                && !findex_core::is_cloud_only(&m)
+        }) || !inside
         {
             report.stale_results_discarded += 1;
             continue;
