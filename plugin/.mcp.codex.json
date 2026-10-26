@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "findex": {
+      "type": "stdio",
+      "command": "${PLUGIN_ROOT}\\bin\\findex.exe",
+      "args": ["mcp"]
+    }
+  }
+}

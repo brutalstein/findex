@@ -25,6 +25,10 @@ SKILLS = {"navigate", "map-project", "trace-impact", "maintenance"}
 
 def validate_files(plugin: Path, marketplace: Path) -> dict:
     manifest = json.loads((plugin / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    codex = json.loads((plugin / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    assert codex["name"] == manifest["name"] and codex["version"] == manifest["version"]
+    assert codex["skills"] == "./skills/" and codex["requires_local_executor"] is True
+    codex_config = json.loads((plugin / codex["mcpServers"]).read_text(encoding="utf-8"))
     config = json.loads((plugin / ".mcp.json").read_text(encoding="utf-8"))
     catalog = json.loads(marketplace.read_text(encoding="utf-8"))
     assert manifest["name"] == "findex"
@@ -36,6 +40,11 @@ def validate_files(plugin: Path, marketplace: Path) -> dict:
     assert "-NoProfile" in argv and "-NonInteractive" in argv
     assert "-File" in argv
     assert argv[-1] == "${CLAUDE_PLUGIN_ROOT}/scripts/start-mcp.ps1"
+    codex_server = codex_config["mcpServers"]["findex"]
+    assert codex_server["type"] == "stdio"
+    assert codex_server["command"] == "${PLUGIN_ROOT}\\bin\\findex.exe"
+    assert codex_server["args"] == ["mcp"]
+    assert "cwd" not in codex_server, "MCP must inherit the task's project directory"
     assert all(key not in server for key in ("url", "headers", "env"))
     assert not (plugin / "hooks").exists(), "Hooks intentionally forbidden in non-invasive release"
     assert not (plugin / "CLAUDE.md").exists(), "Root CLAUDE.md is not a plugin entry point"
@@ -55,8 +64,9 @@ def validate_files(plugin: Path, marketplace: Path) -> dict:
         else:
             assert "disable-model-invocation:" not in front
         assert "Claude" in body
+        assert "Codex" in body, "Shared skills must describe both supported clients"
     assert found == SKILLS, found
-    return {"manifest": "PASS", "marketplace": "PASS",
+    return {"manifest": "PASS", "codex_manifest": "PASS", "codex_mcp_config": "PASS", "marketplace": "PASS",
             "mcp_config": "PASS", "skills": sorted(found)}
 
 

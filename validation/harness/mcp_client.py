@@ -11,8 +11,9 @@ import psutil
 
 
 class McpProcess:
-    def __init__(self, exe: Path, project: Path, env: dict, legacy_init: bool = True):
-        self.proc = subprocess.Popen([str(exe), "mcp"], cwd=project, env=env, stdin=subprocess.PIPE,
+    def __init__(self, exe: Path, project: Path, env: dict, legacy_init: bool = True,
+                 server_args: list[str] | None = None):
+        self.proc = subprocess.Popen([str(exe), *(server_args if server_args is not None else ["mcp"])], cwd=project, env=env, stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.ps = psutil.Process(self.proc.pid)
         self.stderr: list[bytes] = []

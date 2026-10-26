@@ -5,6 +5,8 @@ description: Explore a new or unfamiliar codebase from scratch using Findex and 
 
 # Findex: project discovery
 
+Use this skill in Codex or Claude Code, with the client's built-in source-reading and search tools for verification and fallback.
+
 Goal: Build a **bounded, source-backed map for the current task**, not a fictional complete understanding of the repository.
 
 Check `findex_capabilities` only when you need to know the engine's supported languages, bounded scan limits, or when to choose native Claude tools. It does not scan the project or prove that all project files have been indexed.
