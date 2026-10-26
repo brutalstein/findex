@@ -6,6 +6,21 @@ Findex (version 0.2.0 release candidate) is experimental. **Do not assume that t
 
 Please do **not** disclose proof-of-concept secrets or sensitive repository content in public issues. Contact the repository owner privately via GitHub profile contact information until private vulnerability reporting is configured.
 
+## Supported versions
+
+Only the latest release receives security fixes (currently 0.2.x, a release
+candidate). Release ZIPs are built by CI from a version tag after all gates
+pass. Verify a download before use:
+
+```
+sha256sum -c findex-windows-x64.sha256
+gh attestation verify findex-windows-x64.zip --repo brutalstein/findex
+```
+
+`BUILD-INFO.txt` in the ZIP states the commit, toolchain and whether
+`findex.exe` is Authenticode-signed. Dependencies are limited by `deny.toml`
+(permissive licenses, crates.io only) and checked against RustSec in CI.
+
 ## Local-first boundaries
 
 - Indexing and searching happen locally; no Findex network service is started.
