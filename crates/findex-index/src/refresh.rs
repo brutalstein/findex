@@ -229,13 +229,16 @@ mod tests {
         let _: i64 = holder
             .query_row("SELECT count(*) FROM files", [], |row| row.get(0))
             .expect("read");
+        // A deny ACE: an empty DACL alone does not stop an elevated CI account.
         let status = std::process::Command::new("icacls")
             .arg(&file)
-            .arg("/inheritance:r")
+            .args(["/inheritance:r", "/deny", "*S-1-1-0:(R)"])
             .stdout(std::process::Stdio::null())
             .status()
             .expect("icacls");
         assert!(status.success());
+        let denied = fs::read(&file).expect_err("read must be denied");
+        assert_eq!(denied.kind(), std::io::ErrorKind::PermissionDenied);
         let report = refresh_known_paths_into(workspace.path(), &db, &[PathBuf::from("denied.rs")])
             .expect("refresh");
         assert_eq!(report.sync.removed, 1);

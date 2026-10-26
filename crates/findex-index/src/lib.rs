@@ -1092,10 +1092,11 @@ mod tests {
         let secret = project.path().join("secret.rs");
         fs::write(&secret, format!("fn {marker}() {{}}\n")).expect("secret");
         synchronize_into(project.path(), &db).expect("sync");
-        // Drop the inherited ACEs: an empty DACL denies reading the data.
+        // Drop the inherited ACEs and deny Everyone reading: an empty DACL
+        // alone does not stop an elevated CI account; a deny ACE does.
         let status = std::process::Command::new("icacls")
             .arg(&secret)
-            .arg("/inheritance:r")
+            .args(["/inheritance:r", "/deny", "*S-1-1-0:(R)"])
             .stdout(std::process::Stdio::null())
             .status()
             .expect("icacls");
