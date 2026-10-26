@@ -23,6 +23,21 @@ launches of `claude` and a PATH shim catches PowerShell launches; the
 default `run-all.ps1`, `-Steps integration,claude-ab` and every harness
 entry point were run without starting a client.
 
+### Update 2026-10-26 (after this campaign)
+
+The BLOCKED verdict above came from `claude auth status`, which reads the
+operator's user settings (an `apiKeyHelper` and an `ANTHROPIC_BASE_URL` that
+route to a local proxy). Live sessions never load those settings
+(`--setting-sources project,local`). The gate now judges each session's own
+key source: sessions inherit no billing or routing variables, and
+`run_claude` stops the study unless the session's init event reports
+`apiKeySource: "none"`. The desktop app's first-party
+`ANTHROPIC_BASE_URL=https://api.anthropic.com` no longer blocks.
+`test_live_gate.py` has 14 tests. Evidence: one-turn haiku canary
+(`results/20261026-live-canary/`, `apiKeySource: "none"`, proxy port closed)
+and a 4-session A/D check of `t2` (`results/20261026T093056Z-6e0a1f6e209c/`).
+User settings were not modified.
+
 ## Proposed P5 smoke study (not started; needs operator approval)
 
 At most 12 sessions: 2 arms (without / with Findex) × 6 tasks

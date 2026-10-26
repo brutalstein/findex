@@ -608,6 +608,37 @@ mod tests {
             .collect()
     }
 
+    /// Engine errors carry local paths and SQLite diagnostics; tool results
+    /// must never echo them (THREAT_MODEL T8).
+    #[test]
+    fn engine_errors_never_reach_tool_results() {
+        let leak = r"C:\Users\alice\AppData\Local\Findex\indexes\db.sqlite: SQLITE_CORRUPT";
+        let fail = || -> Box<dyn std::error::Error + Send + Sync> { leak.into() };
+        for (tool, arguments) in [
+            ("findex_search", json!({"query":"flush"})),
+            ("findex_find_symbol", json!({"name":"flush"})),
+            ("findex_symbols", json!({"path":"src/lib.rs"})),
+            ("findex_context", json!({"task":"callers of `flush`"})),
+        ] {
+            let request = json!({"jsonrpc":"2.0","id":1,"method":"tools/call",
+                "params":{"name":tool,"arguments":arguments}});
+            let response = handle_with_lookups(
+                &request,
+                Path::new("."),
+                |_, _, _| Err(fail()),
+                |_, _, _| Err(fail()),
+                |_, _| Err(fail()),
+                |_, _, _| Err(fail()),
+            )
+            .expect("response");
+            let text = response.to_string();
+            assert_eq!(response["result"]["isError"], true, "{tool}: {text}");
+            for secret in ["alice", "AppData", "SQLITE"] {
+                assert!(!text.contains(secret), "{tool} leaked {secret}: {text}");
+            }
+        }
+    }
+
     #[test]
     fn oversized_frame_is_rejected_without_terminating_the_server() {
         let mut input = vec![b'a'; MAX_REQUEST_BYTES * 2];
