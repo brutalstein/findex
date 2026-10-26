@@ -13,6 +13,9 @@ the callers task the external-crate rule affects), arms A (built-ins) and D
 
 Tokens = input + output + cache write + cache read. Mean D − A = −11.4k
 (−12.7 %), but with n = 2 and one D session above both A sessions the run
-supports no saving claim. It confirms that D stays correct with the new build
+supports no saving claim. The expensive D session (rep 0) never called a
+Findex tool (Grep, Grep, Read, Read); the cheap one made a single
+`findex_context` call and answered. Tool adoption, not result quality,
+decided the difference here. It confirms that D stays correct with the new build
 (recall 1.00, precision 0.80 and 1.00). The token claim remains Run 4
 (`validation/campaigns/vnext/CLAUDE_AB_RESULTS.md`, 108 sessions).
