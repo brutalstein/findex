@@ -1,0 +1,64 @@
+[
+  {
+    "command": [
+      "plugin",
+      "marketplace",
+      "add",
+      "%LOCALAPPDATA%\\Findex\\codex-plugin-marketplace",
+      "--json"
+    ],
+    "result": {
+      "marketplaceName": "findex-local",
+      "installedRoot": "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Local\\Findex\\codex-plugin-marketplace",
+      "alreadyAdded": false
+    }
+  },
+  {
+    "command": [
+      "plugin",
+      "add",
+      "findex@findex-local",
+      "--json"
+    ],
+    "result": {
+      "pluginId": "findex@findex-local",
+      "name": "findex",
+      "marketplaceName": "findex-local",
+      "version": "0.2.0",
+      "installedPath": "%USERPROFILE%\\.codex\\plugins\\cache\\findex-local\\findex\\0.2.0",
+      "authPolicy": "ON_INSTALL"
+    }
+  },
+  {
+    "command": [
+      "plugin",
+      "list",
+      "--marketplace",
+      "findex-local",
+      "--json"
+    ],
+    "result": {
+      "installed": [
+        {
+          "pluginId": "findex@findex-local",
+          "name": "findex",
+          "marketplaceName": "findex-local",
+          "version": "0.2.0",
+          "installed": true,
+          "enabled": true,
+          "source": {
+            "source": "local",
+            "path": "%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Local\\Findex\\codex-plugin-marketplace\\plugin"
+          },
+          "marketplaceSource": {
+            "sourceType": "local",
+            "source": "\\\\?\\%LOCALAPPDATA%\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Local\\Findex\\codex-plugin-marketplace"
+          },
+          "installPolicy": "AVAILABLE",
+          "authPolicy": "ON_INSTALL"
+        }
+      ],
+      "available": []
+    }
+  }
+]

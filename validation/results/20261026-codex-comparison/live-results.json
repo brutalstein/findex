@@ -1,0 +1,38 @@
+{
+  "sessions": [
+    {
+      "key": "codex:requests:__bool__:exact:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "requests:__bool__:exact",
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 75638,
+        "cached_input_tokens": 49536,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 123,
+        "reasoning_output_tokens": 0
+      },
+      "mcp_calls": 1,
+      "correct": true,
+      "final": "{\"path\":\"src/requests/models.py\",\"line\":730}",
+      "valid": true
+    },
+    {
+      "key": "codex:requests:__bool__:exact:graphify",
+      "client": "codex",
+      "tool": "graphify",
+      "task": "requests:__bool__:exact",
+      "exit_code": 1,
+      "usage": {},
+      "mcp_calls": 0,
+      "correct": false,
+      "final": "I\u2019ll check the supplied graph tools for `__bool__` and verify the definition line if needed.\n",
+      "valid": false
+    }
+  ],
+  "started": 6,
+  "invalid_trials": 4,
+  "reason": "Initial harness omitted read-only MCP approval; not scored as tool failures. Fourth trial was interrupted. All count toward cap.",
+  "stopped": "codex: failed or missing usage; no retries or fallback"
+}
