@@ -58,3 +58,14 @@ blockers. Current numbers: [docs/EVIDENCE.md](../../../docs/EVIDENCE.md).
   reading an empty-DACL file) fixed in `21a8ab8` and `97d36d1`.
 - Still open for ENTERPRISE_READY: Authenticode, typed graph, A7 remainder,
   model obedience to injected text.
+- CI is green on the branch (`52d9a8a`, `e4fe732`).
+- Windows reliability: cloud-only OneDrive placeholders were downloaded by
+  indexing (fixed in `e4fe732`; 0 downloads after the fix, checked by a real
+  Cloud Files provider). Loopback SMB passes, including the MCP watcher. Both
+  run in CI. Windows 10 and remote SMB servers are still NOT_RUN.
+- Release engineering (`ecc7f9a`): tag-driven GitHub Release after all
+  gates, SBOM, SHA-256, provenance, license/source policy (`cargo deny`), a
+  Windows Server 2022 job, and an Authenticode step that runs once a
+  certificate secret exists. No release was published.
+- Of the PRODUCTION_CANDIDATE blockers above, only Windows 10 and the
+  12-session live study remain open.
