@@ -41,3 +41,20 @@ New live model sessions: 0. Paid API calls: 0. Paid infrastructure: 0.
    fresh held-out set; never edit `router_heldout.tsv`.
 4. With operator approval, run the ≤ 12-session smoke study.
 5. P1 typed graph and relations schema versioning.
+
+## Update 2026-10-26 (after this campaign)
+
+The verdicts above are unchanged; this records what happened to their
+blockers. Current numbers: [docs/EVIDENCE.md](../../../docs/EVIDENCE.md).
+
+- Next step 2 (A11): closed. Fixed error texts, test `engine_errors_never_reach_tool_results`.
+- A12: closed. Test `index_directory_is_not_readable_by_other_local_accounts`.
+- Next step 3: done. Fresh held-out router set `router_heldout_v2.tsv`, frozen
+  before its first run: 56/60, then 57/60 after dev-only rules.
+- Next step 4 (live smoke): live sessions are gated per session on
+  `apiKeySource: "none"`; one canary and a 4-session `t2` check ran on Haiku.
+  The full 12-session study was not run.
+- CI: two Windows-runner test failures (pwsh 7 module path, elevated runner
+  reading an empty-DACL file) fixed in `21a8ab8` and `97d36d1`.
+- Still open for ENTERPRISE_READY: Authenticode, typed graph, A7 remainder,
+  model obedience to injected text.

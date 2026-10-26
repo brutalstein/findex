@@ -1,5 +1,9 @@
 # Findex — Final Validation Report
 
+> **2026-10-26:** historical report, not updated. The token-savings verdict below was
+> superseded by Run 4 (`validation/campaigns/vnext/CLAUDE_AB_RESULTS.md`); current
+> numbers and verdicts are in [docs/EVIDENCE.md](../docs/EVIDENCE.md).
+
 Machine: AMD Ryzen 9 8945HX (32 logical CPUs), 31.2 GiB RAM, NVMe, Windows 11
 Pro 10.0.26200, Rust 1.97.0 `x86_64-pc-windows-msvc`, Python 3.12, Claude
 Code 2.1.281 (Pro plan, OAuth). Dates: 2026-10-11/12.
