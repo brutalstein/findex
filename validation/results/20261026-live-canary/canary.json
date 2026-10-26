@@ -1,0 +1,18 @@
+{
+  "init": {
+    "apiKeySource": "none",
+    "model": "claude-haiku-4-5-20251001",
+    "permissionMode": "default"
+  },
+  "result": {
+    "is_error": false,
+    "result": "ok",
+    "num_turns": 1,
+    "total_cost_usd": 0.047323
+  },
+  "models": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "exit_code": 0,
+  "wall_s": 4.6
+}
