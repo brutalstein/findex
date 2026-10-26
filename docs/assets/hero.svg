@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" role="img" aria-labelledby="t d">
+  <title id="t">Findex</title>
+  <desc id="d">Findex: your codebase, found, not read. Native Windows, MCP for Claude Code and Codex, fully local.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#121e36"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#3987e5" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#3987e5" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.1" fill="#ffffff" fill-opacity="0.07"/>
+    </pattern>
+    <clipPath id="card"><rect width="1280" height="360" rx="24"/></clipPath>
+  </defs>
+  <g clip-path="url(#card)">
+    <rect width="1280" height="360" fill="url(#bg)"/>
+    <rect width="1280" height="360" fill="url(#dots)"/>
+    <circle cx="1010" cy="180" r="300" fill="url(#glow)"/>
+  </g>
+
+  <g font-family="Segoe UI, Inter, -apple-system, Helvetica, Arial, sans-serif">
+    <text x="72" y="170" font-size="104" font-weight="800" letter-spacing="-3" fill="#f5f7fb">findex<tspan fill="#3987e5">.</tspan></text>
+    <text x="76" y="224" font-size="30" fill="#c3cad8">Your codebase, found — not read.</text>
+    <g font-size="15" fill="#dfe5ef">
+      <rect x="76" y="252" width="192" height="36" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.14"/>
+      <text x="172" y="275" text-anchor="middle">Native Windows · Rust</text>
+      <rect x="280" y="252" width="239" height="36" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.14"/>
+      <text x="399.5" y="275" text-anchor="middle">MCP for Claude Code &amp; Codex</text>
+      <rect x="531" y="252" width="110" height="36" rx="18" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.14"/>
+      <text x="586" y="275" text-anchor="middle">100% local</text>
+    </g>
+  </g>
+
+  <g>
+    <rect x="780" y="60" width="430" height="240" rx="16" fill="#0f1830" stroke="#ffffff" stroke-opacity="0.12"/>
+    <circle cx="806" cy="84" r="5" fill="#ffffff" fill-opacity="0.25"/>
+    <circle cx="824" cy="84" r="5" fill="#ffffff" fill-opacity="0.18"/>
+    <circle cx="842" cy="84" r="5" fill="#ffffff" fill-opacity="0.12"/>
+    <g fill="#ffffff" fill-opacity="0.13">
+      <rect x="812" y="112" width="210" height="10" rx="5"/>
+      <rect x="836" y="134" width="260" height="10" rx="5"/>
+      <rect x="836" y="156" width="150" height="10" rx="5"/>
+      <rect x="812" y="178" width="96" height="10" rx="5"/>
+      <rect x="812" y="244" width="180" height="10" rx="5"/>
+      <rect x="836" y="266" width="240" height="10" rx="5"/>
+    </g>
+    <rect x="781" y="198" width="428" height="30" fill="#3987e5" fill-opacity="0.16"/>
+    <text x="812" y="218" font-family="Cascadia Code, Consolas, SFMono-Regular, Menlo, monospace" font-size="14" fill="#ffffff">pub fn parse_config()</text>
+    <circle cx="1112" cy="210" r="44" fill="#3987e5" fill-opacity="0.14" stroke="#e8eefc" stroke-width="8"/>
+    <line x1="1144" y1="242" x2="1184" y2="282" stroke="#e8eefc" stroke-width="12" stroke-linecap="round"/>
+  </g>
+</svg>
