@@ -194,9 +194,13 @@ mod tests {
         let out = std::process::Command::new("powershell")
             .args(["-NoProfile", "-NonInteractive", "-Command", script])
             .env("FINDEX_ACL_PROBE", dir)
+            // Under pwsh 7 (CI) the inherited module path makes Windows
+            // PowerShell load pwsh's Get-Acl, which fails; 5.1 rebuilds its own.
+            .env_remove("PSModulePath")
             .output()
             .expect("powershell");
-        assert!(out.status.success(), "{out:?}");
+        // An error must fail the check, never read as "no broad readers".
+        assert!(out.status.success() && out.stderr.is_empty(), "{out:?}");
         String::from_utf8_lossy(&out.stdout)
             .lines()
             .map(str::trim)
