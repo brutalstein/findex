@@ -1,9 +1,15 @@
 # Evidence status
 
 Living summary of what Findex has demonstrated, as of **2026-10-26**
-(branch `quality/review-fixes`, version 0.2.0). Every number points to a committed run under
+(`main` after PR #34, version 0.2.0, not yet released). Every number points to a committed run under
 `validation/results/` or a campaign record; campaign records themselves are
 historical and are not rewritten. Machine: native Windows 11, NVMe.
+
+CI on every change (all green for PR #34, run 40342169198): fmt, Clippy
+`-D warnings`, all tests on Windows latest, Windows Server 2022 and Rust 1.85
+(MSRV), release build, RustSec audit, `cargo deny` license/source policy, and
+the offline harnesses (security, hardening, cloud-only placeholders, SMB,
+plugin, live-gate).
 
 Verdicts:
 - **Proven**: measured on held-out data or against an independent oracle, frozen before the run.
