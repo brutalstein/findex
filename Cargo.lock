@@ -144,7 +144,7 @@ checksum = "aedcfb3409746eddb02b9e19ebda1c3394f759a152e48ee875a0844d1b955484"
 
 [[package]]
 name = "findex"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "findex-core",
  "findex-index",
@@ -156,7 +156,7 @@ dependencies = [
 
 [[package]]
 name = "findex-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "blake3",
  "regex",
@@ -164,7 +164,7 @@ dependencies = [
 
 [[package]]
 name = "findex-index"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "blake3",
  "findex-core",
@@ -177,7 +177,7 @@ dependencies = [
 
 [[package]]
 name = "findex-mcp"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "findex-index",
  "findex-relations",
@@ -188,7 +188,7 @@ dependencies = [
 
 [[package]]
 name = "findex-relations"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "blake3",
  "findex-core",
@@ -203,7 +203,7 @@ dependencies = [
 
 [[package]]
 name = "findex-syntax"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "findex-core",
  "serde",
@@ -217,7 +217,7 @@ dependencies = [
 
 [[package]]
 name = "findex-watch"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "findex-core",
  "findex-index",

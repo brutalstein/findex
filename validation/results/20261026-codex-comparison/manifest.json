@@ -1,0 +1,976 @@
+{
+  "selection": "findex-three-tools-v1",
+  "golden_sha256": "941a6118fca67d04aeb959710c9c9eb32c2985aba925ab1cdea8944535e85380",
+  "queries": [
+    {
+      "corpus": "requests",
+      "name": "default_hooks",
+      "expected": [
+        [
+          "src/requests/hooks.py",
+          15
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:default_hooks:words",
+      "type": "identifier_words",
+      "query": "default hooks"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "src/requests/hooks.py",
+          23
+        ]
+      ],
+      "query": "dictionary given piece",
+      "id": "requests:line:4",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": "__bool__",
+      "expected": [
+        [
+          "src/requests/models.py",
+          730
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:__bool__:exact",
+      "type": "symbol_exact",
+      "query": "__bool__"
+    },
+    {
+      "corpus": "requests",
+      "name": "JSONDecodeError",
+      "expected": [
+        [
+          "src/requests/exceptions.py",
+          31
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:JSONDecodeError:words",
+      "type": "identifier_words",
+      "query": "json decode error"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "src/requests/certs.py",
+          7
+        ]
+      ],
+      "query": "bundle module preferred",
+      "id": "requests:line:18",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": "HTTPProxyAuth",
+      "expected": [
+        [
+          "src/requests/auth.py",
+          99
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:HTTPProxyAuth:exact",
+      "type": "symbol_exact",
+      "query": "HTTPProxyAuth"
+    },
+    {
+      "corpus": "requests",
+      "name": "HTTPProxyAuth",
+      "expected": [
+        [
+          "src/requests/auth.py",
+          99
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:HTTPProxyAuth:words",
+      "type": "identifier_words",
+      "query": "http proxy auth"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "src/requests/__init__.py",
+          121
+        ]
+      ],
+      "query": "attempt fallback support",
+      "id": "requests:line:5",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": "rebuild_proxies",
+      "expected": [
+        [
+          "src/requests/sessions.py",
+          302
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:rebuild_proxies:exact",
+      "type": "symbol_exact",
+      "query": "rebuild_proxies"
+    },
+    {
+      "corpus": "requests",
+      "name": "rebuild_proxies",
+      "expected": [
+        [
+          "src/requests/sessions.py",
+          302
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:rebuild_proxies:words",
+      "type": "identifier_words",
+      "query": "rebuild proxies"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "tests/compat.py",
+          19
+        ]
+      ],
+      "query": "future release requests",
+      "id": "requests:line:14",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": "default_hooks",
+      "expected": [
+        [
+          "src/requests/hooks.py",
+          15
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:default_hooks:exact",
+      "type": "symbol_exact",
+      "query": "default_hooks"
+    },
+    {
+      "corpus": "requests",
+      "name": "proxy_bypass_registry",
+      "expected": [
+        [
+          "src/requests/utils.py",
+          76
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:proxy_bypass_registry:words",
+      "type": "identifier_words",
+      "query": "proxy bypass registry"
+    },
+    {
+      "corpus": "requests",
+      "name": "NoLenBoomFile",
+      "expected": [
+        [
+          "tests/test_utils.py",
+          88
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:NoLenBoomFile:exact",
+      "type": "symbol_exact",
+      "query": "NoLenBoomFile"
+    },
+    {
+      "corpus": "requests",
+      "name": "sha256_utf8",
+      "expected": [
+        [
+          "src/requests/auth.py",
+          161
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:sha256_utf8:words",
+      "type": "identifier_words",
+      "query": "sha256 utf8"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodNumberDef",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          1258
+        ],
+        [
+          "src/types.ts",
+          1258
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodNumberDef:words",
+      "type": "identifier_words",
+      "query": "zod number def"
+    },
+    {
+      "corpus": "zod",
+      "name": null,
+      "expected": [
+        [
+          "src/__tests__/language-server.test.ts",
+          205
+        ]
+      ],
+      "query": "could literal property",
+      "id": "zod:line:0",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5"
+    },
+    {
+      "corpus": "zod",
+      "name": "Values",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          4144
+        ],
+        [
+          "src/types.ts",
+          4144
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:Values:exact",
+      "type": "symbol_exact",
+      "query": "Values"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodUnknownDef",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          2058
+        ],
+        [
+          "src/types.ts",
+          2058
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodUnknownDef:words",
+      "type": "identifier_words",
+      "query": "zod unknown def"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodDefaultDef",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          4717
+        ],
+        [
+          "src/types.ts",
+          4717
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodDefaultDef:exact",
+      "type": "symbol_exact",
+      "query": "ZodDefaultDef"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodDiscriminatedUnionOption",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          3093
+        ],
+        [
+          "src/types.ts",
+          3093
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodDiscriminatedUnionOption:words",
+      "type": "identifier_words",
+      "query": "zod discriminated union option"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodNumber",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          1264
+        ],
+        [
+          "src/types.ts",
+          1264
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodNumber:exact",
+      "type": "symbol_exact",
+      "query": "ZodNumber"
+    },
+    {
+      "corpus": "zod",
+      "name": "recordWithLiteralKeys",
+      "expected": [
+        [
+          "deno/lib/__tests__/record.test.ts",
+          18
+        ],
+        [
+          "src/__tests__/record.test.ts",
+          17
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:recordWithLiteralKeys:words",
+      "type": "identifier_words",
+      "query": "record with literal keys"
+    },
+    {
+      "corpus": "zod",
+      "name": "recursiveZodFormattedError",
+      "expected": [
+        [
+          "deno/lib/ZodError.ts",
+          180
+        ],
+        [
+          "src/ZodError.ts",
+          180
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:recursiveZodFormattedError:exact",
+      "type": "symbol_exact",
+      "query": "recursiveZodFormattedError"
+    },
+    {
+      "corpus": "zod",
+      "name": "CatchallOutput",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          2355
+        ],
+        [
+          "src/types.ts",
+          2355
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:CatchallOutput:words",
+      "type": "identifier_words",
+      "query": "catchall output"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodDiscriminatedUnionOption",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          3093
+        ],
+        [
+          "src/types.ts",
+          3093
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodDiscriminatedUnionOption:exact",
+      "type": "symbol_exact",
+      "query": "ZodDiscriminatedUnionOption"
+    },
+    {
+      "corpus": "zod",
+      "name": "UnknownKeysParam",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          2308
+        ],
+        [
+          "src/types.ts",
+          2308
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:UnknownKeysParam:words",
+      "type": "identifier_words",
+      "query": "unknown keys param"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodNumberDef",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          1258
+        ],
+        [
+          "src/types.ts",
+          1258
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodNumberDef:exact",
+      "type": "symbol_exact",
+      "query": "ZodNumberDef"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodIssueBase",
+      "expected": [
+        [
+          "deno/lib/ZodError.ts",
+          39
+        ],
+        [
+          "src/ZodError.ts",
+          39
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodIssueBase:words",
+      "type": "identifier_words",
+      "query": "zod issue base"
+    },
+    {
+      "corpus": "zod",
+      "name": "finalizeSet",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          3791
+        ],
+        [
+          "src/types.ts",
+          3791
+        ]
+      ],
+      "split": "heldout",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:finalizeSet:exact",
+      "type": "symbol_exact",
+      "query": "finalizeSet"
+    },
+    {
+      "corpus": "fmt",
+      "name": "report_truncation",
+      "expected": [
+        [
+          "include/fmt/base.h",
+          2797
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:report_truncation:words",
+      "type": "identifier_words",
+      "query": "report truncation"
+    },
+    {
+      "corpus": "fmt",
+      "name": null,
+      "expected": [
+        [
+          "test/perf-sanity.cc",
+          13
+        ]
+      ],
+      "query": "chrono clock start",
+      "id": "fmt:line:6",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592"
+    },
+    {
+      "corpus": "fmt",
+      "name": "context",
+      "expected": [
+        [
+          "include/fmt/base.h",
+          1942
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:context:exact",
+      "type": "symbol_exact",
+      "query": "context"
+    },
+    {
+      "corpus": "fmt",
+      "name": "is_contiguous",
+      "expected": [
+        [
+          "include/fmt/base.h",
+          507
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:is_contiguous:words",
+      "type": "identifier_words",
+      "query": "is contiguous"
+    },
+    {
+      "corpus": "fmt",
+      "name": null,
+      "expected": [
+        [
+          "include/fmt/base.h",
+          438
+        ]
+      ],
+      "query": "avoid dependency experimental",
+      "id": "fmt:line:16",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592"
+    },
+    {
+      "corpus": "fmt",
+      "name": "year",
+      "expected": [
+        [
+          "include/fmt/chrono.h",
+          2070
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:year:exact",
+      "type": "symbol_exact",
+      "query": "year"
+    },
+    {
+      "corpus": "fmt",
+      "name": "is_set",
+      "expected": [
+        [
+          "include/fmt/ranges.h",
+          38
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:is_set:words",
+      "type": "identifier_words",
+      "query": "is set"
+    },
+    {
+      "corpus": "fmt",
+      "name": null,
+      "expected": [
+        [
+          "test/perf-sanity.cc",
+          24
+        ]
+      ],
+      "query": "count duration print",
+      "id": "fmt:line:2",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592"
+    },
+    {
+      "corpus": "fmt",
+      "name": "KeyMatcher",
+      "expected": [
+        [
+          "test/gtest/gmock/gmock.h",
+          5683
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:KeyMatcher:exact",
+      "type": "symbol_exact",
+      "query": "KeyMatcher"
+    },
+    {
+      "corpus": "fmt",
+      "name": "MakePredicateFormatterFromMatcher",
+      "expected": [
+        [
+          "test/gtest/gmock/gmock.h",
+          4434
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:MakePredicateFormatterFromMatcher:words",
+      "type": "identifier_words",
+      "query": "make predicate formatter from matcher"
+    },
+    {
+      "corpus": "fmt",
+      "name": null,
+      "expected": [
+        [
+          "test/test-assert.h",
+          1
+        ]
+      ],
+      "query": "formatting library version",
+      "id": "fmt:line:13",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592"
+    },
+    {
+      "corpus": "fmt",
+      "name": "utf8_system_category",
+      "expected": [
+        [
+          "src/os.cc",
+          117
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:utf8_system_category:exact",
+      "type": "symbol_exact",
+      "query": "utf8_system_category"
+    },
+    {
+      "corpus": "fmt",
+      "name": "parse_arg_id",
+      "expected": [
+        [
+          "include/fmt/compile.h",
+          300
+        ],
+        [
+          "test/base-test.cc",
+          500
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:parse_arg_id:words",
+      "type": "identifier_words",
+      "query": "parse arg id"
+    },
+    {
+      "corpus": "fmt",
+      "name": null,
+      "expected": [
+        [
+          "include/fmt/xchar.h",
+          122
+        ]
+      ],
+      "query": "basic tuple wchar",
+      "id": "fmt:line:9",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592"
+    },
+    {
+      "corpus": "fmt",
+      "name": "parse_tail",
+      "expected": [
+        [
+          "include/fmt/compile.h",
+          244
+        ]
+      ],
+      "split": "heldout",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:parse_tail:exact",
+      "type": "symbol_exact",
+      "query": "parse_tail"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "from_sink_context",
+      "expected": [
+        [
+          "crates/printer/src/util.rs",
+          204
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:from_sink_context:words",
+      "type": "identifier_words",
+      "query": "from sink context"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": null,
+      "expected": [
+        [
+          "crates/grep/src/lib.rs",
+          6
+        ]
+      ],
+      "query": "documentation pieces users",
+      "id": "ripgrep:line:15",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "max_jit_stack_size",
+      "expected": [
+        [
+          "crates/pcre2/src/matcher.rs",
+          286
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:max_jit_stack_size:exact",
+      "type": "symbol_exact",
+      "query": "max_jit_stack_size"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "to_regex",
+      "expected": [
+        [
+          "crates/regex/src/config.rs",
+          242
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:to_regex:words",
+      "type": "identifier_words",
+      "query": "to regex"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": null,
+      "expected": [
+        [
+          "crates/core/flags/config.rs",
+          67
+        ]
+      ],
+      "query": "parse reader single",
+      "id": "ripgrep:line:10",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "NoIgnoreMessages",
+      "expected": [
+        [
+          "crates/core/flags/defs.rs",
+          4488
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:NoIgnoreMessages:exact",
+      "type": "symbol_exact",
+      "query": "NoIgnoreMessages"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "NoIgnoreFiles",
+      "expected": [
+        [
+          "crates/core/flags/defs.rs",
+          4394
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:NoIgnoreFiles:words",
+      "type": "identifier_words",
+      "query": "no ignore files"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": null,
+      "expected": [
+        [
+          "crates/printer/src/standard.rs",
+          1755
+        ]
+      ],
+      "query": "defined preceding writes",
+      "id": "ripgrep:line:1",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "context_code1",
+      "expected": [
+        [
+          "crates/searcher/src/searcher/glue.rs",
+          1263
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:context_code1:exact",
+      "type": "symbol_exact",
+      "query": "context_code1"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "max_jit_stack_size",
+      "expected": [
+        [
+          "crates/pcre2/src/matcher.rs",
+          286
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:max_jit_stack_size:words",
+      "type": "identifier_words",
+      "query": "max jit stack size"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": null,
+      "expected": [
+        [
+          "crates/core/flags/doc/mod.rs",
+          13
+        ]
+      ],
+      "query": "argument buffer second",
+      "id": "ripgrep:line:12",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "from_sink_context",
+      "expected": [
+        [
+          "crates/printer/src/util.rs",
+          204
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:from_sink_context:exact",
+      "type": "symbol_exact",
+      "query": "from_sink_context"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "GitignoreBuilder",
+      "expected": [
+        [
+          "crates/ignore/src/gitignore.rs",
+          306
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:GitignoreBuilder:words",
+      "type": "identifier_words",
+      "query": "gitignore builder"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": null,
+      "expected": [
+        [
+          "crates/searcher/src/searcher/mmap.rs",
+          63
+        ]
+      ],
+      "query": "along corresponding returned",
+      "id": "ripgrep:line:16",
+      "type": "line_terms",
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "glob_deserialize_error",
+      "expected": [
+        [
+          "crates/globset/src/serde_impl.rs",
+          102
+        ]
+      ],
+      "split": "heldout",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:glob_deserialize_error:exact",
+      "type": "symbol_exact",
+      "query": "glob_deserialize_error"
+    }
+  ],
+  "corpus_commits": {
+    "requests": "0e322af87745eff34caffe4df68456ebc20d9068",
+    "zod": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+    "fmt": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+    "ripgrep": "4649aa9700619f94cf9c66876e9549d83420e16c"
+  },
+  "tokenizer": "o200k_base",
+  "budget_tokens": 2000,
+  "candidate_limit": 10,
+  "queries_sha256": "7c5a93c1cc8c3fb9bc011304e615c163209c14c9a5376b14c281d0a8c5109ac0"
+}

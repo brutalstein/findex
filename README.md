@@ -1,7 +1,7 @@
 # Findex
 
 **Native Windows code discovery for official Claude Code.**  
-**Status: experimental v0.1 foundation; not production-ready.**
+**Status: experimental v0.2.0 release candidate; not production-ready.**
 
 Findex is designed as a local-first, modular code intelligence engine that helps the official Claude Code client retrieve small, verifiable code contexts instead of blindly reading whole projects. It does **not** emulate Claude, proxy requests, collect Claude credentials, or claim 100% understanding/token savings.
 
@@ -57,6 +57,15 @@ findex claude --resume
 
 If Findex's bundled plugin is not present, the official Claude Code still launches, but will not have a Findex search tool. Do not infer MCP usage from installation alone: inspect Claude's tools and benchmark actual task outcomes.
 
+### Index recovery
+
+Run `findex index-check` to check the current project's cache without rebuilding
+it. A corrupt cache is preserved. To rebuild it, stop Findex MCP sessions for
+this project, back up the cache if needed, then run `findex forget` followed by
+`findex index`. `forget` deletes only this project's cached indexes; source
+files and other projects' indexes are preserved. Imported SCIP/LSP evidence
+must be imported again after deletion.
+
 ### Important compatibility scope
 
 - The launcher specifically invokes official **native** `claude.exe`; legacy npm-based `.cmd` entrypoints are not supported. It never silently impersonates or overwrites a Claude executable.
@@ -82,7 +91,7 @@ If Findex's bundled plugin is not present, the official Claude Code still launch
 
 ## Why measurements matter
 
-A smaller snippet is **not** verified token savings. The validation suite measures total model input/output/cache tokens and task success in matched Claude Code runs with and without Findex ([report](validation/FINAL_VALIDATION_REPORT.md)). The CLI still shows token savings as unavailable: a small study on a handful of tasks does not justify a per-session savings figure. The validation runner never starts a Claude session by default; live model tests need an explicit flag and approval ([validation/README.md](validation/README.md)).
+A smaller snippet is **not** verified token savings. The validation suite measures total model input/output/cache tokens and task success in matched Claude Code runs with and without Findex ([report](validation/FINAL_VALIDATION_REPORT.md)). The CLI still shows token savings as unavailable: a small study on a handful of tasks does not justify a per-session savings figure. The validation runner never starts a Claude session by default; live model tests need an explicit flag and approval ([validation/README.md](validation/README.md)). Current status of every claim, with verdicts and limits: [docs/EVIDENCE.md](docs/EVIDENCE.md).
 
 See [Architecture](docs/architecture.md), [Roadmap](docs/roadmap.md), [Security](SECURITY.md), [Contributing](CONTRIBUTING.md), and [ADR-0001](docs/adr/0001-native-cli-and-local-index.md).
 

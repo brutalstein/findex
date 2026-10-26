@@ -19,7 +19,8 @@ HARNESS = Path(__file__).resolve().parent
 SCRIPTS = HARNESS.parent / "scripts"
 sys.path.insert(0, str(HARNESS))
 
-from claude_session import APPROVAL, APPROVAL_ENV, live_model_gate, run_claude, subscription_status  # noqa: E402
+from claude_session import (APPROVAL, APPROVAL_ENV, live_model_gate, run_claude, session_env,  # noqa: E402
+                            session_key_problem, subscription_status)
 
 SITECUSTOMIZE = r'''
 import json, os, sys
@@ -64,8 +65,17 @@ class Gate(unittest.TestCase):
         self.assertTrue(live_model_gate(True, {}, STATUS_OK).startswith("BLOCKED"))
 
     def test_api_billing_variables_block(self):
-        env = {APPROVAL_ENV: APPROVAL, "ANTHROPIC_API_KEY": "x"}
-        self.assertIn("ANTHROPIC_API_KEY", live_model_gate(True, env, STATUS_OK))
+        for key, value in (("ANTHROPIC_API_KEY", "x"), ("ANTHROPIC_BASE_URL", "http://127.0.0.1:3456")):
+            env = {APPROVAL_ENV: APPROVAL, key: value}
+            self.assertIn(key, live_model_gate(True, env, STATUS_OK))
+
+    def test_official_base_url_is_not_billing(self):
+        env = {APPROVAL_ENV: APPROVAL, "ANTHROPIC_BASE_URL": "https://api.anthropic.com/"}
+        self.assertIsNone(live_model_gate(True, env, STATUS_OK))
+
+    def test_sessions_never_inherit_billing_variables(self):
+        env = {"ANTHROPIC_BASE_URL": "https://api.anthropic.com", "ANTHROPIC_API_KEY": "x", "PATH": "p"}
+        self.assertEqual(session_env(env), {"PATH": "p"})
 
     def test_approved_subscription_passes(self):
         self.assertIsNone(live_model_gate(True, {APPROVAL_ENV: APPROVAL}, STATUS_OK))
@@ -73,9 +83,18 @@ class Gate(unittest.TestCase):
     def test_ambiguous_sign_in_fails_closed(self):
         self.assertIsNone(subscription_status(STATUS_OK))
         for change in ({"loggedIn": False}, {"authMethod": "apiKey"}, {"apiProvider": "bedrock"},
-                       {"subscriptionType": None}, {"apiKeySource": "apiKeyHelper"}):
+                       {"subscriptionType": None}):
             self.assertTrue(subscription_status({**STATUS_OK, **change}).startswith("BLOCKED"), change)
         self.assertTrue(subscription_status({}).startswith("BLOCKED"))
+
+    def test_user_level_key_helper_is_checked_per_session(self):
+        # Sessions load project/local settings only, so a user-level helper
+        # is no gate failure; each session's own key source decides.
+        self.assertIsNone(subscription_status({**STATUS_OK, "apiKeySource": "apiKeyHelper"}))
+        init = {"type": "system", "subtype": "init"}
+        self.assertIsNone(session_key_problem([{**init, "apiKeySource": "none"}]))
+        for source in ("apiKeyHelper", "ANTHROPIC_API_KEY", None):
+            self.assertTrue(session_key_problem([{**init, "apiKeySource": source}]).startswith("BLOCKED"), source)
 
 
 class NoLiveSpawn(unittest.TestCase):

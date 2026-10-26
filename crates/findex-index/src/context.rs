@@ -5,7 +5,7 @@
 //! Relationship kinds are named for what was actually checked. Call sites are
 //! lexical name matches followed by a call token, not type-resolved calls.
 
-use crate::symbols::{containing, definitions_by_identifier, definitions_in_file};
+use crate::symbols::{containing, definitions_by_identifier, definitions_in_file, DefinitionRow};
 use crate::{connect, excerpt_of, live_source, search_in_db, synchronize, Result, SyncStats};
 use findex_core::storage_dir;
 use rusqlite::{params, Connection};
@@ -16,6 +16,8 @@ use std::path::Path;
 /// Files scanned for sites of one identifier. More candidates are reported
 /// as truncation instead of being read.
 const MAX_SITE_FILES: usize = 400;
+/// Cargo manifests read to tell external crates from project ones.
+const MAX_MANIFESTS: usize = 200;
 const MAX_IDENTIFIERS: usize = 3;
 const MAX_BUDGET: usize = 8000;
 /// Lines shown from a definition body when the task asks for the definition.
@@ -24,6 +26,8 @@ const MAX_BODY_LINES: usize = 40;
 /// listed per file, before the report is marked truncated.
 const MAX_NAMED_FILES: usize = 5;
 const MAX_FILE_DEFINITIONS: usize = 200;
+/// Same-named definitions weighed to resolve an `Owner::name` target.
+const MAX_OWNER_DEFINITIONS: usize = 4096;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Evidence {
@@ -74,6 +78,7 @@ pub fn context_in_db(
 ) -> Result<ContextReport> {
     let words = words(task);
     let identifiers = identifiers(task);
+    let qualifiers = qualifiers(task);
     let intent = route(task);
     let mut report = ContextReport {
         intent,
@@ -106,10 +111,21 @@ pub fn context_in_db(
         concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
     } else {
         for identifier in report.identifiers.clone() {
-            let found = definitions(&root, &conn, &identifier, &mut report)?;
+            let scope = match qualifiers.iter().find(|(name, _)| *name == identifier) {
+                Some((_, owner)) => owner_scope(&conn, owner, &identifier, &mut report)?,
+                None => None,
+            };
+            let found = definitions(&root, &conn, &identifier, scope.as_ref(), &mut report)?;
             let (mut sites, mut scan) = (Vec::new(), None);
             if report.intent != "definition" || found.is_empty() {
-                (sites, scan) = sites_of(&root, &conn, &identifier, &found, &mut report)?;
+                (sites, scan) = sites_of(
+                    &root,
+                    &conn,
+                    &identifier,
+                    &found,
+                    scope.as_ref(),
+                    &mut report,
+                )?;
             }
             if report.intent == "definition" && sites.iter().any(|s| s.kind == "definition") {
                 sites.retain(|s| s.kind == "definition");
@@ -261,6 +277,7 @@ const CALLER_WORDS: &[&str] = &[
     "caller",
     "callers",
     "calls",
+    "implement",
     "invoke",
     "invoked",
     "invokes",
@@ -275,8 +292,8 @@ const CALLER_WORDS: &[&str] = &[
 ];
 const TEST_WORDS: &[&str] = &["spec", "specs", "test", "tested", "testing", "tests"];
 const IMPACT_WORDS: &[&str] = &[
-    "affect", "affected", "affects", "break", "breaks", "change", "changing", "impact", "modify",
-    "refactor", "rename", "ripple",
+    "affect", "affected", "affects", "blast", "break", "breaks", "change", "changing", "delete",
+    "deleted", "deleting", "deletion", "impact", "modify", "refactor", "rename", "ripple",
 ];
 
 fn words(task: &str) -> Vec<String> {
@@ -291,20 +308,26 @@ fn words(task: &str) -> Vec<String> {
 /// search terms stay unchanged.
 const CALLER_STEMS: &[&str] = &[
     "calling",
+    "callsite",
     "çağır",
     "çağrı",
+    "depend",
     "implementations",
     "implementers",
     "implementors",
     "implements",
     "import",
+    "instantiat",
     "invoking",
     "kullan",
+    "oluşturan",
+    "oluşturuyor",
+    "reach",
     "referans",
     "referencing",
     "using",
 ];
-const TEST_STEMS: &[&str] = &["sına", "test"];
+const TEST_STEMS: &[&str] = &["sına", "suite", "test"];
 const IMPACT_STEMS: &[&str] = &[
     "adlandır",
     "bozar",
@@ -318,13 +341,21 @@ const IMPACT_STEMS: &[&str] = &[
     "modif",
     "refactor",
     "renam",
+    "siler",
+    "silin",
 ];
 
 /// Intent of a task from its text alone, before any index access. Callers
 /// and impact need a named identifier; without one the task is a concept
 /// search, or a file request when it names a file.
 fn route(task: &str) -> &'static str {
-    match classify(&words(task)) {
+    // `show tests/util.rs` names a file: words inside a path state no intent.
+    let prose = task
+        .split_whitespace()
+        .filter(|token| file_paths(token).is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
+    match classify(&words(&prose)) {
         intent if intent == "tests" || !identifiers(task).is_empty() => intent,
         _ if file_paths(task).is_empty() => "concept",
         _ => "file",
@@ -332,10 +363,14 @@ fn route(task: &str) -> &'static str {
 }
 
 fn classify(words: &[String]) -> &'static str {
+    // Turkish passive `implement edilmiş` asks how it is built, not who implements it.
+    let passive = |i: usize| {
+        words[i] == "implement" && words.get(i + 1).is_some_and(|n| n.starts_with("edil"))
+    };
     let has = |set: &[&str], stems: &[&str]| {
-        words
-            .iter()
-            .any(|w| set.contains(&w.as_str()) || stems.iter().any(|s| w.starts_with(s)))
+        words.iter().enumerate().any(|(i, w)| {
+            !passive(i) && (set.contains(&w.as_str()) || stems.iter().any(|s| w.starts_with(s)))
+        })
     };
     if has(IMPACT_WORDS, IMPACT_STEMS) {
         "impact"
@@ -406,8 +441,8 @@ fn identifiers(task: &str) -> Vec<String> {
             found.push(name.to_string());
         }
     };
-    for (index, part) in task.split('`').enumerate() {
-        if index % 2 == 1 {
+    for part in qualified_parts(task) {
+        {
             if let Some(last) = part
                 .trim_end_matches("()")
                 .rsplit(|c: char| c == ':' || c == '.' || c.is_whitespace())
@@ -432,14 +467,471 @@ fn identifiers(task: &str) -> Vec<String> {
     found
 }
 
+/// Backticked names plus unbackticked `a::b` paths of a task.
+fn qualified_parts(task: &str) -> Vec<&str> {
+    let mut parts: Vec<&str> = task.split('`').skip(1).step_by(2).collect();
+    parts.extend(
+        task.split('`')
+            .step_by(2)
+            .flat_map(str::split_whitespace)
+            .filter(|token| token.contains("::"))
+            .map(|token| token.trim_matches(|c: char| !(c.is_alphanumeric() || c == '_'))),
+    );
+    parts
+}
+
+/// (name, owner) for each `Owner::name` / `Owner.name` the task names; the
+/// owner is the segment right before the name (`a::Disk::flush` -> `Disk`).
+fn qualifiers(task: &str) -> Vec<(String, String)> {
+    let named = |s: &str| {
+        s.chars()
+            .next()
+            .is_some_and(|c| c.is_alphabetic() || c == '_')
+            && s.chars().all(|c| c.is_alphanumeric() || c == '_')
+    };
+    let mut found = Vec::new();
+    for part in qualified_parts(task) {
+        let segments: Vec<&str> = part
+            .trim_end_matches("()")
+            .split([':', '.'])
+            .filter(|s| !s.is_empty())
+            .collect();
+        let [.., owner, name] = segments.as_slice() else {
+            continue;
+        };
+        let owner = owner.split('<').next().unwrap_or_default();
+        if named(owner) && named(name) && !matches!(owner, "self" | "Self" | "crate" | "super") {
+            found.push((name.to_string(), owner.to_string()));
+        }
+    }
+    found
+}
+
+/// The owner a task qualified a target with, after narrowing its definitions.
+struct Scope {
+    owner: String,
+    /// Every kept definition is a method (callable as `.name(` or `Owner::name`).
+    method: bool,
+    /// Owners of the excluded same-named definitions.
+    others: BTreeSet<String>,
+    /// Those of them a file can name to show it means another target: types
+    /// for a method (a module name says nothing about a receiver), modules
+    /// for a free function.
+    rivals: BTreeSet<String>,
+    /// (path, start line) of the owner's definitions.
+    owned: BTreeSet<(String, usize)>,
+    files: BTreeSet<String>,
+}
+
+/// (types, modules) that own a definition: type/impl/trait/class spans; module
+/// spans and its file's module (`misc.rs`, `misc/mod.rs`, `misc/__init__.py`).
+fn owners_of(
+    conn: &Connection,
+    definition: &DefinitionRow,
+) -> Result<(BTreeSet<String>, BTreeSet<String>)> {
+    let mut segments = definition.path.rsplit('/');
+    let stem = segments
+        .next()
+        .unwrap_or_default()
+        .split('.')
+        .next()
+        .unwrap_or_default();
+    let parent = segments.next().unwrap_or_default();
+    let mut types = BTreeSet::new();
+    let mut modules = BTreeSet::from([stem.to_string()]);
+    if matches!(stem, "mod" | "lib" | "__init__" | "index") {
+        modules.insert(parent.to_string());
+    }
+    for (name, kind) in containing(
+        conn,
+        &definition.path,
+        &definition.hash,
+        definition.start_line,
+    )? {
+        let name = name
+            .trim_start_matches(['&', '*'])
+            .trim_start_matches("mut ")
+            .to_string();
+        match kind.as_str() {
+            "impl" | "type" | "class" => {
+                types.insert(name);
+            }
+            "module" => {
+                modules.insert(name);
+            }
+            _ => {}
+        }
+    }
+    Ok((types, modules))
+}
+
+/// Resolve `owner::identifier` over every same-named definition; `None`
+/// (nothing narrowed) when the owner owns none of them.
+fn owner_scope(
+    conn: &Connection,
+    owner: &str,
+    identifier: &str,
+    report: &mut ContextReport,
+) -> Result<Option<Scope>> {
+    let key = identifier.to_lowercase().replace('_', "");
+    let rows = definitions_by_identifier(conn, &key, MAX_OWNER_DEFINITIONS + 1)?;
+    if rows.len() > MAX_OWNER_DEFINITIONS {
+        report.missing.push(format!(
+            "more than {MAX_OWNER_DEFINITIONS} definitions match `{identifier}`; owner `{owner}` was not applied"
+        ));
+        return Ok(None);
+    }
+    let mut owned = BTreeSet::new();
+    let mut method = true;
+    let (mut other_types, mut other_modules) = (BTreeSet::new(), BTreeSet::new());
+    let mut elsewhere = 0;
+    for row in rows.iter().filter(|r| r.name == identifier) {
+        let (types, modules) = owners_of(conn, row)?;
+        if types.contains(owner) || modules.contains(owner) {
+            owned.insert((row.path.clone(), row.start_line));
+            method &= row.kind == "method";
+        } else {
+            elsewhere += 1;
+            other_types.extend(types);
+            other_modules.extend(modules);
+        }
+    }
+    // A definition Tree-sitter cannot see (inside a macro such as `cfg_rt! {}`)
+    // still belongs to its module file: `owner.rs` or `owner/mod.rs`.
+    let module_files: BTreeSet<String> = if owned.is_empty() {
+        let mut stmt = conn.prepare_cached(
+            // GLOB is case-sensitive (`Handle` is not `handle.rs`); the owner
+            // is an identifier, so it holds no GLOB metacharacters.
+            "SELECT path FROM files WHERE path IN (?1, ?2)
+             OR path GLOB '*/' || ?1 OR path GLOB '*/' || ?2",
+        )?;
+        let rows = stmt.query_map(
+            params![format!("{owner}.rs"), format!("{owner}/mod.rs")],
+            |row| row.get::<_, String>(0),
+        )?;
+        rows.collect::<std::result::Result<_, _>>()?
+    } else {
+        BTreeSet::new()
+    };
+    if owned.is_empty() && module_files.is_empty() {
+        report.missing.push(format!(
+            "`{owner}` owns no definition of `{identifier}`; every `{identifier}` is shown"
+        ));
+        return Ok(None);
+    }
+    if !module_files.is_empty() {
+        method = false;
+    }
+    if elsewhere > 0 {
+        report.missing.push(format!(
+            "`{owner}::{identifier}`: excluded {elsewhere} definitions of `{identifier}` owned elsewhere"
+        ));
+    }
+    other_types.remove(owner);
+    other_modules.remove(owner);
+    let rivals = if method {
+        other_types.clone()
+    } else {
+        other_modules.clone()
+    };
+    Ok(Some(Scope {
+        owner: owner.to_string(),
+        method,
+        others: other_types.into_iter().chain(other_modules).collect(),
+        rivals,
+        files: owned
+            .iter()
+            .map(|(path, _)| path.clone())
+            .chain(module_files)
+            .collect(),
+        owned,
+    }))
+}
+
+/// How a Rust code line relates to `scope.owner`'s `identifier`, best
+/// occurrence first.
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
+enum Reach {
+    /// Positive evidence of another target: a path through another owner
+    /// (`Socket::flush`), a call form the target cannot take (`.f(` for a
+    /// free function, bare `f(` for a method), a receiver named after another
+    /// owner, or a file naming other owners and never this one.
+    No,
+    /// A method call on a receiver of unknown type, or one named after
+    /// another owner in a file that also names this one.
+    Possible,
+    /// `Owner::name`, a receiver named after the owner, or a file that names
+    /// it (re-export paths are kept: a module path is no evidence against).
+    Yes,
+}
+
+/// Last identifier of a method receiver or path, past one trailing balanced
+/// `(...)` or `<...>`: `x.rt_disk().` -> `rt_disk`, `Sender<u8>::` -> `Sender`.
+fn receiver(before_dot: &str) -> &str {
+    let mut end = before_dot.trim_end();
+    for (open, close) in [('(', ')'), ('<', '>')] {
+        if !end.ends_with(close) {
+            continue;
+        }
+        let mut depth = 0;
+        for (index, c) in end.char_indices().rev() {
+            if c == close {
+                depth += 1;
+            } else if c == open {
+                depth -= 1;
+                if depth == 0 {
+                    end = &end[..index];
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    let start = end
+        .rfind(|c: char| !(c.is_alphanumeric() || c == '_'))
+        .map_or(0, |i| i + 1);
+    &end[start..]
+}
+
+/// `rt_handle` names `Handle`, `worker` names `SearchWorker`: one
+/// underscore-free, lower-case form ends with the other (4+ characters).
+fn names_type(receiver: &str, owner: &str) -> bool {
+    let fold = |s: &str| s.to_lowercase().replace('_', "");
+    let (receiver, owner) = (fold(receiver), fold(owner));
+    receiver.len() >= 4 && (receiver.ends_with(&owner) || owner.ends_with(&receiver))
+}
+
+/// Whether byte `at` of a Rust code line sits inside a `"..."` literal.
+fn in_string(code: &str, at: usize) -> bool {
+    let bytes = code.as_bytes();
+    let (mut inside, mut i) = (false, 0);
+    while i < at {
+        match (bytes[i], bytes.get(i + 1), bytes.get(i + 2)) {
+            (b'\\', _, _) if inside => i += 1,
+            (b'"', _, _) => inside = !inside,
+            // `'"'` and `'\"'` are char literals, not quotes.
+            (b'\'', Some(b'"'), Some(b'\'')) if !inside => i += 2,
+            (b'\'', Some(b'\\'), Some(b'"')) if !inside => i += 3,
+            _ => {}
+        }
+        i += 1;
+    }
+    inside
+}
+
+/// Crate names a Rust path can start with outside this project: `std`,
+/// `core`, `alloc` and Cargo dependencies that no project manifest names as
+/// its package or library.
+fn external_crates(root: &Path, conn: &Connection) -> Result<BTreeSet<String>> {
+    let mut stmt = conn.prepare_cached(
+        "SELECT path, hash FROM files
+         WHERE path = 'Cargo.toml' OR path GLOB '*/Cargo.toml' ORDER BY path LIMIT ?1",
+    )?;
+    let manifests = stmt
+        .query_map(params![MAX_MANIFESTS as i64], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+        })?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    let crate_name = |s: &str| s.trim().trim_matches('"').replace('-', "_");
+    let mut external: BTreeSet<String> = ["std", "core", "alloc"].map(String::from).into();
+    let mut own = BTreeSet::new();
+    for (path, hash) in manifests {
+        let Some(text) = live_source(root, &path, &hash) else {
+            continue;
+        };
+        let mut section = "";
+        for line in text.lines().map(str::trim) {
+            if let Some(header) = line.strip_prefix('[') {
+                section = header.trim_end_matches(']');
+                // `[dependencies.tempfile]`
+                if let Some((table, name)) = section.rsplit_once('.') {
+                    if table.ends_with("dependencies") {
+                        external.insert(crate_name(name));
+                    }
+                }
+                continue;
+            }
+            let Some((key, value)) = line.split_once('=') else {
+                continue;
+            };
+            if section.ends_with("dependencies") {
+                // `futures = "0.3"`, `tokio.workspace = true`
+                external.insert(crate_name(key.split('.').next().unwrap_or(key)));
+            } else if matches!(section, "package" | "lib") && key.trim() == "name" {
+                own.insert(crate_name(value));
+            }
+        }
+    }
+    Ok(external.difference(&own).cloned().collect())
+}
+
+/// Whether every occurrence of `identifier` on a Rust code line goes through
+/// an external crate: a path rooted in one (`futures::executor::block_on`),
+/// or a bare name the file imports only from one.
+fn foreign(code: &str, identifier: &str, external: &BTreeSet<String>, imported: bool) -> bool {
+    let word = |c: char| c.is_alphanumeric() || c == '_';
+    let mut any = false;
+    for (start, _) in code.match_indices(identifier) {
+        let before = &code[..start];
+        if before.ends_with(word)
+            || code[start + identifier.len()..].starts_with(word)
+            || in_string(code, start)
+        {
+            continue;
+        }
+        any = true;
+        let through_crate = match before.strip_suffix("::") {
+            Some(path) => {
+                let tail = path.trim_end_matches(|c: char| word(c) || c == ':');
+                let root = path[tail.len()..].trim_start_matches(':');
+                external.contains(root.split("::").next().unwrap_or_default())
+            }
+            None => imported && !before.ends_with('.'),
+        };
+        if !through_crate {
+            return false;
+        }
+    }
+    any
+}
+
+/// The file imports `identifier` (`use a::b::name;`) and every such import is
+/// rooted in an external crate. shortcut: multi-line `use` groups are not
+/// read, so they never mark a name external.
+fn imported_externally(text: &str, identifier: &str, external: &BTreeSet<String>) -> bool {
+    let mut roots = text
+        .lines()
+        .filter_map(|line| {
+            let line = line.trim();
+            // `pub use`, `pub(crate) use`
+            let line = line.strip_prefix("pub").map_or(line, |rest| {
+                rest.trim_start_matches(|c: char| c != ' ').trim_start()
+            });
+            line.strip_prefix("use ")
+        })
+        .filter(|path| contains_word(path, identifier))
+        .map(|path| {
+            path.trim_start_matches(':')
+                .split("::")
+                .next()
+                .unwrap_or_default()
+        })
+        .peekable();
+    roots.peek().is_some() && roots.all(|root| external.contains(root))
+}
+
+/// `self_ty`: the innermost impl or type around the line, which `Self::`
+/// and `self.` name.
+fn reach(
+    code: &str,
+    identifier: &str,
+    scope: &Scope,
+    owner_visible: bool,
+    other_only: bool,
+    self_ty: Option<&str>,
+) -> Reach {
+    let word = |c: char| c.is_alphanumeric() || c == '_';
+    let typed = |q: &str| q.starts_with(char::is_uppercase) && q != "Self";
+    // shortcut: an impl that defines the name itself is taken to call its
+    // own; a trait-provided method of the owner trait reached through such
+    // a type is missed.
+    let through_self = || match self_ty {
+        Some(ty) if ty == scope.owner => Some(Reach::Yes),
+        Some(ty) if scope.method && scope.rivals.contains(ty) => Some(Reach::No),
+        _ => None,
+    };
+    code.match_indices(identifier)
+        .map(|(start, _)| {
+            let before = &code[..start];
+            if before.ends_with(word)
+                || code[start + identifier.len()..].starts_with(word)
+                || in_string(code, start)
+            {
+                return Reach::No;
+            }
+            if let Some(path) = before.strip_suffix("::") {
+                let qualifier = receiver(path);
+                if qualifier == "Self" {
+                    if let Some(reached) = through_self() {
+                        return reached;
+                    }
+                }
+                // shortcut: a one-letter path (`U::extend`) is taken as a type
+                // parameter, reached like an unknown receiver; longer
+                // parameter names are not recognised.
+                if scope.method && qualifier.len() == 1 && typed(qualifier) {
+                    return if owner_visible {
+                        Reach::Yes
+                    } else {
+                        Reach::Possible
+                    };
+                }
+                // A method is reached only as `Owner::` or `Self::`; a free
+                // function never through a type. Another lower-case path may
+                // be a re-export module: only a known other owner excludes it.
+                let other = if scope.method {
+                    qualifier != "Self"
+                } else {
+                    scope.others.contains(qualifier) || typed(qualifier)
+                };
+                return if qualifier == scope.owner || !other {
+                    Reach::Yes
+                } else {
+                    Reach::No
+                };
+            }
+            let Some(before_dot) = before.strip_suffix('.') else {
+                // Bare `f(`: a free function, reached through an import.
+                return if scope.method || other_only {
+                    Reach::No
+                } else {
+                    Reach::Yes
+                };
+            };
+            if !scope.method {
+                return Reach::No;
+            }
+            let named = receiver(before_dot);
+            if let Some(reached) = (named == "self").then(through_self).flatten() {
+                reached
+            } else if names_type(named, &scope.owner) {
+                Reach::Yes
+            } else if other_only {
+                Reach::No
+            } else if scope.rivals.iter().any(|r| names_type(named, r)) {
+                // A rival-named receiver (`self.inner`) in a file naming the
+                // owner is conflicting evidence: kept, as a possible call.
+                if owner_visible {
+                    Reach::Possible
+                } else {
+                    Reach::No
+                }
+            } else if owner_visible {
+                Reach::Yes
+            } else {
+                Reach::Possible
+            }
+        })
+        .fold(Reach::No, |best, r| if r > best { r } else { best })
+}
+
 fn definitions(
     root: &Path,
     conn: &Connection,
     identifier: &str,
+    scope: Option<&Scope>,
     report: &mut ContextReport,
 ) -> Result<Vec<Evidence>> {
     let key = identifier.to_lowercase().replace('_', "");
-    let mut rows = definitions_by_identifier(conn, &key, 16)?;
+    let mut rows = match scope {
+        Some(scope) => {
+            let mut rows = definitions_by_identifier(conn, &key, MAX_OWNER_DEFINITIONS)?;
+            rows.retain(|r| scope.owned.contains(&(r.path.clone(), r.start_line)));
+            rows.truncate(16);
+            rows
+        }
+        None => definitions_by_identifier(conn, &key, 16)?,
+    };
     // Exact spelling first, so `poll_proceed` outranks a `PollProceed` type.
     rows.sort_by(|a, b| {
         (a.name != identifier, &a.path, a.start_line).cmp(&(
@@ -576,6 +1068,7 @@ fn sites_of(
     conn: &Connection,
     identifier: &str,
     definitions: &[Evidence],
+    scope: Option<&Scope>,
     report: &mut ContextReport,
 ) -> Result<(Vec<Evidence>, SiteScan)> {
     let defined: BTreeSet<(&str, usize)> = definitions
@@ -608,12 +1101,27 @@ fn sites_of(
         ));
     }
     let mut found = Vec::new();
+    let (mut excluded, mut foreign_lines) = (0, 0);
+    // Only a project definition can be missed through an external crate.
+    let external = if definitions.is_empty() {
+        BTreeSet::new()
+    } else {
+        external_crates(root, conn)?
+    };
     for (path, hash) in files.into_iter().take(MAX_SITE_FILES) {
         let Some(text) = live_source(root, &path, &hash) else {
             report.stale_results_discarded += 1;
             continue;
         };
         scanned += 1;
+        let rust = path.ends_with(".rs") && !external.is_empty();
+        let imported = rust && imported_externally(&text, identifier, &external);
+        // Owner rules follow Rust call syntax; other languages keep every line.
+        let scope = scope.filter(|_| path.ends_with(".rs"));
+        let owner_visible =
+            scope.is_some_and(|s| s.files.contains(&path) || contains_word(&text, &s.owner));
+        let other_only = !owner_visible
+            && scope.is_some_and(|s| s.rivals.iter().any(|o| contains_word(&text, o)));
         let style = comment_style(&path);
         let mut carry = Carry::default();
         for (index, line) in text.lines().enumerate() {
@@ -630,9 +1138,34 @@ fn sites_of(
             if kind == "definition" && inside_definition(&path, number) {
                 continue;
             }
-            // Prose and config files can name an identifier but never call it.
-            let kind = if is_code_path(&path) { kind } else { "mention" };
+            if kind == "definition" && scope.is_some_and(|s| !s.files.contains(&path)) {
+                // Another owner's definition: counted with the excluded definitions.
+                continue;
+            }
+            // A line inside a listed definition is covered by it, not excluded.
+            let covered = inside_definition(&path, number);
+            if rust && foreign(&code, identifier, &external, imported) {
+                foreign_lines += usize::from(!covered);
+                continue;
+            }
             let spans = containing(conn, &path, &hash, number)?;
+            let reached = scope.map_or(Reach::Yes, |s| {
+                let self_ty = spans
+                    .iter()
+                    .find(|(_, kind)| matches!(kind.as_str(), "impl" | "type"))
+                    .map(|(name, _)| name.as_str());
+                reach(&code, identifier, s, owner_visible, other_only, self_ty)
+            });
+            if reached == Reach::No {
+                excluded += usize::from(!covered);
+                continue;
+            }
+            // Prose and config files can name an identifier but never call it.
+            let kind = match (is_code_path(&path), reached, kind) {
+                (false, _, _) => "mention",
+                (true, Reach::Possible, "call") => "possible call",
+                (true, _, kind) => kind,
+            };
             let enclosing = spans
                 .iter()
                 .find(|(name, _)| name != identifier)
@@ -652,7 +1185,22 @@ fn sites_of(
             });
         }
     }
-    Ok((found, (!capped).then_some((scanned, comments, false))))
+    if let (Some(scope), true) = (scope, excluded > 0) {
+        report.missing.push(format!(
+            "excluded {excluded} lines that cannot reach `{owner}::{identifier}`: another owner's path, a call form `{identifier}` cannot take, or a Rust file naming only other owners of `{identifier}`; not type-resolved",
+            owner = scope.owner
+        ));
+    }
+    if foreign_lines > 0 {
+        report.missing.push(format!(
+            "excluded {foreign_lines} Rust lines that reach `{identifier}` only through an external crate (a Cargo dependency or `std`/`core`/`alloc` path or import); they cannot call this project's `{identifier}`"
+        ));
+    }
+    let excluded = excluded + foreign_lines;
+    Ok((
+        found,
+        (!capped).then_some((scanned, comments, excluded > 0)),
+    ))
 }
 
 /// True when `identifier` occurs in `line` as a whole word.
@@ -667,8 +1215,9 @@ fn contains_word(line: &str, identifier: &str) -> bool {
 #[derive(Clone, Copy, PartialEq)]
 enum CommentStyle {
     /// `//` and `/* */` (Rust, C/C++, JS/TS, Go, Java, ...); `nested` when
-    /// block comments nest (Rust, Swift, Kotlin, Scala).
-    CLike { nested: bool },
+    /// block comments nest (Rust, Swift, Kotlin, Scala); `single_quoted`
+    /// when `'...'` is a string, not a char literal (JS/TS, PHP).
+    CLike { nested: bool, single_quoted: bool },
     /// `#` to end of line (Python, shell, PowerShell, TOML, YAML, ...).
     Hash,
     /// Prose and unknown formats: nothing is treated as a comment.
@@ -683,10 +1232,34 @@ fn comment_style(path: &str) -> CommentStyle {
     match ext.as_str() {
         "py" | "pyi" | "rb" | "sh" | "bash" | "ps1" | "psm1" | "toml" | "yaml" | "yml"
         | "cmake" | "pl" | "r" => CommentStyle::Hash,
-        "rs" | "swift" | "kt" | "scala" => CommentStyle::CLike { nested: true },
-        ext if CODE_EXTENSIONS.contains(&ext) => CommentStyle::CLike { nested: false },
+        // Lua comments are `--`; its `//` is integer division.
+        "lua" => CommentStyle::None,
+        "rs" | "swift" | "kt" | "scala" => CommentStyle::CLike {
+            nested: true,
+            single_quoted: false,
+        },
+        "js" | "jsx" | "mjs" | "cjs" | "ts" | "tsx" | "php" => CommentStyle::CLike {
+            nested: false,
+            single_quoted: true,
+        },
+        ext if CODE_EXTENSIONS.contains(&ext) => CommentStyle::CLike {
+            nested: false,
+            single_quoted: false,
+        },
         _ => CommentStyle::None,
     }
+}
+
+/// An open string literal.
+enum Str {
+    /// Closed by the same quote; backslash escapes apply.
+    Quoted(char),
+    /// `"""` or `'''` (Python, TOML); spans lines, escapes apply.
+    Triple(char),
+    /// Rust raw string closed by `"` and this many `#`; no escapes.
+    RustRaw(usize),
+    /// C++ raw string closed by `)`, this delimiter and `"`; no escapes.
+    CppRaw(Vec<char>),
 }
 
 /// Lexer state carried from one line of a file to the next.
@@ -694,9 +1267,7 @@ fn comment_style(path: &str) -> CommentStyle {
 struct Carry {
     /// Depth of open `/* */` comments.
     block: u32,
-    /// Open string: its quote and, for a Rust raw string, the number of `#`
-    /// that close it (no escapes apply inside).
-    string: Option<(char, Option<usize>)>,
+    string: Option<Str>,
 }
 
 /// `line` with comment text blanked and string literals kept, so a name
@@ -704,9 +1275,6 @@ struct Carry {
 /// C-like strings (Rust strings span lines) across lines. When unsure, text
 /// is kept: showing a comment is harmless, omitting code would break the
 /// coverage claim.
-/// shortcut: C++ `R"(...)"` raw strings and Python triple-quoted strings are
-/// not recognised; upgrade to Tree-sitter comment nodes if the coverage check
-/// finds them.
 fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
     if style == CommentStyle::None {
         return line.to_string();
@@ -722,7 +1290,7 @@ fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
                 i += 1;
             } else if c == '/'
                 && next == Some('*')
-                && style == (CommentStyle::CLike { nested: true })
+                && matches!(style, CommentStyle::CLike { nested: true, .. })
             {
                 carry.block += 1;
                 i += 1;
@@ -731,28 +1299,68 @@ fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
             i += 1;
             continue;
         }
-        if let Some((quote, raw)) = carry.string {
-            let mut end = i + 1;
-            match raw {
-                None if c == '\\' => end = (i + 2).min(chars.len()),
-                None if c == quote => carry.string = None,
-                Some(hashes)
-                    if c == quote
-                        && chars[i + 1..].iter().take_while(|&&h| h == '#').count() >= hashes =>
-                {
-                    end += hashes;
-                    carry.string = None;
+        if let Some(open) = &carry.string {
+            let rest = &chars[i + 1..];
+            let (end, closed) = match open {
+                Str::Quoted(_) | Str::Triple(_) if c == '\\' => ((i + 2).min(chars.len()), false),
+                Str::Quoted(quote) => (i + 1, c == *quote),
+                Str::Triple(quote) if c == *quote && rest.starts_with(&[*quote; 2]) => {
+                    (i + 3, true)
                 }
-                _ => {}
+                Str::RustRaw(hashes)
+                    if c == '"' && rest.iter().take_while(|&&h| h == '#').count() >= *hashes =>
+                {
+                    (i + 1 + hashes, true)
+                }
+                Str::CppRaw(delim)
+                    if c == ')'
+                        && rest.starts_with(delim)
+                        && rest.get(delim.len()) == Some(&'"') =>
+                {
+                    (i + 2 + delim.len(), true)
+                }
+                _ => (i + 1, false),
+            };
+            if closed {
+                carry.string = None;
             }
             out.extend(&chars[i..end]);
             i = end;
             continue;
         }
+        let clike = matches!(style, CommentStyle::CLike { .. });
+        let opened = match c {
+            '"' | '\'' if style == CommentStyle::Hash && chars[i + 1..].starts_with(&[c; 2]) => {
+                Some((Str::Triple(c), 3))
+            }
+            '"' if clike => match cpp_raw_delimiter(&chars[..i], &chars[i + 1..]) {
+                Some(delim) => Some((Str::CppRaw(delim.to_vec()), 2 + delim.len())),
+                None => Some((
+                    raw_hashes(&chars[..i]).map_or(Str::Quoted('"'), Str::RustRaw),
+                    1,
+                )),
+            },
+            '"' | '`' => Some((Str::Quoted(c), 1)),
+            '\'' if matches!(
+                style,
+                CommentStyle::Hash
+                    | CommentStyle::CLike {
+                        single_quoted: true,
+                        ..
+                    }
+            ) =>
+            {
+                Some((Str::Quoted('\''), 1))
+            }
+            _ => None,
+        };
+        if let Some((open, len)) = opened {
+            carry.string = Some(open);
+            out.extend(&chars[i..(i + len).min(chars.len())]);
+            i += len;
+            continue;
+        }
         match c {
-            '"' => carry.string = Some(('"', raw_hashes(&chars[..i]))),
-            '`' => carry.string = Some(('`', None)),
-            '\'' if style == CommentStyle::Hash => carry.string = Some(('\'', None)),
             // A char literal such as `'"'`; a lone `'` (Rust lifetime) is code.
             '\'' => {
                 if let Some(len) = char_literal(&chars[i..]) {
@@ -761,9 +1369,11 @@ fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
                     continue;
                 }
             }
-            '#' if style == CommentStyle::Hash => break,
-            '/' if next == Some('/') => break,
-            '/' if next == Some('*') => {
+            // `$#`, `${#a}`, `a#b` are shell/YAML/Perl code, so `#` starts
+            // a comment only at a word start. Keeping a comment is harmless.
+            '#' if style == CommentStyle::Hash && (i == 0 || chars[i - 1].is_whitespace()) => break,
+            '/' if clike && next == Some('/') => break,
+            '/' if clike && next == Some('*') => {
                 carry.block = 1;
                 out.push_str("  ");
                 i += 2;
@@ -774,11 +1384,36 @@ fn code_text(line: &str, style: CommentStyle, carry: &mut Carry) -> String {
         out.push(c);
         i += 1;
     }
-    if style == CommentStyle::Hash {
-        // Hash-language strings are tracked within one line.
+    // Hash-language and `'` strings end with their line; `"""`, C-like `"`
+    // and template strings span lines.
+    if matches!(carry.string, Some(Str::Quoted('\'')))
+        || (style == CommentStyle::Hash && matches!(carry.string, Some(Str::Quoted(_))))
+    {
         carry.string = None;
     }
     out
+}
+
+/// Delimiter of a C++ raw string `R"delim(` whose `"` follows `before` and
+/// precedes `after` (`R`, `u8R`, `uR`, `UR`, `LR` prefixes).
+fn cpp_raw_delimiter<'a>(before: &[char], after: &'a [char]) -> Option<&'a [char]> {
+    let rest = before.strip_suffix(&['R'])?;
+    let rest = ["u8", "u", "U", "L"]
+        .iter()
+        .find_map(|p| rest.strip_suffix(p.chars().collect::<Vec<_>>().as_slice()))
+        .unwrap_or(rest);
+    if rest
+        .last()
+        .is_some_and(|&c| c.is_alphanumeric() || c == '_')
+    {
+        return None;
+    }
+    let open = after.iter().take(17).position(|&c| c == '(')?;
+    let delim = &after[..open];
+    delim
+        .iter()
+        .all(|&c| !c.is_whitespace() && !matches!(c, '\\' | ')' | '"'))
+        .then_some(delim)
 }
 
 /// `#` count of a Rust raw string whose `"` follows `before` (`r"`, `r#"`,
@@ -978,8 +1613,9 @@ fn pack(mut candidates: Vec<Evidence>, report: &mut ContextReport) {
             (_, true) => 1,
             ("call" | "match", _) => 2,
             ("reference", _) => 3,
-            ("import", _) => 4,
-            _ => 5,
+            ("possible call", _) => 4,
+            ("import", _) => 5,
+            _ => 6,
         };
         (tests_last && e.in_test, rank)
     });
@@ -1060,9 +1696,10 @@ impl ContextReport {
         }
         let count = |kind: &str| self.evidence.iter().filter(|e| e.kind == kind).count();
         out.push_str(&format!(
-            "shown: {} definitions, {} calls, {} references, {} imports, {} matches, {} prose mentions, {} file heads; ~{}/{} tokens; {}\n",
+            "shown: {} definitions, {} calls, {} possible calls, {} references, {} imports, {} matches, {} prose mentions, {} file heads; ~{}/{} tokens; {}\n",
             count("definition"),
             count("call"),
+            count("possible call"),
             count("reference"),
             count("import"),
             count("match"),
@@ -1177,22 +1814,35 @@ mod tests {
     }
 
     /// Labeled English/Turkish/mixed tasks the rules were tuned on
-    /// (`router_cases.tsv`; 178/260 before Turkish stems and file intent).
+    /// (`router_cases.tsv`; 178/260 before Turkish stems and file intent,
+    /// 259/272 before the 2026-10-26 caller/impact/test/file rules).
     /// Pinned so a rule change cannot silently regress.
     #[test]
     fn router_accuracy_on_labeled_tasks() {
         let (right, total) = router_score("dev", include_str!("router_cases.tsv"));
-        assert!(total >= 250, "{total} cases");
-        assert!(right >= 258, "{right}/{total}");
+        assert!(total >= 272, "{total} cases");
+        assert!(right >= 272, "{right}/{total}");
     }
 
     /// Frozen held-out tasks written after tuning (`router_heldout.tsv`):
     /// 30/60 with the rules before Turkish stems and file intent, 50/60 after.
+    /// Its 10 misses then shaped the 2026-10-26 rules (60/60), so it is no
+    /// longer held out; v2 below is.
     #[test]
     fn router_accuracy_on_held_out_tasks() {
         let (right, total) = router_score("held-out", include_str!("router_heldout.tsv"));
         assert_eq!(total, 60);
-        assert!(right >= 50, "{right}/{total}");
+        assert!(right >= 60, "{right}/{total}");
+    }
+
+    /// Frozen held-out set v2 (`router_heldout_v2.tsv`), committed before
+    /// its first run and before the rule changes it measures: 56/60 before,
+    /// 57/60 after. Its misses must not be used to tune the rules.
+    #[test]
+    fn router_accuracy_on_held_out_v2_tasks() {
+        let (right, total) = router_score("held-out-v2", include_str!("router_heldout_v2.tsv"));
+        assert_eq!(total, 60);
+        assert!(right >= 57, "{right}/{total}");
     }
 
     /// `#` and `*` start code lines in Rust (attributes), C/C++ (preprocessor,
@@ -1312,6 +1962,403 @@ mod tests {
             );
         }
         for comment in ["src/doc.rs:2", "src/doc.rs:3"] {
+            assert!(!shown.contains(&comment.to_string()), "{comment} shown");
+        }
+        assert!(
+            report.render().contains("(2 comment lines omitted)"),
+            "{}",
+            report.render()
+        );
+    }
+
+    /// `Type::name` and `module::name` narrow a same-named target: other
+    /// owners' definitions and Rust lines that cannot reach this owner are
+    /// excluded and counted; a line Findex cannot decide is kept.
+    #[test]
+    fn qualified_target_excludes_other_owners_and_reports_it() {
+        let (root, _state, db) = project(&[
+            (
+                "src/disk.rs",
+                "pub struct Disk;\nimpl Disk {\n    pub fn flush(&self) {}\n    fn sync(&self) { self.flush(); Self::flush(self); }\n}\n",
+            ),
+            (
+                "src/net.rs",
+                "pub struct Socket;\nimpl Socket {\n    pub fn flush(&self) {}\n}\nfn send(s: &Socket) { s.flush(); Socket::flush(s); }\n",
+            ),
+            (
+                "src/app.rs",
+                "use crate::disk::Disk;\nfn save(d: &Disk) { d.flush(); }\nfn both(d: &Disk, s: &crate::net::Socket) { Disk::flush(d); s.flush(); }\n",
+            ),
+            ("src/log.rs", "fn rotate(w: &mut W) { w.flush(); }\n"),
+            (
+                "src/tcp.rs",
+                "use crate::net::Socket;\nfn close(s: &Socket) { s.flush(); }\n",
+            ),
+            ("src/misc.rs", "pub fn reset() {}\nfn again() { reset(); }\n"),
+            ("src/other.rs", "pub fn reset() {}\nfn twice() { reset(); misc::reset(); }\n"),
+            (
+                "src/user.rs",
+                "fn a() { crate::util::reset(); }\nfn b() { other::reset(); }\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "who calls `Disk::flush`?", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        for site in [
+            "definition src/disk.rs:3",
+            "call src/disk.rs:4",
+            "call src/app.rs:2",
+            "call src/app.rs:3",
+            // Receiver type unknown and no other owner named: kept, marked.
+            "possible call src/log.rs:1",
+        ] {
+            assert!(shown.contains(&site.to_string()), "{site}: {shown:?}");
+        }
+        for other in [
+            "definition src/net.rs:3",
+            "call src/net.rs:5",
+            "call src/tcp.rs:2",
+        ] {
+            assert!(!shown.contains(&other.to_string()), "{other}: {shown:?}");
+        }
+        assert!(
+            report
+                .missing
+                .iter()
+                .any(|m| m.contains("excluded 2 lines") && m.contains("`Disk::flush`")),
+            "{:?}",
+            report.missing
+        );
+        let module = ask(&root, &db, "callers of `misc::reset`", 8000);
+        let shown: Vec<String> = module
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        for site in [
+            "definition src/misc.rs:1",
+            "call src/misc.rs:2",
+            "call src/other.rs:2",
+            // A re-export path is not evidence of another owner.
+            "call src/user.rs:1",
+        ] {
+            assert!(shown.contains(&site.to_string()), "{site}: {shown:?}");
+        }
+        for other in ["definition src/other.rs:1", "call src/user.rs:2"] {
+            assert!(!shown.contains(&other.to_string()), "{other}: {shown:?}");
+        }
+        let unknown = ask(&root, &db, "callers of `Nowhere::flush`", 8000);
+        assert!(
+            unknown
+                .missing
+                .iter()
+                .any(|m| m.contains("`Nowhere` owns no definition")),
+            "{:?}",
+            unknown.missing
+        );
+        assert!(unknown
+            .evidence
+            .iter()
+            .any(|e| e.path == "src/log.rs" && e.kind == "call"));
+    }
+
+    /// A receiver named after the owner (`disk.flush()`, `rt_disk.flush()`,
+    /// `self.disk().flush()`) is a call; one named after another owner is
+    /// excluded; an unknown receiver is only a `possible call`, ranked last.
+    #[test]
+    fn receiver_names_decide_method_calls_and_unknown_ones_are_possible() {
+        let (root, _state, db) = project(&[
+            (
+                "src/disk.rs",
+                "pub struct Disk;\nimpl Disk {\n    pub fn flush(&self) {}\n}\n",
+            ),
+            (
+                "src/net.rs",
+                "pub struct Socket;\nimpl Socket {\n    pub fn flush(&self) {}\n}\n",
+            ),
+            (
+                "src/run.rs",
+                "fn a(x: X) { x.disk.flush(); }\nfn b(x: X) { x.rt_disk().flush(); }\nfn c(x: X) { x.socket.flush(); }\nfn d(w: W) { w.flush(); }\n",
+            ),
+            // Names the owner but the receiver another owner: conflicting
+            // evidence stays visible as a possible call.
+            (
+                "src/wrap.rs",
+                "use crate::disk::Disk;\nfn e(x: X) { x.socket.flush(); }\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "callers of `Disk::flush`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        assert_eq!(
+            shown,
+            [
+                "definition src/disk.rs:3",
+                "call src/run.rs:1",
+                "call src/run.rs:2",
+                "possible call src/run.rs:4",
+                "possible call src/wrap.rs:2",
+            ],
+            "{:?}",
+            report.missing
+        );
+        assert!(
+            report.render().contains("2 possible calls"),
+            "{}",
+            report.render()
+        );
+    }
+
+    /// A function defined inside a macro (no syntax symbol) is still owned by
+    /// its module file, so `block::run` narrows to it.
+    #[test]
+    fn module_file_owns_a_macro_hidden_definition() {
+        let (root, _state, db) = project(&[
+            ("src/block.rs", "cfg_rt! {\n    pub fn run() {}\n}\nfn local() { run(); }\n"),
+            (
+                "src/rt.rs",
+                "pub struct Rt;\nimpl Rt {\n    pub fn run(&self) {}\n}\nfn go(rt: &Rt) { rt.run(); }\n",
+            ),
+            ("src/main.rs", "fn main() { crate::block::run(); }\n"),
+        ]);
+        let report = ask(&root, &db, "callers of `block::run`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        assert_eq!(
+            shown,
+            [
+                "definition src/block.rs:2",
+                "call src/block.rs:4",
+                "call src/main.rs:1",
+            ],
+            "{:?}",
+            report.missing
+        );
+    }
+
+    /// Generic paths still reach a method: `Sender<u8>::reserve` names the
+    /// owner, and a type parameter (`U::extend`) is a receiver of unknown
+    /// type: a call where the file names the owner, else a possible call.
+    #[test]
+    fn generic_paths_reach_a_method() {
+        let (root, _state, db) = project(&[
+            (
+                "src/mpsc.rs",
+                "pub struct Sender<T>(T);\nimpl<T> Sender<T> {\n    pub fn reserve(&self) {}\n}\n",
+            ),
+            (
+                "src/pool.rs",
+                "pub struct Pool;\nimpl Pool {\n    pub fn reserve(&self) {}\n    pub fn extend(&mut self) {}\n}\n",
+            ),
+            ("src/check.rs", "assert_fn!(crate::mpsc::Sender<u8>::reserve(_));\n"),
+            (
+                "src/collect.rs",
+                "pub trait FromStreamPriv {\n    fn extend(&mut self);\n}\nfn go<U: FromStreamPriv>(u: &mut U) { U::extend(u); }\n",
+            ),
+            ("src/other.rs", "fn go<U>(u: &mut U) { U::extend(u); }\n"),
+        ]);
+        let shown = |task: &str| -> Vec<String> {
+            ask(&root, &db, task, 8000)
+                .evidence
+                .iter()
+                .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+                .collect()
+        };
+        let reserve = shown("callers of `Sender::reserve`");
+        assert!(
+            reserve.contains(&"call src/check.rs:1".to_string()),
+            "{reserve:?}"
+        );
+        let extend = shown("callers of `FromStreamPriv::extend`");
+        for site in ["call src/collect.rs:4", "possible call src/other.rs:1"] {
+            assert!(extend.contains(&site.to_string()), "{site}: {extend:?}");
+        }
+    }
+
+    /// `Self::name` and `self.name` resolve to the enclosing impl: inside
+    /// another owner's impl that defines `name`, they never reach the target.
+    #[test]
+    fn self_calls_resolve_to_the_enclosing_impl() {
+        let (root, _state, db) = project(&[
+            (
+                "src/disk.rs",
+                "pub struct Disk;\nimpl Disk {\n    pub fn new() -> Self { Disk }\n    fn twice() { Self::new(); }\n    fn go(&self) { self.flush(); }\n    pub fn flush(&self) {}\n}\n",
+            ),
+            (
+                "src/net.rs",
+                "use crate::disk::Disk;\npub struct Socket;\nimpl Socket {\n    pub fn new() -> Self { Socket }\n    fn twice() { Self::new(); }\n    pub fn flush(&self) {}\n    fn go(&self) { self.flush(); }\n}\n",
+            ),
+        ]);
+        let shown = |task: &str| -> Vec<String> {
+            ask(&root, &db, task, 8000)
+                .evidence
+                .iter()
+                .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+                .collect()
+        };
+        let new = shown("callers of `Disk::new`");
+        assert!(new.contains(&"call src/disk.rs:4".to_string()), "{new:?}");
+        assert!(!new.iter().any(|s| s.contains("src/net.rs:5")), "{new:?}");
+        let flush = shown("callers of `Disk::flush`");
+        assert!(
+            flush.contains(&"call src/disk.rs:5".to_string()),
+            "{flush:?}"
+        );
+        assert!(
+            !flush.iter().any(|s| s.contains("src/net.rs:7")),
+            "{flush:?}"
+        );
+    }
+
+    /// A name inside a string literal (`m.read("read 1")`) is no call form.
+    #[test]
+    fn string_literal_names_are_no_call_evidence() {
+        let (root, _state, db) = project(&[
+            ("src/read.rs", "pub fn read(b: &mut [u8]) {}\n"),
+            (
+                "src/x.rs",
+                "pub struct X;\nimpl X {\n    pub fn read(&self) {}\n}\n",
+            ),
+            (
+                "src/t.rs",
+                "fn t(m: M) { m.read(\"read 1\"); }\nfn u() { read(&mut []); }\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "callers of `read::read`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        assert!(shown.contains(&"call src/t.rs:2".to_string()), "{shown:?}");
+        assert!(
+            !shown.iter().any(|s| s.ends_with("src/t.rs:1")),
+            "{shown:?}"
+        );
+    }
+
+    /// A path rooted in an external crate (a Cargo dependency or `std`), or a
+    /// bare call imported only from one, never reaches a project definition.
+    #[test]
+    fn external_crate_paths_never_reach_project_definitions() {
+        let (root, _state, db) = project(&[
+            (
+                "Cargo.toml",
+                "[package]\nname = \"app\"\n\n[dependencies]\nfutures = \"0.3\"\n\n[dev-dependencies.tempfile]\nversion = \"3\"\n",
+            ),
+            ("src/block.rs", "pub fn block_on() {}\nfn a() { block_on(); }\n"),
+            ("src/b.rs", "use futures::executor::block_on;\nfn b() { block_on(); }\n"),
+            (
+                "src/c.rs",
+                "fn c() { futures::executor::block_on(); std::thread::block_on(); }\nfn e() { tempfile::block_on(); }\n",
+            ),
+            (
+                "src/d.rs",
+                "use crate::block::block_on;\nfn d() { block_on(); app::block::block_on(); }\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "callers of `block_on`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        for site in ["call src/block.rs:2", "call src/d.rs:2"] {
+            assert!(shown.contains(&site.to_string()), "{site}: {shown:?}");
+        }
+        for path in ["src/b.rs", "src/c.rs"] {
+            assert!(!shown.iter().any(|s| s.contains(path)), "{path}: {shown:?}");
+        }
+        assert!(
+            report.missing.iter().any(|m| m.contains("external crate")),
+            "{:?}",
+            report.missing
+        );
+    }
+
+    /// Module files match case-sensitively: `Handle` is a type, never
+    /// `handle.rs`, so a macro-hidden `Handle::clock` narrows nothing.
+    #[test]
+    fn module_file_fallback_is_case_sensitive() {
+        let (root, _state, db) = project(&[
+            (
+                "src/driver.rs",
+                "pub struct Handle;\nimpl Handle {\n    cfg_time! {\n        pub fn clock(&self) {}\n    }\n}\n",
+            ),
+            ("src/handle.rs", "fn now(rt_handle: &Rt) { rt_handle.clock(); }\n"),
+        ]);
+        let report = ask(&root, &db, "callers of `Handle::clock`", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
+            .collect();
+        assert!(
+            shown.contains(&"call src/handle.rs:1".to_string()),
+            "{shown:?}"
+        );
+    }
+
+    /// Comment and string syntax follows each language: `//` is Python and
+    /// Lua division, `/*` a shell or YAML glob, `$#` shell code, `'...'` a JS
+    /// string, `"""` a Python string spanning lines, `R"(...)"` a C++ raw
+    /// string. None of them may hide a code line.
+    #[test]
+    fn language_specific_strings_and_operators_never_hide_code() {
+        let (root, _state, db) = project(&[
+            ("src/codec.rs", "pub fn my_codec() {}\n"),
+            (
+                "src/a.py",
+                "total = 10 // my_codec(2)\ndoc = \"\"\"\nuses my_codec # inside a string\n\"\"\"\n# my_codec comment\n",
+            ),
+            ("ci.yml", "paths:\n  - src/**\nrun: my_codec\n"),
+            (
+                "run.sh",
+                "if [ $# -eq 0 ]; then my_codec; fi\nls /* ; my_codec\n",
+            ),
+            (
+                "src/web.js",
+                "fetch('http://x'); my_codec();\nconst s = 'a /* b'; my_codec();\n// my_codec\n",
+            ),
+            ("src/m.lua", "local n = a // my_codec(b)\n"),
+            (
+                "src/r.cpp",
+                "auto p = R\"(x \" y)\"; f(\"//\"); my_codec();\nauto q = u8R\"d(a)\" // b)d\"; my_codec();\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "Who calls `my_codec`?", 8000);
+        let shown: Vec<String> = report
+            .evidence
+            .iter()
+            .map(|e| format!("{}:{}", e.path, e.line))
+            .collect();
+        for site in [
+            "src/a.py:1",
+            "src/a.py:3",
+            "ci.yml:3",
+            "run.sh:1",
+            "run.sh:2",
+            "src/web.js:1",
+            "src/web.js:2",
+            "src/m.lua:1",
+            "src/r.cpp:1",
+            "src/r.cpp:2",
+        ] {
+            assert!(
+                shown.contains(&site.to_string()),
+                "{site} missing: {shown:?}"
+            );
+        }
+        for comment in ["src/a.py:5", "src/web.js:3"] {
             assert!(!shown.contains(&comment.to_string()), "{comment} shown");
         }
         assert!(

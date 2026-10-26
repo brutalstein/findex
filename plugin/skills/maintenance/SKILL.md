@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # Findex: operator-controlled maintenance
 
+Use this skill in Codex or Claude Code only when the user requests maintenance.
+
 This is an **explicit-user-only** skill. Findex MCP search tools are read-oriented, but indexing and importing modify the local derived cache.
 
 - Check the native runtime: `findex doctor`, `findex --version`. If installed as a self-contained plugin, use the bundled `bin/findex.exe` in the plugin's actual directory instead of guessing PATH.
@@ -13,4 +15,4 @@ This is an **explicit-user-only** skill. Findex MCP search tools are read-orient
 - `findex index` reconciles the repository and may take time. `findex refresh <known path>` is for already indexed files and does not admit new ones.
 - `findex graph-import-scip <index.scip>` and `findex graph-import-lsp <capture.json>` import **explicit, trusted local files**. Do not fetch or generate these silently; confirm the intended file and user's request first.
 - Never weaken ignore rules, enlarge limits blindly, delete user data, install binaries, switch authentication providers, or make network calls to solve a missing runtime.
-- On failure, explain the problem and continue with Claude's built-in tools where possible.
+- On failure, explain the problem and continue with the client's built-in tools where possible.

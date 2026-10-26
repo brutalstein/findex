@@ -1,0 +1,93 @@
+{
+  "summary": {
+    "findex": {
+      "queries": 60,
+      "hit_at_1": 0.9666666666666667,
+      "span_at_1": 0.9666666666666667,
+      "uncapped_hit_at_1": 0.9666666666666667,
+      "hit_at_10": 1.0,
+      "mrr": 0.9833333333333333,
+      "mean_tokens": 418.55,
+      "latency_s": {
+        "n": 60,
+        "mean": 0.009456201666610771,
+        "variance": 3.821949455687426e-05,
+        "stdev": 0.0061821917276055315,
+        "min": 0.00237109999943641,
+        "p50": 0.008437000000412809,
+        "p95": 0.019269499999609252,
+        "p99": 0.02330430000074557,
+        "max": 0.02330430000074557
+      },
+      "errors": 0,
+      "over_budget": 0
+    },
+    "graphify": {
+      "queries": 60,
+      "hit_at_1": 0.65,
+      "span_at_1": 0.5666666666666667,
+      "uncapped_hit_at_1": 0.65,
+      "hit_at_10": 0.7166666666666667,
+      "mrr": 0.6763888888888889,
+      "mean_tokens": 1466.0666666666666,
+      "latency_s": {
+        "n": 60,
+        "mean": 0.9004736300000331,
+        "variance": 0.0058534552713483175,
+        "stdev": 0.07650787718495604,
+        "min": 0.7827333999994153,
+        "p50": 0.9040887999999541,
+        "p95": 1.0403491000006397,
+        "p99": 1.0729925000005096,
+        "max": 1.0729925000005096
+      },
+      "errors": 0,
+      "over_budget": 20
+    },
+    "codebase-memory": {
+      "queries": 60,
+      "hit_at_1": 0.6333333333333333,
+      "span_at_1": 0.43333333333333335,
+      "uncapped_hit_at_1": 0.6333333333333333,
+      "hit_at_10": 0.7,
+      "mrr": 0.6457142857142857,
+      "mean_tokens": 354.6333333333333,
+      "latency_s": {
+        "n": 60,
+        "mean": 0.01645383499997782,
+        "variance": 3.607750277134674e-05,
+        "stdev": 0.006006455091927911,
+        "min": 0.004040100000565872,
+        "p50": 0.017970400000194786,
+        "p95": 0.025755699999535864,
+        "p99": 0.029616999999234395,
+        "max": 0.029616999999234395
+      },
+      "errors": 0,
+      "over_budget": 0
+    }
+  },
+  "gate": {
+    "vs": {
+      "graphify": {
+        "lower_context_tokens": true,
+        "higher_file_hit_at_1": true,
+        "higher_span_hit_at_1": true
+      },
+      "codebase-memory": {
+        "lower_context_tokens": false,
+        "higher_file_hit_at_1": true,
+        "higher_span_hit_at_1": true
+      }
+    },
+    "local_pass": false,
+    "overall": "NOT_ESTABLISHED",
+    "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+  },
+  "limits": [
+    "Graphify code-only, not semantic extraction",
+    "Native surfaces differ; Graphify CLI includes process startup",
+    "Context tokens are a proxy, not session usage or billed money",
+    "No codebase disk-size measurement"
+  ]
+}

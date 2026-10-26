@@ -1,0 +1,56 @@
+{
+  "sessions": [
+    {
+      "key": "codex:requests:__bool__:exact:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "requests:__bool__:exact",
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 152455,
+        "cached_input_tokens": 114816,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 418,
+        "reasoning_output_tokens": 128
+      },
+      "mcp_calls": 1,
+      "correct": false,
+      "final": "{ \"path\": \"\", \"line\": 0 }"
+    },
+    {
+      "key": "codex:requests:__bool__:exact:graphify",
+      "client": "codex",
+      "tool": "graphify",
+      "task": "requests:__bool__:exact",
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 151113,
+        "cached_input_tokens": 116224,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 472,
+        "reasoning_output_tokens": 173
+      },
+      "mcp_calls": 1,
+      "correct": false,
+      "final": "{\"path\":\"\",\"line\":0}"
+    },
+    {
+      "key": "codex:requests:__bool__:exact:codebase-memory",
+      "client": "codex",
+      "tool": "codebase-memory",
+      "task": "requests:__bool__:exact",
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 168020,
+        "cached_input_tokens": 124928,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 586,
+        "reasoning_output_tokens": 259
+      },
+      "mcp_calls": 0,
+      "correct": false,
+      "final": "{\"path\":\"Unable to verify: codebase-memory MCP is unavailable and source reads are blocked by policy.\" ,\"line\":0}"
+    }
+  ],
+  "started": 4
+}

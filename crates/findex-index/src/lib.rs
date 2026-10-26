@@ -33,6 +33,8 @@ pub struct SyncStats {
     pub unchanged: usize,
     pub removed: usize,
     pub skipped: usize,
+    /// Cloud-only placeholders (counted in `skipped`): never read, so never downloaded.
+    pub cloud_only: usize,
     pub symbols_parsed: usize,
     pub symbols_reused: usize,
 }
@@ -92,7 +94,7 @@ fn connect(db: &Path) -> Result<Connection> {
     }
     match open_schema(db) {
         Err(err) if is_corrupt(err.as_ref()) => Err(
-            "Findex index cache is corrupt; original database preserved. Use `findex index-check` and back up the cache before explicit recovery."
+            "Findex index cache is corrupt; original database preserved. Use `findex index-check`, back up the cache if needed, then `findex forget` and `findex index` to rebuild."
                 .into(),
         ),
         other => other,
@@ -141,7 +143,7 @@ fn try_open_schema(db: &Path) -> Result<Connection> {
         // Written by a newer Findex: its layout is unknown here, so neither
         // read nor rewrite it.
         return Err(format!(
-            "index cache schema {version} is newer than this Findex supports ({LEXICAL_SCHEMA}); upgrade Findex or delete the index cache"
+            "index cache schema {version} is newer than this Findex supports ({LEXICAL_SCHEMA}); upgrade Findex or run `findex forget` to rebuild it"
         )
         .into());
     }
@@ -306,9 +308,35 @@ pub fn synchronize_into(project: &Path, database: &Path) -> Result<SyncStats> {
             Err(err) if is_busy(err.as_ref()) && std::time::Instant::now() < deadline => {
                 std::thread::sleep(Duration::from_millis(25));
             }
+            Ok(stats) => {
+                if stats.indexed + stats.removed > 0 {
+                    flush_wal(&conn)?;
+                }
+                return Ok(stats);
+            }
             other => return other,
         }
     }
+}
+
+/// A read error that leaves an indexed file in place: a sharing violation
+/// while an editor saves. Absence and revoked access remove it with its text;
+/// the next query's reconciliation re-admits a file that was only briefly
+/// unreadable.
+pub(crate) fn keeps_entry(err: &std::io::Error) -> bool {
+    !matches!(
+        err.kind(),
+        std::io::ErrorKind::NotFound | std::io::ErrorKind::PermissionDenied
+    )
+}
+
+/// Copy committed pages (freed ones zeroed by `secure_delete`) into the
+/// database file and empty the WAL, so replaced or removed source text does
+/// not outlive the commit while another open connection keeps SQLite from
+/// doing this on close. A reader inside a transaction can still delay it.
+pub(crate) fn flush_wal(conn: &Connection) -> Result<()> {
+    conn.query_row("PRAGMA wal_checkpoint(TRUNCATE)", [], |_| Ok(()))?;
+    Ok(())
 }
 
 fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> {
@@ -365,11 +393,7 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
         }
         let metadata = match entry.metadata() {
             Ok(m) => m,
-            Err(err)
-                if err
-                    .io_error()
-                    .is_some_and(|io| io.kind() == std::io::ErrorKind::NotFound) =>
-            {
+            Err(err) if err.io_error().is_some_and(|io| !keeps_entry(io)) => {
                 stats.skipped += 1;
                 continue;
             }
@@ -389,11 +413,15 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
             stats.skipped += 1;
             continue;
         }
+        if findex_core::is_cloud_only(&metadata) {
+            stats.skipped += 1;
+            stats.cloud_only += 1;
+            continue;
+        }
         let bytes = match fs::read(entry.path()) {
             Ok(b) => b,
             Err(err) => {
-                if err.kind() != std::io::ErrorKind::NotFound && existing.contains_key(&rel_string)
-                {
+                if keeps_entry(&err) && existing.contains_key(&rel_string) {
                     // Locked mid-save: keep the entry; hits re-verify the hash.
                     admitted.insert(rel_string);
                 }
@@ -712,7 +740,10 @@ fn live_source(root: &Path, relative: &str, indexed_hash: &str) -> Option<String
     }
     let full_path: PathBuf = root.join(relative);
     let metadata = fs::symlink_metadata(&full_path).ok()?;
-    if !metadata.file_type().is_file() || metadata.len() > MAX_SOURCE_BYTES {
+    if !metadata.file_type().is_file()
+        || metadata.len() > MAX_SOURCE_BYTES
+        || findex_core::is_cloud_only(&metadata)
+    {
         return None;
     }
     let resolved = full_path.canonicalize().ok()?;
@@ -1056,6 +1087,69 @@ mod tests {
                 "marker left in index{suffix}"
             );
         }
+    }
+
+    /// A file whose read access was revoked is not a transient lock: its
+    /// cached text must leave the index instead of staying there unserved.
+    #[cfg(windows)]
+    #[test]
+    fn access_denied_file_is_removed_with_its_text() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        let marker = "zq_denied_marker_7301";
+        fs::write(project.path().join("keep.rs"), "fn kept() {}\n").expect("keep");
+        let secret = project.path().join("secret.rs");
+        fs::write(&secret, format!("fn {marker}() {{}}\n")).expect("secret");
+        synchronize_into(project.path(), &db).expect("sync");
+        // Drop the inherited ACEs and deny Everyone reading: an empty DACL
+        // alone does not stop an elevated CI account; a deny ACE does.
+        let status = std::process::Command::new("icacls")
+            .arg(&secret)
+            .args(["/inheritance:r", "/deny", "*S-1-1-0:(R)"])
+            .stdout(std::process::Stdio::null())
+            .status()
+            .expect("icacls");
+        assert!(status.success());
+        let denied = fs::read(&secret).expect_err("read must be denied");
+        assert_eq!(denied.kind(), std::io::ErrorKind::PermissionDenied);
+        let stats = synchronize_into(project.path(), &db).expect("sync after deny");
+        assert_eq!(stats.removed, 1);
+        let bytes = fs::read(&db).expect("db");
+        assert!(!bytes.windows(marker.len()).any(|w| w == marker.as_bytes()));
+    }
+
+    /// A long-lived reader (an MCP server, a second Findex) keeps SQLite from
+    /// deleting the WAL on close; removed text must not survive in it.
+    #[test]
+    fn removed_file_text_is_not_left_in_wal_while_another_connection_is_open() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        let marker = "zq_wal_marker_5512";
+        fs::write(project.path().join("keep.rs"), "fn kept() {}\n").expect("keep");
+        let secret = project.path().join("secret.rs");
+        fs::write(&secret, format!("fn {marker}() {{}}\n")).expect("secret");
+        synchronize_into(project.path(), &db).expect("sync");
+        let holder = Connection::open(&db).expect("holder");
+        let _: i64 = holder
+            .query_row("SELECT count(*) FROM files", [], |row| row.get(0))
+            .expect("read");
+        fs::remove_file(&secret).expect("delete");
+        assert_eq!(
+            synchronize_into(project.path(), &db).expect("sync").removed,
+            1
+        );
+        for suffix in ["", "-wal"] {
+            let mut path = db.as_os_str().to_owned();
+            path.push(suffix);
+            let bytes = fs::read(PathBuf::from(path)).unwrap_or_default();
+            assert!(
+                !bytes.windows(marker.len()).any(|w| w == marker.as_bytes()),
+                "marker left in index{suffix}"
+            );
+        }
+        drop(holder);
     }
 
     /// After a downgrade, an index written by a newer Findex is refused

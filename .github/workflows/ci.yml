@@ -3,6 +3,7 @@ name: CI / Windows Native
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -18,6 +19,8 @@ jobs:
     name: Format, Clippy, Tests, Release Build
     runs-on: windows-latest
     timeout-minutes: 30
+    outputs:
+      signed: ${{ steps.signing.outputs.configured }}
     permissions:
       contents: read
       id-token: write
@@ -92,6 +95,20 @@ jobs:
         with:
           name: findex-hardening-offline-evidence
           path: hardening-offline.json
+          if-no-files-found: error
+      - name: Cloud-only placeholders are never downloaded; SMB path and watcher
+        shell: pwsh
+        run: |
+          python validation/harness/cloud_placeholders.py target/release/findex.exe --output cloud-placeholders.json
+          if ($LASTEXITCODE -ne 0) { throw "Cloud Files placeholder regression" }
+          python validation/harness/network_volume.py target/release/findex.exe --output network-volume.json
+          if ($LASTEXITCODE -ne 0) { throw "SMB network path regression" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: findex-cloud-and-network-evidence
+          path: |
+            cloud-placeholders.json
+            network-volume.json
           if-no-files-found: error
       - name: Offline first-contact project overview and MCP test
         shell: pwsh
@@ -254,6 +271,35 @@ jobs:
             throw "Typed graph MCP response missing explicit non-call guarantee"
           }
           Remove-Item -Recurse -Force ci-impact-fixture
+      - name: Detect an Authenticode signing certificate
+        id: signing
+        shell: pwsh
+        env:
+          PFX: ${{ secrets.SIGNING_CERT_PFX_BASE64 }}
+        run: |
+          $configured = if ($env:PFX) { 'true' } else { 'false' }
+          "configured=$configured" >> $env:GITHUB_OUTPUT
+          Write-Output "Authenticode certificate configured: $configured"
+      - name: Authenticode-sign and verify the executable
+        if: steps.signing.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          PFX: ${{ secrets.SIGNING_CERT_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.SIGNING_CERT_PASSWORD }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP 'signing.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX))
+          try {
+            $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+              Sort-Object FullName -Descending | Select-Object -First 1
+            if ($null -eq $signtool) { throw 'signtool.exe not found' }
+            & $signtool.FullName sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $pfx /p $env:PFX_PASSWORD target\release\findex.exe
+            if ($LASTEXITCODE -ne 0) { throw 'signtool sign failed' }
+            & $signtool.FullName verify /pa target\release\findex.exe
+            if ($LASTEXITCODE -ne 0) { throw 'Authenticode verification failed' }
+          } finally {
+            Remove-Item $pfx -Force -ErrorAction SilentlyContinue
+          }
       - name: Package Findex and bundled Claude plugin
         shell: pwsh
         run: |
@@ -274,6 +320,9 @@ jobs:
           "git-commit=$env:GITHUB_SHA" | Set-Content dist\findex\BUILD-INFO.txt
           "rustc=$(rustc --version)" | Add-Content dist\findex\BUILD-INFO.txt
           "cargo=$(cargo --version)" | Add-Content dist\findex\BUILD-INFO.txt
+          $authenticode = if ('${{ steps.signing.outputs.configured }}' -eq 'true') { 'signed' } else { 'unsigned' }
+          "authenticode=$authenticode" | Add-Content dist\findex\BUILD-INFO.txt
+          Copy-Item dist\findex\sbom.cdx.json dist\sbom.cdx.json
           Compress-Archive -Path dist\findex -DestinationPath dist\findex-windows-x64.zip
           $hash = (Get-FileHash -Algorithm SHA256 dist\findex-windows-x64.zip).Hash.ToLowerInvariant()
           "$hash  findex-windows-x64.zip" | Set-Content -Encoding utf8 dist\findex-windows-x64.sha256
@@ -284,6 +333,7 @@ jobs:
           path: |
             dist/findex-windows-x64.zip
             dist/findex-windows-x64.sha256
+            dist/sbom.cdx.json
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
@@ -311,6 +361,29 @@ jobs:
         run: cargo install cargo-audit --version 0.22.2 --locked
       - name: Audit Cargo.lock against the RustSec database
         run: cargo audit --deny warnings
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --version 0.20.2 --locked
+      - name: License, banned-crate and source policy (deny.toml)
+        run: cargo deny --locked check licenses bans sources
+
+  windows-server-2022:
+    name: Tests and Windows I/O harnesses on Windows Server 2022
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6, Node.js 24
+      - name: Unit and integration tests
+        run: cargo test --locked --workspace --all-targets
+      - name: Cloud-only placeholders, SMB path and hardening on the release binary
+        shell: pwsh
+        run: |
+          cargo build --locked --release -p findex
+          if ($LASTEXITCODE -ne 0) { throw "release build failed" }
+          python -m pip install --quiet psutil==7.0.0
+          foreach ($harness in 'cloud_placeholders', 'network_volume', 'hardening_offline') {
+            python "validation/harness/$harness.py" target/release/findex.exe
+            if ($LASTEXITCODE -ne 0) { throw "$harness failed on Windows Server 2022" }
+          }
 
   msrv:
     name: Windows Rust 1.85 minimum toolchain
@@ -328,3 +401,56 @@ jobs:
         run: cargo +1.85.0 check --locked --workspace --all-targets
       - name: Run all regression tests on declared MSRV
         run: cargo +1.85.0 test --locked --workspace --all-targets
+
+  release:
+    name: Publish GitHub Release (version tags only)
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, supply-chain, msrv, windows-server-2022]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6, Node.js 24
+      - name: Tag must equal the workspace version
+        run: |
+          version=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
+      - name: Download the tested artifacts of this run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" -n findex-windows-x64 -n findex-claude-plugin-windows-x64 -D downloaded
+          mkdir assets
+          find downloaded -type f -exec mv {} assets/ \;
+          ls -l assets
+      - name: Release notes from CHANGELOG.md
+        env:
+          SIGNED: ${{ needs.windows.outputs.signed }}
+        run: |
+          awk -v head="## [$VERSION]" 'index($0, head) == 1 {p = 1; next} /^## \[/ {p = 0} p' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "CHANGELOG.md has no section for $VERSION"; exit 1; }
+          {
+            echo
+            echo "### Verify the download"
+            echo
+            echo '```'
+            echo "sha256sum -c findex-windows-x64.sha256"
+            echo "gh attestation verify findex-windows-x64.zip --repo $GITHUB_REPOSITORY"
+            echo '```'
+            echo
+            if [ "$SIGNED" = "true" ]; then
+              echo "findex.exe is Authenticode-signed."
+            else
+              echo "findex.exe is **not** Authenticode-signed. Verify the SHA-256 file and the build-provenance attestation."
+            fi
+          } >> notes.md
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prerelease=""
+          case "$VERSION" in 0.*|*-*) prerelease="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" assets/* --verify-tag --title "Findex $VERSION" --notes-file notes.md $prerelease

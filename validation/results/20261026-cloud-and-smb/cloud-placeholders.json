@@ -1,0 +1,33 @@
+{
+  "model_sessions": 0,
+  "paid_calls": 0,
+  "verdict": "PASS",
+  "checks": {
+    "index": {
+      "output": "Indexed 1 changed, 0 unchanged, 0 removed, 3 skipped (examined 4)\n3 cloud-only files were not downloaded or indexed; make them available offline to include them",
+      "downloads": [],
+      "still_cloud_only": true
+    },
+    "cli_queries": {
+      "downloads": []
+    },
+    "mcp": {
+      "downloads": [],
+      "local_file_found": true
+    },
+    "made_local": {
+      "user_download": [
+        {
+          "file": "later.rs",
+          "process": "python.exe"
+        }
+      ],
+      "downloads": [],
+      "found": true
+    },
+    "back_to_cloud": {
+      "downloads": [],
+      "found": false
+    }
+  }
+}

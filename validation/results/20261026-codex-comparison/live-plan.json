@@ -1,0 +1,22 @@
+{
+  "tasks": [
+    "requests:__bool__:exact",
+    "zod:Values:exact"
+  ],
+  "tools": [
+    "findex",
+    "graphify",
+    "codebase-memory"
+  ],
+  "max_sessions": 12,
+  "codex_profile": {
+    "model": "gpt-6.1-sol",
+    "model_reasoning_effort": "high",
+    "service_tier": "priority"
+  },
+  "claude_model": "haiku",
+  "blocked": {
+    "codex": null,
+    "claude": "BLOCKED: `claude auth status` is not a claude.ai subscription sign-in (authMethod)"
+  }
+}

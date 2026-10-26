@@ -93,3 +93,16 @@ Evidence: `validation/FINAL_VALIDATION_REPORT.md` and `validation/results/`.
   tasks and comparison with other navigation tools remain (F4).
 - [ ] Query planner beyond definition-first + lexical, graph reranking,
   embeddings (F4) — not justified by measured failures yet.
+
+## Call-site precision milestone (2026-10-26)
+
+Evidence: `docs/EVIDENCE.md`, `validation/results/20261026-*`.
+
+- [x] Owner-qualified caller precision on the frozen SCIP held-out split:
+  ripgrep 0.523 → 0.714, tokio 0.376 → 0.567, with site recall up
+  (0.957 → 0.981, 0.829 → 0.947). Known false negatives listed in EVIDENCE.
+- [x] Coverage line still 279/279 against `git grep -w`.
+- [x] Router: new frozen held-out v2, 57/60.
+- [x] Live tests bill only the subscription (per-session `apiKeySource` check).
+- [ ] Typed multi-language graph, Authenticode, Windows 10/SMB/OneDrive tests,
+  token results beyond Haiku navigation tasks.

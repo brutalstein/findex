@@ -1,0 +1,3992 @@
+{
+  "status": "EXECUTED",
+  "dataset": "validation/golden/issue_localization.jsonl",
+  "tasks": 65,
+  "systems": {
+    "gitgrep-words": {
+      "all": {
+        "n": 65,
+        "hit@1": 0.06153846153846154,
+        "hit@3": 0.3230769230769231,
+        "hit@5": 0.47692307692307695,
+        "hit@10": 0.6461538461538462,
+        "mrr": 0.25301500042684827,
+        "gold_recall@10": 0.6256410256410256,
+        "empty_rate": 0.0,
+        "output_bytes": {
+          "n": 65,
+          "mean": 206.3846153846154,
+          "variance": 893.1778846153846,
+          "stdev": 29.88608178760449,
+          "min": 113.0,
+          "p50": 204.0,
+          "p95": 265.0,
+          "p99": 299.0,
+          "max": 299.0
+        },
+        "latency_s": {
+          "n": 65,
+          "mean": 0.25605076923076925,
+          "variance": 0.008686247538461539,
+          "stdev": 0.09320004044238145,
+          "min": 0.0734,
+          "p50": 0.2525,
+          "p95": 0.4414,
+          "p99": 0.4695,
+          "max": 0.4695
+        }
+      },
+      "by_split": {
+        "dev": {
+          "n": 37,
+          "hit@1": 0.10810810810810811,
+          "hit@3": 0.3783783783783784,
+          "hit@5": 0.4864864864864865,
+          "hit@10": 0.5675675675675675,
+          "mrr": 0.2944996497324124,
+          "gold_recall@10": 0.5405405405405406,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 37,
+            "mean": 206.94594594594594,
+            "variance": 1094.0525525525527,
+            "stdev": 33.076465236668696,
+            "min": 113.0,
+            "p50": 204.0,
+            "p95": 287.0,
+            "p99": 299.0,
+            "max": 299.0
+          },
+          "latency_s": {
+            "n": 37,
+            "mean": 0.24668918918918917,
+            "variance": 0.009962489324324324,
+            "stdev": 0.0998122704096261,
+            "min": 0.0734,
+            "p50": 0.2365,
+            "p95": 0.4431,
+            "p99": 0.4695,
+            "max": 0.4695
+          }
+        },
+        "test": {
+          "n": 28,
+          "hit@1": 0.0,
+          "hit@3": 0.25,
+          "hit@5": 0.4642857142857143,
+          "hit@10": 0.75,
+          "mrr": 0.1981959995587815,
+          "gold_recall@10": 0.7380952380952381,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 28,
+            "mean": 205.64285714285714,
+            "variance": 657.4232804232805,
+            "stdev": 25.640266777537253,
+            "min": 167.0,
+            "p50": 205.0,
+            "p95": 261.0,
+            "p99": 265.0,
+            "max": 265.0
+          },
+          "latency_s": {
+            "n": 28,
+            "mean": 0.2684214285714286,
+            "variance": 0.00702750544973545,
+            "stdev": 0.08383021799885439,
+            "min": 0.1124,
+            "p50": 0.2649,
+            "p95": 0.393,
+            "p99": 0.4432,
+            "max": 0.4432
+          }
+        }
+      },
+      "by_corpus": {
+        "fmt": {
+          "n": 25,
+          "hit@1": 0.08,
+          "hit@3": 0.32,
+          "hit@5": 0.48,
+          "hit@10": 0.64,
+          "mrr": 0.26889920389540883,
+          "gold_recall@10": 0.6266666666666666,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 25,
+            "mean": 198.04,
+            "variance": 339.45666666666665,
+            "stdev": 18.424349830229197,
+            "min": 167.0,
+            "p50": 202.0,
+            "p95": 226.0,
+            "p99": 240.0,
+            "max": 240.0
+          },
+          "latency_s": {
+            "n": 25,
+            "mean": 0.272832,
+            "variance": 0.006162024766666667,
+            "stdev": 0.07849856537967217,
+            "min": 0.1237,
+            "p50": 0.2754,
+            "p95": 0.393,
+            "p99": 0.4414,
+            "max": 0.4414
+          }
+        },
+        "requests": {
+          "n": 10,
+          "hit@1": 0.0,
+          "hit@3": 0.3,
+          "hit@5": 0.5,
+          "hit@10": 0.6,
+          "mrr": 0.21397527910685804,
+          "gold_recall@10": 0.5333333333333333,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 10,
+            "mean": 224.3,
+            "variance": 3238.6777777777775,
+            "stdev": 56.90938215951547,
+            "min": 113.0,
+            "p50": 209.0,
+            "p95": 299.0,
+            "p99": 299.0,
+            "max": 299.0
+          },
+          "latency_s": {
+            "n": 10,
+            "mean": 0.17936999999999997,
+            "variance": 0.014531417888888886,
+            "stdev": 0.12054633088107197,
+            "min": 0.0734,
+            "p50": 0.1603,
+            "p95": 0.4695,
+            "p99": 0.4695,
+            "max": 0.4695
+          }
+        },
+        "ripgrep": {
+          "n": 25,
+          "hit@1": 0.08,
+          "hit@3": 0.4,
+          "hit@5": 0.48,
+          "hit@10": 0.72,
+          "mrr": 0.2817133219352899,
+          "gold_recall@10": 0.72,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 25,
+            "mean": 208.96,
+            "variance": 364.9566666666667,
+            "stdev": 19.103839055715127,
+            "min": 170.0,
+            "p50": 214.0,
+            "p95": 228.0,
+            "p99": 247.0,
+            "max": 247.0
+          },
+          "latency_s": {
+            "n": 25,
+            "mean": 0.277864,
+            "variance": 0.0075608949,
+            "stdev": 0.08695340648876271,
+            "min": 0.1332,
+            "p50": 0.2747,
+            "p95": 0.4431,
+            "p99": 0.4432,
+            "max": 0.4432
+          }
+        },
+        "zod": {
+          "n": 5,
+          "hit@1": 0.0,
+          "hit@3": 0.0,
+          "hit@5": 0.4,
+          "hit@10": 0.4,
+          "mrr": 0.10818181818181818,
+          "gold_recall@10": 0.3333333333333333,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 5,
+            "mean": 199.4,
+            "variance": 1437.3000000000002,
+            "stdev": 37.9117396066179,
+            "min": 175.0,
+            "p50": 182.0,
+            "p95": 265.0,
+            "p99": 265.0,
+            "max": 265.0
+          },
+          "latency_s": {
+            "n": 5,
+            "mean": 0.21644000000000002,
+            "variance": 0.0025517180000000006,
+            "stdev": 0.05051453256242208,
+            "min": 0.1611,
+            "p50": 0.2261,
+            "p95": 0.2831,
+            "p99": 0.2831,
+            "max": 0.2831
+          }
+        }
+      }
+    },
+    "findex-main": {
+      "all": {
+        "n": 65,
+        "hit@1": 0.15384615384615385,
+        "hit@3": 0.35384615384615387,
+        "hit@5": 0.5230769230769231,
+        "hit@10": 0.6923076923076923,
+        "mrr": 0.2968681318681319,
+        "gold_recall@10": 0.6666666666666667,
+        "empty_rate": 0.0,
+        "output_bytes": {
+          "n": 65,
+          "mean": 991.7538461538461,
+          "variance": 33436.09471153846,
+          "stdev": 182.85539289706077,
+          "min": 543.0,
+          "p50": 974.0,
+          "p95": 1388.0,
+          "p99": 1782.0,
+          "max": 1782.0
+        },
+        "latency_s": {
+          "n": 65,
+          "mean": 0.10822923076923077,
+          "variance": 0.00027290835096153846,
+          "stdev": 0.016519937982981004,
+          "min": 0.0742,
+          "p50": 0.1101,
+          "p95": 0.136,
+          "p99": 0.1495,
+          "max": 0.1495
+        }
+      },
+      "by_split": {
+        "dev": {
+          "n": 37,
+          "hit@1": 0.1891891891891892,
+          "hit@3": 0.40540540540540543,
+          "hit@5": 0.4864864864864865,
+          "hit@10": 0.6216216216216216,
+          "mrr": 0.3085585585585585,
+          "gold_recall@10": 0.5990990990990991,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 37,
+            "mean": 969.5135135135135,
+            "variance": 24833.97897897898,
+            "stdev": 157.58800391837883,
+            "min": 543.0,
+            "p50": 967.0,
+            "p95": 1296.0,
+            "p99": 1474.0,
+            "max": 1474.0
+          },
+          "latency_s": {
+            "n": 37,
+            "mean": 0.10565135135135136,
+            "variance": 0.0003543331231231231,
+            "stdev": 0.01882373828768141,
+            "min": 0.0742,
+            "p50": 0.1085,
+            "p95": 0.1416,
+            "p99": 0.1495,
+            "max": 0.1495
+          }
+        },
+        "test": {
+          "n": 28,
+          "hit@1": 0.10714285714285714,
+          "hit@3": 0.2857142857142857,
+          "hit@5": 0.5714285714285714,
+          "hit@10": 0.7857142857142857,
+          "mrr": 0.28142006802721087,
+          "gold_recall@10": 0.755952380952381,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 28,
+            "mean": 1021.1428571428571,
+            "variance": 44570.42328042328,
+            "stdev": 211.11708429310804,
+            "min": 771.0,
+            "p50": 985.0,
+            "p95": 1433.0,
+            "p99": 1782.0,
+            "max": 1782.0
+          },
+          "latency_s": {
+            "n": 28,
+            "mean": 0.11163571428571428,
+            "variance": 0.00015330904761904767,
+            "stdev": 0.01238180308432692,
+            "min": 0.0807,
+            "p50": 0.112,
+            "p95": 0.1286,
+            "p99": 0.136,
+            "max": 0.136
+          }
+        }
+      },
+      "by_corpus": {
+        "fmt": {
+          "n": 25,
+          "hit@1": 0.16,
+          "hit@3": 0.48,
+          "hit@5": 0.56,
+          "hit@10": 0.68,
+          "mrr": 0.3183809523809524,
+          "gold_recall@10": 0.6666666666666667,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 25,
+            "mean": 944.24,
+            "variance": 7633.0233333333335,
+            "stdev": 87.36717537687329,
+            "min": 811.0,
+            "p50": 942.0,
+            "p95": 1100.0,
+            "p99": 1160.0,
+            "max": 1160.0
+          },
+          "latency_s": {
+            "n": 25,
+            "mean": 0.11591599999999999,
+            "variance": 0.0001917080666666667,
+            "stdev": 0.01384586821642712,
+            "min": 0.0943,
+            "p50": 0.1126,
+            "p95": 0.1365,
+            "p99": 0.1495,
+            "max": 0.1495
+          }
+        },
+        "requests": {
+          "n": 10,
+          "hit@1": 0.0,
+          "hit@3": 0.3,
+          "hit@5": 0.3,
+          "hit@10": 0.5,
+          "mrr": 0.17678571428571427,
+          "gold_recall@10": 0.5,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 10,
+            "mean": 908.5,
+            "variance": 51857.38888888889,
+            "stdev": 227.72217478517302,
+            "min": 543.0,
+            "p50": 848.0,
+            "p95": 1296.0,
+            "p99": 1296.0,
+            "max": 1296.0
+          },
+          "latency_s": {
+            "n": 10,
+            "mean": 0.08012,
+            "variance": 2.0997333333333343e-05,
+            "stdev": 0.004582284728531537,
+            "min": 0.0742,
+            "p50": 0.08,
+            "p95": 0.0884,
+            "p99": 0.0884,
+            "max": 0.0884
+          }
+        },
+        "ripgrep": {
+          "n": 25,
+          "hit@1": 0.24,
+          "hit@3": 0.32,
+          "hit@5": 0.6,
+          "hit@10": 0.84,
+          "mrr": 0.3627619047619048,
+          "gold_recall@10": 0.8,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 25,
+            "mean": 983.24,
+            "variance": 5770.356666666667,
+            "stdev": 75.96286373397639,
+            "min": 771.0,
+            "p50": 999.0,
+            "p95": 1060.0,
+            "p99": 1091.0,
+            "max": 1091.0
+          },
+          "latency_s": {
+            "n": 25,
+            "mean": 0.113916,
+            "variance": 7.744306666666669e-05,
+            "stdev": 0.008800174240699255,
+            "min": 0.0979,
+            "p50": 0.1117,
+            "p95": 0.1257,
+            "p99": 0.1416,
+            "max": 0.1416
+          }
+        },
+        "zod": {
+          "n": 5,
+          "hit@1": 0.0,
+          "hit@3": 0.0,
+          "hit@5": 0.4,
+          "hit@10": 0.4,
+          "mrr": 0.1,
+          "gold_recall@10": 0.3333333333333333,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 5,
+            "mean": 1438.4,
+            "variance": 56621.299999999996,
+            "stdev": 237.95230614558034,
+            "min": 1115.0,
+            "p50": 1433.0,
+            "p95": 1782.0,
+            "p99": 1782.0,
+            "max": 1782.0
+          },
+          "latency_s": {
+            "n": 5,
+            "mean": 0.09758,
+            "variance": 1.5891999999999996e-05,
+            "stdev": 0.003986477141537374,
+            "min": 0.0935,
+            "p50": 0.0987,
+            "p95": 0.1029,
+            "p99": 0.1029,
+            "max": 0.1029
+          }
+        }
+      }
+    },
+    "findex-context": {
+      "all": {
+        "n": 65,
+        "hit@1": 0.3076923076923077,
+        "hit@3": 0.5076923076923077,
+        "hit@5": 0.6153846153846154,
+        "hit@10": 0.676923076923077,
+        "mrr": 0.42827744904667986,
+        "gold_recall@10": 0.6615384615384615,
+        "empty_rate": 0.0,
+        "output_bytes": {
+          "n": 65,
+          "mean": 5692.384615384615,
+          "variance": 65101236.459134616,
+          "stdev": 8068.533724236059,
+          "min": 565.0,
+          "p50": 4213.0,
+          "p95": 11775.0,
+          "p99": 55311.0,
+          "max": 55311.0
+        },
+        "latency_s": {
+          "n": 65,
+          "mean": 0.11222,
+          "variance": 0.000245339125,
+          "stdev": 0.015663305047147618,
+          "min": 0.0831,
+          "p50": 0.1152,
+          "p95": 0.1335,
+          "p99": 0.1409,
+          "max": 0.1409
+        }
+      },
+      "by_split": {
+        "dev": {
+          "n": 37,
+          "hit@1": 0.32432432432432434,
+          "hit@3": 0.43243243243243246,
+          "hit@5": 0.5135135135135135,
+          "hit@10": 0.6216216216216216,
+          "mrr": 0.4093093093093093,
+          "gold_recall@10": 0.5945945945945946,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 37,
+            "mean": 5080.405405405405,
+            "variance": 42484136.41441441,
+            "stdev": 6517.985610172395,
+            "min": 565.0,
+            "p50": 4046.0,
+            "p95": 8534.0,
+            "p99": 42716.0,
+            "max": 42716.0
+          },
+          "latency_s": {
+            "n": 37,
+            "mean": 0.10972162162162163,
+            "variance": 0.0002458600750750751,
+            "stdev": 0.0156799258631881,
+            "min": 0.0831,
+            "p50": 0.1102,
+            "p95": 0.1335,
+            "p99": 0.1352,
+            "max": 0.1352
+          }
+        },
+        "test": {
+          "n": 28,
+          "hit@1": 0.2857142857142857,
+          "hit@3": 0.6071428571428571,
+          "hit@5": 0.75,
+          "hit@10": 0.75,
+          "mrr": 0.45334249084249084,
+          "gold_recall@10": 0.75,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 28,
+            "mean": 6501.071428571428,
+            "variance": 96477101.994709,
+            "stdev": 9822.275805265754,
+            "min": 1881.0,
+            "p50": 4371.0,
+            "p95": 11775.0,
+            "p99": 55311.0,
+            "max": 55311.0
+          },
+          "latency_s": {
+            "n": 28,
+            "mean": 0.11552142857142857,
+            "variance": 0.00023387433862433863,
+            "stdev": 0.015292950618645789,
+            "min": 0.0881,
+            "p50": 0.1168,
+            "p95": 0.1397,
+            "p99": 0.1409,
+            "max": 0.1409
+          }
+        }
+      },
+      "by_corpus": {
+        "fmt": {
+          "n": 25,
+          "hit@1": 0.4,
+          "hit@3": 0.56,
+          "hit@5": 0.64,
+          "hit@10": 0.68,
+          "mrr": 0.5046666666666667,
+          "gold_recall@10": 0.68,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 25,
+            "mean": 4388.72,
+            "variance": 6664834.876666666,
+            "stdev": 2581.634148493288,
+            "min": 565.0,
+            "p50": 4078.0,
+            "p95": 11775.0,
+            "p99": 11775.0,
+            "max": 11775.0
+          },
+          "latency_s": {
+            "n": 25,
+            "mean": 0.1105,
+            "variance": 0.00022381666666666672,
+            "stdev": 0.014960503556587483,
+            "min": 0.0881,
+            "p50": 0.1115,
+            "p95": 0.1307,
+            "p99": 0.1332,
+            "max": 0.1332
+          }
+        },
+        "requests": {
+          "n": 10,
+          "hit@1": 0.3,
+          "hit@3": 0.5,
+          "hit@5": 0.5,
+          "hit@10": 0.6,
+          "mrr": 0.3944444444444445,
+          "gold_recall@10": 0.5333333333333333,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 10,
+            "mean": 3501.2,
+            "variance": 895435.511111111,
+            "stdev": 946.274543201449,
+            "min": 1703.0,
+            "p50": 3616.0,
+            "p95": 4613.0,
+            "p99": 4613.0,
+            "max": 4613.0
+          },
+          "latency_s": {
+            "n": 10,
+            "mean": 0.09519999999999999,
+            "variance": 3.130222222222224e-05,
+            "stdev": 0.005594838891534075,
+            "min": 0.0831,
+            "p50": 0.0944,
+            "p95": 0.102,
+            "p99": 0.102,
+            "max": 0.102
+          }
+        },
+        "ripgrep": {
+          "n": 25,
+          "hit@1": 0.24,
+          "hit@3": 0.44,
+          "hit@5": 0.64,
+          "hit@10": 0.72,
+          "mrr": 0.3844102564102564,
+          "gold_recall@10": 0.72,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 25,
+            "mean": 7988.04,
+            "variance": 156286038.04,
+            "stdev": 12501.441438490203,
+            "min": 2715.0,
+            "p50": 4629.0,
+            "p95": 42716.0,
+            "p99": 55311.0,
+            "max": 55311.0
+          },
+          "latency_s": {
+            "n": 25,
+            "mean": 0.122064,
+            "variance": 0.0001635899,
+            "stdev": 0.012790226737630573,
+            "min": 0.0958,
+            "p50": 0.1229,
+            "p95": 0.1397,
+            "p99": 0.1409,
+            "max": 0.1409
+          }
+        },
+        "zod": {
+          "n": 5,
+          "hit@1": 0.2,
+          "hit@3": 0.6,
+          "hit@5": 0.6,
+          "hit@10": 0.6,
+          "mrr": 0.3333333333333333,
+          "gold_recall@10": 0.5333333333333333,
+          "empty_rate": 0.0,
+          "output_bytes": {
+            "n": 5,
+            "mean": 5114.8,
+            "variance": 5919741.7,
+            "stdev": 2433.0519312172523,
+            "min": 2630.0,
+            "p50": 5647.0,
+            "p95": 8534.0,
+            "p99": 8534.0,
+            "max": 8534.0
+          },
+          "latency_s": {
+            "n": 5,
+            "mean": 0.10564,
+            "variance": 0.00012809299999999994,
+            "stdev": 0.011317817810867957,
+            "min": 0.0893,
+            "p50": 0.1066,
+            "p95": 0.1168,
+            "p99": 0.1168,
+            "max": 0.1168
+          }
+        }
+      }
+    }
+  },
+  "per_task": [
+    {
+      "id": "requests-3844",
+      "corpus": "requests",
+      "split": "test",
+      "query": "HTTPS proxy connection not initialized if first request is chunked",
+      "gold_files": [
+        "requests/adapters.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 6,
+        "returned": 44,
+        "gold_found@10": 1.0,
+        "bytes": 201,
+        "seconds": 0.2759,
+        "top5": [
+          "docs/user/advanced.rst",
+          "tests/test_requests.py",
+          "HISTORY.md",
+          "docs/user/quickstart.rst",
+          "requests/exceptions.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 7,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1168,
+        "seconds": 0.0807,
+        "top5": [
+          "docs/user/advanced.rst",
+          "tests/test_requests.py",
+          "requests/exceptions.py",
+          "requests/sessions.py",
+          "docs/user/quickstart.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 3,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4172,
+        "seconds": 0.0944,
+        "top5": [
+          "requests/exceptions.py",
+          "requests/sessions.py",
+          "requests/adapters.py",
+          "requests/auth.py",
+          "requests/models.py"
+        ]
+      }
+    },
+    {
+      "id": "requests-5223",
+      "corpus": "requests",
+      "split": "dev",
+      "query": "Running requests in parallel from a zip archive can create race condition when unpacking the cacerts.pem file",
+      "gold_files": [
+        "requests/utils.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 67,
+        "gold_found@10": 1.0,
+        "bytes": 190,
+        "seconds": 0.4695,
+        "top5": [
+          "HISTORY.md",
+          "requests/utils.py",
+          "docs/user/advanced.rst",
+          "requests/models.py",
+          "requests/sessions.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 2,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 946,
+        "seconds": 0.08,
+        "top5": [
+          "HISTORY.md",
+          "requests/utils.py",
+          "docs/user/quickstart.rst",
+          "docs/user/advanced.rst",
+          "requests/adapters.py"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 3476,
+        "seconds": 0.096,
+        "top5": [
+          "requests/utils.py",
+          "requests/adapters.py",
+          "requests/sessions.py",
+          "requests/models.py",
+          "requests/status_codes.py"
+        ]
+      }
+    },
+    {
+      "id": "requests-1070",
+      "corpus": "requests",
+      "split": "test",
+      "query": "On redirect (302) params are doubled",
+      "gold_files": [
+        "requests/sessions.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 4,
+        "returned": 13,
+        "gold_found@10": 1.0,
+        "bytes": 261,
+        "seconds": 0.1124,
+        "top5": [
+          "HISTORY.rst",
+          "requests/api.py",
+          "requests/models.py",
+          "requests/sessions.py",
+          "test_requests.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 2,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 848,
+        "seconds": 0.0808,
+        "top5": [
+          "test_requests.py",
+          "requests/sessions.py",
+          "requests/models.py",
+          "requests/packages/urllib3/response.py",
+          "HISTORY.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 2,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4267,
+        "seconds": 0.1014,
+        "top5": [
+          "requests/packages/urllib3/connectionpool.py",
+          "requests/sessions.py",
+          "requests/models.py",
+          "requests/packages/urllib3/response.py",
+          "requests/status_codes.py"
+        ]
+      }
+    },
+    {
+      "id": "requests-1019",
+      "corpus": "requests",
+      "split": "dev",
+      "query": "AttributeError: 'HTTPAdapter' object has no attribute 'verify'",
+      "gold_files": [
+        "requests/adapters.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 3,
+        "returned": 22,
+        "gold_found@10": 1.0,
+        "bytes": 287,
+        "seconds": 0.1991,
+        "top5": [
+          "HISTORY.rst",
+          "docs/user/advanced.rst",
+          "requests/adapters.py",
+          "requests/models.py",
+          "requests/packages/urllib3/connectionpool.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 8,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1050,
+        "seconds": 0.0783,
+        "top5": [
+          "requests/packages/urllib3/connectionpool.py",
+          "docs/user/advanced.rst",
+          "requests/sessions.py",
+          "requests/packages/urllib3/packages/ordered_dict.py",
+          "requests/utils.py"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 5,
+        "gold_found@10": 0.0,
+        "bytes": 2081,
+        "seconds": 0.0831,
+        "top5": [
+          "requests/packages/urllib3/packages/six.py",
+          "requests/models.py",
+          "requests/packages/urllib3/connectionpool.py",
+          "requests/packages/urllib3/packages/ordered_dict.py",
+          "requests/utils.py"
+        ]
+      }
+    },
+    {
+      "id": "requests-1015",
+      "corpus": "requests",
+      "split": "dev",
+      "query": "Consider iter_json",
+      "gold_files": [
+        "requests/models.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": null,
+        "returned": 4,
+        "gold_found@10": 0.0,
+        "bytes": 113,
+        "seconds": 0.0782,
+        "top5": [
+          "docs/_templates/sidebarintro.html",
+          "docs/_templates/sidebarlogo.html",
+          "docs/_themes/LICENSE",
+          "docs/user/quickstart.rst"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 4,
+        "gold_found@10": 0.0,
+        "bytes": 543,
+        "seconds": 0.0803,
+        "top5": [
+          "docs/_templates/sidebarlogo.html",
+          "docs/_templates/sidebarintro.html",
+          "docs/_themes/LICENSE",
+          "docs/user/quickstart.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 4,
+        "gold_found@10": 0.0,
+        "bytes": 1703,
+        "seconds": 0.094,
+        "top5": [
+          "docs/_templates/sidebarlogo.html",
+          "docs/_templates/sidebarintro.html",
+          "docs/_themes/LICENSE",
+          "docs/user/quickstart.rst"
+        ]
+      }
+    },
+    {
+      "id": "requests-971",
+      "corpus": "requests",
+      "split": "dev",
+      "query": "Real logging",
+      "gold_files": [
+        "requests/__init__.py",
+        "requests/defaults.py",
+        "requests/models.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 4,
+        "returned": 11,
+        "gold_found@10": 0.3333333333333333,
+        "bytes": 299,
+        "seconds": 0.0776,
+        "top5": [
+          "HISTORY.rst",
+          "docs/user/advanced.rst",
+          "requests/auth.py",
+          "requests/models.py",
+          "requests/packages/urllib3/__init__.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 723,
+        "seconds": 0.0884,
+        "top5": [
+          "HISTORY.rst",
+          "docs/user/advanced.rst",
+          "requests/auth.py",
+          "requests/packages/urllib3/__init__.py",
+          "requests/packages/urllib3/poolmanager.py"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 9,
+        "returned": 11,
+        "gold_found@10": 0.3333333333333333,
+        "bytes": 3180,
+        "seconds": 0.0981,
+        "top5": [
+          "requests/auth.py",
+          "requests/packages/urllib3/__init__.py",
+          "requests/packages/urllib3/poolmanager.py",
+          "requests/packages/urllib3/response.py",
+          "requests/utils.py"
+        ]
+      }
+    },
+    {
+      "id": "requests-711",
+      "corpus": "requests",
+      "split": "dev",
+      "query": "Parse Link headers (rfc5988)",
+      "gold_files": [
+        "requests/models.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 22,
+        "returned": 37,
+        "gold_found@10": 0.0,
+        "bytes": 269,
+        "seconds": 0.1646,
+        "top5": [
+          "docs/user/advanced.rst",
+          "requests/utils.py",
+          "requests/packages/oauthlib/oauth2/draft25/__init__.py",
+          "requests/packages/urllib3/connectionpool.py",
+          "requests/packages/urllib3/request.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 848,
+        "seconds": 0.0868,
+        "top5": [
+          "requests/utils.py",
+          "docs/user/advanced.rst",
+          "requests/cookies.py",
+          "requests/packages/urllib3/util.py",
+          "requests/packages/oauthlib/oauth2/draft25/__init__.py"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 3873,
+        "seconds": 0.0993,
+        "top5": [
+          "requests/utils.py",
+          "requests/cookies.py",
+          "requests/packages/urllib3/util.py",
+          "requests/packages/oauthlib/oauth2/draft25/__init__.py",
+          "requests/packages/urllib3/poolmanager.py"
+        ]
+      }
+    },
+    {
+      "id": "requests-575",
+      "corpus": "requests",
+      "split": "dev",
+      "query": "Redirect of multipart-encoded post",
+      "gold_files": [
+        "requests/models.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 25,
+        "gold_found@10": 1.0,
+        "bytes": 233,
+        "seconds": 0.1603,
+        "top5": [
+          "HISTORY.rst",
+          "requests/models.py",
+          "docs/user/quickstart.rst",
+          "requests/api.py",
+          "requests/packages/urllib3/request.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 2,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1296,
+        "seconds": 0.0761,
+        "top5": [
+          "docs/user/quickstart.rst",
+          "requests/models.py",
+          "HISTORY.rst",
+          "requests/packages/urllib3/request.py",
+          "tests/test_requests.py"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4031,
+        "seconds": 0.0915,
+        "top5": [
+          "requests/models.py",
+          "requests/packages/urllib3/request.py",
+          "requests/api.py",
+          "requests/defaults.py",
+          "requests/sessions.py"
+        ]
+      }
+    },
+    {
+      "id": "requests-593",
+      "corpus": "requests",
+      "split": "dev",
+      "query": "response.json",
+      "gold_files": [
+        "requests/models.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 19,
+        "returned": 28,
+        "gold_found@10": 0.0,
+        "bytes": 181,
+        "seconds": 0.0734,
+        "top5": [
+          "README.rst",
+          "docs/index.rst",
+          "docs/user/advanced.rst",
+          "docs/user/quickstart.rst",
+          "tests/test_cookies.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 689,
+        "seconds": 0.0756,
+        "top5": [
+          "tests/test_cookies.py",
+          "tests/test_requests.py",
+          "docs/user/quickstart.rst",
+          "docs/user/advanced.rst",
+          "README.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 3616,
+        "seconds": 0.0922,
+        "top5": [
+          "requests/models.py",
+          "requests/packages/urllib3/response.py",
+          "docs/user/quickstart.rst",
+          "docs/user/advanced.rst",
+          "README.rst"
+        ]
+      }
+    },
+    {
+      "id": "requests-407",
+      "corpus": "requests",
+      "split": "dev",
+      "query": "Cannot upload binary data using auth",
+      "gold_files": [
+        "requests/auth.py"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 24,
+        "returned": 33,
+        "gold_found@10": 0.0,
+        "bytes": 209,
+        "seconds": 0.1827,
+        "top5": [
+          "docs/user/quickstart.rst",
+          "HISTORY.rst",
+          "docs/user/advanced.rst",
+          "requests/api.py",
+          "requests/models.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 974,
+        "seconds": 0.0742,
+        "top5": [
+          "docs/user/quickstart.rst",
+          "requests/packages/urllib3/request.py",
+          "HISTORY.rst",
+          "docs/user/advanced.rst",
+          "docs/user/intro.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 4613,
+        "seconds": 0.102,
+        "top5": [
+          "requests/packages/urllib3/request.py",
+          "requests/api.py",
+          "requests/sessions.py",
+          "requests/models.py",
+          "setup.py"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2884",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "Alternation match regression",
+      "gold_files": [
+        "crates/regex/src/literal.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 9,
+        "returned": 85,
+        "gold_found@10": 1.0,
+        "bytes": 209,
+        "seconds": 0.1332,
+        "top5": [
+          "CHANGELOG.md",
+          "FAQ.md",
+          "GUIDE.md",
+          "benchsuite/benchsuite",
+          "crates/globset/src/glob.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 5,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 771,
+        "seconds": 0.1037,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/regex/src/matcher.rs",
+          "crates/printer/src/standard.rs",
+          "crates/regex/src/config.rs",
+          "crates/regex/src/literal.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 4,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 3724,
+        "seconds": 0.1196,
+        "top5": [
+          "crates/regex/src/matcher.rs",
+          "crates/printer/src/standard.rs",
+          "crates/regex/src/config.rs",
+          "crates/regex/src/literal.rs",
+          "crates/regex/src/strip.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2767",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "ignore: WalkBuilder::build_parallel() example does not compile",
+      "gold_files": [
+        "crates/ignore/src/walk.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 1,
+        "returned": 106,
+        "gold_found@10": 1.0,
+        "bytes": 214,
+        "seconds": 0.2227,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "CHANGELOG.md",
+          "GUIDE.md",
+          "README.md",
+          "crates/core/flags/hiargs.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 969,
+        "seconds": 0.1416,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "crates/ignore/src/lib.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/defs.rs",
+          "crates/ignore/src/gitignore.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 2,
+        "gold_found@10": 1.0,
+        "bytes": 5803,
+        "seconds": 0.0958,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "crates/core/flags/hiargs.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2736",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "Process substitution search path behavior change in 14.0.0",
+      "gold_files": [
+        "crates/cli/src/lib.rs",
+        "crates/core/flags/hiargs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 7,
+        "returned": 106,
+        "gold_found@10": 1.0,
+        "bytes": 212,
+        "seconds": 0.2788,
+        "top5": [
+          "FAQ.md",
+          "CHANGELOG.md",
+          "GUIDE.md",
+          "crates/cli/src/decompress.rs",
+          "crates/core/flags/defs.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 6,
+        "returned": 10,
+        "gold_found@10": 0.5,
+        "bytes": 1045,
+        "seconds": 0.1178,
+        "top5": [
+          "FAQ.md",
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "GUIDE.md",
+          "crates/cli/src/decompress.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 3,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4578,
+        "seconds": 0.1321,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/cli/src/decompress.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/searcher/src/searcher/mod.rs",
+          "crates/cli/src/lib.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2694",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "consider adding an `rg:` prefix all error messages",
+      "gold_files": [
+        "crates/core/messages.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 38,
+        "returned": 114,
+        "gold_found@10": 0.0,
+        "bytes": 221,
+        "seconds": 0.2649,
+        "top5": [
+          "CHANGELOG.md",
+          "FAQ.md",
+          "crates/core/flags/complete/rg.zsh",
+          "crates/core/flags/hiargs.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 1050,
+        "seconds": 0.1151,
+        "top5": [
+          "crates/core/flags/complete/rg.zsh",
+          "CHANGELOG.md",
+          "crates/ignore/src/walk.rs",
+          "crates/core/flags/hiargs.rs",
+          "FAQ.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 4333,
+        "seconds": 0.1327,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/parse.rs",
+          "crates/ignore/src/gitignore.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2690",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "Memory not freed in ignore crate when ignore flags are enabled",
+      "gold_files": [
+        "crates/ignore/src/dir.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 22,
+        "returned": 139,
+        "gold_found@10": 0.0,
+        "bytes": 216,
+        "seconds": 0.2531,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "GUIDE.md",
+          "README.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 1017,
+        "seconds": 0.1176,
+        "top5": [
+          "GUIDE.md",
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/lowargs.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 4854,
+        "seconds": 0.1312,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/lowargs.rs",
+          "crates/core/flags/parse.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2664",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "Using `--sortr path` gives error \"thread 'main' panicked\"/\"not yet implemented\"",
+      "gold_files": [
+        "crates/core/flags/hiargs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 5,
+        "returned": 115,
+        "gold_found@10": 1.0,
+        "bytes": 195,
+        "seconds": 0.4432,
+        "top5": [
+          "CHANGELOG.md",
+          "benchsuite/benchsuite",
+          "crates/core/flags/complete/rg.zsh",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 7,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 984,
+        "seconds": 0.1082,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "FAQ.md",
+          "crates/core/main.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 13,
+        "returned": 23,
+        "gold_found@10": 0.0,
+        "bytes": 55311,
+        "seconds": 0.1409,
+        "top5": [
+          "crates/core/haystack.rs",
+          "crates/ignore/examples/walk.rs",
+          "crates/ignore/src/dir.rs",
+          "crates/ignore/src/gitignore.rs",
+          "crates/ignore/src/lib.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2658",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "`--line-regexp` no longer works with `--null-data` after upgrading to 14.0.1",
+      "gold_files": [
+        "crates/searcher/src/searcher/core.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 54,
+        "returned": 97,
+        "gold_found@10": 0.0,
+        "bytes": 205,
+        "seconds": 0.3709,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "GUIDE.md",
+          "benchsuite/benchsuite"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 988,
+        "seconds": 0.1223,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/complete/rg.zsh",
+          "crates/core/flags/hiargs.rs",
+          "GUIDE.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 4,
+        "gold_found@10": 0.0,
+        "bytes": 5032,
+        "seconds": 0.1076,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "tests/feature.rs",
+          "CHANGELOG.md",
+          "crates/core/flags/complete/rg.zsh"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2659",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "fish completions invalid arguments",
+      "gold_files": [
+        "crates/core/flags/complete/fish.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 13,
+        "returned": 54,
+        "gold_found@10": 0.0,
+        "bytes": 228,
+        "seconds": 0.2019,
+        "top5": [
+          "CHANGELOG.md",
+          "FAQ.md",
+          "crates/core/flags/complete/rg.zsh",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/doc/template.rg.1"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 10,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 919,
+        "seconds": 0.0979,
+        "top5": [
+          "FAQ.md",
+          "CHANGELOG.md",
+          "doc/rg.1.txt.tpl",
+          "crates/core/flags/lowargs.rs",
+          "crates/core/flags/mod.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 5,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4278,
+        "seconds": 0.1153,
+        "top5": [
+          "crates/core/flags/lowargs.rs",
+          "crates/core/flags/mod.rs",
+          "crates/core/flags/defs.rs",
+          "crates/core/main.rs",
+          "crates/core/flags/complete/fish.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-1622",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "-z option on Windows requires \"gzip\" no documented dependencies and no Errors in execution",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 4,
+        "returned": 96,
+        "gold_found@10": 1.0,
+        "bytes": 180,
+        "seconds": 0.3669,
+        "top5": [
+          "CHANGELOG.md",
+          "FAQ.md",
+          "GUIDE.md",
+          "crates/core/flags/defs.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 4,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 996,
+        "seconds": 0.1175,
+        "top5": [
+          "CHANGELOG.md",
+          "FAQ.md",
+          "GUIDE.md",
+          "crates/core/flags/defs.rs",
+          "crates/cli/src/decompress.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 2,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 5280,
+        "seconds": 0.1397,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "crates/core/flags/defs.rs",
+          "crates/cli/src/decompress.rs",
+          "crates/ignore/src/dir.rs",
+          "crates/regex/src/matcher.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-1635",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "document the difference between -tmd and -g*.md",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 14,
+        "returned": 33,
+        "gold_found@10": 0.0,
+        "bytes": 204,
+        "seconds": 0.1977,
+        "top5": [
+          "CHANGELOG.md",
+          "FAQ.md",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/lowargs.rs",
+          "crates/core/main.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 8,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1060,
+        "seconds": 0.1085,
+        "top5": [
+          "CHANGELOG.md",
+          "FAQ.md",
+          "crates/regex/src/matcher.rs",
+          "crates/core/flags/lowargs.rs",
+          "crates/core/flags/hiargs.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 6,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4774,
+        "seconds": 0.1229,
+        "top5": [
+          "crates/core/flags/hiargs.rs",
+          "crates/regex/src/matcher.rs",
+          "crates/core/flags/lowargs.rs",
+          "crates/printer/src/standard.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-1709",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "Blank lines to delineate different files should not be emitted when using -NI flags",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 120,
+        "gold_found@10": 1.0,
+        "bytes": 214,
+        "seconds": 0.3538,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "FAQ.md",
+          "GUIDE.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 3,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1009,
+        "seconds": 0.1204,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/defs.rs",
+          "benchsuite/benchsuite",
+          "FAQ.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 5112,
+        "seconds": 0.1335,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/printer/src/json.rs",
+          "crates/printer/src/standard.rs",
+          "crates/pcre2/src/matcher.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2046",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "[Feature Request] Pass arguments to --pre command",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 3,
+        "returned": 81,
+        "gold_found@10": 1.0,
+        "bytes": 227,
+        "seconds": 0.2847,
+        "top5": [
+          "GUIDE.md",
+          "crates/core/flags/complete/rg.zsh",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/doc/template.rg.1",
+          "crates/core/flags/hiargs.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 7,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 999,
+        "seconds": 0.1138,
+        "top5": [
+          "crates/core/flags/doc/template.rg.1",
+          "doc/rg.1.txt.tpl",
+          "CHANGELOG.md",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/complete/rg.zsh"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 3,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4717,
+        "seconds": 0.1213,
+        "top5": [
+          "crates/core/flags/hiargs.rs",
+          "crates/cli/src/decompress.rs",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/lowargs.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2122",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "Reading fifo: Output is buffered until fifo writer closes",
+      "gold_files": [
+        "crates/core/flags/hiargs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 3,
+        "returned": 58,
+        "gold_found@10": 1.0,
+        "bytes": 210,
+        "seconds": 0.3064,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "FAQ.md",
+          "GUIDE.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 4,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1041,
+        "seconds": 0.1109,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/cli/src/lib.rs",
+          "crates/core/flags/doc/template.rg.1",
+          "crates/core/flags/hiargs.rs",
+          "CHANGELOG.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 3,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4582,
+        "seconds": 0.1223,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/cli/src/lib.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/cli/src/process.rs",
+          "crates/cli/src/wtr.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2337",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "the `--stats` flag should note that it is unconditionally enabled when `--json` is used",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 1,
+        "returned": 101,
+        "gold_found@10": 1.0,
+        "bytes": 224,
+        "seconds": 0.3313,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "CHANGELOG.md",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/lowargs.rs",
+          "crates/core/main.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1056,
+        "seconds": 0.1257,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/core/main.rs",
+          "crates/core/flags/hiargs.rs",
+          "CHANGELOG.md",
+          "crates/core/flags/lowargs.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 6,
+        "returned": 19,
+        "gold_found@10": 1.0,
+        "bytes": 42716,
+        "seconds": 0.1257,
+        "top5": [
+          "crates/core/flags/hiargs.rs",
+          "crates/core/search.rs",
+          "crates/printer/src/json.rs",
+          "crates/printer/src/lib.rs",
+          "crates/printer/src/standard.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2505",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "should --vimgrep run in single threaded mode by default?",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 99,
+        "gold_found@10": 1.0,
+        "bytes": 217,
+        "seconds": 0.2747,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/complete/rg.zsh",
+          "crates/core/main.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 988,
+        "seconds": 0.1182,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "CHANGELOG.md",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/mod.rs",
+          "crates/core/main.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4042,
+        "seconds": 0.1319,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/main.rs",
+          "crates/core/flags/mod.rs",
+          "crates/core/flags/lowargs.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2418",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "--sort=path is not properly documented",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 9,
+        "returned": 78,
+        "gold_found@10": 1.0,
+        "bytes": 218,
+        "seconds": 0.1725,
+        "top5": [
+          "CHANGELOG.md",
+          "FAQ.md",
+          "GUIDE.md",
+          "crates/core/flags/hiargs.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 8,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1003,
+        "seconds": 0.1054,
+        "top5": [
+          "crates/core/flags/hiargs.rs",
+          "crates/ignore/src/walk.rs",
+          "FAQ.md",
+          "GUIDE.md",
+          "CHANGELOG.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 4,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4814,
+        "seconds": 0.123,
+        "top5": [
+          "crates/core/flags/hiargs.rs",
+          "crates/ignore/src/walk.rs",
+          "crates/cli/src/decompress.rs",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/lowargs.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2645",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "Append `--pcre2-version` info to `--version`",
+      "gold_files": [
+        "crates/core/flags/mod.rs",
+        "crates/core/main.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 23,
+        "returned": 64,
+        "gold_found@10": 0.0,
+        "bytes": 185,
+        "seconds": 0.1791,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "CHANGELOG.md",
+          "crates/core/flags/doc/template.rg.1",
+          "doc/rg.1.txt.tpl",
+          ".github/workflows/ci.yml"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 3,
+        "returned": 10,
+        "gold_found@10": 0.5,
+        "bytes": 913,
+        "seconds": 0.109,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "CHANGELOG.md",
+          "crates/core/main.rs",
+          "crates/core/flags/lowargs.rs",
+          "benchsuite/runs/2018-01-08-archlinux-cheetah/README"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 4,
+        "gold_found@10": 0.0,
+        "bytes": 2955,
+        "seconds": 0.103,
+        "top5": [
+          "crates/core/flags/doc/mod.rs",
+          "crates/core/flags/defs.rs",
+          "CHANGELOG.md",
+          "crates/core/flags/complete/rg.zsh"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2458",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "--trim runs after -M/--max-columns",
+      "gold_files": [
+        "crates/printer/src/standard.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 3,
+        "returned": 56,
+        "gold_found@10": 1.0,
+        "bytes": 247,
+        "seconds": 0.2164,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/printer/src/standard.rs",
+          "crates/core/flags/complete/rg.zsh",
+          "GUIDE.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 803,
+        "seconds": 0.111,
+        "top5": [
+          "crates/printer/src/standard.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/lowargs.rs",
+          "CHANGELOG.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4028,
+        "seconds": 0.1274,
+        "top5": [
+          "crates/printer/src/standard.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/lowargs.rs",
+          "crates/core/flags/doc/help.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2479",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "Ripgrep ignores files found in the parent directories `.ignore` file",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 161,
+        "gold_found@10": 1.0,
+        "bytes": 227,
+        "seconds": 0.3997,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "crates/ignore/src/gitignore.rs",
+          "crates/ignore/src/walk.rs",
+          "tests/misc.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 5,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1024,
+        "seconds": 0.117,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "CHANGELOG.md",
+          "crates/ignore/src/dir.rs",
+          "tests/misc.rs",
+          "crates/core/flags/defs.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 2,
+        "gold_found@10": 0.0,
+        "bytes": 3031,
+        "seconds": 0.0974,
+        "top5": [
+          "crates/ignore/src/dir.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2524",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "Update --debug to state if it's using stdin or the file system",
+      "gold_files": [
+        "crates/core/flags/hiargs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 8,
+        "returned": 106,
+        "gold_found@10": 1.0,
+        "bytes": 228,
+        "seconds": 0.3275,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/ignore/src/walk.rs",
+          "CHANGELOG.md",
+          "FAQ.md",
+          "GUIDE.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 4,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1036,
+        "seconds": 0.1221,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/ignore/src/walk.rs",
+          "GUIDE.md",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/complete/rg.zsh"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 2,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4818,
+        "seconds": 0.1331,
+        "top5": [
+          "crates/core/flags/defs.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/ignore/src/walk.rs",
+          "crates/printer/src/standard.rs",
+          "crates/printer/src/hyperlink.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2643",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "Allow -d as shorthand for --max-depth",
+      "gold_files": [
+        "crates/core/flags/defs.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 7,
+        "returned": 32,
+        "gold_found@10": 1.0,
+        "bytes": 221,
+        "seconds": 0.1742,
+        "top5": [
+          "CHANGELOG.md",
+          "benchsuite/benchsuite",
+          "crates/core/flags/complete/rg.zsh",
+          "crates/ignore/src/walk.rs",
+          "FAQ.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 4,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 919,
+        "seconds": 0.1074,
+        "top5": [
+          "crates/core/flags/complete/rg.zsh",
+          "crates/ignore/src/walk.rs",
+          "CHANGELOG.md",
+          "crates/core/flags/defs.rs",
+          "benchsuite/benchsuite"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 4,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4110,
+        "seconds": 0.1207,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "crates/core/flags/lowargs.rs",
+          "crates/core/flags/hiargs.rs",
+          "crates/core/flags/defs.rs",
+          "crates/printer/src/standard.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2392",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "ripgrep not respecting global .gitignore",
+      "gold_files": [
+        "crates/ignore/src/gitignore.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 9,
+        "returned": 83,
+        "gold_found@10": 1.0,
+        "bytes": 184,
+        "seconds": 0.1825,
+        "top5": [
+          "GUIDE.md",
+          "crates/ignore/src/walk.rs",
+          "CHANGELOG.md",
+          "Cargo.toml",
+          "complete/_rg"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 5,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 921,
+        "seconds": 0.1045,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "GUIDE.md",
+          "crates/core/app.rs",
+          "crates/ignore/src/dir.rs",
+          "crates/ignore/src/gitignore.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 4,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4371,
+        "seconds": 0.1177,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "crates/core/app.rs",
+          "crates/ignore/src/dir.rs",
+          "crates/ignore/src/gitignore.rs",
+          "crates/core/args.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-1823",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "reduce memory usage of parallel directory traversal by using two different stacks",
+      "gold_files": [
+        "crates/ignore/src/walk.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 82,
+        "gold_found@10": 1.0,
+        "bytes": 170,
+        "seconds": 0.4431,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/ignore/src/walk.rs",
+          "crates/core/app.rs",
+          "GUIDE.md",
+          "complete/_rg"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1022,
+        "seconds": 0.1117,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "CHANGELOG.md",
+          "crates/core/app.rs",
+          "GUIDE.md",
+          "doc/rg.1.txt.tpl"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 5094,
+        "seconds": 0.1352,
+        "top5": [
+          "crates/ignore/src/walk.rs",
+          "crates/core/app.rs",
+          "crates/core/args.rs",
+          "crates/searcher/src/searcher/mod.rs",
+          "crates/core/main.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-1757",
+      "corpus": "ripgrep",
+      "split": "dev",
+      "query": "Only some ignores applied when searching a sub-directory",
+      "gold_files": [
+        "crates/ignore/src/dir.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 96,
+        "gold_found@10": 1.0,
+        "bytes": 192,
+        "seconds": 0.3149,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/ignore/src/dir.rs",
+          "crates/core/app.rs",
+          "crates/core/main.rs",
+          "crates/ignore/src/walk.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1091,
+        "seconds": 0.1089,
+        "top5": [
+          "crates/ignore/src/dir.rs",
+          "CHANGELOG.md",
+          "crates/ignore/src/walk.rs",
+          "crates/core/app.rs",
+          "crates/searcher/src/searcher/mod.rs"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4629,
+        "seconds": 0.1208,
+        "top5": [
+          "crates/ignore/src/dir.rs",
+          "crates/ignore/src/walk.rs",
+          "crates/core/app.rs",
+          "crates/core/main.rs",
+          "crates/searcher/src/searcher/mod.rs"
+        ]
+      }
+    },
+    {
+      "id": "ripgrep-2574",
+      "corpus": "ripgrep",
+      "split": "test",
+      "query": "Incomplete matches when using the `--word-regexp` flag",
+      "gold_files": [
+        "crates/regex/src/word.rs"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 15,
+        "returned": 67,
+        "gold_found@10": 0.0,
+        "bytes": 176,
+        "seconds": 0.2525,
+        "top5": [
+          "CHANGELOG.md",
+          "GUIDE.md",
+          "benchsuite/benchsuite",
+          "crates/core/app.rs",
+          "crates/core/args.rs"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 957,
+        "seconds": 0.1117,
+        "top5": [
+          "CHANGELOG.md",
+          "crates/core/app.rs",
+          "GUIDE.md",
+          "crates/core/args.rs",
+          "complete/_rg"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 5,
+        "gold_found@10": 0.0,
+        "bytes": 2715,
+        "seconds": 0.1008,
+        "top5": [
+          "crates/core/app.rs",
+          "crates/core/args.rs",
+          "CHANGELOG.md",
+          "GUIDE.md",
+          "complete/_rg"
+        ]
+      }
+    },
+    {
+      "id": "zod-3437",
+      "corpus": "zod",
+      "split": "dev",
+      "query": "JSDoc hints are lost after using `.extend`",
+      "gold_files": [
+        "deno/lib/helpers/util.ts",
+        "src/helpers/util.ts"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": null,
+        "returned": 21,
+        "gold_found@10": 0.0,
+        "bytes": 176,
+        "seconds": 0.2405,
+        "top5": [
+          "README.md",
+          "deno/lib/README.md",
+          ".dependency-cruiser.js",
+          "CHANGELOG.md",
+          "CONTRIBUTING.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 1474,
+        "seconds": 0.0937,
+        "top5": [
+          "README.md",
+          "deno/lib/README.md",
+          "MIGRATION.md",
+          "ERROR_HANDLING.md",
+          "CONTRIBUTING.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 11,
+        "gold_found@10": 0.0,
+        "bytes": 8534,
+        "seconds": 0.1003,
+        "top5": [
+          "deno/lib/types.ts",
+          "src/types.ts",
+          "deno/lib/__tests__/crazySchema.ts",
+          "deno/lib/__tests__/object.test.ts",
+          "src/__tests__/crazySchema.ts"
+        ]
+      }
+    },
+    {
+      "id": "zod-2280",
+      "corpus": "zod",
+      "split": "test",
+      "query": "Restrict z.enum options to existing type",
+      "gold_files": [
+        "deno/lib/types.ts",
+        "src/types.ts"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 11,
+        "returned": 115,
+        "gold_found@10": 0.0,
+        "bytes": 265,
+        "seconds": 0.2261,
+        "top5": [
+          "README.md",
+          "deno/lib/README.md",
+          "ERROR_HANDLING.md",
+          "README_ZH.md",
+          "deno/lib/__tests__/catch.test.ts"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 1388,
+        "seconds": 0.0987,
+        "top5": [
+          "README.md",
+          "deno/lib/README.md",
+          "src/__tests__/enum.test.ts",
+          "deno/lib/__tests__/enum.test.ts",
+          "ERROR_HANDLING.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 3,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 5874,
+        "seconds": 0.1168,
+        "top5": [
+          "src/ZodError.ts",
+          "deno/lib/ZodError.ts",
+          "src/types.ts",
+          "deno/lib/types.ts",
+          "README.md"
+        ]
+      }
+    },
+    {
+      "id": "zod-2184",
+      "corpus": "zod",
+      "split": "test",
+      "query": "Prisma XOR with Zod  > 3.21.1 not working",
+      "gold_files": [
+        "deno/lib/helpers/util.ts",
+        "playground.ts",
+        "src/helpers/util.ts"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": null,
+        "returned": 20,
+        "gold_found@10": 0.0,
+        "bytes": 182,
+        "seconds": 0.1611,
+        "top5": [
+          "README.md",
+          "deno/lib/README.md",
+          ".github/workflows/release.yml",
+          "CONTRIBUTING.md",
+          "ERROR_HANDLING.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 1782,
+        "seconds": 0.0991,
+        "top5": [
+          "README.md",
+          "deno/lib/README.md",
+          "yarn.lock",
+          "logo.svg",
+          "CHANGELOG.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 11,
+        "gold_found@10": 0.0,
+        "bytes": 5647,
+        "seconds": 0.1152,
+        "top5": [
+          "src/types.ts",
+          "deno/lib/types.ts",
+          "README.md",
+          "deno/lib/README.md",
+          "yarn.lock"
+        ]
+      }
+    },
+    {
+      "id": "zod-2127",
+      "corpus": "zod",
+      "split": "dev",
+      "query": "DeepPartial Array length validation",
+      "gold_files": [
+        "deno/lib/types.ts",
+        "playground.ts",
+        "src/types.ts"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 4,
+        "returned": 75,
+        "gold_found@10": 0.6666666666666666,
+        "bytes": 199,
+        "seconds": 0.1714,
+        "top5": [
+          "README.md",
+          "README_ZH.md",
+          "deno/lib/README.md",
+          "deno/lib/types.ts",
+          "src/types.ts"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 4,
+        "returned": 10,
+        "gold_found@10": 0.6666666666666666,
+        "bytes": 1115,
+        "seconds": 0.0935,
+        "top5": [
+          "README_ZH.md",
+          "README.md",
+          "deno/lib/README.md",
+          "src/types.ts",
+          "deno/lib/types.ts"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 3,
+        "returned": 4,
+        "gold_found@10": 0.6666666666666666,
+        "bytes": 2630,
+        "seconds": 0.0893,
+        "top5": [
+          "deno/lib/helpers/partialUtil.ts",
+          "src/helpers/partialUtil.ts",
+          "deno/lib/types.ts",
+          "src/types.ts"
+        ]
+      }
+    },
+    {
+      "id": "zod-1046",
+      "corpus": "zod",
+      "split": "test",
+      "query": "`.required()` doesn't remove optional flag from the result of `.nullish()`",
+      "gold_files": [
+        "deno/lib/types.ts",
+        "src/types.ts"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 5,
+        "returned": 71,
+        "gold_found@10": 1.0,
+        "bytes": 175,
+        "seconds": 0.2831,
+        "top5": [
+          "README.md",
+          "deno/lib/README.md",
+          "README_ZH.md",
+          "ERROR_HANDLING.md",
+          "deno/lib/types.ts"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 4,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1433,
+        "seconds": 0.1029,
+        "top5": [
+          "deno/lib/README.md",
+          "README.md",
+          "README_ZH.md",
+          "src/types.ts",
+          "deno/lib/types.ts"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 2,
+        "gold_found@10": 1.0,
+        "bytes": 2889,
+        "seconds": 0.1066,
+        "top5": [
+          "deno/lib/types.ts",
+          "src/types.ts"
+        ]
+      }
+    },
+    {
+      "id": "fmt-4049",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "can't print volatile void* ",
+      "gold_files": [
+        "include/fmt/base.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 65,
+        "gold_found@10": 1.0,
+        "bytes": 202,
+        "seconds": 0.1237,
+        "top5": [
+          "ChangeLog.md",
+          "include/fmt/base.h",
+          "include/fmt/format.h",
+          "test/format-test.cc",
+          "test/gtest/gmock-gtest-all.cc"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 3,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 928,
+        "seconds": 0.096,
+        "top5": [
+          "test/printf-test.cc",
+          "test/format-test.cc",
+          "include/fmt/base.h",
+          "test/gtest/gtest/gtest.h",
+          "include/fmt/format.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 2,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4355,
+        "seconds": 0.1126,
+        "top5": [
+          "include/fmt/format.h",
+          "include/fmt/base.h",
+          "include/fmt/ostream.h",
+          "include/fmt/xchar.h",
+          "include/fmt/color.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-4053",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "trunk doesn't work with `std::generator`",
+      "gold_files": [
+        "include/fmt/ranges.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 18,
+        "returned": 81,
+        "gold_found@10": 0.0,
+        "bytes": 182,
+        "seconds": 0.2081,
+        "top5": [
+          "test/gtest/gmock-gtest-all.cc",
+          "test/gtest/gmock/gmock.h",
+          "test/gtest/gtest/gtest.h",
+          "ChangeLog.md",
+          "README.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 10,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 885,
+        "seconds": 0.099,
+        "top5": [
+          "test/gtest/gtest/gtest.h",
+          "test/gtest/gmock/gmock.h",
+          "doc/ChangeLog-old.md",
+          "ChangeLog.md",
+          "README.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 4,
+        "gold_found@10": 0.0,
+        "bytes": 2321,
+        "seconds": 0.0934,
+        "top5": [
+          "test/gtest/gtest/gtest.h",
+          "CMakeLists.txt",
+          "support/mkdocs.yml",
+          "test/CMakeLists.txt"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3948",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "`fmt::isnan` triggers floating-point exception for NaN values",
+      "gold_files": [
+        "include/fmt/format.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 104,
+        "gold_found@10": 1.0,
+        "bytes": 211,
+        "seconds": 0.3909,
+        "top5": [
+          "ChangeLog.md",
+          "include/fmt/format.h",
+          "test/gtest/gmock-gtest-all.cc",
+          "doc/syntax.rst",
+          "include/fmt/chrono.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 2,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 867,
+        "seconds": 0.1236,
+        "top5": [
+          "ChangeLog.md",
+          "include/fmt/format.h",
+          "doc/syntax.rst",
+          "test/gtest/gtest/gtest.h",
+          "include/fmt/chrono.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 7,
+        "gold_found@10": 1.0,
+        "bytes": 3018,
+        "seconds": 0.1075,
+        "top5": [
+          "include/fmt/format.h",
+          "test/gtest/gmock/gmock.h",
+          "test/gtest/gtest/gtest.h",
+          "test/compile-fp-test.cc",
+          "test/format-test.cc"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3813",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "join does not use ADL on begin/end of its ranges",
+      "gold_files": [
+        "include/fmt/ranges.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 4,
+        "returned": 85,
+        "gold_found@10": 1.0,
+        "bytes": 201,
+        "seconds": 0.2802,
+        "top5": [
+          "ChangeLog.md",
+          "test/gtest/gtest/gtest.h",
+          "doc/api.rst",
+          "include/fmt/ranges.h",
+          "test/ranges-test.cc"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 3,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 921,
+        "seconds": 0.1253,
+        "top5": [
+          "test/gtest/gtest/gtest.h",
+          "ChangeLog.md",
+          "include/fmt/ranges.h",
+          "test/ranges-test.cc",
+          "doc/api.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 3914,
+        "seconds": 0.122,
+        "top5": [
+          "include/fmt/ranges.h",
+          "include/fmt/xchar.h",
+          "doc/build.py",
+          "ChangeLog.md",
+          "doc/api.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3643",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "%j doesn't seem to work with a duration object",
+      "gold_files": [
+        "include/fmt/chrono.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 13,
+        "returned": 55,
+        "gold_found@10": 0.0,
+        "bytes": 204,
+        "seconds": 0.2428,
+        "top5": [
+          "ChangeLog.md",
+          "test/gtest/gmock-gtest-all.cc",
+          "doc/api.rst",
+          "include/fmt/core.h",
+          "include/fmt/os.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 1160,
+        "seconds": 0.1107,
+        "top5": [
+          "ChangeLog.md",
+          "support/C++.sublime-syntax",
+          "doc/_static/bootstrap.min.js",
+          "include/fmt/os.h",
+          "test/gtest/gmock/gmock.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 11,
+        "gold_found@10": 0.0,
+        "bytes": 4143,
+        "seconds": 0.1265,
+        "top5": [
+          "include/fmt/os.h",
+          "include/fmt/format.h",
+          "include/fmt/printf.h",
+          "include/fmt/core.h",
+          "include/fmt/args.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3725",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "Date overflow with std::chrono::time_point",
+      "gold_files": [
+        "include/fmt/chrono.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 101,
+        "gold_found@10": 1.0,
+        "bytes": 176,
+        "seconds": 0.2304,
+        "top5": [
+          "ChangeLog.md",
+          "include/fmt/chrono.h",
+          "test/chrono-test.cc",
+          "test/gtest/gmock-gtest-all.cc",
+          "doc/api.rst"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 2,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1053,
+        "seconds": 0.1495,
+        "top5": [
+          "test/chrono-test.cc",
+          "include/fmt/chrono.h",
+          "ChangeLog.md",
+          "doc/api.rst",
+          "README.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 2,
+        "returned": 7,
+        "gold_found@10": 1.0,
+        "bytes": 7012,
+        "seconds": 0.0999,
+        "top5": [
+          "test/chrono-test.cc",
+          "include/fmt/chrono.h",
+          "test/fuzzing/chrono-timepoint.cc",
+          "test/module-test.cc",
+          "test/xchar-test.cc"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3688",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "Incorrect call to fflush() inside write_console()",
+      "gold_files": [
+        "include/fmt/format-inl.h",
+        "include/fmt/format.h",
+        "include/fmt/ostream.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 3,
+        "returned": 31,
+        "gold_found@10": 0.6666666666666666,
+        "bytes": 222,
+        "seconds": 0.2311,
+        "top5": [
+          "test/gtest/gmock-gtest-all.cc",
+          "test/gtest/gtest/gtest.h",
+          "include/fmt/format.h",
+          "test/gtest/gmock/gmock.h",
+          "ChangeLog.md"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 3,
+        "returned": 10,
+        "gold_found@10": 0.6666666666666666,
+        "bytes": 907,
+        "seconds": 0.136,
+        "top5": [
+          "test/gtest/gtest/gtest.h",
+          "test/gtest/gmock/gmock.h",
+          "include/fmt/format.h",
+          "include/fmt/format-inl.h",
+          "ChangeLog.md"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 3,
+        "gold_found@10": 1.0,
+        "bytes": 1881,
+        "seconds": 0.0941,
+        "top5": [
+          "include/fmt/format-inl.h",
+          "include/fmt/format.h",
+          "include/fmt/ostream.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3631",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "Windows API systems without UTF-16 APIs",
+      "gold_files": [
+        "include/fmt/format-inl.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": null,
+        "returned": 50,
+        "gold_found@10": 0.0,
+        "bytes": 174,
+        "seconds": 0.2604,
+        "top5": [
+          "ChangeLog.md",
+          "test/gtest/gmock-gtest-all.cc",
+          "test/gtest/gtest/gtest.h",
+          "README.rst",
+          "doc/api.rst"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 844,
+        "seconds": 0.1033,
+        "top5": [
+          "ChangeLog.md",
+          "test/gtest/gtest/gtest.h",
+          "include/fmt/format.h",
+          "README.rst",
+          "test/format-test.cc"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 4078,
+        "seconds": 0.1202,
+        "top5": [
+          "include/fmt/format.h",
+          "include/fmt/chrono.h",
+          "src/os.cc",
+          "include/fmt/core.h",
+          "include/fmt/os.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3541",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "clang-tidy reports uninitialized fields in format_string_checker",
+      "gold_files": [
+        "include/fmt/core.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 1,
+        "returned": 30,
+        "gold_found@10": 1.0,
+        "bytes": 202,
+        "seconds": 0.2754,
+        "top5": [
+          "include/fmt/core.h",
+          "test/gtest/gtest/gtest.h",
+          "include/fmt/format.h",
+          "test/gtest/gmock-gtest-all.cc",
+          "test/gtest/gmock/gmock.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 985,
+        "seconds": 0.1355,
+        "top5": [
+          "include/fmt/core.h",
+          "test/gtest/gtest/gtest.h",
+          "include/fmt/format.h",
+          "test/gtest/gmock/gmock.h",
+          "README.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 1,
+        "gold_found@10": 1.0,
+        "bytes": 2540,
+        "seconds": 0.0919,
+        "top5": [
+          "include/fmt/core.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3342",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "gcc6 error: 'round' is not a member of 'std' (amigaos-m68k)",
+      "gold_files": [
+        "include/fmt/chrono.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 11,
+        "returned": 88,
+        "gold_found@10": 0.0,
+        "bytes": 209,
+        "seconds": 0.3629,
+        "top5": [
+          "ChangeLog.rst",
+          "test/gtest/gtest/gtest.h",
+          "README.rst",
+          "include/fmt/format-inl.h",
+          "include/fmt/format.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 2,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1100,
+        "seconds": 0.1139,
+        "top5": [
+          "test/gtest/gtest/gtest.h",
+          "include/fmt/chrono.h",
+          "test/xchar-test.cc",
+          "test/chrono-test.cc",
+          "test/gtest/gmock/gmock.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 11,
+        "gold_found@10": 1.0,
+        "bytes": 4171,
+        "seconds": 0.1268,
+        "top5": [
+          "include/fmt/chrono.h",
+          "include/fmt/ranges.h",
+          "include/fmt/core.h",
+          "include/fmt/format.h",
+          "ChangeLog.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-3105",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "Compile-time error when mixing named argument with automatic indexing",
+      "gold_files": [
+        "include/fmt/core.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 1,
+        "returned": 65,
+        "gold_found@10": 1.0,
+        "bytes": 219,
+        "seconds": 0.371,
+        "top5": [
+          "include/fmt/core.h",
+          "ChangeLog.rst",
+          "test/format-test.cc",
+          "doc/index.rst",
+          "test/gtest/gmock-gtest-all.cc"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 987,
+        "seconds": 0.1101,
+        "top5": [
+          "include/fmt/core.h",
+          "ChangeLog.rst",
+          "test/format-test.cc",
+          "test/gtest/gmock/gmock.h",
+          "include/fmt/compile.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4046,
+        "seconds": 0.1237,
+        "top5": [
+          "include/fmt/core.h",
+          "include/fmt/compile.h",
+          "include/fmt/format.h",
+          "support/docopt.py",
+          "ChangeLog.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2818",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "unpacked make_arg should also assert on unformattable arguments",
+      "gold_files": [
+        "include/fmt/core.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 45,
+        "gold_found@10": 1.0,
+        "bytes": 205,
+        "seconds": 0.3032,
+        "top5": [
+          "ChangeLog.rst",
+          "include/fmt/core.h",
+          "include/fmt/printf.h",
+          "support/C++.sublime-syntax",
+          "support/docopt.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 985,
+        "seconds": 0.1286,
+        "top5": [
+          "include/fmt/core.h",
+          "ChangeLog.rst",
+          "test/gtest/gmock/gmock.h",
+          "test/format-test.cc",
+          "test/gtest/gtest/gtest.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 1,
+        "gold_found@10": 1.0,
+        "bytes": 2341,
+        "seconds": 0.0881,
+        "top5": [
+          "include/fmt/core.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2817",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "fmt::print for ostreams does no compile time checking",
+      "gold_files": [
+        "include/fmt/ostream.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 31,
+        "returned": 101,
+        "gold_found@10": 0.0,
+        "bytes": 202,
+        "seconds": 0.2847,
+        "top5": [
+          "include/fmt/format.h",
+          "test/gtest/gmock-gtest-all.cc",
+          "ChangeLog.rst",
+          "README.rst",
+          "doc/api.rst"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 944,
+        "seconds": 0.1126,
+        "top5": [
+          "README.rst",
+          "ChangeLog.rst",
+          "include/fmt/core.h",
+          "doc/index.rst",
+          "include/fmt/format.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 6,
+        "returned": 8,
+        "gold_found@10": 1.0,
+        "bytes": 6392,
+        "seconds": 0.096,
+        "top5": [
+          "include/fmt/color.h",
+          "include/fmt/compile.h",
+          "include/fmt/core.h",
+          "include/fmt/format-inl.h",
+          "include/fmt/os.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2816",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "Compile-time checking does not work with named argument of a custom type",
+      "gold_files": [
+        "include/fmt/core.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 5,
+        "returned": 88,
+        "gold_found@10": 1.0,
+        "bytes": 201,
+        "seconds": 0.393,
+        "top5": [
+          "test/gtest/gmock-gtest-all.cc",
+          "test/gtest/gmock/gmock.h",
+          "test/gtest/gtest/gtest.h",
+          "ChangeLog.rst",
+          "include/fmt/core.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 5,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 948,
+        "seconds": 0.112,
+        "top5": [
+          "test/gtest/gtest/gtest.h",
+          "test/gtest/gmock/gmock.h",
+          "include/fmt/format.h",
+          "ChangeLog.rst",
+          "include/fmt/core.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 2,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4394,
+        "seconds": 0.1277,
+        "top5": [
+          "include/fmt/format.h",
+          "include/fmt/core.h",
+          "include/fmt/args.h",
+          "include/fmt/compile.h",
+          "ChangeLog.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2681",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "UTF8 doesn't work with text styles",
+      "gold_files": [
+        "include/fmt/color.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 68,
+        "returned": 83,
+        "gold_found@10": 0.0,
+        "bytes": 240,
+        "seconds": 0.2179,
+        "top5": [
+          "ChangeLog.rst",
+          "test/gtest/gmock-gtest-all.cc",
+          "test/gtest/gtest/gtest.h",
+          "README.rst",
+          "doc/bootstrap/forms.less"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 867,
+        "seconds": 0.1071,
+        "top5": [
+          "ChangeLog.rst",
+          "doc/bootstrap/forms.less",
+          "test/gtest/gtest/gtest.h",
+          "README.rst",
+          "include/fmt/core.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 4013,
+        "seconds": 0.1213,
+        "top5": [
+          "include/fmt/core.h",
+          "include/fmt/os.h",
+          "include/fmt/format.h",
+          "include/fmt/chrono.h",
+          "include/fmt/format-inl.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2695",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "Undefined symbol _ZN3fmt2v86detail13error_handler8on_errorEPKc",
+      "gold_files": [
+        "include/fmt/core.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 7,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 226,
+        "seconds": 0.1428,
+        "top5": [
+          "ChangeLog.rst",
+          "test/gtest/gmock-gtest-all.cc",
+          "test/gtest/gmock/gmock.h",
+          "test/gtest/gtest/gtest.h",
+          "doc/_static/bootstrap.min.js"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 10,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 1097,
+        "seconds": 0.1149,
+        "top5": [
+          "ChangeLog.rst",
+          "test/gtest/gtest/gtest.h",
+          "test/gtest/gmock/gmock.h",
+          "include/fmt/format.h",
+          "test/fuzzing/build.sh"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 4,
+        "returned": 9,
+        "gold_found@10": 1.0,
+        "bytes": 3838,
+        "seconds": 0.1332,
+        "top5": [
+          "include/fmt/format.h",
+          "include/fmt/xchar.h",
+          "include/fmt/chrono.h",
+          "include/fmt/core.h",
+          "ChangeLog.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2642",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "Support for 'user-defined' namespace",
+      "gold_files": [
+        "include/fmt/core.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 5,
+        "returned": 72,
+        "gold_found@10": 1.0,
+        "bytes": 175,
+        "seconds": 0.1844,
+        "top5": [
+          "ChangeLog.rst",
+          "README.rst",
+          "doc/api.rst",
+          "doc/index.rst",
+          "include/fmt/core.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 7,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 832,
+        "seconds": 0.1056,
+        "top5": [
+          "ChangeLog.rst",
+          "README.rst",
+          "doc/api.rst",
+          "test/gtest/gtest/gtest.h",
+          "doc/index.rst"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 5,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 4214,
+        "seconds": 0.1166,
+        "top5": [
+          "include/fmt/ostream.h",
+          "doc/build.py",
+          "include/fmt/format.h",
+          "include/fmt/xchar.h",
+          "include/fmt/core.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2639",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "xchar.h clashes with MSVC's format implementation (ambiguous make_wformat_args)",
+      "gold_files": [
+        "include/fmt/xchar.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 24,
+        "returned": 93,
+        "gold_found@10": 0.0,
+        "bytes": 195,
+        "seconds": 0.3172,
+        "top5": [
+          "ChangeLog.rst",
+          "include/fmt/format.h",
+          "test/CMakeLists.txt",
+          "test/gtest/gmock/gmock.h",
+          "test/gtest/gtest/gtest.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 967,
+        "seconds": 0.1365,
+        "top5": [
+          "test/gtest/gtest/gtest.h",
+          "ChangeLog.rst",
+          "test/module-test.cc",
+          "test/CMakeLists.txt",
+          "test/gtest/gmock/gmock.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 1,
+        "gold_found@10": 1.0,
+        "bytes": 565,
+        "seconds": 0.0904,
+        "top5": [
+          "include/fmt/xchar.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2401",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "[MSVC][permissive-] ranges.h(395,41): error C2672: 'get': no matching overloaded function found",
+      "gold_files": [
+        "include/fmt/ranges.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 9,
+        "returned": 82,
+        "gold_found@10": 1.0,
+        "bytes": 208,
+        "seconds": 0.4414,
+        "top5": [
+          "ChangeLog.rst",
+          "test/gtest/gtest/gtest.h",
+          "test/gtest/gmock-gtest-all.cc",
+          "test/gtest/gmock/gmock.h",
+          "CMakeLists.txt"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 954,
+        "seconds": 0.1091,
+        "top5": [
+          "ChangeLog.rst",
+          "test/gtest/gtest/gtest.h",
+          "test/gtest/gmock/gmock.h",
+          "CMakeLists.txt",
+          "test/format-test.cc"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 4219,
+        "seconds": 0.1282,
+        "top5": [
+          "include/fmt/core.h",
+          "include/fmt/format.h",
+          "include/fmt/format-inl.h",
+          "ChangeLog.rst",
+          "doc/api.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2185",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "(void)fwrite triggers -Wunused-result again",
+      "gold_files": [
+        "include/fmt/format-inl.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 4,
+        "returned": 57,
+        "gold_found@10": 1.0,
+        "bytes": 204,
+        "seconds": 0.3014,
+        "top5": [
+          "include/fmt/printf.h",
+          "test/gmock-gtest-all.cc",
+          "test/gmock/gmock.h",
+          "include/fmt/format-inl.h",
+          "test/gtest/gtest.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 3,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 849,
+        "seconds": 0.0943,
+        "top5": [
+          "test/gmock-gtest-all.cc",
+          "include/fmt/printf.h",
+          "include/fmt/format-inl.h",
+          "test/format-test.cc",
+          "test/gtest/gtest-spi.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 2,
+        "returned": 12,
+        "gold_found@10": 1.0,
+        "bytes": 3721,
+        "seconds": 0.1115,
+        "top5": [
+          "include/fmt/printf.h",
+          "include/fmt/format-inl.h",
+          "src/os.cc",
+          "include/fmt/os.h",
+          "include/fmt/compile.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2118",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "`FMT_COMPILE` does not work with `tm` (fmt/chrono.h)",
+      "gold_files": [
+        "include/fmt/chrono.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 7,
+        "returned": 86,
+        "gold_found@10": 1.0,
+        "bytes": 167,
+        "seconds": 0.1982,
+        "top5": [
+          "ChangeLog.rst",
+          "doc/api.rst",
+          "CMakeLists.txt",
+          "README.rst",
+          "doc/build.py"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 4,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 811,
+        "seconds": 0.121,
+        "top5": [
+          "ChangeLog.rst",
+          "doc/api.rst",
+          "README.rst",
+          "include/fmt/chrono.h",
+          "doc/build.py"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 4,
+        "gold_found@10": 0.0,
+        "bytes": 11775,
+        "seconds": 0.0927,
+        "top5": [
+          "include/fmt/compile.h",
+          "test/compile-test.cc",
+          "ChangeLog.rst",
+          "doc/api.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-2116",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "Unable to get `FMT_COMPILE` to compile on ESP32",
+      "gold_files": [
+        "include/fmt/compile.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 2,
+        "returned": 54,
+        "gold_found@10": 1.0,
+        "bytes": 177,
+        "seconds": 0.2273,
+        "top5": [
+          "ChangeLog.rst",
+          "include/fmt/compile.h",
+          "test/gmock-gtest-all.cc",
+          "test/gtest/gtest.h",
+          "CMakeLists.txt"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 1,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 942,
+        "seconds": 0.12,
+        "top5": [
+          "include/fmt/compile.h",
+          "ChangeLog.rst",
+          "include/fmt/core.h",
+          "include/fmt/format.h",
+          "test/gmock-gtest-all.cc"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 4,
+        "gold_found@10": 1.0,
+        "bytes": 11775,
+        "seconds": 0.0959,
+        "top5": [
+          "include/fmt/compile.h",
+          "test/compile-test.cc",
+          "ChangeLog.rst",
+          "doc/api.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-1819",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "Feature Request: Print std::chrono::time_point",
+      "gold_files": [
+        "include/fmt/chrono.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 12,
+        "returned": 79,
+        "gold_found@10": 0.0,
+        "bytes": 180,
+        "seconds": 0.2832,
+        "top5": [
+          "ChangeLog.rst",
+          "test/gtest/gtest.h",
+          "README.rst",
+          "doc/api.rst",
+          "doc/syntax.rst"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 904,
+        "seconds": 0.1112,
+        "top5": [
+          "ChangeLog.rst",
+          "README.rst",
+          "include/fmt/core.h",
+          "test/CMakeLists.txt",
+          "CMakeLists.txt"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 4213,
+        "seconds": 0.1307,
+        "top5": [
+          "include/fmt/core.h",
+          "include/fmt/format.h",
+          "support/manage.py",
+          "ChangeLog.rst",
+          "README.rst"
+        ]
+      }
+    },
+    {
+      "id": "fmt-1778",
+      "corpus": "fmt",
+      "split": "test",
+      "query": "Reduce Binary Size by Removing <typename Uint> from int_writer",
+      "gold_files": [
+        "include/fmt/format.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 6,
+        "returned": 81,
+        "gold_found@10": 1.0,
+        "bytes": 179,
+        "seconds": 0.3127,
+        "top5": [
+          "test/gmock-gtest-all.cc",
+          "test/gtest/gtest.h",
+          "ChangeLog.rst",
+          "README.rst",
+          "include/fmt/core.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": 3,
+        "returned": 10,
+        "gold_found@10": 1.0,
+        "bytes": 970,
+        "seconds": 0.1213,
+        "top5": [
+          "ChangeLog.rst",
+          "test/gmock-gtest-all.cc",
+          "include/fmt/format.h",
+          "include/fmt/core.h",
+          "include/fmt/format-inl.h"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": 1,
+        "returned": 1,
+        "gold_found@10": 1.0,
+        "bytes": 2455,
+        "seconds": 0.1014,
+        "top5": [
+          "include/fmt/format.h"
+        ]
+      }
+    },
+    {
+      "id": "fmt-1747",
+      "corpus": "fmt",
+      "split": "dev",
+      "query": "-Wsign-conversion warning with Clang10 on Windows",
+      "gold_files": [
+        "include/fmt/format.h"
+      ],
+      "gitgrep-words": {
+        "first_gold_rank": 33,
+        "returned": 52,
+        "gold_found@10": 0.0,
+        "bytes": 190,
+        "seconds": 0.2365,
+        "top5": [
+          "CMakeLists.txt",
+          "ChangeLog.rst",
+          "README.rst",
+          "test/gmock-gtest-all.cc",
+          "test/gmock/gmock.h"
+        ]
+      },
+      "findex-main": {
+        "first_gold_rank": null,
+        "returned": 10,
+        "gold_found@10": 0.0,
+        "bytes": 899,
+        "seconds": 0.1008,
+        "top5": [
+          "ChangeLog.rst",
+          "README.rst",
+          "include/fmt/os.h",
+          "CMakeLists.txt",
+          "test/gmock-gtest-all.cc"
+        ]
+      },
+      "findex-context": {
+        "first_gold_rank": null,
+        "returned": 12,
+        "gold_found@10": 0.0,
+        "bytes": 4324,
+        "seconds": 0.1102,
+        "top5": [
+          "include/fmt/os.h",
+          "src/os.cc",
+          "include/fmt/printf.h",
+          "ChangeLog.rst",
+          "README.rst"
+        ]
+      }
+    }
+  ],
+  "note": "query = GitHub issue title; gold = non-test source files changed by the closing commit; evaluated at its parent"
+}

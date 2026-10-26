@@ -233,11 +233,14 @@ fn project_file(project: &Path, relative: &Path) -> Result<(String, PathBuf)> {
     if !meta.file_type().is_file() || meta.len() > MAX_SOURCE_BYTES {
         return Err("expected non-symlink source file within the size budget".into());
     }
+    if findex_core::is_cloud_only(&meta) {
+        return Err("cloud-only file is not read (reading would download it)".into());
+    }
     let resolved = full.canonicalize()?;
-    if !resolved
+    if resolved
         .strip_prefix(&root)
         .ok()
-        .is_some_and(|path| !is_disallowed_project_path(path))
+        .is_none_or(is_disallowed_project_path)
     {
         return Err("file escapes workspace or points to excluded material".into());
     }

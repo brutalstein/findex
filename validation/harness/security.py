@@ -130,11 +130,20 @@ def corrupt_db(exe: Path, root: Path, log: CommandLog):
     db = next(state.rglob("index.sqlite3"))
     for suffix in ("-wal", "-shm"):
         Path(str(db) + suffix).unlink(missing_ok=True)
-    db.write_bytes(os.urandom(64 * 1024))
+    garbage = os.urandom(64 * 1024)
+    db.write_bytes(garbage)
+    # Fail closed (since #31): refuse, keep the corrupt bytes for inspection, serve nothing.
     result = log.run([str(exe), "search", "load_settings"], cwd=root, env=env)
-    check("reliability: random-bytes index DB is rebuilt on next use",
-          "PASS" if result.returncode == 0 and "settings.py" in result.stdout else "FAIL",
-          (result.stdout + result.stderr)[-200:], "reliability")
+    preserved = db.read_bytes() == garbage
+    check("reliability: random-bytes index DB is refused, preserved and serves nothing",
+          "PASS" if result.returncode != 0 and preserved and "settings.py" not in result.stdout
+          and "corrupt" in result.stderr else "FAIL", (result.stdout + result.stderr)[-200:], "reliability")
+    # Explicit recovery: removing the cache rebuilds it on next use.
+    shutil.rmtree(db.parent)
+    again = log.run([str(exe), "search", "load_settings"], cwd=root, env=env)
+    check("reliability: deleting a corrupt cache rebuilds it on next use",
+          "PASS" if again.returncode == 0 and "settings.py" in again.stdout else "FAIL",
+          (again.stdout + again.stderr)[-200:], "reliability")
 
 
 def malformed_imports(exe: Path, root: Path, env: dict, log: CommandLog, quick: bool):

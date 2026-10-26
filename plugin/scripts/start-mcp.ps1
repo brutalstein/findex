@@ -1,5 +1,5 @@
 # Findex plugin MCP bootstrap. Local, fail-closed, no downloads or credential access.
-# Claude Code starts this from the user's current project directory.
+# Codex and Claude Code start this from the user's current project directory.
 $ErrorActionPreference = 'Stop'
 $pluginRoot = Split-Path -Parent $PSScriptRoot
 

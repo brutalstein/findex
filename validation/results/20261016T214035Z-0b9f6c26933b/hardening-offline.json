@@ -1,0 +1,12 @@
+{
+  "model_sessions": 0,
+  "paid_calls": 0,
+  "checks": {
+    "baseline_integrity": "PASS",
+    "corrupt_cache_preserved": "PASS",
+    "integrity_rejects_corruption": "PASS",
+    "mcp_private_errors_and_fallback": "PASS",
+    "capability_contract_works_with_corrupt_cache": "PASS"
+  },
+  "status": "PASS"
+}

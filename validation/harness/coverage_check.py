@@ -9,8 +9,8 @@ when Findex lists it or it lies inside a listed definition span. The claim
 holds for a name when every uncovered line is a comment by this checker's own
 whole-file lexer (Python: the stdlib `tokenize`; other languages: a scanner
 written independently of Findex's per-line rule), their number equals the
-omitted-comment count, and only reported method-syntax lines are otherwise
-missing.
+omitted-comment count, and only reported method-syntax and external-crate
+lines are otherwise missing (their number equals the reported exclusions).
 Usage: coverage_check.py [--corpora ripgrep,tokio,...]  -> coverage_check.json
 """
 from __future__ import annotations
@@ -29,11 +29,14 @@ from golden import admitted_files
 
 NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{2,}$")
 COMMENTS = re.compile(r"\((\d+) comment lines? omitted\)")
-EXCLUDED = re.compile(r"excluded (\d+) method-syntax")
+EXCLUDED = re.compile(r"excluded (\d+) (?:method-syntax|Rust lines that reach `\w+` only through an external crate)")
 HASH = {"py", "pyi", "rb", "sh", "bash", "ps1", "psm1", "toml", "yaml", "yml", "cmake", "pl", "r"}
-CLIKE = {"c", "cc", "cjs", "cpp", "cs", "cxx", "go", "h", "hh", "hpp", "hxx", "java", "js", "jsx", "kt", "lua", "m",
+# Lua is absent: its comments are `--` and `//` is integer division.
+CLIKE = {"c", "cc", "cjs", "cpp", "cs", "cxx", "go", "h", "hh", "hpp", "hxx", "java", "js", "jsx", "kt", "m",
          "mjs", "mm", "php", "rs", "scala", "swift", "ts", "tsx"}
 NESTED = {"rs", "swift", "kt", "scala"}
+SINGLE = {"js", "jsx", "mjs", "cjs", "ts", "tsx", "php"}  # `'...'` is a string, not a char literal
+CPP_RAW = re.compile(r"(?:^|[^A-Za-z0-9_])(?:u8|u|U|L)?R$")
 
 
 def comment_spans(path: str, text: str) -> dict[int, list[tuple[int, int]]]:
@@ -52,7 +55,8 @@ def comment_spans(path: str, text: str) -> dict[int, list[tuple[int, int]]]:
         return spans
     clike = ext in CLIKE
     nested = ext in NESTED  # Rust/Swift/Kotlin/Scala block comments nest
-    quotes = ('"', "`") if clike else ('"', "'")
+    single = ext in SINGLE
+    quotes = ('"', "`", "'") if single else ('"', "`") if clike else ('"', "'")
     line, col, i, state, start, depth = 1, 0, 0, None, 0, 0
     while i < len(text):
         c, nxt = text[i], text[i + 1] if i + 1 < len(text) else ""
@@ -73,11 +77,28 @@ def comment_spans(path: str, text: str) -> dict[int, list[tuple[int, int]]]:
             if c == "\\" and nxt != "\n":
                 i, col = i + 2, col + 2
                 continue
-            # C-like strings may span lines (Rust, C++ raw, JS templates); hash-language ones end here.
-            if c == state or (c == "\n" and not clike):
+            # C-like strings may span lines (Rust, JS templates); hash-language and `'` ones end here.
+            if c == state or (c == "\n" and (not clike or state == "'")):
                 state = None
         elif state is None:
-            char_literal = re.match(r"'(\\.[^']{0,8}|[^\\\n])'", text[i:i + 12]) if clike and c == "'" else None
+            # Raw strings (C++ `R"d(...)d"`, `"""`/`'''`) are skipped whole: no escapes or comments inside.
+            skip = -1
+            raw = re.match(r'"([^ ()\\"\n]{0,16})\(', text[i:]) \
+                if clike and c == '"' and CPP_RAW.search(text[max(0, i - 4):i]) else None
+            if raw:
+                close = text.find(")" + raw.group(1) + '"', i + raw.end())
+                skip = close + len(raw.group(1)) + 2 if close >= 0 else len(text)
+            elif not clike and text[i:i + 3] in ('"""', "'''"):
+                close = text.find(text[i:i + 3], i + 3)
+                skip = close + 3 if close >= 0 else len(text)
+            if skip >= 0:
+                segment = text[i:skip]
+                line += segment.count("\n")
+                col = len(segment) - segment.rfind("\n") - 1 if "\n" in segment else col + len(segment)
+                i = skip
+                continue
+            char_literal = re.match(r"'(\\.[^']{0,8}|[^\\\n])'", text[i:i + 12]) \
+                if clike and not single and c == "'" else None
             if char_literal:
                 i, col = i + char_literal.end(), col + char_literal.end()
                 continue
@@ -116,6 +137,15 @@ assert [is_comment(line, "f", comment_spans("a.rs", _R).get(n, [])) for n, line 
 _P = "# f\nx = f()  # f\ns = '# f'\n"
 assert [is_comment(line, "f", comment_spans("a.py", _P).get(n, [])) for n, line in enumerate(_P.splitlines(), 1)] \
     == [True, False, False]
+# JS single-quoted strings, C++ raw strings, TOML triple-quoted strings; Lua `//` is division.
+for _path, _src, _want in [
+        ("a.js", "fetch('http://x'); f();\nconst s = 'a /* b'; f();\n// f\n", [False, False, True]),
+        ("a.cpp", 'auto p = R"(x " y)"; g("//"); f();\nauto q = u8R"d(a)" // b)d"; f();\n// f\n',
+         [False, False, True]),
+        ("a.toml", 'a = """\nf # in a string\n"""\n# f\n', [False, False, False, True]),
+        ("a.lua", "local n = a // f(b)\n", [False])]:
+    assert [is_comment(line, "f", comment_spans(_path, _src).get(n, []))
+            for n, line in enumerate(_src.splitlines(), 1)] == _want, (_path, comment_spans(_path, _src))
 
 
 def grep_lines(root, name: str, admitted: set[str]) -> dict[tuple[str, int], tuple[str, bool]]:
@@ -161,6 +191,10 @@ assert check({"truncated": False, "coverage": ["coverage `f`: ... (1 comment lin
 # A code line counted as an omitted comment is a violation even when the counts match.
 assert not check({"truncated": False, "coverage": ["coverage `f`: ... (1 comment line omitted)"], "missing": [],
                   "evidence": []}, {("a.rs", 1): ("#[x(f)]", False)}, "f")["holds"]
+# Reported external-crate exclusions account for omitted code lines.
+assert check({"truncated": False, "coverage": ["coverage `f`: ..."], "evidence": [],
+              "missing": ["excluded 1 Rust lines that reach `f` only through an external crate (...)"]},
+             {("a.rs", 1): ("dep::f()", False)}, "f")["holds"]
 assert check({"truncated": True, "coverage": ["x"], "missing": [], "evidence": []}, {}, "f") is None
 
 

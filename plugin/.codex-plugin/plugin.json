@@ -1,0 +1,15 @@
+{
+  "name": "findex",
+  "version": "0.2.0",
+  "description": "Local Windows code navigation with source-verified context, symbols and optional SCIP/LSP evidence.",
+  "author": {"name": "Findex contributors"},
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.codex.json",
+  "requires_local_executor": true,
+  "interface": {
+    "displayName": "Findex",
+    "shortDescription": "Local, source-verified code navigation",
+    "developerName": "Findex contributors",
+    "category": "Developer Tools"
+  }
+}

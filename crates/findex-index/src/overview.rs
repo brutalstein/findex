@@ -111,13 +111,19 @@ fn landmarks(path: &str) -> (bool, bool) {
 fn is_test(path: &str) -> bool {
     let lower = path.to_ascii_lowercase();
     let name = lower.rsplit('/').next().unwrap_or_default();
-    lower.starts_with("tests/")
-        || lower.contains("/tests/")
-        || lower.contains("/__tests__/")
+    // `FooTest.java`, `FooTests.cs`: case-sensitive so `latest.rs` is not one.
+    let stem = path.rsplit('/').next().unwrap_or_default();
+    let stem = stem.split('.').next().unwrap_or_default();
+    ["tests/", "test/"].iter().any(|dir| lower.starts_with(dir))
+        || ["/tests/", "/test/", "/__tests__/"]
+            .iter()
+            .any(|dir| lower.contains(dir))
         || name.starts_with("test_")
-        || name.ends_with("_test.rs")
-        || name.contains(".test.")
-        || name.contains(".spec.")
+        || ["_test.", "_tests.", "_spec.", ".test.", ".spec."]
+            .iter()
+            .any(|part| name.contains(part))
+        || stem.ends_with("Test")
+        || stem.ends_with("Tests")
 }
 
 fn top(counts: BTreeMap<String, usize>, cap: usize) -> (Vec<InventoryCount>, bool) {
@@ -217,6 +223,25 @@ mod tests {
     use crate::synchronize_into;
     use std::fs;
     use tempfile::tempdir;
+
+    /// Each language's own test file convention counts, not only Rust's.
+    #[test]
+    fn test_file_conventions_of_common_languages_are_recognised() {
+        for path in [
+            "pkg/server_test.go",
+            "lib/engine_test.py",
+            "src/FooTest.java",
+            "src/FooTests.cs",
+            "src/foo_spec.rb",
+            "src/a.test.ts",
+            "test/helper.js",
+        ] {
+            assert!(is_test(path), "{path}");
+        }
+        for path in ["src/latest.rs", "src/contest.go", "src/attestation.py"] {
+            assert!(!is_test(path), "{path}");
+        }
+    }
 
     #[test]
     fn multilingual_first_contact_map_is_bounded_and_source_verified() {

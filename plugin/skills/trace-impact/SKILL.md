@@ -5,6 +5,8 @@ description: Trace likely code dependencies, usages, tests and possible change i
 
 # Findex: conservative relationship and impact tracing
 
+Use this skill in Codex or Claude Code; Read/Grep below also means Codex's equivalent file/shell tools.
+
 1. Locate the **actual declaration** and enclosing implementation with `findex_context` or `findex_find_symbol`. Inspect the source using Read before claiming semantic relationships.
 2. For lexical uses, call `findex_context` using an exact identifier; respect candidate-window/truncation warnings. Lexical sites are not resolved calls.
 3. If a verified SCIP/LSP snapshot was already imported, use `findex_impact` for affected files or `findex_graph_symbol` with an exact opaque symbol ID. Report producer, path and hash-backed evidence where available; classify multi-hop dependencies as **possible** impacts.
@@ -12,4 +14,4 @@ description: Trace likely code dependencies, usages, tests and possible change i
 5. Report: confirmed source facts, likely impacts, ambiguous or unknown edges, recommended tests, and index freshness/coverage limitations. Do not state that a source-level reference proves execution.
 6. Never automatically run `graph-import-scip`, `graph-import-lsp`, rebuild the index, or approve edits solely to increase graph coverage. Those are explicit operator actions.
 
-When Findex is unavailable, continue with built-in Claude Code navigation and report that relationship confidence is limited.
+When Findex is unavailable, continue with the client's built-in navigation and report that relationship confidence is limited.

@@ -28,19 +28,39 @@ APPROVAL = "I approve Claude subscription usage"
 # Variables that route Claude Code to pay-as-you-go APIs or other providers.
 BILLING_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "CLAUDE_CODE_USE_BEDROCK",
                "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY", "AWS_BEARER_TOKEN_BEDROCK")
+# The Claude desktop app exports the first-party endpoint; it bills nothing by itself.
+OFFICIAL_BASE_URL = "https://api.anthropic.com"
 _gate_passed = False
 
 
 def subscription_status(status: dict) -> str | None:
-    """None for a first-party claude.ai subscription sign-in with no API key source; otherwise why not."""
+    """None for a first-party claude.ai subscription sign-in; otherwise why not.
+
+    `apiKeySource` is not judged here: `claude auth status` reads the
+    operator's user settings, which sessions never load (`--setting-sources
+    project,local`). Each session's own key source is checked from its init
+    event instead (`session_key_problem`)."""
     expected = {"loggedIn": True, "authMethod": "claude.ai", "apiProvider": "firstParty"}
     wrong = [key for key, value in expected.items() if status.get(key) != value]
     if wrong:
         return f"BLOCKED: `claude auth status` is not a claude.ai subscription sign-in ({', '.join(wrong)})"
     if not status.get("subscriptionType"):
         return "BLOCKED: `claude auth status` reports no subscription type"
-    if status.get("apiKeySource") not in (None, "", "none"):
-        return (f"BLOCKED: an API key source is configured ({status['apiKeySource']}); "
+    return None
+
+
+def session_env(env: dict) -> dict:
+    """The environment a live session gets: no billing or routing variables at all."""
+    return {k: v for k, v in env.items() if k not in BILLING_ENV}
+
+
+def session_key_problem(events: list[dict]) -> str | None:
+    """None when the session's init event reports no API key source; otherwise why it must stop."""
+    init = next((e for e in events if e.get("type") == "system" and e.get("subtype") == "init"), None)
+    if init is None:
+        return None  # failed before init: no model call was made
+    if init.get("apiKeySource") != "none":
+        return (f"BLOCKED: session reported apiKeySource={init.get('apiKeySource')!r}; "
                 "usage could be billed outside the subscription")
     return None
 
@@ -66,7 +86,8 @@ def live_model_gate(enabled: bool, env: dict | None = None, status: dict | None 
         return "BLOCKED: live model tests never run in CI"
     if env.get(APPROVAL_ENV) != APPROVAL:
         return f'BLOCKED: operator approval missing: set {APPROVAL_ENV}="{APPROVAL}"'
-    billing = sorted(k for k in BILLING_ENV if env.get(k))
+    billing = sorted(k for k in BILLING_ENV if env.get(k)
+                     and not (k == "ANTHROPIC_BASE_URL" and env[k].rstrip("/") == OFFICIAL_BASE_URL))
     if billing:
         return f"BLOCKED: {', '.join(billing)} set; only the existing subscription sign-in is allowed"
     reason = subscription_status(auth_status() if status is None else status)
@@ -130,10 +151,11 @@ def run_claude(repo: Path, prompt: str, *, model: str, max_turns: int, budget_us
         # Strict mode also drops plugin-provided servers; plugin tests disable it.
         argv += ["--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']
     argv += extra or []
+    env = session_env(env or os.environ)
     if isolate_memory:
         # `--setting-sources` does not stop the operator's ~/.claude/CLAUDE.md
         # from loading (verified 2026-10-12); this documented switch does.
-        env = dict(env or os.environ, CLAUDE_CODE_DISABLE_CLAUDE_MDS="1")
+        env["CLAUDE_CODE_DISABLE_CLAUDE_MDS"] = "1"
     started = time.perf_counter()
     try:
         proc = subprocess.run(argv, cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace",
@@ -148,6 +170,10 @@ def run_claude(repo: Path, prompt: str, *, model: str, max_turns: int, budget_us
             events.append(json.loads(line))
         except ValueError:
             pass
+    problem = session_key_problem(events)
+    if problem:
+        # Stop the whole study: no further session may start on a billed key.
+        raise RuntimeError(problem)
     return {"argv": [a if a != prompt else "<prompt>" for a in argv], "exit_code": code, "timed_out": timed_out,
             "wall_s": wall, "events": events, "stderr_tail": stderr[-2000:]}
 
