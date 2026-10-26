@@ -69,8 +69,10 @@ def score(query: dict, hits: list[dict], k_values=(1, 5, 10)) -> dict:
     result["file_mrr"] = next((1 / (i + 1) for i, r in enumerate(file_rel) if r), 0.0)
     result["span_mrr"] = next((1 / (i + 1) for i, r in enumerate(span_rel) if r), 0.0)
     # File-level nDCG: each distinct file counts once, at its first rank.
-    ranked = list(dict.fromkeys(h["path"] for h in hits))[:10]
-    dcg = sum(1 / math.log2(i + 2) for i, p in enumerate(ranked) if p in paths)
+    first_ranks = {}
+    for i, hit in enumerate(hits[:10]):
+        first_ranks.setdefault(hit["path"], i)
+    dcg = sum(1 / math.log2(i + 2) for p, i in first_ranks.items() if p in paths)
     ideal = sum(1 / math.log2(i + 2) for i in range(min(len(paths), 10)))
     result["file_ndcg@10"] = dcg / ideal if ideal else 0.0
     result["missing_evidence"] = float(not hits)

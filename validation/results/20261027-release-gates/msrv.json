@@ -1,0 +1,7 @@
+{
+  "status": "FAIL",
+  "toolchain": "rustc 1.85.0 (4d91de4e4 2025-02-17)",
+  "exit_code": 101,
+  "passed": 0,
+  "failed": 0
+}

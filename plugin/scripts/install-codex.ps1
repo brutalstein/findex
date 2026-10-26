@@ -17,13 +17,25 @@ $source = Split-Path -Parent $PSScriptRoot
 $marketplace = Join-Path $env:LOCALAPPDATA 'Findex\codex-plugin-marketplace'
 $installed = Join-Path $marketplace 'plugin'
 New-Item -ItemType Directory -Force -Path $installed | Out-Null
-Get-ChildItem -LiteralPath $source -Force | Copy-Item -Destination $installed -Recurse -Force
-New-Item -ItemType Directory -Force -Path (Join-Path $installed 'bin') | Out-Null
-Copy-Item -LiteralPath $runtime -Destination (Join-Path $installed 'bin\findex.exe') -Force
+$digest = (Get-FileHash -LiteralPath $runtime -Algorithm SHA256).Hash.ToLowerInvariant()
+# Windows locks running executables. Keep each verified runtime immutable so an
+# update never overwrites the binary used by an existing MCP session.
+$runtimeDir = Join-Path $env:LOCALAPPDATA "Findex\codex-runtimes\$digest"
+New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null
+$boundRuntime = Join-Path $runtimeDir 'findex.exe'
+if (-not (Test-Path -LiteralPath $boundRuntime)) {
+    Copy-Item -LiteralPath $runtime -Destination $boundRuntime
+}
+if ((Get-FileHash -LiteralPath $boundRuntime -Algorithm SHA256).Hash.ToLowerInvariant() -ne $digest) {
+    throw 'Installed runtime hash mismatch; existing MCP configuration was preserved.'
+}
+Get-ChildItem -LiteralPath $source -Force |
+    Where-Object { $_.Name -notin @('bin', '.mcp.codex.json') } |
+    Copy-Item -Destination $installed -Recurse -Force
 # Bind the trusted executable explicitly: Codex 0.164 alpha on Windows did not
 # expand plugin-root placeholders in bundled MCP commands in the native test.
 $config = @{mcpServers = @{findex = @{
-    type = 'stdio'; command = (Join-Path $installed 'bin\findex.exe'); args = @('mcp')
+    type = 'stdio'; command = $boundRuntime; args = @('mcp')
 }}}
 $config | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $installed '.mcp.codex.json') -Encoding UTF8
 $catalogDir = Join-Path $marketplace '.agents\plugins'

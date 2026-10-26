@@ -1,0 +1,14 @@
+{"utc": "20261026T215237Z", "argv": ["cargo", "fmt", "--all", "--", "--check"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.4074, "timed_out": false}
+{"utc": "20261026T215238Z", "argv": ["cargo", "clippy", "--workspace", "--all-targets", "--locked", "--", "-D", "warnings"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.6331, "timed_out": false}
+{"utc": "20261026T215245Z", "argv": ["cargo", "test", "--workspace", "--all-targets", "--locked", "--no-fail-fast"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 6.6622, "timed_out": false}
+{"utc": "20261026T215245Z", "argv": ["cargo", "build", "--release", "--locked", "-p", "findex"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.2951, "timed_out": false}
+{"utc": "20261026T215247Z", "argv": ["cargo", "audit", "--deny", "warnings"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 1.8462, "timed_out": false}
+{"utc": "20261026T215333Z", "argv": ["%REPO%\\target\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.1156, "timed_out": false}
+{"utc": "20261026T215333Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "symlink_escape_marker"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.0663, "timed_out": false}
+{"utc": "20261026T215333Z", "argv": ["%REPO%\\target\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.0906, "timed_out": false}
+{"utc": "20261026T215333Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "load_settings"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 1, "duration_s": 0.0635, "timed_out": false}
+{"utc": "20261026T215333Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "load_settings"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.0943, "timed_out": false}
+{"utc": "20261026T215345Z", "argv": ["%REPO%\\target\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 5.3727, "timed_out": false}
+{"utc": "20261026T215345Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "spawn"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 0.1519, "timed_out": false}
+{"utc": "20261026T215727Z", "argv": ["rustup", "run", "1.85.0", "rustc", "--version"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.7907, "timed_out": false}
+{"utc": "20261026T215736Z", "argv": ["rustup", "run", "1.85.0", "cargo", "test", "--locked", "--workspace", "--all-targets"], "cwd": "%REPO%", "exit_code": 101, "duration_s": 8.5946, "timed_out": false}

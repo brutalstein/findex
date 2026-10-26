@@ -1,0 +1,119 @@
+{
+  "sessions": [
+    {
+      "key": "codex:requests:JSONDecodeError:exact:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "requests:JSONDecodeError:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 74392,
+        "cached_input_tokens": 48896,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 127,
+        "reasoning_output_tokens": 0
+      },
+      "mcp_calls": 1,
+      "final": "{\"path\":\"src/requests/exceptions.py\",\"line\":31}"
+    },
+    {
+      "key": "codex:requests:JSONDecodeError:exact:graphify",
+      "client": "codex",
+      "tool": "graphify",
+      "task": "requests:JSONDecodeError:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 99875,
+        "cached_input_tokens": 73728,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 259,
+        "reasoning_output_tokens": 0
+      },
+      "mcp_calls": 2,
+      "final": "{\"path\":\"src/requests/exceptions.py\",\"line\":31}"
+    },
+    {
+      "key": "codex:requests:JSONDecodeError:exact:codebase-memory",
+      "client": "codex",
+      "tool": "codebase-memory",
+      "task": "requests:JSONDecodeError:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 259178,
+        "cached_input_tokens": 221824,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 458,
+        "reasoning_output_tokens": 42
+      },
+      "mcp_calls": 3,
+      "final": "{\"path\":\"src/requests/exceptions.py\",\"line\":31}"
+    },
+    {
+      "key": "codex:zod:nativeEnumTest:words:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "zod:nativeEnumTest:words",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 74818,
+        "cached_input_tokens": 49024,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 190,
+        "reasoning_output_tokens": 24
+      },
+      "mcp_calls": 1,
+      "final": "{\"path\":\"src/__tests__/async-parsing.test.ts\",\"line\":263}"
+    },
+    {
+      "key": "codex:zod:nativeEnumTest:words:graphify",
+      "client": "codex",
+      "tool": "graphify",
+      "task": "zod:nativeEnumTest:words",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 116915,
+        "cached_input_tokens": 82176,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 231,
+        "reasoning_output_tokens": 0
+      },
+      "mcp_calls": 1,
+      "final": "{\"path\":\"deno/lib/__tests__/async-parsing.test.ts\",\"line\":264}"
+    },
+    {
+      "key": "codex:zod:nativeEnumTest:words:codebase-memory",
+      "client": "codex",
+      "tool": "codebase-memory",
+      "task": "zod:nativeEnumTest:words",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 332107,
+        "cached_input_tokens": 294144,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 642,
+        "reasoning_output_tokens": 85
+      },
+      "mcp_calls": 5,
+      "final": "{\"path\":\"src/__tests__/async-parsing.test.ts\",\"line\":263}"
+    }
+  ],
+  "started": 6
+}

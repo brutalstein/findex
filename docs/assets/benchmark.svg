@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 280" role="img" aria-labelledby="t d">
   <title id="t">Definition lookup: Findex vs Graphify vs codebase-memory-mcp</title>
-  <desc id="d">60 held-out queries. Right answer on the first try: Findex 0.967, Graphify 0.650, codebase-memory-mcp 0.633. Context tokens per answer: Findex 419, Graphify 1,466, codebase-memory-mcp 355 (lowest).</desc>
+  <desc id="d">55 new held-out queries. File hit at one: Findex compact 0.982, Graphify code-only MCP 0.873, codebase-memory-mcp tree 0.855. Raw tool output tokens per query: Findex 222, Graphify 2,663, codebase-memory 240. Findex is lowest on this subset.</desc>
   <style>
     .bg{fill:#fcfcfb}.ink{fill:#0b0b0b}.ink2{fill:#52514e}.muted{fill:#898781}
     .axis{stroke:#e1e0d9}.acc{fill:#2a78d6}.ctx{fill:#898781}
@@ -16,33 +16,33 @@
   <line class="axis" x1="190" y1="92" x2="190" y2="212" stroke-width="1"/>
   <g font-size="14">
     <text class="ink" x="24" y="117" font-weight="700">Findex</text>
-    <path class="acc" d="M190 100H379.4A4 4 0 0 1 383.4 104V120A4 4 0 0 1 379.4 124H190Z"/>
-    <text class="ink" x="391" y="117" font-weight="700">0.967</text>
+    <path class="acc" d="M190 100H382.4A4 4 0 0 1 386.4 104V120A4 4 0 0 1 382.4 124H190Z"/>
+    <text class="ink" x="394" y="117" font-weight="700">0.982</text>
     <text class="ink2" x="24" y="157">Graphify</text>
-    <path class="ctx" d="M190 140H316A4 4 0 0 1 320 144V160A4 4 0 0 1 316 164H190Z"/>
-    <text class="ink2" x="328" y="157">0.650</text>
+    <path class="ctx" d="M190 140H360.5A4 4 0 0 1 364.5 144V160A4 4 0 0 1 360.5 164H190Z"/>
+    <text class="ink2" x="372.5" y="157">0.873</text>
     <text class="ink2" x="24" y="197">codebase-memory-mcp</text>
-    <path class="ctx" d="M190 180H312.6A4 4 0 0 1 316.6 184V200A4 4 0 0 1 312.6 204H190Z"/>
-    <text class="ink2" x="324.6" y="197">0.633</text>
+    <path class="ctx" d="M190 180H356.9A4 4 0 0 1 360.9 184V200A4 4 0 0 1 356.9 204H190Z"/>
+    <text class="ink2" x="368.9" y="197">0.855</text>
   </g>
 
-  <text class="ink" x="460" y="44" font-size="16" font-weight="700">Context per answer</text>
-  <text class="muted" x="460" y="66" font-size="12.5">tokens · lower is cheaper</text>
+  <text class="ink" x="460" y="44" font-size="16" font-weight="700">Tool output per query</text>
+  <text class="muted" x="460" y="66" font-size="12.5">raw tokens · lower is smaller</text>
   <line class="axis" x1="626" y1="92" x2="626" y2="212" stroke-width="1"/>
   <g font-size="14">
     <text class="ink" x="460" y="117" font-weight="700">Findex</text>
-    <path class="acc" d="M626 100H675.1A4 4 0 0 1 679.1 104V120A4 4 0 0 1 675.1 124H626Z"/>
-    <text class="ink" x="687" y="117" font-weight="700">419</text>
+    <path class="acc" d="M626 100H637.5A4 4 0 0 1 641.5 104V120A4 4 0 0 1 637.5 124H626Z"/>
+    <text class="ink" x="649.5" y="117" font-weight="700">222 · lowest</text>
     <text class="ink2" x="460" y="157">Graphify</text>
     <path class="ctx" d="M626 140H807.7A4 4 0 0 1 811.7 144V160A4 4 0 0 1 807.7 164H626Z"/>
-    <text class="ink2" x="819.7" y="157">1,466</text>
+    <text class="ink2" x="819.7" y="157">2,663</text>
     <text class="ink2" x="460" y="197">codebase-memory-mcp</text>
-    <path class="ctx" d="M626 180H666.9A4 4 0 0 1 670.9 184V200A4 4 0 0 1 666.9 204H626Z"/>
-    <text class="ink2" x="678.9" y="197">355 · lowest</text>
+    <path class="ctx" d="M626 180H638.8A4 4 0 0 1 642.8 184V200A4 4 0 0 1 638.8 204H626Z"/>
+    <text class="ink2" x="650.8" y="197">240</text>
   </g>
 
   <g class="muted" font-size="11.5">
-    <text x="24" y="246">60 held-out definition lookups (requests, fmt, ripgrep, zod) · same 2,000-token budget and 10-candidate limit</text>
-    <text x="24" y="264">Golden set written by the Findex author · Graphify in code-only AST mode · validation/results/20261026-codex-comparison</text>
+    <text x="24" y="246">55 new held-out lookups (requests, fmt, ripgrep, zod) · 2,000 visible-token budget, 10 candidates</text>
+    <text x="24" y="264">Author-created golden · native MCP, Graphify code-only · validation/results/20261027-final-comparison</text>
   </g>
 </svg>

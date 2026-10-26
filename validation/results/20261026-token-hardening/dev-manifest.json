@@ -1,0 +1,783 @@
+{
+  "seed": "payload-dev-v1",
+  "queries": [
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "src/requests/utils.py",
+          496
+        ]
+      ],
+      "query": "content encodings removed",
+      "id": "requests:line:8",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": "deregister_hook",
+      "expected": [
+        [
+          "src/requests/models.py",
+          218
+        ]
+      ],
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:deregister_hook:words",
+      "type": "identifier_words",
+      "query": "deregister hook"
+    },
+    {
+      "corpus": "requests",
+      "name": "get_auth_from_url",
+      "expected": [
+        [
+          "src/requests/utils.py",
+          1018
+        ]
+      ],
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:get_auth_from_url:words",
+      "type": "identifier_words",
+      "query": "get auth from url"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "tests/test_help.py",
+          17
+        ]
+      ],
+      "query": "attribute provide version",
+      "id": "requests:line:13",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "src/requests/adapters.py",
+          16
+        ]
+      ],
+      "query": "exceptions invalidheader urllib",
+      "id": "requests:line:2",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "src/requests/adapters.py",
+          322
+        ]
+      ],
+      "query": "avoids locations verify",
+      "id": "requests:line:17",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "src/requests/__init__.py",
+          145
+        ]
+      ],
+      "query": "ignore simplefilter warnings",
+      "id": "requests:line:7",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": "origin_req_host",
+      "expected": [
+        [
+          "src/requests/cookies.py",
+          95
+        ]
+      ],
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:origin_req_host:exact",
+      "type": "symbol_exact",
+      "query": "origin_req_host"
+    },
+    {
+      "corpus": "requests",
+      "name": null,
+      "expected": [
+        [
+          "tests/__init__.py",
+          10
+        ]
+      ],
+      "query": "during https requests",
+      "id": "requests:line:9",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068"
+    },
+    {
+      "corpus": "requests",
+      "name": "sha512_utf8",
+      "expected": [
+        [
+          "src/requests/auth.py",
+          169
+        ]
+      ],
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:sha512_utf8:exact",
+      "type": "symbol_exact",
+      "query": "sha512_utf8"
+    },
+    {
+      "corpus": "requests",
+      "name": "parse_header_links",
+      "expected": [
+        [
+          "src/requests/utils.py",
+          914
+        ]
+      ],
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:parse_header_links:words",
+      "type": "identifier_words",
+      "query": "parse header links"
+    },
+    {
+      "corpus": "requests",
+      "name": "_handle_requests",
+      "expected": [
+        [
+          "tests/testserver/server.py",
+          94
+        ]
+      ],
+      "split": "dev",
+      "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+      "id": "requests:_handle_requests:words",
+      "type": "identifier_words",
+      "query": "handle requests"
+    },
+    {
+      "corpus": "zod",
+      "name": "baseObjectOutputType",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          2339
+        ],
+        [
+          "src/types.ts",
+          2339
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:baseObjectOutputType:exact",
+      "type": "symbol_exact",
+      "query": "baseObjectOutputType"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodNullableDef",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          4673
+        ],
+        [
+          "src/types.ts",
+          4673
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodNullableDef:exact",
+      "type": "symbol_exact",
+      "query": "ZodNullableDef"
+    },
+    {
+      "corpus": "zod",
+      "name": "AgeInput",
+      "expected": [
+        [
+          "deno/lib/__tests__/branded.test.ts",
+          54
+        ],
+        [
+          "src/__tests__/branded.test.ts",
+          53
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:AgeInput:exact",
+      "type": "symbol_exact",
+      "query": "AgeInput"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodNeverDef",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          2084
+        ],
+        [
+          "src/types.ts",
+          2084
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodNeverDef:words",
+      "type": "identifier_words",
+      "query": "zod never def"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodNotMultipleOfIssue",
+      "expected": [
+        [
+          "deno/lib/ZodError.ts",
+          136
+        ],
+        [
+          "src/ZodError.ts",
+          136
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodNotMultipleOfIssue:exact",
+      "type": "symbol_exact",
+      "query": "ZodNotMultipleOfIssue"
+    },
+    {
+      "corpus": "zod",
+      "name": "datetimeRegex",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          647
+        ],
+        [
+          "src/types.ts",
+          647
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:datetimeRegex:words",
+      "type": "identifier_words",
+      "query": "datetime regex"
+    },
+    {
+      "corpus": "zod",
+      "name": "recordWithEnumKeys",
+      "expected": [
+        [
+          "deno/lib/__tests__/record.test.ts",
+          12
+        ],
+        [
+          "src/__tests__/record.test.ts",
+          11
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:recordWithEnumKeys:exact",
+      "type": "symbol_exact",
+      "query": "recordWithEnumKeys"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodArray",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          2164
+        ],
+        [
+          "src/types.ts",
+          2164
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodArray:exact",
+      "type": "symbol_exact",
+      "query": "ZodArray"
+    },
+    {
+      "corpus": "zod",
+      "name": "ParsePathComponent",
+      "expected": [
+        [
+          "deno/lib/helpers/parseUtil.ts",
+          49
+        ],
+        [
+          "src/helpers/parseUtil.ts",
+          49
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ParsePathComponent:words",
+      "type": "identifier_words",
+      "query": "parse path component"
+    },
+    {
+      "corpus": "zod",
+      "name": "ZodTupleDef",
+      "expected": [
+        [
+          "deno/lib/types.ts",
+          3406
+        ],
+        [
+          "src/types.ts",
+          3406
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:ZodTupleDef:exact",
+      "type": "symbol_exact",
+      "query": "ZodTupleDef"
+    },
+    {
+      "corpus": "zod",
+      "name": null,
+      "expected": [
+        [
+          "deno/lib/__tests__/firstpartyschematypes.test.ts",
+          5
+        ]
+      ],
+      "query": "index zodfirstpartyschematypes zodfirstpartytypekind",
+      "id": "zod:line:1",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5"
+    },
+    {
+      "corpus": "zod",
+      "name": "noUndefined",
+      "expected": [
+        [
+          "deno/lib/helpers/util.ts",
+          74
+        ],
+        [
+          "src/helpers/util.ts",
+          74
+        ]
+      ],
+      "split": "dev",
+      "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+      "id": "zod:noUndefined:exact",
+      "type": "symbol_exact",
+      "query": "noUndefined"
+    },
+    {
+      "corpus": "fmt",
+      "name": "EqMatcher",
+      "expected": [
+        [
+          "test/gtest/gtest/gtest.h",
+          6847
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:EqMatcher:words",
+      "type": "identifier_words",
+      "query": "eq matcher"
+    },
+    {
+      "corpus": "fmt",
+      "name": "convertible_to_std_string_view",
+      "expected": [
+        [
+          "test/format-test.cc",
+          1654
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:convertible_to_std_string_view:exact",
+      "type": "symbol_exact",
+      "query": "convertible_to_std_string_view"
+    },
+    {
+      "corpus": "fmt",
+      "name": null,
+      "expected": [
+        [
+          "test/fuzzing/chrono-timepoint.cc",
+          23
+        ]
+      ],
+      "query": "format message timepoint",
+      "id": "fmt:line:12",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592"
+    },
+    {
+      "corpus": "fmt",
+      "name": "NanSensitiveFloatEq",
+      "expected": [
+        [
+          "test/gtest/gmock/gmock.h",
+          7010
+        ],
+        [
+          "test/gtest/gmock/gmock.h",
+          7305
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:NanSensitiveFloatEq:words",
+      "type": "identifier_words",
+      "query": "nan sensitive float eq"
+    },
+    {
+      "corpus": "fmt",
+      "name": "InvokeWithoutArgs",
+      "expected": [
+        [
+          "test/gtest/gmock/gmock.h",
+          2276
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:InvokeWithoutArgs:words",
+      "type": "identifier_words",
+      "query": "invoke without args"
+    },
+    {
+      "corpus": "fmt",
+      "name": "streamable_and_unformattable",
+      "expected": [
+        [
+          "test/ostream-test.cc",
+          276
+        ],
+        [
+          "test/xchar-test.cc",
+          283
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:streamable_and_unformattable:words",
+      "type": "identifier_words",
+      "query": "streamable and unformattable"
+    },
+    {
+      "corpus": "fmt",
+      "name": "BeginEndDistanceIsMatcher",
+      "expected": [
+        [
+          "test/gtest/gmock/gmock.h",
+          5140
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:BeginEndDistanceIsMatcher:words",
+      "type": "identifier_words",
+      "query": "begin end distance is matcher"
+    },
+    {
+      "corpus": "fmt",
+      "name": null,
+      "expected": [
+        [
+          "include/fmt/args.h",
+          194
+        ]
+      ],
+      "query": "avoid formatting reference",
+      "id": "fmt:line:11",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592"
+    },
+    {
+      "corpus": "fmt",
+      "name": null,
+      "expected": [
+        [
+          "test/gtest-extra-test.cc",
+          46
+        ]
+      ],
+      "query": "noreturn system throw",
+      "id": "fmt:line:8",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592"
+    },
+    {
+      "corpus": "fmt",
+      "name": "format_string_checker",
+      "expected": [
+        [
+          "include/fmt/base.h",
+          2716
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:format_string_checker:words",
+      "type": "identifier_words",
+      "query": "format string checker"
+    },
+    {
+      "corpus": "fmt",
+      "name": "IndexSequence",
+      "expected": [
+        [
+          "test/gtest/gtest/gtest.h",
+          4536
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:IndexSequence:exact",
+      "type": "symbol_exact",
+      "query": "IndexSequence"
+    },
+    {
+      "corpus": "fmt",
+      "name": "EndsWithMatcher",
+      "expected": [
+        [
+          "test/gtest/gmock/gmock.h",
+          3944
+        ]
+      ],
+      "split": "dev",
+      "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+      "id": "fmt:EndsWithMatcher:words",
+      "type": "identifier_words",
+      "query": "ends with matcher"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": null,
+      "expected": [
+        [
+          "crates/ignore/src/overrides.rs",
+          119
+        ]
+      ],
+      "query": "builder create override",
+      "id": "ripgrep:line:4",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "into_word",
+      "expected": [
+        [
+          "crates/regex/src/config.rs",
+          316
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:into_word:exact",
+      "type": "symbol_exact",
+      "query": "into_word"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": null,
+      "expected": [
+        [
+          "crates/ignore/src/pathutil.rs",
+          23
+        ]
+      ],
+      "query": "following returns windows",
+      "id": "ripgrep:line:9",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "ColorChoice",
+      "expected": [
+        [
+          "crates/core/flags/lowargs.rs",
+          321
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:ColorChoice:exact",
+      "type": "symbol_exact",
+      "query": "ColorChoice"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "stdout_buffered_block",
+      "expected": [
+        [
+          "crates/cli/src/wtr.rs",
+          54
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:stdout_buffered_block:words",
+      "type": "identifier_words",
+      "query": "stdout buffered block"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "Parser",
+      "expected": [
+        [
+          "crates/core/flags/parse.rs",
+          161
+        ],
+        [
+          "crates/globset/src/glob.rs",
+          758
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:Parser:exact",
+      "type": "symbol_exact",
+      "query": "Parser"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "handle_alias",
+      "expected": [
+        [
+          "crates/printer/src/hyperlink.rs",
+          897
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:handle_alias:words",
+      "type": "identifier_words",
+      "query": "handle alias"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": null,
+      "expected": [
+        [
+          "crates/matcher/tests/util.rs",
+          63
+        ]
+      ],
+      "query": "avoids overhead regex",
+      "id": "ripgrep:line:7",
+      "type": "line_terms",
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "clone",
+      "expected": [
+        [
+          "crates/ignore/src/lib.rs",
+          121
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:clone:exact",
+      "type": "symbol_exact",
+      "query": "clone"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "as_slice",
+      "expected": [
+        [
+          "crates/printer/src/json.rs",
+          861
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:as_slice:words",
+      "type": "identifier_words",
+      "query": "as slice"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "is_fixed_strings",
+      "expected": [
+        [
+          "crates/regex/src/config.rs",
+          102
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:is_fixed_strings:exact",
+      "type": "symbol_exact",
+      "query": "is_fixed_strings"
+    },
+    {
+      "corpus": "ripgrep",
+      "name": "is_absolute_parent",
+      "expected": [
+        [
+          "crates/ignore/src/dir.rs",
+          153
+        ]
+      ],
+      "split": "dev",
+      "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+      "id": "ripgrep:is_absolute_parent:exact",
+      "type": "symbol_exact",
+      "query": "is_absolute_parent"
+    }
+  ],
+  "query_sha256": "ec134a5fa8bf1a0b2438c06d854ff19c6c6fd13f427a439293ad2b60e443c61a",
+  "golden_sha256": "941a6118fca67d04aeb959710c9c9eb32c2985aba925ab1cdea8944535e85380"
+}

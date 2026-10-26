@@ -122,6 +122,11 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 result.hits.len(),
                 result.stale_results_discarded
             );
+            if result.truncated {
+                eprintln!(
+                    "Symbol search truncated; additional matching candidates were not verified"
+                );
+            }
         }
         "search" => {
             let query = args

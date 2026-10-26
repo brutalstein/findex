@@ -18,6 +18,7 @@ import subprocess
 import time
 
 from common import REPO, VALIDATION, percentiles, write_json
+from golden import admitted_files
 from mcp_client import McpProcess
 from retrieval import score
 
@@ -91,24 +92,61 @@ def disk_bytes(path: Path) -> int | None:
     return sum(p.stat().st_size for p in path.rglob("*") if p.is_file()) if path.exists() else None
 
 
+def corpus_identity(root: Path) -> dict:
+    head, _ = invoke(["git", "rev-parse", "HEAD"], root)
+    dirty, _ = invoke(["git", "status", "--porcelain", "--untracked-files=all"], root)
+    if dirty.strip():
+        raise ValueError(f"Corpus has modified or untracked files: {root.name}")
+    tracked, _ = invoke(["git", "ls-files", "-z"], root)
+    for relative in filter(None, tracked.split("\0")):
+        path = root / relative
+        if not path.resolve().is_relative_to(root.resolve()) or path.is_symlink():
+            raise ValueError(f"Corpus contains a source link: {relative}")
+    hashes = {}
+    for relative in sorted(admitted_files(root)):
+        path = root / relative
+        hashes[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return {"commit": head.strip(), "admitted_sha256": hashes}
+
+
+def tool_identity(path: Path) -> dict:
+    path = path.resolve()
+    version, _ = invoke([str(path), "--version"], REPO, timeout=30)
+    if not version.strip():
+        raise ValueError(f"Tool did not report its version: {path.name}")
+    return {"version": version.strip(), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+
+
+def comparison_identity(args) -> dict:
+    return {"corpora": {c: corpus_identity(args.corpora / c) for c in CORPORA},
+            "tools": {tool: tool_identity(path) for tool, path in (
+                ("findex", args.findex), ("graphify", args.graphify), ("codebase-memory", args.cbm))}}
+
+
+def require_frozen_identity(manifest: dict, identity: dict, out: Path) -> None:
+    if "identity" not in manifest:
+        raise ValueError("Historical manifest has no measured source/tool identity; preserve it and prepare a new output directory with --findex, --cbm and --graphify")
+    if manifest["identity"] != identity:
+        raise ValueError("Corpus content or tool version/hash changed since preparation")
+    if any((out / name).exists() for name in ("local-results.json", "local-summary.json", "run-identity.json", "raw")):
+        raise ValueError("Output directory already contains an attempted measurement; use a new prepared directory")
+
+
 def prepare(args) -> None:
     if (args.out / "manifest.json").exists():
         raise ValueError("Manifest already exists; use a new output directory rather than replacing frozen tasks")
     rows = [json.loads(line) for line in GOLDEN.read_text(encoding="utf-8").splitlines()]
     queries = select_queries(rows, list(CORPORA), 15)
+    identity = comparison_identity(args)
     commits = {}
     for corpus in CORPORA:
-        root = args.corpora / corpus
-        head, _ = invoke(["git", "rev-parse", "HEAD"], root)
+        head = identity["corpora"][corpus]["commit"]
         expected = {r["commit"] for r in queries if r["corpus"] == corpus}
-        if expected != {head.strip()}:
+        if expected != {head}:
             raise ValueError(f"Corpus pin mismatch: {corpus}")
-        dirty, _ = invoke(["git", "status", "--porcelain", "--untracked-files=no"], root)
-        if dirty.strip():
-            raise ValueError(f"Tracked corpus files changed: {corpus}")
-        commits[corpus] = head.strip()
+        commits[corpus] = head
     manifest = {"selection": SEED, "golden_sha256": hashlib.sha256(GOLDEN.read_bytes()).hexdigest(),
-                "queries": queries, "corpus_commits": commits, "tokenizer": "o200k_base",
+                "queries": queries, "corpus_commits": commits, "identity": identity, "tokenizer": "o200k_base",
                 "budget_tokens": 2000, "candidate_limit": 10,
                 "queries_sha256": hashlib.sha256(json.dumps(queries, sort_keys=True).encode()).hexdigest()}
     write_json(args.out / "manifest.json", manifest)
@@ -116,12 +154,17 @@ def prepare(args) -> None:
 
 
 def run(args) -> None:
-    import tiktoken
     manifest = json.loads((args.out / "manifest.json").read_text(encoding="utf-8"))
+    if "identity" not in manifest:
+        require_frozen_identity(manifest, {}, args.out)
+    identity = comparison_identity(args)
+    require_frozen_identity(manifest, identity, args.out)
     if hashlib.sha256(GOLDEN.read_bytes()).hexdigest() != manifest["golden_sha256"]:
         raise ValueError("Golden answers changed since preparation")
     if hashlib.sha256(json.dumps(manifest["queries"], sort_keys=True).encode()).hexdigest() != manifest["queries_sha256"]:
         raise ValueError("Frozen queries changed")
+    import tiktoken
+    write_json(args.out / "run-identity.json", identity)
     encoding = tiktoken.get_encoding(manifest["tokenizer"])
     budget, limit = manifest["budget_tokens"], manifest["candidate_limit"]
     records, setups = [], []
@@ -214,10 +257,12 @@ def save_summary(out: Path, records: list[dict]) -> None:
                          "hit_at_10": statistics.mean(r["scores"]["file_recall@10"] for r in rows),
                          "mrr": statistics.mean(r["scores"]["file_mrr"] for r in rows),
                          "mean_tokens": statistics.mean(r["tokens"] for r in rows),
+                         "mean_raw_tokens": statistics.mean(r["raw_tokens"] for r in rows),
                          "latency_s": percentiles([r["seconds"] for r in rows]),
                          "errors": sum(r["error"] for r in rows), "over_budget": sum(r["over_budget"] for r in rows)}
     write_json(out / "local-summary.json", {"summary": summary, "gate": superiority(summary),
                "limits": ["Graphify code-only, not semantic extraction", "Native surfaces differ; Graphify CLI includes process startup",
+                          "mean_tokens is clipped visible output; mean_raw_tokens is actual returned output",
                           "Context tokens are a proxy, not session usage or billed money", "No codebase disk-size measurement"]})
     print(json.dumps(summary, indent=2), flush=True)
 
@@ -256,8 +301,11 @@ def main() -> None:
     args.out = args.out.resolve()
     args.out.mkdir(parents=True, exist_ok=True)
     args.work = args.work.resolve()
-    if args.mode == "run" and (args.cbm is None or args.graphify is None):
-        parser.error("run requires --cbm and --graphify native executable paths")
+    for name in ("findex", "cbm", "graphify"):
+        if getattr(args, name) is not None:
+            setattr(args, name, getattr(args, name).resolve())
+    if args.mode in ("prepare", "run") and (args.cbm is None or args.graphify is None):
+        parser.error("prepare/run require --cbm and --graphify native executable paths to freeze and verify identity")
     {"prepare": prepare, "run": run, "rescore": rescore}[args.mode](args)
 
 

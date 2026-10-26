@@ -1,0 +1,14 @@
+{
+  "sha256": "fa45e39476a288a5885aa43c31e9a5e59b0570836d3aa0605fcc6584d87a9e81",
+  "size_bytes": 13529600,
+  "target": "x86_64-pc-windows-msvc",
+  "crt": "static",
+  "imports": [
+    "kernel32.dll",
+    "api-ms-win-core-synch-l1-2-0.dll",
+    "bcryptprimitives.dll",
+    "ntdll.dll",
+    "userenv.dll"
+  ],
+  "matches_final_comparison": true
+}

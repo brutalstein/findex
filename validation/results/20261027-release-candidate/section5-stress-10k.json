@@ -1,0 +1,34 @@
+{
+  "files_requested": 10000,
+  "model_sessions": 0,
+  "provider_cost": 0,
+  "status": "PASS",
+  "steps": {
+    "cold_scan_s": 36.6475,
+    "initial_health_s": 0.1089,
+    "known_paths_refresh_s": 0.5694,
+    "mass_change_reconcile_s": 0.8848,
+    "mass_change_health_s": 0.1105,
+    "concurrent_reconciles": [
+      {
+        "code": 0,
+        "stdout": "Indexed 0 changed, 9920 unchanged, 0 removed, 0 skipped (examined 9920)\n",
+        "error": ""
+      },
+      {
+        "code": 0,
+        "stdout": "Indexed 0 changed, 9920 unchanged, 0 removed, 0 skipped (examined 9920)\n",
+        "error": ""
+      }
+    ],
+    "post_concurrency_health_s": 0.112
+  },
+  "coverage": {
+    "initial_files": 10000,
+    "updated": 130,
+    "deleted": 80,
+    "renamed": 60,
+    "remaining_files": 9920,
+    "concurrent_clients": 2
+  }
+}

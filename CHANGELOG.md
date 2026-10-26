@@ -11,6 +11,10 @@ Measured claims and their limits are listed in [docs/EVIDENCE.md](docs/EVIDENCE.
 First release candidate. No earlier version was published.
 
 ### Added
+- Optional lossless `format="compact"` for MCP lexical and exact-symbol results;
+  the existing JSON object format remains the default.
+- Exact-symbol `truncated` diagnostic for unexamined candidates, including
+  stale candidates that exhaust the bounded verification window.
 - `findex_context` / `findex context`: one call returns a name's definition,
   call sites with their enclosing function, or its tests, with a coverage line
   checked against `git grep`. Intent routing in English and Turkish.
@@ -28,6 +32,12 @@ First release candidate. No earlier version was published.
   attestation.
 
 ### Fixed
+- Windows MSVC packages link the CRT statically and are tested with only
+  Windows system directories on PATH, exposing hidden compiler-DLL dependencies.
+- Excerpt redaction now precedes truncation, preventing a quoted credential
+  from escaping masking when its closing quote crosses the excerpt boundary.
+- Evaluation guards freeze corpus/tool identities, count interrupted live
+  attempts, require successful MCP evidence and correct nDCG duplicate ranks.
 - Cloud-only OneDrive (Cloud Files) placeholders are no longer read, so
   indexing no longer downloads them. `findex index` reports how many were left
   out.
@@ -39,7 +49,7 @@ First release candidate. No earlier version was published.
 
 ### Security
 - Offline-by-default validation; live model tests need explicit approval and
-  bill only the Claude subscription.
+  verified Claude or Codex subscription login. API billing routes are blocked.
 - No symlink or junction following; sensitive file names excluded from
   indexing, reads and imports.
 

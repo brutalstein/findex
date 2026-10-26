@@ -104,6 +104,9 @@ def main() -> None:
             "pub fn plugin_fixture() -> usize { 42 }\n", encoding="utf-8"
         )
         env = os.environ.copy()
+        windows = Path(os.environ["SystemRoot"])
+        env["PATH"] = os.pathsep.join(str(p) for p in (
+            windows / "System32", windows, windows / "System32/WindowsPowerShell/v1.0"))
         env["LOCALAPPDATA"] = str(Path(tmp) / "Local App Data")
         Path(env["LOCALAPPDATA"]).mkdir()
         installed = Path(tmp) / "Installed Plugin With Spaces"
@@ -136,6 +139,7 @@ def main() -> None:
         excerpt = frames[2]["result"]["content"][0]["text"]
         assert "main.rs" in excerpt and "plugin_fixture" in excerpt, excerpt
         report["self_contained_mcp"] = "PASS"
+        report["windows_system_path_only"] = "PASS"
         report["all_eight_tools"] = "PASS"
         report["on_demand_model_context"] = "PASS"
         report["fixture_source_evidence"] = "PASS"

@@ -1,11 +1,11 @@
 # Evidence status
 
-Living summary of what Findex has demonstrated, as of **2026-10-26**
-(`main` after PR #34, version 0.2.0, not yet released). Every number points to a committed run under
+Living summary of what Findex has demonstrated, as of **2026-10-27**
+(version 0.2.0 release candidate, not yet released). Every number points to a committed run under
 `validation/results/` or a campaign record; campaign records themselves are
 historical and are not rewritten. Machine: native Windows 11, NVMe.
 
-CI on every change (all green for PR #34, run 40342169198): fmt, Clippy
+Historical CI (all green for PR #34, run 40342169198): fmt, Clippy
 `-D warnings`, all tests on Windows latest, Windows Server 2022 and Rust 1.85
 (MSRV), release build, RustSec audit, `cargo deny` license/source policy, and
 the offline harnesses (security, hardening, cloud-only placeholders, SMB,
@@ -17,6 +17,31 @@ Verdicts:
 - **Not proven**: measured, and the claim did not hold.
 - **Not run**: no measurement.
 
+## 2026-10-27 release-candidate verification
+
+| Claim | Fresh evidence | Verdict |
+|---|---|---|
+| Compact output preserves evidence and reduces Findex's output tokens | 115 exact roundtrips and unchanged source-hit lists vs pre-hardening binary; 369.01 → 263.83 mean tokens across all 115 (28.5% fewer); new 55 subset 312.96 → 222.07 (29.0% fewer) | Proven on these fixed navigation cases |
+| New navigation comparison | New 55: file hit@1 Findex 54/55, codebase 47/55, Graphify 48/55; definition span@1 54/55, 40/55, 42/55 | Supported within author-created, four-language golden |
+| Findex is the smallest response | New 55 aggregate: compact 222.07, codebase tree 240.31, Graphify raw 2663.47; all-115 margin over codebase only 0.95% | Supported on these aggregates; codebase is smaller on three of four corpora and historical 60 controls |
+| Real Codex subscription navigation | Six valid sessions, two tasks per tool, all correct. Total input+output: Findex 149527, Graphify 217280, codebase 592385; cache counts reported | Supported small pilot; no general savings or code-edit claim |
+| Native Windows release checks | 151 Rust tests on stable/MSRV; 33 offline Python tests; fmt, Clippy, release build, RustSec; 29/29 quick black-box security checks; native installed Codex fixture and compact response, Claude strict plugin validator, package/privacy/overview harnesses | See `validation/results/20261027-release-candidate/` for exact scope |
+
+Methods, raw/visible output distinction and all losses:
+[`20261027-final-comparison`](../validation/results/20261027-final-comparison/NOTE.md),
+[`20261027-codex-live`](../validation/results/20261027-codex-live/NOTE.md).
+The 115-query comparison contains 60 historical controls, not 115 new independent
+queries. The final encoding reuses the preliminary evaluation set; it is a
+regression confirmation rather than a second blind held-out study. The native MCP comparison improves the competitor baseline (anchored
+exact symbols and codebase tree) and avoids Graphify CLI startup. It does not
+retroactively replace the older study below.
+
+Long-line credential redaction now runs before excerpt truncation. Exact-symbol
+verification caps report `truncated` instead of suggesting exhaustive absence.
+Source-hit equivalence does not remove the documented caps or create typed
+cross-language call resolution. The release checklist and remaining limits are
+in [the dated hardening report](engineering/RELEASE_CANDIDATE_HARDENING_20261027.md).
+
 ## Accuracy
 
 | Claim | Number | Baseline | Evidence | Verdict |
@@ -27,7 +52,7 @@ Verdicts:
 | Unqualified callers, tokio (dev split) | call precision 0.418 | 0.391 | same | Supported |
 | Coverage line ("every code occurrence is shown") vs `git grep -w` | 279/279 names, 7 corpora | 268/279 at frozen main (A1) | same, `coverage/` | Proven |
 | Issue localization (65 real fixed issues, frozen) | `findex_context` hit@1 0.308, MRR 0.428, gold recall@10 0.662 | `git grep` words hit@1 0.062, MRR 0.253 | same, `localization/` | Proven better than `git grep`; hit@1 is still low |
-| Definition lookup vs other tools (60 held-out queries, 4 corpora, same budget) | Findex hit@1 0.967, MRR 0.983, 419 tokens; Graphify (code-only) 0.650 / 0.676 / 1,466; codebase-memory-mcp 0.633 / 0.646 / 355 | — | `validation/results/20261026-codex-comparison/` | Supported: more accurate than both; fewer tokens than Graphify but not codebase-memory-mcp, so the pre-registered "better on everything" gate failed. Golden set by the Findex author |
+| Definition lookup vs other tools (60 held-out queries, 4 corpora, same budget) | Findex hit@1 58/60 (0.967), MRR 0.983, mean returned 418.55 tokens; Graphify (code-only) 39/60 (0.650) / 0.676 / 1,466.07 clipped visible tokens (1,919.10 actually returned); codebase-memory-mcp 38/60 (0.633) / 0.646 / 354.63 returned tokens | — | `validation/results/20261026-codex-comparison/` | Supported: more accurate than both; fewer tokens than Graphify but not codebase-memory-mcp, so the pre-registered "better on everything" gate failed. Golden set by the Findex author; historical manifest lacks content/tool identity hashes |
 | Intent router | dev 272/272; frozen held-out v2 **57/60** | v2 56/60 before the 2026-10-26 rules | `crates/findex-index/src/router_heldout_v2.tsv` + test | Proven on v2. v1 (60/60) was tuned on and no longer counts as held out |
 
 Known false negatives of the owner rules (seen on held-out data, not tuned
@@ -45,7 +70,7 @@ owner. Remaining router v2 misses: "remove", "consequences", "breaking".
 | Owner-rule build on task `t2` (tokio callers) | 4/4 correct; n = 2 per arm, one Findex session never called Findex | `validation/results/20261026T093056Z-6e0a1f6e209c/` | Supported (correctness only, no token claim) |
 | Sonnet, Opus | — | — | Not run |
 | Codex client (plugin loads, 8 tools, source-verified answer) | app-server native check PASS | `validation/results/20261026-codex-comparison/codex-native.json` | Proven (integration only) |
-| Codex/Claude live comparison of three tools | 10 of 12 sessions used; invalid or blocked runs | same, `NOTE.md` | Not proven |
+| Codex/Claude live comparison of three tools | Six of 12 authorized attempts started cumulatively: four invalid permission attempts, one valid correct Findex answer, then Graphify exit 1 with no usage and a usage-limit stop; Claude blocked | same, `NOTE.md`, `live-results.json`; `live-invalid-permission-trials.json` is the overlapping four-attempt prefix | Not proven; incomplete usage cannot establish session-token totals or actual subscription billing |
 
 `validation/FINAL_VALIDATION_REPORT.md` (2026-10-12) says token savings were
 not demonstrated. That referred to the earlier 36-session study, where Findex

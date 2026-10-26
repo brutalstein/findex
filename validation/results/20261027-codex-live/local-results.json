@@ -1,0 +1,260 @@
+{
+  "setups": [
+    {
+      "corpus": "requests",
+      "findex_s": 0.14490089999981137,
+      "graphify_s": 3.2257531000004747,
+      "codebase_memory_s": 3.149659900000188,
+      "codebase_project": "findex-bench-20261026-codex-comparison-requests",
+      "codebase_index": {
+        "project": "findex-bench-20261026-codex-comparison-requests",
+        "excluded": {
+          "dirs": [
+            ".git"
+          ],
+          "count": 1,
+          "truncated": false
+        },
+        "not_indexed_files_count": 11,
+        "not_indexed_files": {
+          "files": [
+            {
+              "path": "ext/flower-of-life.jpg",
+              "reason": "ignored-suffix"
+            },
+            {
+              "path": "ext/kr-compressed.png",
+              "reason": "ignored-suffix"
+            },
+            {
+              "path": "ext/kr.png",
+              "reason": "ignored-suffix"
+            },
+            {
+              "path": "ext/psf-compressed.png",
+              "reason": "ignored-suffix"
+            },
+            {
+              "path": "ext/psf.png",
+              "reason": "ignored-suffix"
+            }
+          ],
+          "count": 11,
+          "truncated": true,
+          "note": "Excluded by design (gitignore/.cbmignore/skip-lists); examples only \u2014 full list in 'logfile'."
+        },
+        "skipped_count": 0,
+        "logfile": "%USERPROFILE%/.cbm-cache/logs/findex-bench-20261026-codex-comparison-requests-1793011492.log",
+        "parse_partial_count": 2,
+        "parse_partial": {
+          "files": [
+            {
+              "path": "setup.cfg",
+              "error_ranges": "5-6,15-17"
+            },
+            {
+              "path": "tox.ini",
+              "error_ranges": "8-9,10-10,16-18"
+            }
+          ],
+          "count": 2,
+          "truncated": false,
+          "note": "Indexed, but constructs in these line ranges may be missing (best-effort signal); examples only \u2014 full list via index_status or 'logfile'."
+        },
+        "nodes": 1329,
+        "edges": 5303,
+        "expected_nodes": 1329,
+        "expected_edges": 5303,
+        "adr_present": false,
+        "adr_hint": "Project indexed. Consider creating an Architecture Decision Record: explore the codebase with get_architecture(aspects=['all']), then use manage_adr(mode='update') to persist architectural insights across sessions.",
+        "artifact_present": false,
+        "status": "indexed"
+      },
+      "findex_disk_bytes": 1323008,
+      "graphify_disk_bytes": 2369618,
+      "codebase_disk_bytes": null
+    },
+    {
+      "corpus": "zod",
+      "findex_s": 0.3079043999996429,
+      "graphify_s": 6.278981500000555,
+      "codebase_memory_s": 3.2225060999999187,
+      "codebase_project": "findex-bench-20261026-codex-comparison-zod",
+      "codebase_index": {
+        "project": "findex-bench-20261026-codex-comparison-zod",
+        "excluded": {
+          "dirs": [
+            ".git"
+          ],
+          "count": 1,
+          "truncated": false
+        },
+        "not_indexed_files_count": 16,
+        "not_indexed_files": {
+          "files": [
+            {
+              "path": "logo.svg",
+              "reason": "ignored-suffix"
+            },
+            {
+              "path": "playground.ts",
+              "reason": "gitignore"
+            },
+            {
+              "path": "static/android-chrome-192x192.png",
+              "reason": "ignored-suffix"
+            },
+            {
+              "path": "static/android-chrome-512x512.png",
+              "reason": "ignored-suffix"
+            },
+            {
+              "path": "static/apple-touch-icon.png",
+              "reason": "ignored-suffix"
+            }
+          ],
+          "count": 16,
+          "truncated": true,
+          "note": "Excluded by design (gitignore/.cbmignore/skip-lists); examples only \u2014 full list in 'logfile'."
+        },
+        "skipped_count": 0,
+        "parse_partial_count": 0,
+        "nodes": 2941,
+        "edges": 8926,
+        "expected_nodes": 2941,
+        "expected_edges": 8926,
+        "adr_present": false,
+        "adr_hint": "Project indexed. Consider creating an Architecture Decision Record: explore the codebase with get_architecture(aspects=['all']), then use manage_adr(mode='update') to persist architectural insights across sessions.",
+        "artifact_present": false,
+        "status": "indexed"
+      },
+      "findex_disk_bytes": 3686400,
+      "graphify_disk_bytes": 2193549,
+      "codebase_disk_bytes": null
+    },
+    {
+      "corpus": "fmt",
+      "findex_s": 0.4582981000003201,
+      "graphify_s": 6.276469299999917,
+      "codebase_memory_s": 4.550518199999715,
+      "codebase_project": "findex-bench-20261026-codex-comparison-fmt",
+      "codebase_index": {
+        "project": "findex-bench-20261026-codex-comparison-fmt",
+        "excluded": {
+          "dirs": [
+            ".git"
+          ],
+          "count": 1,
+          "truncated": false
+        },
+        "not_indexed_files_count": 1,
+        "not_indexed_files": {
+          "files": [
+            {
+              "path": "doc/perf.svg",
+              "reason": "ignored-suffix"
+            }
+          ],
+          "count": 1,
+          "truncated": false,
+          "note": "Excluded by design (gitignore/.cbmignore/skip-lists); examples only \u2014 full list in 'logfile'."
+        },
+        "skipped_count": 0,
+        "logfile": "%USERPROFILE%/.cbm-cache/logs/findex-bench-20261026-codex-comparison-fmt-1793011550.log",
+        "parse_partial_count": 34,
+        "parse_partial": {
+          "files": [
+            {
+              "path": "ChangeLog.md",
+              "error_ranges": "160-180"
+            },
+            {
+              "path": "include/fmt/args.h",
+              "error_ranges": "21-21,49-49,52-53,53-54,75-77,79-79,80-83,113-113,140-140,148-148,226-226"
+            },
+            {
+              "path": "include/fmt/base.h",
+              "error_ranges": "308-308,310-310,313-316,394-394,443-443,516-517,541-541,548-549,549-549,611-611,615-615,689-689,691-691,692-692,695-695,697-697,698-698,699-699,700-700,702-702,735-735,755-755,758-758,807-807,808-808,811-811,865-865,1000-1000,1110-1110,1113-1113,1125-1125,1134-1135,1198-1198,1224-1225"
+            },
+            {
+              "path": "include/fmt/chrono.h",
+              "error_ranges": "27-27,48-48,74-74,75-75,102-102,103-103,159-159,421-421,448-448,493-493,519-519,647-647,999-999"
+            },
+            {
+              "path": "include/fmt/color.h",
+              "error_ranges": "13-16,17-17,158-158,193-193,193-193,193-193,194-194,196-196,196-196,196-196,196-196,196-196,199-199,199-199,199-199,200-200,200-200,210-210,211-211,214-214,219-219,234-234,290-293,300-300,303-303,311-311,610-610"
+            }
+          ],
+          "count": 34,
+          "truncated": true,
+          "note": "Indexed, but constructs in these line ranges may be missing (best-effort signal); examples only \u2014 full list via index_status or 'logfile'."
+        },
+        "nodes": 6697,
+        "edges": 20121,
+        "expected_nodes": 6697,
+        "expected_edges": 20121,
+        "adr_present": false,
+        "adr_hint": "Project indexed. Consider creating an Architecture Decision Record: explore the codebase with get_architecture(aspects=['all']), then use manage_adr(mode='update') to persist architectural insights across sessions.",
+        "artifact_present": false,
+        "status": "indexed"
+      },
+      "findex_disk_bytes": 4542464,
+      "graphify_disk_bytes": 14532870,
+      "codebase_disk_bytes": null
+    },
+    {
+      "corpus": "ripgrep",
+      "findex_s": 0.40482539999993605,
+      "graphify_s": 5.73107439999967,
+      "codebase_memory_s": 3.5994457999995575,
+      "codebase_project": "findex-bench-20261026-codex-comparison-ripgrep",
+      "codebase_index": {
+        "project": "findex-bench-20261026-codex-comparison-ripgrep",
+        "excluded": {
+          "dirs": [
+            ".cargo",
+            ".git"
+          ],
+          "count": 2,
+          "truncated": false
+        },
+        "not_indexed_files_count": 0,
+        "skipped_count": 0,
+        "logfile": "%USERPROFILE%/.cbm-cache/logs/findex-bench-20261026-codex-comparison-ripgrep-1793011584.log",
+        "parse_partial_count": 3,
+        "parse_partial": {
+          "files": [
+            {
+              "path": "ci/test-complete",
+              "error_ranges": "19-97"
+            },
+            {
+              "path": "crates/core/flags/complete/encodings.sh",
+              "error_ranges": "8-30"
+            },
+            {
+              "path": "crates/core/flags/complete/rg.zsh",
+              "error_ranges": "354-354,356-356,392-394,405-405,428-428,433-433"
+            }
+          ],
+          "count": 3,
+          "truncated": false,
+          "note": "Indexed, but constructs in these line ranges may be missing (best-effort signal); examples only \u2014 full list via index_status or 'logfile'."
+        },
+        "nodes": 4562,
+        "edges": 21396,
+        "expected_nodes": 4562,
+        "expected_edges": 21396,
+        "adr_present": false,
+        "adr_hint": "Project indexed. Consider creating an Architecture Decision Record: explore the codebase with get_architecture(aspects=['all']), then use manage_adr(mode='update') to persist architectural insights across sessions.",
+        "artifact_present": false,
+        "status": "indexed"
+      },
+      "findex_disk_bytes": 5029888,
+      "graphify_disk_bytes": 9684158,
+      "codebase_disk_bytes": null
+    }
+  ],
+  "offline_evidence": "../20261027-payload-cost-v2",
+  "records": []
+}

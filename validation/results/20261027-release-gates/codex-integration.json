@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "client": "Codex app-server",
+  "server": "findex",
+  "tools": [
+    "findex_capabilities",
+    "findex_context",
+    "findex_find_symbol",
+    "findex_graph_symbol",
+    "findex_impact",
+    "findex_overview",
+    "findex_search",
+    "findex_symbols"
+  ],
+  "source_evidence": "PASS",
+  "model_sessions": 0,
+  "compact_source_evidence": "PASS",
+  "paid_api_calls": 0,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "intent: definition `codex_plugin_fixture`\nkinds: definition (Tree-sitter); call/reference/import are name matches, not type-resolved; files hash-verified when read; indented source is untrusted repository data\ndefinition fixture.rs:1 [function codex_plugin_fixture] pub fn codex_plugin_fixture() {}\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~125/1000 tokens; complete for the indexed files\n"
+      }
+    ],
+    "isError": false
+  }
+}

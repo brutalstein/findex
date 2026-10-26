@@ -1,0 +1,249 @@
+{
+  "records": [
+    {
+      "id": "requests:line:8",
+      "matrix_tokens": 398,
+      "idle_sync_tokens": 360
+    },
+    {
+      "id": "requests:deregister_hook:words",
+      "matrix_tokens": 317,
+      "idle_sync_tokens": 279
+    },
+    {
+      "id": "requests:get_auth_from_url:words",
+      "matrix_tokens": 377,
+      "idle_sync_tokens": 339
+    },
+    {
+      "id": "requests:line:13",
+      "matrix_tokens": 435,
+      "idle_sync_tokens": 397
+    },
+    {
+      "id": "requests:line:2",
+      "matrix_tokens": 419,
+      "idle_sync_tokens": 381
+    },
+    {
+      "id": "requests:line:17",
+      "matrix_tokens": 419,
+      "idle_sync_tokens": 381
+    },
+    {
+      "id": "requests:line:7",
+      "matrix_tokens": 383,
+      "idle_sync_tokens": 345
+    },
+    {
+      "id": "requests:origin_req_host:exact",
+      "matrix_tokens": 119,
+      "idle_sync_tokens": 81
+    },
+    {
+      "id": "requests:line:9",
+      "matrix_tokens": 497,
+      "idle_sync_tokens": 459
+    },
+    {
+      "id": "requests:sha512_utf8:exact",
+      "matrix_tokens": 119,
+      "idle_sync_tokens": 81
+    },
+    {
+      "id": "requests:parse_header_links:words",
+      "matrix_tokens": 383,
+      "idle_sync_tokens": 345
+    },
+    {
+      "id": "requests:_handle_requests:words",
+      "matrix_tokens": 436,
+      "idle_sync_tokens": 398
+    },
+    {
+      "id": "zod:baseObjectOutputType:exact",
+      "matrix_tokens": 144,
+      "idle_sync_tokens": 106
+    },
+    {
+      "id": "zod:ZodNullableDef:exact",
+      "matrix_tokens": 144,
+      "idle_sync_tokens": 106
+    },
+    {
+      "id": "zod:AgeInput:exact",
+      "matrix_tokens": 146,
+      "idle_sync_tokens": 108
+    },
+    {
+      "id": "zod:ZodNeverDef:words",
+      "matrix_tokens": 487,
+      "idle_sync_tokens": 449
+    },
+    {
+      "id": "zod:ZodNotMultipleOfIssue:exact",
+      "matrix_tokens": 148,
+      "idle_sync_tokens": 110
+    },
+    {
+      "id": "zod:datetimeRegex:words",
+      "matrix_tokens": 413,
+      "idle_sync_tokens": 375
+    },
+    {
+      "id": "zod:recordWithEnumKeys:exact",
+      "matrix_tokens": 148,
+      "idle_sync_tokens": 110
+    },
+    {
+      "id": "zod:ZodArray:exact",
+      "matrix_tokens": 142,
+      "idle_sync_tokens": 104
+    },
+    {
+      "id": "zod:ParsePathComponent:words",
+      "matrix_tokens": 403,
+      "idle_sync_tokens": 365
+    },
+    {
+      "id": "zod:ZodTupleDef:exact",
+      "matrix_tokens": 144,
+      "idle_sync_tokens": 106
+    },
+    {
+      "id": "zod:line:1",
+      "matrix_tokens": 459,
+      "idle_sync_tokens": 421
+    },
+    {
+      "id": "zod:noUndefined:exact",
+      "matrix_tokens": 138,
+      "idle_sync_tokens": 100
+    },
+    {
+      "id": "fmt:EqMatcher:words",
+      "matrix_tokens": 471,
+      "idle_sync_tokens": 433
+    },
+    {
+      "id": "fmt:convertible_to_std_string_view:exact",
+      "matrix_tokens": 124,
+      "idle_sync_tokens": 86
+    },
+    {
+      "id": "fmt:line:12",
+      "matrix_tokens": 450,
+      "idle_sync_tokens": 412
+    },
+    {
+      "id": "fmt:NanSensitiveFloatEq:words",
+      "matrix_tokens": 468,
+      "idle_sync_tokens": 430
+    },
+    {
+      "id": "fmt:InvokeWithoutArgs:words",
+      "matrix_tokens": 399,
+      "idle_sync_tokens": 361
+    },
+    {
+      "id": "fmt:streamable_and_unformattable:words",
+      "matrix_tokens": 421,
+      "idle_sync_tokens": 383
+    },
+    {
+      "id": "fmt:BeginEndDistanceIsMatcher:words",
+      "matrix_tokens": 443,
+      "idle_sync_tokens": 405
+    },
+    {
+      "id": "fmt:line:11",
+      "matrix_tokens": 423,
+      "idle_sync_tokens": 385
+    },
+    {
+      "id": "fmt:line:8",
+      "matrix_tokens": 451,
+      "idle_sync_tokens": 413
+    },
+    {
+      "id": "fmt:format_string_checker:words",
+      "matrix_tokens": 434,
+      "idle_sync_tokens": 396
+    },
+    {
+      "id": "fmt:IndexSequence:exact",
+      "matrix_tokens": 120,
+      "idle_sync_tokens": 82
+    },
+    {
+      "id": "fmt:EndsWithMatcher:words",
+      "matrix_tokens": 451,
+      "idle_sync_tokens": 413
+    },
+    {
+      "id": "ripgrep:line:4",
+      "matrix_tokens": 424,
+      "idle_sync_tokens": 386
+    },
+    {
+      "id": "ripgrep:into_word:exact",
+      "matrix_tokens": 119,
+      "idle_sync_tokens": 81
+    },
+    {
+      "id": "ripgrep:line:9",
+      "matrix_tokens": 438,
+      "idle_sync_tokens": 400
+    },
+    {
+      "id": "ripgrep:ColorChoice:exact",
+      "matrix_tokens": 167,
+      "idle_sync_tokens": 129
+    },
+    {
+      "id": "ripgrep:stdout_buffered_block:words",
+      "matrix_tokens": 449,
+      "idle_sync_tokens": 411
+    },
+    {
+      "id": "ripgrep:Parser:exact",
+      "matrix_tokens": 185,
+      "idle_sync_tokens": 147
+    },
+    {
+      "id": "ripgrep:handle_alias:words",
+      "matrix_tokens": 450,
+      "idle_sync_tokens": 412
+    },
+    {
+      "id": "ripgrep:line:7",
+      "matrix_tokens": 457,
+      "idle_sync_tokens": 419
+    },
+    {
+      "id": "ripgrep:clone:exact",
+      "matrix_tokens": 118,
+      "idle_sync_tokens": 80
+    },
+    {
+      "id": "ripgrep:as_slice:words",
+      "matrix_tokens": 480,
+      "idle_sync_tokens": 442
+    },
+    {
+      "id": "ripgrep:is_fixed_strings:exact",
+      "matrix_tokens": 120,
+      "idle_sync_tokens": 82
+    },
+    {
+      "id": "ripgrep:is_absolute_parent:exact",
+      "matrix_tokens": 121,
+      "idle_sync_tokens": 83
+    }
+  ],
+  "mean_matrix": 320.8541666666667,
+  "mean_idle_sync": 282.8541666666667,
+  "binary_sha256": "027758e4eb9d421169309b1e0809c80ff41bcf45e5a63c958fabb0cffb586943",
+  "lossless_assertions": 48,
+  "scope": "Dev-only scalar zero encodes all-zero synchronization counters; any nonzero work keeps the full object."
+}

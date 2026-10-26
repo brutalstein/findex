@@ -2,3 +2,7 @@
 # Cargo still requires an explicit MSRV test: fallback is a preference, not proof.
 [resolver]
 incompatible-rust-versions = "fallback"
+
+# Windows packages must run without a developer compiler/runtime on PATH.
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]

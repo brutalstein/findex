@@ -26,7 +26,7 @@ def main() -> int:
     log = CommandLog(out)
     steps = [("fmt", ["cargo", "fmt", "--all", "--", "--check"]),
              ("clippy", ["cargo", "clippy", "--workspace", "--all-targets", "--locked", "--", "-D", "warnings"]),
-             ("test", ["cargo", "test", "--workspace", "--locked", "--no-fail-fast"]),
+             ("test", ["cargo", "test", "--workspace", "--all-targets", "--locked", "--no-fail-fast"]),
              ("release_build", ["cargo", "build", "--release", "--locked", "-p", "findex"]),
              ("audit", ["cargo", "audit", "--deny", "warnings"])]
     report = {"steps": {}, "tests": {}}

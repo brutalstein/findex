@@ -2,6 +2,23 @@
 
 Status means *evidence*, not aspiration. No milestone is considered complete merely because source files exist.
 
+## Release-candidate hardening (2026-10-27)
+
+- [x] Lossless compact MCP search/symbol output; 115 roundtrips and unchanged
+  source-hit lists against the previous binary, including 55 new queries.
+- [x] Redaction-before-truncation regression and explicit bounded-symbol
+  truncation diagnostics.
+- [x] Native installed Codex plugin: eight tools, fixture source and compact
+  output; six real Codex subscription sessions, all answers correct (small pilot).
+- [x] Evidence guards for frozen sources/tools, interrupted live attempts,
+  successful MCP calls and nDCG duplicate ranks; offline regressions in CI.
+- [ ] Universal superiority over alternatives: not demonstrated. Codebase-memory
+  tree output remains smaller; code-edit, architecture and large live studies
+  are outside the new pilot. See `docs/EVIDENCE.md` and the dated release report.
+
+The initial milestone checklist below is historical planning, supplemented by
+the dated evidence sections; unchecked future goals are not release promises.
+
 ## F0 — Foundation (validated Windows CI)
 
 - [x] Four-crate Rust workspace, separate CLI/core/index/MCP responsibilities.

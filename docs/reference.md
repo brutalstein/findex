@@ -72,6 +72,9 @@ must be imported again after deletion.
 - Git-ignore rules, hidden directories and common vendor/build directory filters apply. Ignored files will not be retrieved.
 - Findex's MCP adapter serves both the `initialize` handshake (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05) and the stateless 2026-07-28 protocol (`server/discover`, per-request `_meta` version). Claude Code 2.1.281 was tested for real via `--mcp-config`, `--plugin-dir` and `findex claude`; it negotiates 2025-11-25.
 - Build with the rustup MSVC toolchain (`rust-toolchain.toml`). A standalone `gnullvm` Rust earlier on `PATH` produces a `findex.exe` that needs `libunwind.dll` and fails to start as an MCP server without it.
+- Windows MSVC builds link the CRT statically. The package check runs the
+  bundled executable with only Windows system directories on PATH, so a local
+  compiler's DLLs cannot hide a missing runtime dependency.
 - `ANTHROPIC_API_KEY` may affect official Claude Code authentication; `findex doctor` warns without logging its value.
 
 ## Modules
@@ -164,6 +167,23 @@ lookups reuse the **same native watcher session** as lexical retrieval: warm
 queries without relevant events avoid a whole-repository traversal.
 The persistent symbol records avoid unchanged-file AST parsing.
 Files with syntax errors are marked as such; no call relationships are inferred.
+
+MCP `findex_search` and `findex_find_symbol` accept optional `format="compact"`.
+The default remains `json` (objects in `hits`). Compact JSON replaces each hit
+object with an array whose fields are named by the outer `columns` array. All
+source strings, line numbers and evidence flags are retained. Compact `sync: 0`
+represents all eight counters (`examined`, `indexed`, `unchanged`, `removed`,
+`skipped`, `cloud_only`, `symbols_parsed`, `symbols_reused`) being zero. Any
+nonzero counter keeps the full sync object. Other diagnostics are unchanged.
+These are counters for this lookup, not a claim of complete project coverage.
+JSON escaping still applies. Empty hits have empty columns. Unsupported formats
+are rejected before accessing the index. Compact output can be slightly larger
+for a single hit; savings depend on the result set.
+
+Exact-symbol reports include `truncated`. It is true when the returned limit or
+the bounded verification window leaves candidates unexamined. A zero-hit result
+with `truncated=true` is not proof that the symbol is absent: stale candidates
+can fill the verification window. Verify with source search in that case.
 
 ### Indexed-only AST security policy
 

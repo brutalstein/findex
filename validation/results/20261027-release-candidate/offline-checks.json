@@ -1,0 +1,46 @@
+{
+  "offline-python": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "plugin-validation": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "claude-validator": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "hardening": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "sensitive-paths": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "overview": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "cloud": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "smb": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "security": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "10k": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "dependency-policy": {
+    "status": "PASS",
+    "exit_code": 0
+  }
+}

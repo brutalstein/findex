@@ -1,0 +1,22 @@
+{
+  "tasks": [
+    "requests:JSONDecodeError:exact",
+    "zod:nativeEnumTest:words"
+  ],
+  "tools": [
+    "findex",
+    "graphify",
+    "codebase-memory"
+  ],
+  "max_sessions": 6,
+  "codex_profile": {
+    "model": "gpt-6.1-sol",
+    "model_reasoning_effort": "high",
+    "service_tier": "priority"
+  },
+  "claude_model": "haiku",
+  "blocked": {
+    "codex": null,
+    "claude": "NOT_RUN: Codex-only study"
+  }
+}

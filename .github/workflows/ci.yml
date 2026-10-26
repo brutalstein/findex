@@ -57,8 +57,8 @@ jobs:
           CARGO_TARGET_DIR: ${{ github.workspace }}\target
         run: |
           python -m pip install --quiet psutil==7.0.0
-          python validation/harness/test_live_gate.py
-          if ($LASTEXITCODE -ne 0) { throw "Live-model gate regression" }
+          python -m unittest discover -s validation/harness -p 'test_*.py'
+          if ($LASTEXITCODE -ne 0) { throw "Offline validation regression" }
       - name: Validate Claude Code native plugin and offline MCP package
         shell: pwsh
         run: |
@@ -306,7 +306,8 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist\findex | Out-Null
           Copy-Item target\release\findex.exe dist\findex\findex.exe
           Copy-Item -Recurse plugin dist\findex\plugin
-          Copy-Item README.md, LICENSE, Cargo.lock dist\findex\
+          Copy-Item README.md, CHANGELOG.md, SECURITY.md, LICENSE, Cargo.lock dist\findex\
+          Copy-Item -Recurse docs dist\findex\docs
           # Independently installable Claude plugin ZIP: bundled trusted native
           # executable, no PATH dependency and no runtime downloads.
           Copy-Item -Recurse plugin dist\findex-plugin

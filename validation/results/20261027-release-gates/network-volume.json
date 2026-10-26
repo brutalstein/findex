@@ -1,0 +1,24 @@
+{
+  "model_sessions": 0,
+  "paid_calls": 0,
+  "verdict": "PASS",
+  "scope": "loopback SMB administrative share",
+  "checks": {
+    "index": "Indexed 2 changed, 0 unchanged, 0 removed, 0 skipped (examined 2)",
+    "cli_search_hits": 2,
+    "cli_context_call_found": true,
+    "project_identity": true,
+    "mcp_initial": [
+      "a.rs",
+      "b.rs"
+    ],
+    "edit_seconds": 0.02,
+    "delete_seconds": 0.02,
+    "create_seconds": 0.03,
+    "mcp_mode": {
+      "retrieval": "sqlite-fts5-bm25-native-watch",
+      "examined": 0
+    },
+    "mcp_exit": 0
+  }
+}

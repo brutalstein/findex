@@ -1,0 +1,23 @@
+{
+  "utc": "20261026T221309Z",
+  "git_sha": "679ff17df4536739f0ac4b099e32e35c95614511",
+  "git_dirty": true,
+  "git_branch": "codex/token-efficiency-hardening",
+  "os": "Windows-11-10.0.26200-SP0",
+  "windows_build": "10.0.26200",
+  "machine": "AMD64",
+  "logical_processors": 32,
+  "physical_cores": 16,
+  "ram_bytes": 33521238016,
+  "python": "3.14.6",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "rustc_host": "x86_64-pc-windows-msvc",
+  "cargo": "cargo 1.97.0 (c980f4866 2026-06-30)",
+  "git": "git version 2.51.2.windows.1",
+  "claude_code": "not queried",
+  "cpu_model": "AMD Ryzen 9 8945HX with Radeon Graphics",
+  "storage": [
+    "SSD NVMe CT1000P310SSD8"
+  ],
+  "ci_run_url": ""
+}

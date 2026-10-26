@@ -13,36 +13,51 @@ Your AI coding assistant is brilliant. It also explores your repo one `grep` at 
 time, and you pay for every line it reads on the way.
 
 **Findex hands Claude Code and Codex a local, hash-verified map of your code.**
-Ask "who calls `parse_config`?" and the answer comes back in one call: the
-definition, every call site with its enclosing function, and the tests, plus a
-line telling the model whether that list is complete.
-No cloud. No API keys. No guessing.
+Ask "who calls `parse_config`?" for its definition and matching call sites
+with enclosing functions, or ask for its tests. Coverage and limits accompany
+the evidence; name matches do not prove type-resolved calls.
+Findex retrieves locally without API keys. The official assistant may send
+selected excerpts to its provider.
 
 <p align="center">
-  <img src="docs/assets/stats.svg" alt="0.967 right definition first try · −23.7% Claude tokens on navigation tasks · 279/279 coverage claims hold · 0 cloud-only files downloaded" width="100%">
+  <img src="docs/assets/stats.svg" alt="0.982 right definition first try in 55 new lookups · −23.7% Claude tokens on navigation tasks · 279/279 coverage claims hold · 0 cloud-only files downloaded" width="100%">
 </p>
 
 ## The receipts
 
-We benchmarked Findex against two popular code-navigation tools on 60 held-out
-lookups. Same tasks, same budget, same rules, losses included.
+We compared the native MCP servers on 115 frozen navigation queries: 55 new
+held-out lookups and 60 historical regression controls. The table shows the
+55 new queries. Source content, binaries and graph hashes were frozen first.
 
 <p align="center">
-  <img src="docs/assets/benchmark.svg" alt="Benchmark: hit@1 Findex 0.967, Graphify 0.650, codebase-memory-mcp 0.633; tokens Findex 419, Graphify 1,466, codebase-memory-mcp 355" width="100%">
+  <img src="docs/assets/benchmark.svg" alt="55 new queries: hit@1 Findex 0.982, Graphify 0.873, codebase-memory-mcp 0.855; raw output tokens Findex compact 222, Graphify 2663, codebase-memory tree 240" width="100%">
 </p>
 
-| | Findex | Graphify (code-only) | codebase-memory-mcp |
+| | Findex (compact) | Graphify (code-only MCP) | codebase-memory-mcp (tree) |
 |---|:---:|:---:|:---:|
-| Right file, first try (hit@1) | **0.967** | 0.650 | 0.633 |
-| Mean reciprocal rank | **0.983** | 0.676 | 0.646 |
-| Context tokens per answer | 419 | 1,466 | **355** |
-| Median latency | **8 ms** | 904 ms¹ | 18 ms |
+| Right file, first try (hit@1) | **0.982** | 0.873 | 0.855 |
+| Correct definition line, first try | **0.982** | 0.764 | 0.727 |
+| Mean reciprocal rank | **0.991** | 0.897 | 0.885 |
+| Raw tool output tokens per query | **222** | 2,663 | 240 |
+| Median warm latency | **3 ms** | 26 ms | 28 ms |
 
-Yes, codebase-memory-mcp sends fewer tokens. It is also wrong a third of the
-time, and a short wrong answer is the most expensive kind. Fine print: the
-golden set was written by the Findex author, which tilts the field in our
-favour; ¹ Graphify's figure includes CLI start-up. Full method and raw data:
-[`validation/results/20261026-codex-comparison`](validation/results/20261026-codex-comparison/NOTE.md).
+Findex's optional compact format cuts its own JSON output by 29.0% on this
+subset, preserving every field through a documented lossless encoding; all 115
+source-hit lists match the previous Findex binary. Across all 115 queries,
+Findex compact averages 264 tokens and codebase tree 266: a narrow margin.
+Codebase is still smaller on three of four corpora and on the historical
+60-query subset. Codebase exact lookups use anchored regex, and tree/JSON hit
+lists are checked for equivalence. Accuracy uses a 2,000-token visible budget;
+the raw column includes Graphify's over-budget output. The golden is
+author-created and reused during format iteration; this is no universal win.
+[Method, losses and reproduction](validation/results/20261027-final-comparison/NOTE.md).
+
+**Real Codex subscription pilot:** six sequential sessions, two tasks per tool,
+all answers correct. Findex used 149,527 total input+output tokens, Graphify
+217,280 and codebase-memory 592,385. Cache differences are reported separately.
+The pilot used the earlier matrix-only build. Two tasks with one repetition
+per arm cannot establish broad savings or code-fix
+success. [Pilot evidence](validation/results/20261027-codex-live/NOTE.md).
 
 **In real Claude Code sessions** (108 sessions, Haiku 4.5), Findex cut tokens by
 **23.7 %** on held-out navigation tasks, with 12/12 answers correct
@@ -83,8 +98,8 @@ cargo build --release -p findex
 |---|---|
 | 🎯 **One-call context** | Definition, call sites with their enclosing function, or tests, each with a coverage line the model can trust. |
 | 🔎 **Symbol-aware search** | Tree-sitter definitions for Rust, Python, TypeScript/JavaScript and C++, plus SQLite FTS5 with camelCase-aware ranking. |
-| ⚡ **Always fresh** | A native Windows watcher keeps the index current; every hit is re-hashed against the file before it reaches the model. |
-| 🧭 **Owner-aware callers** | `Type::method` and `self.method` resolved for Rust; calls into external crates are excluded and counted. |
+| ⚡ **Source-checked** | A native Windows watcher updates the index; every returned hit is re-hashed against the file before it reaches the model. |
+| 🧭 **Owner-aware callers** | Owner/receiver filtering for Rust; unknown receivers remain possible calls, and excluded external-crate matches are counted. |
 | 🔗 **Optional semantic graph** | Import SCIP or captured LSP references for verified file impact. |
 | 🌍 **Speaks your language** | Intent routing in English and Turkish. |
 
@@ -96,7 +111,7 @@ cargo build --release -p findex
   counted. Before this fix, indexing a OneDrive folder downloaded every file.
 - **Fails closed.** A corrupt or newer-format index is refused and left
   intact; `findex forget` and `findex index` rebuild it.
-- **Leaves no traces.** Text of deleted, excluded or unreadable files is wiped
+- **SQLite removal.** Text of deleted, excluded or unreadable files is wiped
   from SQLite pages, FTS segments and the WAL. Symlinks and junctions are not
   followed, and secret-looking files are skipped.
 - **Verifiable releases.** Each release ships an SBOM, SHA-256 files and a

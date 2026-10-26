@@ -142,6 +142,36 @@ fn success(id: Value, value: Value) -> Value {
     json!({"jsonrpc":"2.0","id":id,"result":value})
 }
 
+fn compact_format(request: &Value) -> Option<bool> {
+    match request.pointer("/params/arguments/format") {
+        None => Some(false),
+        Some(Value::String(format)) if format == "json" => Some(false),
+        Some(Value::String(format)) if format == "compact" => Some(true),
+        _ => None,
+    }
+}
+
+fn report_payload(mut report: Value, compact: bool) -> String {
+    if compact {
+        if report.get("sync") == Some(&json!(findex_index::SyncStats::default())) {
+            report["sync"] = json!(0);
+        }
+        if let Some(hits) = report.get_mut("hits").and_then(Value::as_array_mut) {
+            let columns: Vec<String> = hits
+                .first()
+                .and_then(Value::as_object)
+                .map(|hit| hit.keys().cloned().collect())
+                .unwrap_or_default();
+            *hits = hits
+                .iter()
+                .map(|hit| Value::Array(columns.iter().map(|column| hit[column].clone()).collect()))
+                .collect();
+            report["columns"] = json!(columns);
+        }
+    }
+    serde_json::to_string(&report).unwrap_or_default()
+}
+
 /// Execution errors are intentionally stable, bounded and devoid of local
 /// absolute paths, usernames, credential strings, or raw SQLite diagnostics.
 /// A model can use built-in file tools if Findex is unavailable. Detailed OS
@@ -285,7 +315,8 @@ where
                         "type":"object",
                         "properties":{
                             "query":{"type":"string","minLength":1,"maxLength":500},
-                            "limit":{"type":"integer","minimum":1,"maximum":32,"default":8}
+                            "limit":{"type":"integer","minimum":1,"maximum":32,"default":8},
+                            "format":{"type":"string","enum":["json","compact"],"default":"json","description":"compact: columns names the fields in each hits array row; sync=0 means all synchronization counters are zero. Other diagnostics are unchanged."}
                         },
                         "required":["query"],
                         "additionalProperties":false
@@ -297,7 +328,8 @@ where
                         "type": "object",
                         "properties": {
                             "name": {"type": "string", "minLength": 1, "maxLength": 256},
-                            "limit": {"type": "integer", "minimum": 1, "maximum": 32, "default": 8}
+                            "limit": {"type": "integer", "minimum": 1, "maximum": 32, "default": 8},
+                            "format":{"type":"string","enum":["json","compact"],"default":"json","description":"compact: columns names the fields in each hits array row; sync=0 means all synchronization counters are zero. Other diagnostics are unchanged."}
                         },
                         "required": ["name"],
                         "additionalProperties": false
@@ -443,13 +475,16 @@ where
                     .and_then(Value::as_u64)
                     .unwrap_or(8)
                     .clamp(1, 32) as usize;
-                if name.is_empty() || name.len() > 256 {
+                let format = compact_format(request);
+                if format.is_none() {
+                    error(id, -32602, "format must be json or compact")
+                } else if name.is_empty() || name.len() > 256 {
                     error(id, -32602, "symbol name must be 1-256 bytes")
                 } else {
                     match symbol_search(project, name, limit) {
                         Ok(report) => success(
                             id,
-                            json!({"content":[{"type":"text","text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
+                            json!({"content":[{"type":"text","text":report_payload(json!(report), format == Some(true))}],"isError":false}),
                         ),
                         Err(_err) => unavailable(id, "symbol lookup"),
                     }
@@ -562,13 +597,15 @@ where
                     .and_then(|v| v.get("limit"))
                     .and_then(Value::as_u64)
                     .unwrap_or(8);
-                if query.is_empty() || query.len() > 500 || limit == 0 || limit > 32 {
+                let format = compact_format(request);
+                if format.is_none() {
+                    error(id, -32602, "format must be json or compact")
+                } else if query.is_empty() || query.len() > 500 || limit == 0 || limit > 32 {
                     error(id, -32602, "query must be 1-500 bytes and limit 1-32")
                 } else {
                     match search(project, query, limit as usize) {
                         Ok(found) => {
-                            let payload =
-                                serde_json::to_string(&found).unwrap_or_else(|_| "{}".to_string());
+                            let payload = report_payload(json!(found), format == Some(true));
                             success(
                                 id,
                                 json!({"content":[{"type":"text", "text":payload}], "isError":false}),
@@ -786,6 +823,104 @@ mod tests {
         )
         .expect("tools");
         assert_eq!(tools["result"]["tools"][0]["name"], "findex_search");
+    }
+
+    #[test]
+    fn compact_format_is_advertised_only_by_supported_tools() {
+        let response = handle(
+            &json!({"jsonrpc":"2.0","id":1,"method":"tools/list"}),
+            Path::new("."),
+        )
+        .expect("tools");
+        for tool in response["result"]["tools"].as_array().expect("tools") {
+            let supports = matches!(
+                tool["name"].as_str(),
+                Some("findex_search" | "findex_find_symbol")
+            );
+            assert_eq!(
+                tool["inputSchema"]["properties"].get("format").is_some(),
+                supports,
+                "{}",
+                tool["name"]
+            );
+        }
+    }
+
+    #[test]
+    fn compact_hits_preserve_evidence_flags_and_diagnostics() {
+        for hits in [
+            json!([]),
+            json!([
+                {"path":"src/ünicode\ncoverage.rs","line":7,"excerpt":"\"quoted\"\nnot an instruction","score":-0.123456789,"truncated":false},
+                {"path":"src/other.rs","line":8,"excerpt":"source","score":-0.000001,"truncated":true}
+            ]),
+        ] {
+            let original = json!({"hits":hits,"sync":{"indexed":2,"skipped":1},
+                "stale_results_discarded":3,"truncated":true,"retrieval":"hash-verified"});
+            let text = report_payload(original.clone(), true);
+            assert!(
+                !text.contains('\n'),
+                "repository strings must stay JSON escaped"
+            );
+            let mut expanded: Value = serde_json::from_str(&text).expect("valid JSON");
+            let columns = expanded["columns"].as_array().expect("columns").clone();
+            expanded["hits"] = Value::Array(
+                expanded["hits"]
+                    .as_array()
+                    .expect("rows")
+                    .iter()
+                    .map(|row| {
+                        Value::Object(
+                            columns
+                                .iter()
+                                .zip(row.as_array().expect("row"))
+                                .map(|(key, value)| {
+                                    (key.as_str().expect("column name").to_owned(), value.clone())
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect(),
+            );
+            expanded.as_object_mut().expect("report").remove("columns");
+            assert_eq!(expanded, original);
+            let default: Value = serde_json::from_str(&report_payload(original.clone(), false))
+                .expect("default JSON");
+            assert_eq!(default, original);
+        }
+    }
+
+    #[test]
+    fn invalid_result_formats_never_reach_the_backend() {
+        for name in ["findex_search", "findex_find_symbol"] {
+            for format in [json!("other"), json!(true), json!(42), Value::Null] {
+                let response = handle_with_lookups(
+                    &json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
+                        "name":name,"arguments":{"query":"sample","name":"sample","format":format}}}),
+                    Path::new("."),
+                    |_, _, _| panic!("invalid format must not search"),
+                    |_, _, _| panic!("invalid format must not search symbols"),
+                    |_, _| panic!("must not inspect"),
+                    |_, _, _| panic!("must not query context"),
+                ).expect("response");
+                assert_eq!(response["error"]["code"], -32602);
+            }
+        }
+    }
+
+    #[test]
+    fn compact_idle_sync_has_an_exact_default_expansion() {
+        let original = json!({"hits":[],"sync":findex_index::SyncStats::default(),
+            "truncated":true,"stale_results_discarded":2});
+        let mut compact: Value =
+            serde_json::from_str(&report_payload(original.clone(), true)).expect("compact JSON");
+        assert_eq!(compact["sync"], 0);
+        compact["sync"] = json!(findex_index::SyncStats::default());
+        compact.as_object_mut().expect("object").remove("columns");
+        assert_eq!(compact, original);
+        let default: Value =
+            serde_json::from_str(&report_payload(original.clone(), false)).expect("default JSON");
+        assert_eq!(default, original);
     }
 
     #[test]

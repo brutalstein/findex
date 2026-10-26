@@ -1,0 +1,341 @@
+{
+  "records": [
+    {
+      "id": "requests:line:8",
+      "type": "line_terms",
+      "json_tokens": 517,
+      "matrix_tokens": 402,
+      "hits": 10
+    },
+    {
+      "id": "requests:deregister_hook:words",
+      "type": "identifier_words",
+      "json_tokens": 406,
+      "matrix_tokens": 319,
+      "hits": 8
+    },
+    {
+      "id": "requests:get_auth_from_url:words",
+      "type": "identifier_words",
+      "json_tokens": 497,
+      "matrix_tokens": 383,
+      "hits": 10
+    },
+    {
+      "id": "requests:line:13",
+      "type": "line_terms",
+      "json_tokens": 550,
+      "matrix_tokens": 437,
+      "hits": 10
+    },
+    {
+      "id": "requests:line:2",
+      "type": "line_terms",
+      "json_tokens": 534,
+      "matrix_tokens": 419,
+      "hits": 10
+    },
+    {
+      "id": "requests:line:17",
+      "type": "line_terms",
+      "json_tokens": 539,
+      "matrix_tokens": 426,
+      "hits": 10
+    },
+    {
+      "id": "requests:line:7",
+      "type": "line_terms",
+      "json_tokens": 501,
+      "matrix_tokens": 387,
+      "hits": 10
+    },
+    {
+      "id": "requests:origin_req_host:exact",
+      "type": "symbol_exact",
+      "json_tokens": 113,
+      "matrix_tokens": 114,
+      "hits": 1
+    },
+    {
+      "id": "requests:line:9",
+      "type": "line_terms",
+      "json_tokens": 616,
+      "matrix_tokens": 501,
+      "hits": 10
+    },
+    {
+      "id": "requests:sha512_utf8:exact",
+      "type": "symbol_exact",
+      "json_tokens": 113,
+      "matrix_tokens": 114,
+      "hits": 1
+    },
+    {
+      "id": "requests:parse_header_links:words",
+      "type": "identifier_words",
+      "json_tokens": 500,
+      "matrix_tokens": 387,
+      "hits": 10
+    },
+    {
+      "id": "requests:_handle_requests:words",
+      "type": "identifier_words",
+      "json_tokens": 550,
+      "matrix_tokens": 442,
+      "hits": 10
+    },
+    {
+      "id": "zod:baseObjectOutputType:exact",
+      "type": "symbol_exact",
+      "json_tokens": 162,
+      "matrix_tokens": 140,
+      "hits": 2
+    },
+    {
+      "id": "zod:ZodNullableDef:exact",
+      "type": "symbol_exact",
+      "json_tokens": 162,
+      "matrix_tokens": 140,
+      "hits": 2
+    },
+    {
+      "id": "zod:AgeInput:exact",
+      "type": "symbol_exact",
+      "json_tokens": 164,
+      "matrix_tokens": 142,
+      "hits": 2
+    },
+    {
+      "id": "zod:ZodNeverDef:words",
+      "type": "identifier_words",
+      "json_tokens": 604,
+      "matrix_tokens": 491,
+      "hits": 10
+    },
+    {
+      "id": "zod:ZodNotMultipleOfIssue:exact",
+      "type": "symbol_exact",
+      "json_tokens": 166,
+      "matrix_tokens": 144,
+      "hits": 2
+    },
+    {
+      "id": "zod:datetimeRegex:words",
+      "type": "identifier_words",
+      "json_tokens": 531,
+      "matrix_tokens": 418,
+      "hits": 10
+    },
+    {
+      "id": "zod:recordWithEnumKeys:exact",
+      "type": "symbol_exact",
+      "json_tokens": 166,
+      "matrix_tokens": 144,
+      "hits": 2
+    },
+    {
+      "id": "zod:ZodArray:exact",
+      "type": "symbol_exact",
+      "json_tokens": 160,
+      "matrix_tokens": 138,
+      "hits": 2
+    },
+    {
+      "id": "zod:ParsePathComponent:words",
+      "type": "identifier_words",
+      "json_tokens": 523,
+      "matrix_tokens": 408,
+      "hits": 10
+    },
+    {
+      "id": "zod:ZodTupleDef:exact",
+      "type": "symbol_exact",
+      "json_tokens": 162,
+      "matrix_tokens": 140,
+      "hits": 2
+    },
+    {
+      "id": "zod:line:1",
+      "type": "line_terms",
+      "json_tokens": 581,
+      "matrix_tokens": 466,
+      "hits": 10
+    },
+    {
+      "id": "zod:noUndefined:exact",
+      "type": "symbol_exact",
+      "json_tokens": 156,
+      "matrix_tokens": 134,
+      "hits": 2
+    },
+    {
+      "id": "fmt:EqMatcher:words",
+      "type": "identifier_words",
+      "json_tokens": 585,
+      "matrix_tokens": 471,
+      "hits": 10
+    },
+    {
+      "id": "fmt:convertible_to_std_string_view:exact",
+      "type": "symbol_exact",
+      "json_tokens": 118,
+      "matrix_tokens": 119,
+      "hits": 1
+    },
+    {
+      "id": "fmt:line:12",
+      "type": "line_terms",
+      "json_tokens": 565,
+      "matrix_tokens": 453,
+      "hits": 10
+    },
+    {
+      "id": "fmt:NanSensitiveFloatEq:words",
+      "type": "identifier_words",
+      "json_tokens": 584,
+      "matrix_tokens": 471,
+      "hits": 10
+    },
+    {
+      "id": "fmt:InvokeWithoutArgs:words",
+      "type": "identifier_words",
+      "json_tokens": 518,
+      "matrix_tokens": 404,
+      "hits": 10
+    },
+    {
+      "id": "fmt:streamable_and_unformattable:words",
+      "type": "identifier_words",
+      "json_tokens": 534,
+      "matrix_tokens": 422,
+      "hits": 10
+    },
+    {
+      "id": "fmt:BeginEndDistanceIsMatcher:words",
+      "type": "identifier_words",
+      "json_tokens": 558,
+      "matrix_tokens": 444,
+      "hits": 10
+    },
+    {
+      "id": "fmt:line:11",
+      "type": "line_terms",
+      "json_tokens": 538,
+      "matrix_tokens": 424,
+      "hits": 10
+    },
+    {
+      "id": "fmt:line:8",
+      "type": "line_terms",
+      "json_tokens": 566,
+      "matrix_tokens": 454,
+      "hits": 10
+    },
+    {
+      "id": "fmt:format_string_checker:words",
+      "type": "identifier_words",
+      "json_tokens": 549,
+      "matrix_tokens": 438,
+      "hits": 10
+    },
+    {
+      "id": "fmt:IndexSequence:exact",
+      "type": "symbol_exact",
+      "json_tokens": 114,
+      "matrix_tokens": 115,
+      "hits": 1
+    },
+    {
+      "id": "fmt:EndsWithMatcher:words",
+      "type": "identifier_words",
+      "json_tokens": 565,
+      "matrix_tokens": 454,
+      "hits": 10
+    },
+    {
+      "id": "ripgrep:line:4",
+      "type": "line_terms",
+      "json_tokens": 539,
+      "matrix_tokens": 433,
+      "hits": 10
+    },
+    {
+      "id": "ripgrep:into_word:exact",
+      "type": "symbol_exact",
+      "json_tokens": 113,
+      "matrix_tokens": 114,
+      "hits": 1
+    },
+    {
+      "id": "ripgrep:line:9",
+      "type": "line_terms",
+      "json_tokens": 555,
+      "matrix_tokens": 444,
+      "hits": 10
+    },
+    {
+      "id": "ripgrep:ColorChoice:exact",
+      "type": "symbol_exact",
+      "json_tokens": 209,
+      "matrix_tokens": 164,
+      "hits": 3
+    },
+    {
+      "id": "ripgrep:stdout_buffered_block:words",
+      "type": "identifier_words",
+      "json_tokens": 564,
+      "matrix_tokens": 453,
+      "hits": 10
+    },
+    {
+      "id": "ripgrep:Parser:exact",
+      "type": "symbol_exact",
+      "json_tokens": 251,
+      "matrix_tokens": 183,
+      "hits": 4
+    },
+    {
+      "id": "ripgrep:handle_alias:words",
+      "type": "identifier_words",
+      "json_tokens": 567,
+      "matrix_tokens": 456,
+      "hits": 10
+    },
+    {
+      "id": "ripgrep:line:7",
+      "type": "line_terms",
+      "json_tokens": 573,
+      "matrix_tokens": 459,
+      "hits": 10
+    },
+    {
+      "id": "ripgrep:clone:exact",
+      "type": "symbol_exact",
+      "json_tokens": 112,
+      "matrix_tokens": 113,
+      "hits": 1
+    },
+    {
+      "id": "ripgrep:as_slice:words",
+      "type": "identifier_words",
+      "json_tokens": 594,
+      "matrix_tokens": 481,
+      "hits": 10
+    },
+    {
+      "id": "ripgrep:is_fixed_strings:exact",
+      "type": "symbol_exact",
+      "json_tokens": 114,
+      "matrix_tokens": 115,
+      "hits": 1
+    },
+    {
+      "id": "ripgrep:is_absolute_parent:exact",
+      "type": "symbol_exact",
+      "json_tokens": 115,
+      "matrix_tokens": 116,
+      "hits": 1
+    }
+  ],
+  "baseline_sha256": "1a5d7eaa1426019233d939ecc8291677076518420b1f13ab64eeab75f32dd617"
+}

@@ -31,6 +31,8 @@ pub struct SymbolSearchReport {
     /// Reconciliation work performed before this query, if any.
     pub sync: SyncStats,
     pub hits: Vec<SymbolHit>,
+    /// Matching candidates remain unexamined under the result or verification cap.
+    pub truncated: bool,
     pub stale_results_discarded: usize,
     pub retrieval: &'static str,
 }
@@ -322,20 +324,28 @@ pub fn search_symbols_in_db(
          LIMIT ?3",
     )?;
     let max = limit.clamp(1, MAX_RESULTS);
-    let rows = stmt.query_map(params![name, EXTRACTOR_REVISION, (max * 4) as i64], |row| {
-        Ok((
-            row.get::<_, String>(0)?,
-            row.get::<_, String>(1)?,
-            row.get::<_, String>(2)?,
-            row.get::<_, String>(3)?,
-            row.get::<_, i64>(4)?,
-            row.get::<_, i64>(5)?,
-            row.get::<_, i64>(6)?,
-            row.get::<_, i64>(7)?,
-            row.get::<_, String>(8)?,
-        ))
-    })?;
-    for row in rows {
+    let candidate_budget = max * 4;
+    let rows = stmt.query_map(
+        params![name, EXTRACTOR_REVISION, (candidate_budget + 1) as i64],
+        |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, i64>(4)?,
+                row.get::<_, i64>(5)?,
+                row.get::<_, i64>(6)?,
+                row.get::<_, i64>(7)?,
+                row.get::<_, String>(8)?,
+            ))
+        },
+    )?;
+    for (candidate_index, row) in rows.enumerate() {
+        if candidate_index >= candidate_budget || report.hits.len() >= max {
+            report.truncated = true;
+            break;
+        }
         let (path, symbol, kind, language, start, end, errors, truncated, digest) = row?;
         if is_disallowed_project_path(Path::new(&path)) {
             report.stale_results_discarded += 1;
@@ -377,9 +387,6 @@ pub fn search_symbols_in_db(
             has_syntax_errors: errors != 0,
             truncated: truncated != 0,
         });
-        if report.hits.len() >= max {
-            break;
-        }
     }
     Ok(report)
 }
@@ -390,6 +397,37 @@ mod tests {
     use super::*;
     use crate::{refresh_known_paths_into, synchronize_into};
     use tempfile::tempdir;
+
+    #[test]
+    fn symbol_search_reports_unexamined_candidates_without_exceeding_verification_cap() {
+        for (files, stale) in [(5, 4), (2, 0), (1, 0)] {
+            let workspace = tempdir().expect("workspace");
+            let state = tempdir().expect("state");
+            let db = state.path().join("index.sqlite3");
+            for number in 0..files {
+                fs::write(
+                    workspace.path().join(format!("file_{number}.rs")),
+                    "fn target() {}\n",
+                )
+                .expect("source");
+            }
+            synchronize_into(workspace.path(), &db).expect("index");
+            for number in 0..stale {
+                fs::write(
+                    workspace.path().join(format!("file_{number}.rs")),
+                    "fn changed() {}\n",
+                )
+                .expect("edit without refresh");
+            }
+            let report = search_symbols_in_db(workspace.path(), &db, "target", 1).expect("lookup");
+            assert_eq!(report.stale_results_discarded, stale);
+            assert_eq!(report.hits.len(), usize::from(stale == 0));
+            assert_eq!(report.truncated, files > 1, "files={files}, stale={stale}");
+            if let Some(hit) = report.hits.first() {
+                assert_eq!(hit.path, "file_0.rs");
+            }
+        }
+    }
 
     #[test]
     fn file_inspection_obeys_ignore_admission_and_detects_stale_edits() {

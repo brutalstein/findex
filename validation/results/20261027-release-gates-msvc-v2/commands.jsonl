@@ -1,0 +1,7 @@
+{"utc": "20261026T220015Z", "argv": ["cargo", "fmt", "--all", "--", "--check"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.5192, "timed_out": false}
+{"utc": "20261026T220025Z", "argv": ["cargo", "clippy", "--workspace", "--all-targets", "--locked", "--", "-D", "warnings"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 9.6989, "timed_out": false}
+{"utc": "20261026T220040Z", "argv": ["cargo", "test", "--workspace", "--all-targets", "--locked", "--no-fail-fast"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 15.7168, "timed_out": false}
+{"utc": "20261026T220101Z", "argv": ["cargo", "build", "--release", "--locked", "-p", "findex"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 20.4107, "timed_out": false}
+{"utc": "20261026T220103Z", "argv": ["cargo", "audit", "--deny", "warnings"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 2.2445, "timed_out": false}
+{"utc": "20261026T220103Z", "argv": ["cmd.exe", "/d", "/c", "%REPO%\\target\\native-stable-gates.cmd"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 50.2771, "timed_out": false}
+{"utc": "20261026T220124Z", "argv": ["cmd.exe", "/d", "/c", "%REPO%\\target\\native-1.85.0-gates.cmd"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 21.3906, "timed_out": false}

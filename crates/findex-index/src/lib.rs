@@ -728,8 +728,10 @@ fn definition_rank(kind: &str) -> u8 {
 
 /// Trimmed, length-bounded and secret-masked evidence line.
 fn excerpt_of(line: &str) -> String {
-    let trimmed: String = line.trim().chars().take(240).collect();
-    findex_core::redact_secrets(&trimmed).into_owned()
+    findex_core::redact_secrets(line.trim())
+        .chars()
+        .take(240)
+        .collect()
 }
 
 /// Current file text, only if it is a regular in-root file whose bytes still
@@ -1294,6 +1296,24 @@ mod tests {
         let found =
             search_in_db(project.path(), &db, "password", 5, SyncStats::default()).expect("search");
         assert!(!found.hits[0].excerpt.contains("hunter2hunter2"));
+    }
+
+    #[test]
+    fn excerpts_redact_before_truncating_quoted_assignments() {
+        for padding in ["x", "界"] {
+            let suffix = " password = \"hunter2\"";
+            let line = format!("// {}{suffix}", padding.repeat(241 - 3 - suffix.len()));
+            assert_eq!(line.chars().count(), 241);
+            let (project, _state, db) = indexed(&[("settings.rs", &line)]);
+            let found = search_in_db(project.path(), &db, "password", 5, SyncStats::default())
+                .expect("search");
+            assert_eq!(found.hits.len(), 1);
+            let hit = &found.hits[0];
+            assert_eq!((hit.path.as_str(), hit.line), ("settings.rs", 1));
+            assert!(!hit.excerpt.contains("hunter2"), "{}", hit.excerpt);
+            assert_eq!(hit.excerpt.chars().count(), 240);
+            assert!(hit.excerpt.starts_with("// "));
+        }
     }
 
     #[test]

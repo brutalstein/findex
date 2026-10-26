@@ -1,11 +1,30 @@
 """Deterministic checks for the comparison's selection and native result adapters."""
 import unittest
+from retrieval import score
 
 from tool_comparison import cbm_hits, graphify_hits, select_queries, superiority
-from tool_comparison_live import answer_correct, codex_env, codex_subscription_error
+from tool_comparison_live import answer_correct, codex_env, codex_subscription_error, usage_summary
 
 
 class ComparisonTests(unittest.TestCase):
+    def test_usage_summary_keeps_cache_separate_and_counts_failed_attempts(self):
+        summary = usage_summary({"sessions": [
+            {"tool": "findex", "valid": True, "correct": True, "mcp_calls": 1,
+             "usage": {"input_tokens": 100, "cached_input_tokens": 60, "output_tokens": 10, "reasoning_output_tokens": 2}},
+            {"tool": "findex", "valid": False, "correct": False},
+        ]})["findex"]
+        self.assertEqual((summary["sessions"], summary["valid"], summary["correct"]), (2, 1, 1))
+        self.assertEqual((summary["total_tokens"], summary["uncached_input_tokens"]), (110, 40))
+
+    def test_ndcg_cutoff_and_discount_keep_original_duplicate_ranks(self):
+        query = {"expected": [["gold.rs", 1]]}
+        wrong = {"path": "wrong.rs", "line": 1}
+        gold = {"path": "gold.rs", "line": 1}
+        self.assertEqual(score(query, [wrong] * 10 + [gold])["file_ndcg@10"], 0)
+        self.assertAlmostEqual(score(query, [wrong, wrong, gold])["file_ndcg@10"], .5)
+        self.assertEqual(score(query, [gold, gold])["file_ndcg@10"], 1)
+        self.assertEqual(score(query, [wrong] * 10 + [gold])["file_mrr"], 1 / 11)
+
     def test_subscription_gate_and_env_never_accept_an_api_key(self):
         self.assertIsNone(codex_subscription_error(0, "Logged in using ChatGPT"))
         self.assertIsNotNone(codex_subscription_error(0, "Logged in using an API key"))

@@ -20,14 +20,18 @@ Windows Terminal / PowerShell
                            └─ local project files
 ```
 
-No source upload or HTTP listener is performed by Findex. Claude Code itself may transmit evidence returned by MCP to Anthropic as part of a task; respect user consent and enterprise policy.
+Codex loads the shared skills and MCP engine through `plugin/.codex-plugin`;
+`plugin/scripts/install-codex.ps1` binds the installed native binary. Both
+official clients retain control of their own permissions and authentication.
+No source upload or HTTP listener is performed by Findex. Claude Code or Codex
+may transmit returned evidence to its provider; respect user consent and enterprise policy.
 
 ## Implemented paths
 
 - Project identity: nearest ancestor containing `.git` (folder or linked-worktree file), otherwise supplied directory.
 - Local state: `%LOCALAPPDATA%/Findex/indexes/<BLAKE3(canonical-root)>/index.sqlite3`.
 - Scan: `ignore` walker, no symlink following, 512 KiB per-file max, 100k files per reconciliation. Binary/invalid UTF-8 excluded.
-- Indexed state: SQLite `files` metadata, FTS5 `docs(path, body, terms)` where `terms` holds camelCase sub-words and path words, and a Tree-sitter `symbols` table with an expression index on the normalized identifier (`lower(replace(name,'_',''))`); WAL and `secure_delete` enabled, FTS5 `secure-delete` on, so removed text does not stay in free pages or index segments. `PRAGMA user_version` versions the lexical schema; an older or corrupt database is rebuilt from sources, a newer one is refused.
+- Indexed state: SQLite `files` metadata, FTS5 `docs(path, body, terms)` where `terms` holds camelCase sub-words and path words, and a Tree-sitter `symbols` table with an expression index on the normalized identifier (`lower(replace(name,'_',''))`); WAL and `secure_delete` enabled, FTS5 `secure-delete` on, so removed text does not stay in free pages or index segments. `PRAGMA user_version` versions the lexical schema; older lexical rows are rebuilt on reconciliation. Corrupt databases are refused and preserved for explicit recovery; newer schemas are refused without mutation.
 - Update: hash every accepted file, replace changed content, remove absent/disallowed paths in a single `BEGIN IMMEDIATE` transaction (concurrent writers wait on the busy timeout instead of failing). Roll back if the safety cap is exceeded. A known file whose read fails for a reason other than absence (locked mid-save) keeps its entry until a later reconciliation can read it.
 - Query: (1) definitions whose normalized name equals the concatenated query (`GitignoreBuilder`, `gitignore builder`, `gitignore_builder`), types before functions before methods; (2) FTS5 candidates ranked by query-term coverage per file, then same-line co-occurrence, then BM25. Only returned hits are re-verified against the current file hash; stale hits are counted, never returned; `truncated` reports remaining candidates. Excerpts pass through `redact_secrets`.
 - MCP: stdio JSON-RPC. Legacy `initialize` (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05) and the 2026-07-28 stateless era (`server/discover`, per-request `_meta` protocol version, `-32022` for unsupported versions) are both served. Oversized frames, invalid JSON and invalid requests get JSON-RPC errors and the server keeps reading. `findex_context` (marked `anthropic/alwaysLoad`), `findex_search`, `findex_symbols`, `findex_find_symbol` and `findex_impact` are exposed; server `instructions` mark returned source as untrusted data.
