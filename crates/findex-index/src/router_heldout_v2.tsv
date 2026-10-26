@@ -1,0 +1,64 @@
+# intent<TAB>task. Held-out router set v2, written 2026-10-26 before any rule
+# change of that day and before its first run; frozen: never edit after seeing
+# results. Same author as the rules (not independent). v1 (router_heldout.tsv)
+# misses were later used to tune rules, so v1 is no longer clean; v2 is.
+definition	where does `RetryPolicy` live
+definition	open the source of `compute_digest`
+definition	`SessionStore` nerede tanımlı
+definition	`load_manifest` fonksiyonunun gövdesini göster
+definition	what is `MAX_BATCH_SIZE` set to
+definition	jump to `HttpClient::send`
+definition	`parse_header` ne iş yapıyor, kodu nerede
+definition	show me the struct `CacheEntry`
+definition	`EventLoop` sınıfının tanımı
+definition	find the declaration of `resolve_path`
+callers	who invokes `commit_batch`
+callers	list the call sites of `encode_frame`
+callers	`refresh_token` fonksiyonunu kim kullanıyor
+callers	which functions call into `open_stream`
+callers	find usages of `RateLimiter`
+callers	`spawn_worker` nereden çağrılıyor
+callers	where is `validate_input` called from
+callers	every caller of `Pool::acquire`
+callers	`decode_utf8` çağrılarını listele
+callers	what references `CONFIG_PATH`
+impact	if I change the signature of `commit_batch`, what breaks
+impact	`encode_frame` dönüş tipini değiştirirsem ne bozulur
+impact	what is affected by renaming `SessionStore`
+impact	safe to remove `legacy_mode` field from `Settings`?
+impact	`RateLimiter` kaldırılırsa hangi dosyalar etkilenir
+impact	consequences of making `open_stream` async
+impact	what would I need to update after changing `parse_header`
+impact	`load_manifest` parametresini değiştirmenin etkisi
+impact	impact analysis for modifying `CacheEntry`
+impact	can I drop `MAX_BATCH_SIZE` without breaking anything
+tests	which tests cover `commit_batch`
+tests	`encode_frame` için test var mı
+tests	show the unit tests for `RateLimiter`
+tests	is `parse_header` tested anywhere
+tests	`SessionStore` testlerini bul
+tests	what test exercises `open_stream`
+tests	find spec files for `validate_input`
+tests	`spawn_worker` hangi testlerde kullanılıyor
+tests	test coverage of `load_manifest`
+tests	where are the integration tests for `HttpClient`
+concept	how does the retry backoff work
+concept	where is authentication handled
+concept	önbellek nasıl geçersiz kılınıyor
+concept	explain the indexing pipeline
+concept	how are configuration files discovered
+concept	hata yönetimi nasıl yapılıyor bu projede
+concept	what happens when the network drops mid-request
+concept	how is logging set up
+concept	dosya izleme mekanizması nasıl çalışıyor
+concept	where do we parse command line arguments
+file	open src/main.rs
+file	show me README.md
+file	what is in Cargo.toml
+file	docs/architecture.md dosyasını göster
+file	read crates/core/src/lib.rs
+file	contents of config/default.yaml
+file	`tests/common/mod.rs` içinde ne var
+file	print package.json
+file	show the file scripts/release.ps1
+file	setup.py dosyasını aç
