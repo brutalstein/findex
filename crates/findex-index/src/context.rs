@@ -277,6 +277,7 @@ const CALLER_WORDS: &[&str] = &[
     "caller",
     "callers",
     "calls",
+    "implement",
     "invoke",
     "invoked",
     "invokes",
@@ -291,8 +292,8 @@ const CALLER_WORDS: &[&str] = &[
 ];
 const TEST_WORDS: &[&str] = &["spec", "specs", "test", "tested", "testing", "tests"];
 const IMPACT_WORDS: &[&str] = &[
-    "affect", "affected", "affects", "break", "breaks", "change", "changing", "impact", "modify",
-    "refactor", "rename", "ripple",
+    "affect", "affected", "affects", "blast", "break", "breaks", "change", "changing", "delete",
+    "deleted", "deleting", "deletion", "impact", "modify", "refactor", "rename", "ripple",
 ];
 
 fn words(task: &str) -> Vec<String> {
@@ -307,20 +308,26 @@ fn words(task: &str) -> Vec<String> {
 /// search terms stay unchanged.
 const CALLER_STEMS: &[&str] = &[
     "calling",
+    "callsite",
     "çağır",
     "çağrı",
+    "depend",
     "implementations",
     "implementers",
     "implementors",
     "implements",
     "import",
+    "instantiat",
     "invoking",
     "kullan",
+    "oluşturan",
+    "oluşturuyor",
+    "reach",
     "referans",
     "referencing",
     "using",
 ];
-const TEST_STEMS: &[&str] = &["sına", "test"];
+const TEST_STEMS: &[&str] = &["sına", "suite", "test"];
 const IMPACT_STEMS: &[&str] = &[
     "adlandır",
     "bozar",
@@ -334,13 +341,21 @@ const IMPACT_STEMS: &[&str] = &[
     "modif",
     "refactor",
     "renam",
+    "siler",
+    "silin",
 ];
 
 /// Intent of a task from its text alone, before any index access. Callers
 /// and impact need a named identifier; without one the task is a concept
 /// search, or a file request when it names a file.
 fn route(task: &str) -> &'static str {
-    match classify(&words(task)) {
+    // `show tests/util.rs` names a file: words inside a path state no intent.
+    let prose = task
+        .split_whitespace()
+        .filter(|token| file_paths(token).is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
+    match classify(&words(&prose)) {
         intent if intent == "tests" || !identifiers(task).is_empty() => intent,
         _ if file_paths(task).is_empty() => "concept",
         _ => "file",
@@ -348,10 +363,14 @@ fn route(task: &str) -> &'static str {
 }
 
 fn classify(words: &[String]) -> &'static str {
+    // Turkish passive `implement edilmiş` asks how it is built, not who implements it.
+    let passive = |i: usize| {
+        words[i] == "implement" && words.get(i + 1).is_some_and(|n| n.starts_with("edil"))
+    };
     let has = |set: &[&str], stems: &[&str]| {
-        words
-            .iter()
-            .any(|w| set.contains(&w.as_str()) || stems.iter().any(|s| w.starts_with(s)))
+        words.iter().enumerate().any(|(i, w)| {
+            !passive(i) && (set.contains(&w.as_str()) || stems.iter().any(|s| w.starts_with(s)))
+        })
     };
     if has(IMPACT_WORDS, IMPACT_STEMS) {
         "impact"
@@ -1795,22 +1814,35 @@ mod tests {
     }
 
     /// Labeled English/Turkish/mixed tasks the rules were tuned on
-    /// (`router_cases.tsv`; 178/260 before Turkish stems and file intent).
+    /// (`router_cases.tsv`; 178/260 before Turkish stems and file intent,
+    /// 259/272 before the 2026-10-26 caller/impact/test/file rules).
     /// Pinned so a rule change cannot silently regress.
     #[test]
     fn router_accuracy_on_labeled_tasks() {
         let (right, total) = router_score("dev", include_str!("router_cases.tsv"));
-        assert!(total >= 250, "{total} cases");
-        assert!(right >= 258, "{right}/{total}");
+        assert!(total >= 272, "{total} cases");
+        assert!(right >= 272, "{right}/{total}");
     }
 
     /// Frozen held-out tasks written after tuning (`router_heldout.tsv`):
     /// 30/60 with the rules before Turkish stems and file intent, 50/60 after.
+    /// Its 10 misses then shaped the 2026-10-26 rules (60/60), so it is no
+    /// longer held out; v2 below is.
     #[test]
     fn router_accuracy_on_held_out_tasks() {
         let (right, total) = router_score("held-out", include_str!("router_heldout.tsv"));
         assert_eq!(total, 60);
-        assert!(right >= 50, "{right}/{total}");
+        assert!(right >= 60, "{right}/{total}");
+    }
+
+    /// Frozen held-out set v2 (`router_heldout_v2.tsv`), committed before
+    /// its first run and before the rule changes it measures: 56/60 before,
+    /// 57/60 after. Its misses must not be used to tune the rules.
+    #[test]
+    fn router_accuracy_on_held_out_v2_tasks() {
+        let (right, total) = router_score("held-out-v2", include_str!("router_heldout_v2.tsv"));
+        assert_eq!(total, 60);
+        assert!(right >= 57, "{right}/{total}");
     }
 
     /// `#` and `*` start code lines in Rust (attributes), C/C++ (preprocessor,

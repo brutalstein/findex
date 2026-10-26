@@ -261,3 +261,15 @@ file	sessions.py dosyasına genel bakış
 file	models.py içindeki sınıflar
 file	include/fmt/base.h içeriği
 file	`packages/zod/src/v4/core/schemas.ts` dosyasını göster
+callers	which modules depend on `flush_pending`
+callers	what code paths reach `parse_args`
+callers	`TokenBucket` nesnesini kim oluşturuyor
+callers	where do we instantiate `Watcher`
+callers	show the callsites of `LexState`
+callers	types that implement `Searcher`
+impact	what breaks if I delete `flush_pending`
+impact	`merge_ranges` silinirse ne olur
+impact	blast radius of editing `IndexConfig`
+tests	is `DEFAULT_TIMEOUT` checked by the suite
+file	show tests/util.rs
+file	open tests/fixtures/sample.toml
