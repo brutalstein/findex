@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "source_commit": "35c5c2462516524401ac32158122b57006a50767",
+  "archives": {
+    "findex-windows-x64.zip": {
+      "sha256": "7baf77a0f290f69cda09112eff6bc642c0390dfb6e8d28728da52260f3a3effc",
+      "bytes": 3436642,
+      "verified_extracted_files": 80,
+      "binary_sha256": "1e49405dd0dd90b55cff28eb8af0cef56ac3e330ae0a72b14bd51513e51993ca",
+      "zip_integrity": "PASS"
+    },
+    "findex-claude-plugin.zip": {
+      "sha256": "2386763fe47b02c6d2d5722bf73190410df843efe41b539906e1d8b07b3166ee",
+      "bytes": 3200721,
+      "verified_extracted_files": 17,
+      "binary_sha256": "1e49405dd0dd90b55cff28eb8af0cef56ac3e330ae0a72b14bd51513e51993ca",
+      "zip_integrity": "PASS"
+    }
+  },
+  "extracted_launcher_checks": "Both CLI-adjacent and plugin-bundled runtimes; Windows system PATH only; all 8 tools and actual source evidence",
+  "source_inputs_match_commit": "PASS",
+  "signing": "unsigned",
+  "published": false,
+  "model_sessions": 0,
+  "paid_api_calls": 0
+}
