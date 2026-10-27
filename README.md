@@ -19,6 +19,12 @@ the evidence; name matches do not prove type-resolved calls.
 Findex retrieves locally without API keys. The official assistant may send
 selected excerpts to its provider.
 
+**0.2.0 preview candidate:** native Windows checks pass 153 Rust tests on stable
+and MSRV plus 34 offline Python tests. Claude and Codex plugin integration,
+extracted packages, Cloud Files, loopback SMB and 100k-file synthetic scaling
+are verified locally. The candidate is unsigned; no public release is published
+yet. [Verification and remaining limits](docs/engineering/RELEASE_CANDIDATE_HARDENING_20261027.md).
+
 <p align="center">
   <img src="docs/assets/stats.svg" alt="0.982 right definition first try in 55 new lookups · −23.7% Claude tokens on navigation tasks · 279/279 coverage claims hold · 0 cloud-only files downloaded" width="100%">
 </p>
@@ -39,7 +45,7 @@ held-out lookups and 60 historical regression controls. The table shows the
 | Correct definition line, first try | **0.982** | 0.764 | 0.727 |
 | Mean reciprocal rank | **0.991** | 0.897 | 0.885 |
 | Raw tool output tokens per query | **222** | 2,663 | 240 |
-| Median warm latency | **3 ms** | 26 ms | 28 ms |
+| Median warm latency | **3.67 ms** | 33.78 ms | 25.73 ms |
 
 Findex's optional compact format cuts its own JSON output by 29.0% on this
 subset, preserving every field through a documented lossless encoding; all 115
@@ -50,7 +56,7 @@ Codebase is still smaller on three of four corpora and on the historical
 lists are checked for equivalence. Accuracy uses a 2,000-token visible budget;
 the raw column includes Graphify's over-budget output. The golden is
 author-created and reused during format iteration; this is no universal win.
-[Method, losses and reproduction](validation/results/20261027-final-comparison/NOTE.md).
+[Method, losses and reproduction](validation/results/20261027-performance-comparison/NOTE.md).
 
 **Real Codex subscription pilot:** six sequential sessions, two tasks per tool,
 all answers correct. Findex used 149,527 total input+output tokens, Graphify
@@ -101,7 +107,8 @@ Native Windows scaling checks cover 200 to 100,000 synthetic source files.
 On this machine, the 10k-file initial-index median fell from 49.01 to 10.21 s
 against the previous build; the 100k-file run used 23.39 MiB peak working set.
 These are local synthetic measurements, not an all-project or competitor speed
-claim. [Method, warm-query results and limits](docs/engineering/RELEASE_CANDIDATE_HARDENING_20261027.md#native-scaling-and-query-work).
+claim. Reconciliation remains capped at 100,000 files and 512 KiB per source.
+[Method, warm-query results and limits](docs/engineering/RELEASE_CANDIDATE_HARDENING_20261027.md#native-scaling-and-query-work).
 
 | | |
 |---|---|
@@ -123,9 +130,10 @@ claim. [Method, warm-query results and limits](docs/engineering/RELEASE_CANDIDAT
 - **SQLite removal.** Text of deleted, excluded or unreadable files is wiped
   from SQLite pages, FTS segments and the WAL. Symlinks and junctions are not
   followed, and secret-looking files are skipped.
-- **Verifiable releases.** Each release ships an SBOM, SHA-256 files and a
-  build-provenance attestation. A license and source policy (`cargo deny`) and
-  a RustSec audit run on every change.
+- **Verifiable builds.** The tagged CI release workflow generates an SBOM,
+  SHA-256 files and build-provenance attestations. Local preview packages have
+  checksums and an SBOM, and carry no GitHub attestation. A license and source
+  policy (`cargo deny`) and a RustSec audit run in CI.
 
 ```mermaid
 flowchart LR
@@ -138,9 +146,9 @@ flowchart LR
 
 ## What it won't do (yet)
 
-It won't build a type-resolved call graph outside Rust, scan for every
-possible secret, run on macOS or Linux, or come Authenticode-signed (no
-certificate yet; verify the SHA-256 file and the attestation instead). It also
+Name-matched calls are not compiler-resolved proof. Findex does not scan for
+every possible secret, run on macOS or Linux, or come Authenticode-signed (no
+certificate yet; verify SHA-256 and CI provenance when available). It also
 won't stop your model from ignoring good advice, but it does make good advice
 cheaper.
 
