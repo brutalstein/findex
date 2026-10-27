@@ -70,6 +70,29 @@ Claude Code's official status line or OpenTelemetry where authorized; distinguis
 - Database corruption, file watcher overflow, branch switching and concurrent sessions demand explicit repair and consistency protocols before production release.
 - Startup, credentials, plugin permissions and managed enterprise controls must remain under the official Claude Code runtime.
 
+## Context retrieval and receiver annotations (2026-10-28)
+
+Natural-language defect queries use a context-specific BM25 path rather than
+identifier-first lexical ranking. The existing search/symbol MCP ranking stays
+unchanged. Context considers at most 128 lexical candidates and returns at most
+32 ranked lexical files before rendered-budget packing. Named-symbol site scans
+retain their separate 400-file limit. Split snake-case terms help
+locate related implementations when a requested identifier does not exist.
+Candidate and output caps propagate to `truncated` and `missing`.
+
+Rust method candidates can use local parameter and explicit local-variable type
+annotations. The syntax adapter respects lexical shadowing in blocks, closures,
+loops, patterns and generic parameters; it does not infer field chains or resolve
+compiler identities. Scope traversal and emitted hints are bounded per file.
+Unavailable/uncertain annotations retain possible calls and report limitations.
+Receiver names and a file merely mentioning an owner do not establish a call.
+
+Context JSON includes `scope`, also rendered in text: admitted indexed files,
+live BLAKE3 validation at read time and relationships that are not type-resolved.
+Import aliases, trait dispatch, cfg selection and inferred receiver types remain
+partial. Caller precision must be reported alongside site recall and confident
+function/site coverage; abstaining more is not by itself a complete quality win.
+
 ## Open engineering risks
 
 - Real Claude plugin validation and `--plugin-dir` behavior on all targeted versions.

@@ -16,14 +16,16 @@ Usage: callsites.py [--corpus ripgrep] [--sample 80] [--qualified] [--split dev|
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 import re
 import shutil
 import sys
 from collections import defaultdict
+from pathlib import Path
 
-from common import CORPORA, WORK, CommandLog, findex_binary, isolated_env, percentiles, results_dir, write_json
+from common import CORPORA, WORK, CommandLog, findex_binary, git, isolated_env, percentiles, results_dir, write_json
 
 
 def varint(buf: bytes, i: int) -> tuple[int, int]:
@@ -119,13 +121,17 @@ def main() -> int:
     parser.add_argument("--out", default=None)
     parser.add_argument("--qualified", action="store_true")
     parser.add_argument("--split", choices=("dev", "heldout"), default="dev")
+    parser.add_argument("--binary", type=Path, default=None)
+    parser.add_argument("--root", type=Path, default=None, help="explicit pinned corpus directory")
     args = parser.parse_args()
     out = results_dir(args.out)
+    if (out / "manifest.json").exists() or (out / "callsites.json").exists():
+        raise ValueError("Preserve attempted measurements; choose a new output directory")
     log = CommandLog(out)
     scip = WORK / "scip" / f"{args.corpus}.scip"
     if not scip.exists():
         write_json(out / "callsites.json", {"status": "BLOCKED", "reason": f"{scip.name} missing: run relations.py first"})
-        return 0
+        return 1
     defs, refs = {}, defaultdict(set)
     for path, line, symbol, roles in occurrences(scip.read_bytes()):
         if not function_name(symbol):  # functions and methods only
@@ -142,11 +148,25 @@ def main() -> int:
     if args.split == "heldout":
         rest = sorted(set(candidates) - set(sample))
         sample = random.Random(11).sample(rest, min(args.sample, len(rest)))
-    exe = findex_binary("current")
-    root = CORPORA / args.corpus
-    state = WORK / "callsites-state"
+    exe = (args.binary or findex_binary("current")).resolve(strict=True)
+    digest = hashlib.sha256(exe.read_bytes()).hexdigest()
+    frozen = WORK / "bin/callsites" / digest / "findex.exe"
+    frozen.parent.mkdir(parents=True, exist_ok=True)
+    if not frozen.exists():
+        shutil.copy2(exe, frozen)
+    if hashlib.sha256(frozen.read_bytes()).hexdigest() != digest:
+        raise ValueError("Frozen runtime mismatch")
+    exe = frozen
+    root = (args.root or CORPORA / args.corpus).resolve(strict=True)
+    write_json(out / "manifest.json", {"binary_sha256": digest,
+        "scip_sha256": hashlib.sha256(scip.read_bytes()).hexdigest(),
+        "corpus_commit": git("rev-parse", "HEAD", cwd=root), "split": args.split,
+        "sample_symbols": sample, "budget_tokens": 8000, "oracle_imported_into_findex": False})
+    state = WORK / "callsites-state" / out.name
     shutil.rmtree(state, ignore_errors=True)
-    log.run([str(exe), "index"], cwd=root, env=isolated_env(state), timeout=900)
+    indexed = log.run([str(exe), "index"], cwd=root, env=isolated_env(state), timeout=900)
+    if indexed.returncode:
+        raise RuntimeError("Index initialization failed; no scores recorded")
     rows = []
     for symbol in sample:
         name = function_name(symbol)
@@ -154,6 +174,8 @@ def main() -> int:
         target = f"{owner}::{name}" if owner else name
         proc = log.run([str(exe), "context", "--json", "--budget", "8000", f"callers of `{target}`"],
                        cwd=root, env=isolated_env(state), timeout=300)
+        if proc.returncode:
+            raise RuntimeError("Context command failed; no score recorded")
         report = json.loads(proc.stdout)
         sites = [(e["path"], e["line"], e["kind"]) for e in report["evidence"]
                  if e["kind"] in ("call", "possible call", "reference", "import")]
@@ -166,6 +188,7 @@ def main() -> int:
         rows.append({"symbol": symbol, "name": name, "task_target": target,
                      "same_name_definitions": len(names[name]),
                      "oracle_sites": len(truth), "findex_calls": len(calls), "findex_sites": len(found),
+                     "true_confident_calls": len(calls & truth),
                      "call_precision": len(calls & truth) / len(calls) if calls else None,
                      "possible_calls": len(possible),
                      "call_or_possible_precision": len((calls | possible) & truth) / len(calls | possible)
@@ -186,6 +209,9 @@ def main() -> int:
     write_json(out / "callsites.json", {
         "status": "EXECUTED", "corpus": args.corpus, "oracle": "rust-analyzer SCIP non-definition occurrences",
         "functions": len(rows), "seed": 7 if args.split == "dev" else "11 (disjoint from seed 7)",
+        "functions_with_confident_calls": sum(r["findex_calls"] > 0 for r in rows),
+        "confident_function_coverage": sum(r["findex_calls"] > 0 for r in rows) / len(rows) if rows else None,
+        "confident_site_recall": sum(r["true_confident_calls"] for r in rows) / sum(r["oracle_sites"] for r in rows) if rows else None,
         "split": args.split, "qualified_task": args.qualified,
         "qualified_functions": sum(r["task_target"] != r["name"] for r in rows),
         "macro": {k: mean(k) for k in ("call_precision", "call_or_possible_precision", "site_recall",

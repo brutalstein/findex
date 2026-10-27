@@ -1,0 +1,44 @@
+{
+  "summary": {
+    "findex": {
+      "sessions": 1,
+      "valid": 1,
+      "correct": 0,
+      "mcp_calls": 3,
+      "input_tokens": 140187,
+      "cached_input_tokens": 116608,
+      "output_tokens": 874,
+      "reasoning_output_tokens": 454,
+      "total_tokens": 141061,
+      "uncached_input_tokens": 23579
+    },
+    "graphify": {
+      "sessions": 1,
+      "valid": 1,
+      "correct": 0,
+      "mcp_calls": 1,
+      "input_tokens": 168935,
+      "cached_input_tokens": 137216,
+      "output_tokens": 665,
+      "reasoning_output_tokens": 308,
+      "total_tokens": 169600,
+      "uncached_input_tokens": 31719
+    },
+    "codebase-memory": {
+      "sessions": 2,
+      "valid": 2,
+      "correct": 0,
+      "mcp_calls": 6,
+      "input_tokens": 353815,
+      "cached_input_tokens": 282368,
+      "output_tokens": 2126,
+      "reasoning_output_tokens": 1084,
+      "total_tokens": 355941,
+      "uncached_input_tokens": 71447
+    }
+  },
+  "authorized_new_starts": 6,
+  "actual_new_starts": 4,
+  "prior_historical_starts": 12,
+  "limits": "Two curated real issues, one repetition per tool; regression-only success, not the full upstream suite or statistical/general superiority. All source-based setup is excluded from model usage."
+}

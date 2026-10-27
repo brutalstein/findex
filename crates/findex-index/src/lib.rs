@@ -582,6 +582,26 @@ pub fn search_in_db(
     limit: usize,
     sync: SyncStats,
 ) -> Result<SearchReport> {
+    search_ranked_in_db(project, database, query, limit, sync, false)
+}
+
+pub(crate) fn search_concept_in_db(
+    project: &Path,
+    database: &Path,
+    query: &str,
+    limit: usize,
+) -> Result<SearchReport> {
+    search_ranked_in_db(project, database, query, limit, SyncStats::default(), true)
+}
+
+fn search_ranked_in_db(
+    project: &Path,
+    database: &Path,
+    query: &str,
+    limit: usize,
+    sync: SyncStats,
+    concept: bool,
+) -> Result<SearchReport> {
     let mut report = SearchReport {
         hits: Vec::new(),
         sync,
@@ -601,7 +621,7 @@ pub fn search_in_db(
     // (`Engine`, `parse config` -> parseConfig/parse_config). Definitions name
     // the place a reader needs first; usages follow as lexical evidence.
     let identifier = terms.concat().replace('_', "");
-    if identifier.chars().count() >= 3 && identifier.len() <= 256 {
+    if !concept && identifier.chars().count() >= 3 && identifier.len() <= 256 {
         let mut rows = symbols::definitions_by_identifier(&conn, &identifier, 64)?;
         let exact = query.trim();
         rows.sort_by(|left, right| {
@@ -658,7 +678,11 @@ pub fn search_in_db(
     // Collect a bounded but generous window before reranking. An extra
     // candidate makes truncation explicit rather than silently claiming
     // completeness after stale-result rejection or multi-term reranking.
-    let candidate_budget = (count * 16).clamp(32, 512);
+    let candidate_budget = if concept {
+        128
+    } else {
+        (count * 16).clamp(32, 512)
+    };
     let result_rows =
         stmt.query_map(params![expression, (candidate_budget + 1) as i64], |row| {
             Ok((
@@ -717,6 +741,13 @@ pub fn search_in_db(
     }
     // File coverage first, then same-line co-occurrence (proximity), then BM25.
     candidates.sort_by(|left, right| {
+        if concept {
+            let role = |path: &str| (!context::is_code_path(path), context::is_test_path(path));
+            return role(&left.1.path)
+                .cmp(&role(&right.1.path))
+                .then_with(|| left.1.bm25_score.total_cmp(&right.1.bm25_score))
+                .then_with(|| left.1.path.cmp(&right.1.path));
+        }
         right
             .0
             .cmp(&left.0)

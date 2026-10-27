@@ -204,6 +204,22 @@ SHA-256 checksum file; the ZIP includes the build compiler versions and lock
 file. This is **not** a cryptographically signed or bit-for-bit reproducible
 binary guarantee; see `docs/adr/0005-build-provenance.md`.
 
+## Context source scope and uncertainty
+
+Every context report carries `scope`, including in JSON: only admitted indexed
+files are searched, returned source is BLAKE3-verified when read, and lexical /
+local-syntax relationships are not compiler-resolved. Use `missing`, `truncated`,
+`stale_results_discarded`, `sync` and per-identifier `coverage` with this scope;
+an empty result is not proof that excluded or unindexed code has no match.
+
+Defect wording can broaden a named-symbol task to natural-language retrieval.
+Explicit definition requests retain their definition behavior. Context retrieval
+has a 128-candidate / 32-lexical-file boundary before token-budget packing;
+named-symbol scans have a separate 400-file boundary. Rust local
+annotations can support a receiver match; unresolved receivers and import aliases
+are possible calls. This does not implement compiler type checking or cfg-aware
+name resolution. Optional imported SCIP/LSP evidence remains a separate facility.
+
 ## Semantic reference imports and impact graph (experimental)
 
 Findex supports explicit **SCIP protobuf** reference imports and a normalized

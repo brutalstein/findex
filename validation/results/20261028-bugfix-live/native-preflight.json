@@ -1,0 +1,69 @@
+{
+  "checks": [
+    {
+      "key": "requests-5223:findex",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "findex_context",
+        "findex_symbols",
+        "findex_find_symbol",
+        "findex_search"
+      ]
+    },
+    {
+      "key": "requests-5223:graphify",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "query_graph",
+        "get_neighbors",
+        "get_node"
+      ]
+    },
+    {
+      "key": "requests-5223:codebase-memory",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "search_graph",
+        "check_index_coverage",
+        "get_code_snippet",
+        "trace_path"
+      ]
+    },
+    {
+      "key": "ripgrep-2659:graphify",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "get_node",
+        "get_neighbors",
+        "query_graph"
+      ]
+    },
+    {
+      "key": "ripgrep-2659:codebase-memory",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "trace_path",
+        "get_code_snippet",
+        "check_index_coverage",
+        "search_graph"
+      ]
+    },
+    {
+      "key": "ripgrep-2659:findex",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "findex_symbols",
+        "findex_find_symbol",
+        "findex_search",
+        "findex_context"
+      ]
+    }
+  ],
+  "model_sessions": 0
+}

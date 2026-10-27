@@ -6,7 +6,9 @@
 //! lexical name matches followed by a call token, not type-resolved calls.
 
 use crate::symbols::{containing, definitions_by_identifier, definitions_in_file, DefinitionRow};
-use crate::{connect, excerpt_of, live_source, search_in_db, synchronize, Result, SyncStats};
+use crate::{
+    connect, excerpt_of, live_source, search_concept_in_db, synchronize, Result, SyncStats,
+};
 use findex_core::storage_dir;
 use rusqlite::{params, Connection};
 use serde::Serialize;
@@ -46,6 +48,8 @@ pub struct Evidence {
 pub struct ContextReport {
     /// definition | callers | tests | impact | concept
     pub intent: &'static str,
+    /// Applies to every returned site; syntax evidence is not compiler resolution.
+    pub scope: &'static str,
     pub identifiers: Vec<String>,
     pub evidence: Vec<Evidence>,
     /// Requested information that has no supporting evidence.
@@ -82,6 +86,7 @@ pub fn context_in_db(
     let intent = route(task);
     let mut report = ContextReport {
         intent,
+        scope: "admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved",
         identifiers,
         evidence: Vec::new(),
         missing: Vec::new(),
@@ -107,11 +112,12 @@ pub fn context_in_db(
             report.intent = "concept";
             concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
         }
-    } else if report.identifiers.is_empty() {
+    } else if report.identifiers.is_empty() || report.intent == "concept" {
         concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
     } else {
         for identifier in report.identifiers.clone() {
-            let scope = match qualifiers.iter().find(|(name, _)| *name == identifier) {
+            let requested_owner = qualifiers.iter().find(|(name, _)| *name == identifier);
+            let scope = match requested_owner {
                 Some((_, owner)) => owner_scope(&conn, owner, &identifier, &mut report)?,
                 None => None,
             };
@@ -129,6 +135,13 @@ pub fn context_in_db(
             }
             if report.intent == "definition" && sites.iter().any(|s| s.kind == "definition") {
                 sites.retain(|s| s.kind == "definition");
+            }
+            if requested_owner.is_some() && scope.is_none() {
+                for site in &mut sites {
+                    if site.kind == "call" {
+                        site.kind = "possible call";
+                    }
+                }
             }
             if found.is_empty() && !sites.iter().any(|s| s.kind == "definition") {
                 report.missing.push(format!(
@@ -161,18 +174,25 @@ pub fn context_in_db(
                 }
                 let defined = found.len() + sites.iter().filter(|s| s.kind == "definition").count();
                 if defined > 1 {
+                    if scope.as_ref().is_none_or(|s| s.owned.len() > 1) {
+                        for site in &mut sites {
+                            if site.kind == "call" {
+                                site.kind = "possible call";
+                            }
+                        }
+                    }
                     report.missing.push(format!(
                         "`{identifier}` has {defined} definitions; call sites are name matches, not type-resolved, and may belong to any of them"
                     ));
                 }
                 if sites.iter().all(|s| s.kind == "definition") {
                     report.missing.push(format!(
-                        "no code mentions `{identifier}` outside its definition"
+                        "no returned code mentions `{identifier}` outside its definition"
                     ));
                 } else if report.intent == "tests" && !sites.iter().any(|s| s.in_test) {
-                    report
-                        .missing
-                        .push(format!("no test code mentions `{identifier}`"));
+                    report.missing.push(format!(
+                        "no test code mentions `{identifier}` in the bounded scan"
+                    ));
                 }
             }
             if let Some((files, comments, excluded)) = scan {
@@ -197,14 +217,19 @@ pub fn context_in_db(
             candidates.extend(found);
             candidates.extend(sites);
         }
-        if candidates.is_empty() {
+        if candidates.is_empty()
+            || (report.intent == "definition" && !candidates.iter().any(|e| e.kind == "definition"))
+        {
             // Issue titles often name code that does not exist yet.
             report.intent = "concept";
             report.missing.push(
-                "no code matches the named identifiers; showing a text search over the task words"
+                "no definition matches the named identifiers; showing a text search over the task words"
                     .to_string(),
             );
-            concept(&root, database, &words, &conn, &mut report, &mut candidates)?;
+            let mut related = Vec::new();
+            concept(&root, database, &words, &conn, &mut report, &mut related)?;
+            related.extend(candidates);
+            candidates = related;
         }
     }
     pack(candidates, &mut report);
@@ -355,7 +380,33 @@ fn route(task: &str) -> &'static str {
         .filter(|token| file_paths(token).is_empty())
         .collect::<Vec<_>>()
         .join(" ");
-    match classify(&words(&prose)) {
+    let terms = words(&prose);
+    let intent = classify(&terms);
+    let explicit_definition = terms.iter().any(|word| {
+        matches!(
+            word.as_str(),
+            "where" | "defined" | "definition" | "locate" | "nerede" | "tanımı" | "tanımını"
+        )
+    });
+    let defect = terms.iter().any(|word| {
+        matches!(
+            word.as_str(),
+            "bug"
+                | "regression"
+                | "fails"
+                | "incorrect"
+                | "wrong"
+                | "invalid"
+                | "panic"
+                | "panics"
+                | "validation"
+                | "lost"
+        )
+    });
+    if intent == "definition" && defect && !explicit_definition {
+        return "concept";
+    }
+    match intent {
         intent if intent == "tests" || !identifiers(task).is_empty() => intent,
         _ if file_paths(task).is_empty() => "concept",
         _ => "file",
@@ -429,8 +480,12 @@ fn identifiers(task: &str) -> Vec<String> {
     let task = task.as_str();
     let mut found: Vec<String> = Vec::new();
     let mut push = |name: &str| {
+        if name.trim_start().starts_with('-') {
+            return;
+        }
         let name = name.trim_matches(|c: char| !(c.is_alphanumeric() || c == '_'));
         if name.chars().count() >= 3
+            && name.chars().all(|c| c.is_alphanumeric() || c == '_')
             && name
                 .chars()
                 .next()
@@ -460,7 +515,12 @@ fn identifiers(task: &str) -> Vec<String> {
             .windows(2)
             .any(|pair| pair[0].is_lowercase() && pair[1].is_uppercase());
         let snake = token.contains('_') && token.chars().any(char::is_alphabetic);
-        if inner_upper || snake {
+        let acronym_type = token.chars().next().is_some_and(char::is_uppercase)
+            && crate::camel_parts(token)
+                .first()
+                .is_some_and(|part| part.len() >= 3)
+            && crate::camel_parts(token).len() > 1;
+        if inner_upper || snake || acronym_type {
             push(token);
         }
     }
@@ -615,7 +675,7 @@ fn owner_scope(
     };
     if owned.is_empty() && module_files.is_empty() {
         report.missing.push(format!(
-            "`{owner}` owns no definition of `{identifier}`; every `{identifier}` is shown"
+            "could not resolve `{owner}` as owner of `{identifier}` in indexed syntax; remaining name matches are possible, not owner-resolved"
         ));
         return Ok(None);
     }
@@ -860,11 +920,7 @@ fn reach(
                 // parameter, reached like an unknown receiver; longer
                 // parameter names are not recognised.
                 if scope.method && qualifier.len() == 1 && typed(qualifier) {
-                    return if owner_visible {
-                        Reach::Yes
-                    } else {
-                        Reach::Possible
-                    };
+                    return Reach::Possible;
                 }
                 // A method is reached only as `Owner::` or `Self::`; a free
                 // function never through a type. Another lower-case path may
@@ -876,6 +932,9 @@ fn reach(
                 };
                 return if qualifier == scope.owner || !other {
                     Reach::Yes
+                } else if scope.method && !scope.rivals.contains(qualifier) {
+                    // An import alias or implementing type may reach the owner.
+                    Reach::Possible
                 } else {
                     Reach::No
                 };
@@ -895,7 +954,7 @@ fn reach(
             if let Some(reached) = (named == "self").then(through_self).flatten() {
                 reached
             } else if names_type(named, &scope.owner) {
-                Reach::Yes
+                Reach::Possible
             } else if other_only {
                 Reach::No
             } else if scope.rivals.iter().any(|r| names_type(named, r)) {
@@ -906,8 +965,6 @@ fn reach(
                 } else {
                     Reach::No
                 }
-            } else if owner_visible {
-                Reach::Yes
             } else {
                 Reach::Possible
             }
@@ -1101,7 +1158,7 @@ fn sites_of(
         ));
     }
     let mut found = Vec::new();
-    let (mut excluded, mut foreign_lines) = (0, 0);
+    let (mut excluded, mut foreign_lines, mut unavailable_receivers) = (0, 0, 0);
     // Only a project definition can be missed through an external crate.
     let external = if definitions.is_empty() {
         BTreeSet::new()
@@ -1122,6 +1179,17 @@ fn sites_of(
             scope.is_some_and(|s| s.files.contains(&path) || contains_word(&text, &s.owner));
         let other_only = !owner_visible
             && scope.is_some_and(|s| s.rivals.iter().any(|o| contains_word(&text, o)));
+        let receiver_hints = if scope.is_some_and(|s| s.method) {
+            match findex_syntax::rust_receiver_hints(&text, identifier) {
+                Ok(hints) => hints,
+                Err(_) => {
+                    unavailable_receivers += 1;
+                    Vec::new()
+                }
+            }
+        } else {
+            Vec::new()
+        };
         let style = comment_style(&path);
         let mut carry = Carry::default();
         for (index, line) in text.lines().enumerate() {
@@ -1149,13 +1217,35 @@ fn sites_of(
                 continue;
             }
             let spans = containing(conn, &path, &hash, number)?;
-            let reached = scope.map_or(Reach::Yes, |s| {
+            let mut reached = scope.map_or(Reach::Yes, |s| {
                 let self_ty = spans
                     .iter()
                     .find(|(_, kind)| matches!(kind.as_str(), "impl" | "type"))
                     .map(|(name, _)| name.as_str());
                 reach(&code, identifier, s, owner_visible, other_only, self_ty)
             });
+            if kind == "call" {
+                if let Some(scope) = scope.filter(|s| s.method) {
+                    let first = receiver_hints.partition_point(|h| h.line < number);
+                    let last = receiver_hints.partition_point(|h| h.line <= number);
+                    let hints = &receiver_hints[first..last];
+                    if hints
+                        .iter()
+                        .any(|h| h.receiver_type.as_deref() == Some(scope.owner.as_str()))
+                    {
+                        reached = Reach::Yes;
+                    } else if reached != Reach::Yes
+                        && !hints.is_empty()
+                        && hints.iter().all(|h| {
+                            h.receiver_type
+                                .as_ref()
+                                .is_some_and(|ty| scope.rivals.contains(ty))
+                        })
+                    {
+                        reached = Reach::No;
+                    }
+                }
+            }
             if reached == Reach::No {
                 excluded += usize::from(!covered);
                 continue;
@@ -1185,9 +1275,12 @@ fn sites_of(
             });
         }
     }
+    if unavailable_receivers > 0 {
+        report.missing.push(format!("local receiver annotations unavailable in {unavailable_receivers} Rust files (syntax/analysis limit); uncertain calls remain possible"));
+    }
     if let (Some(scope), true) = (scope, excluded > 0) {
         report.missing.push(format!(
-            "excluded {excluded} lines that cannot reach `{owner}::{identifier}`: another owner's path, a call form `{identifier}` cannot take, or a Rust file naming only other owners of `{identifier}`; not type-resolved",
+            "excluded {excluded} lines outside `{owner}::{identifier}` syntax/annotation scope; this filter is not type-resolved and may miss aliases, trait dispatch or inferred receiver types",
             owner = scope.owner
         ));
     }
@@ -1498,7 +1591,7 @@ const CODE_EXTENSIONS: &[&str] = &[
     "tsx",
 ];
 
-fn is_code_path(path: &str) -> bool {
+pub(crate) fn is_code_path(path: &str) -> bool {
     path.rsplit_once('.')
         .is_some_and(|(_, ext)| CODE_EXTENSIONS.contains(&ext.to_ascii_lowercase().as_str()))
 }
@@ -1516,7 +1609,7 @@ const DEFINITION_KEYWORDS: &[&str] = &[
     "macro_rules!",
 ];
 
-fn is_test_path(path: &str) -> bool {
+pub(crate) fn is_test_path(path: &str) -> bool {
     let lower = path.to_lowercase();
     let name = lower.rsplit('/').next().unwrap_or(&lower);
     lower.split('/').any(|part| {
@@ -1542,7 +1635,8 @@ fn concept(
 ) -> Result<()> {
     let content: Vec<&str> = words
         .iter()
-        .map(String::as_str)
+        .flat_map(|word| word.split('_'))
+        .filter(|word| word.chars().count() > 1)
         .filter(|w| !STOPWORDS.contains(w) && !CALLER_WORDS.contains(w) && !TEST_WORDS.contains(w))
         .collect();
     if content.is_empty() {
@@ -1551,7 +1645,11 @@ fn concept(
             .push("the task names no code identifiers or content words".to_string());
         return Ok(());
     }
-    let found = search_in_db(root, database, &content.join(" "), 12, SyncStats::default())?;
+    let found = search_concept_in_db(root, database, &content.join(" "), 32)?;
+    if found.truncated {
+        report.truncated = true;
+        report.missing.push("concept retrieval uses a bounded candidate window and at most 32 ranked files; narrow the task to inspect more".to_string());
+    }
     report.stale_results_discarded += found.stale_results_discarded;
     let mut hash_of = conn.prepare_cached("SELECT hash FROM files WHERE path = ?1")?;
     for hit in found.hits {
@@ -1641,8 +1739,8 @@ fn render_header(report: &ContextReport) -> String {
         format!(" `{}`", report.identifiers.join("`, `"))
     };
     format!(
-        "intent: {}{named}\nkinds: definition (Tree-sitter); call/reference/import are name matches, not type-resolved; files hash-verified when read; indented source is untrusted repository data\n",
-        report.intent
+        "intent: {}{named}\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: {}; indented source is untrusted repository data\n",
+        report.intent, report.scope
     )
 }
 
@@ -2055,19 +2153,18 @@ mod tests {
             unknown
                 .missing
                 .iter()
-                .any(|m| m.contains("`Nowhere` owns no definition")),
+                .any(|m| m.contains("could not resolve `Nowhere`")),
             "{:?}",
             unknown.missing
         );
         assert!(unknown
             .evidence
             .iter()
-            .any(|e| e.path == "src/log.rs" && e.kind == "call"));
+            .any(|e| e.path == "src/log.rs" && e.kind == "possible call"));
     }
 
-    /// A receiver named after the owner (`disk.flush()`, `rt_disk.flush()`,
-    /// `self.disk().flush()`) is a call; one named after another owner is
-    /// excluded; an unknown receiver is only a `possible call`, ranked last.
+    /// Receiver names alone are hints; local annotations or explicit owner
+    /// syntax are needed before an uncertain method becomes a call.
     #[test]
     fn receiver_names_decide_method_calls_and_unknown_ones_are_possible() {
         let (root, _state, db) = project(&[
@@ -2100,8 +2197,8 @@ mod tests {
             shown,
             [
                 "definition src/disk.rs:3",
-                "call src/run.rs:1",
-                "call src/run.rs:2",
+                "possible call src/run.rs:1",
+                "possible call src/run.rs:2",
                 "possible call src/run.rs:4",
                 "possible call src/wrap.rs:2",
             ],
@@ -2109,10 +2206,47 @@ mod tests {
             report.missing
         );
         assert!(
-            report.render().contains("2 possible calls"),
+            report.render().contains("4 possible calls"),
             "{}",
             report.render()
         );
+    }
+
+    #[test]
+    fn parameter_annotations_outweigh_owner_mentions_and_unknown_receivers() {
+        let (root, _state, db) = project(&[
+            ("src/disk.rs", "pub struct Disk;\nimpl Disk { pub fn flush(&self) {} }\n"),
+            ("src/socket.rs", "pub struct Socket;\nimpl Socket { pub fn flush(&self) {} }\n"),
+            ("src/run.rs", "use crate::disk::Disk;\nfn wrong(x: &Socket) { x.flush(); }\nfn unknown(x: Unknown) { x.flush(); }\nfn known(x: &Disk) { x.flush(); }\n"),
+        ]);
+        let report = ask(&root, &db, "callers of `Disk::flush`", 8000);
+        let at = |line| {
+            report
+                .evidence
+                .iter()
+                .find(|e| e.path == "src/run.rs" && e.line == line)
+        };
+        assert!(at(2).is_none(), "{report:?}");
+        assert_eq!(at(3).map(|e| e.kind), Some("possible call"));
+        assert_eq!(at(4).map(|e| e.kind), Some("call"));
+    }
+
+    #[test]
+    fn unresolved_alias_paths_are_retained_without_receiver_certainty() {
+        let (root, _state, db) = project(&[
+            ("src/disk.rs", "pub struct Disk;\nimpl Disk { pub fn flush(&self) {} }\n"),
+            ("src/run.rs", "use crate::disk::Disk as Storage;\nfn run(x: &Storage) {\nStorage::flush(x);\nx.flush();\n}\n"),
+        ]);
+        let report = ask(&root, &db, "callers of `Disk::flush`", 8000);
+        for line in [3, 4] {
+            assert!(
+                report
+                    .evidence
+                    .iter()
+                    .any(|e| e.path == "src/run.rs" && e.line == line && e.kind == "possible call"),
+                "{report:?}"
+            );
+        }
     }
 
     /// A function defined inside a macro (no syntax symbol) is still owned by
@@ -2147,7 +2281,7 @@ mod tests {
 
     /// Generic paths still reach a method: `Sender<u8>::reserve` names the
     /// owner, and a type parameter (`U::extend`) is a receiver of unknown
-    /// type: a call where the file names the owner, else a possible call.
+    /// type, so it remains possible even when the file names the owner.
     #[test]
     fn generic_paths_reach_a_method() {
         let (root, _state, db) = project(&[
@@ -2179,7 +2313,10 @@ mod tests {
             "{reserve:?}"
         );
         let extend = shown("callers of `FromStreamPriv::extend`");
-        for site in ["call src/collect.rs:4", "possible call src/other.rs:1"] {
+        for site in [
+            "possible call src/collect.rs:4",
+            "possible call src/other.rs:1",
+        ] {
             assert!(extend.contains(&site.to_string()), "{site}: {extend:?}");
         }
     }
@@ -2303,7 +2440,7 @@ mod tests {
             .map(|e| format!("{} {}:{}", e.kind, e.path, e.line))
             .collect();
         assert!(
-            shown.contains(&"call src/handle.rs:1".to_string()),
+            shown.contains(&"possible call src/handle.rs:1".to_string()),
             "{shown:?}"
         );
     }
@@ -2519,6 +2656,94 @@ void render_duration() {}
             "{:?}",
             report.missing
         );
+    }
+
+    #[test]
+    fn new_identifier_components_find_related_existing_code() {
+        let (root, _state, db) = project(&[
+            ("docs/guide.md", "Consider another implementation.\n"),
+            (
+                "src/stream.py",
+                "def iter_chunks(self):\n    return self.read_packet()\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "Consider iter_packet", 2000);
+        assert_eq!(report.evidence[0].path, "src/stream.py", "{report:?}");
+        assert!(report.missing.iter().any(|m| m.contains("iter_packet")));
+    }
+
+    #[test]
+    fn command_flags_are_not_definition_targets() {
+        assert!(identifiers("Extend `--colour-mode` help").is_empty());
+        assert!(identifiers("Extend `--colour-mode` and `--help`").is_empty());
+    }
+
+    #[test]
+    fn defect_queries_broaden_named_targets_but_explicit_definition_requests_do_not() {
+        assert_eq!(
+            route("Bug: `deepClone` returns an invalid object"),
+            "concept"
+        );
+        assert_eq!(
+            route("where is `deepClone` defined when invalid input fails"),
+            "definition"
+        );
+    }
+
+    #[test]
+    fn every_context_report_declares_source_and_relationship_scope() {
+        let (root, _state, db) =
+            project(&[("src/main.rs", "fn run() {}\nfn caller() { run(); }\n")]);
+        for task in [
+            "where is `run` defined",
+            "who calls `run`",
+            "missing packet checksum",
+        ] {
+            let report = ask(&root, &db, task, 2000);
+            assert!(report.scope.contains("admitted indexed files"));
+            assert!(report.scope.contains("BLAKE3"));
+            assert!(report.scope.contains("not type-resolved"));
+            assert!(report.render().contains(report.scope));
+        }
+    }
+
+    #[test]
+    fn missing_definition_references_do_not_block_task_word_retrieval() {
+        let (root, _state, db) = project(&[
+            ("src/diagnostic.py", "def report():\n    bogus_adapter()\n"),
+            (
+                "src/engine.py",
+                "def read():\n    # checksum packet\n    return 1\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "bogus_adapter checksum packet", 2000);
+        assert_eq!(report.intent, "concept");
+        assert!(
+            report.evidence.iter().any(|e| e.path == "src/engine.py"),
+            "{report:?}"
+        );
+        assert!(report.missing.iter().any(|m| m.contains("no definition")));
+    }
+
+    #[test]
+    fn concept_ranking_prefers_discriminative_source_evidence_over_generic_word_count() {
+        let (root, _state, db) = project(&[
+            ("src/transport.py", "def render():\n    return quasar()\n"),
+            (
+                "src/unrelated.py",
+                "# processing is broken\ndef irrelevant(): pass\n",
+            ),
+        ]);
+        for number in 0..8 {
+            fs::write(
+                root.path().join(format!("common_{number}.py")),
+                "# processing is broken\n",
+            )
+            .expect("common words");
+        }
+        synchronize_into(root.path(), &db).expect("sync");
+        let report = ask(&root, &db, "quasar processing is broken", 2000);
+        assert_eq!(report.evidence[0].path, "src/transport.py", "{report:?}");
     }
 
     #[test]

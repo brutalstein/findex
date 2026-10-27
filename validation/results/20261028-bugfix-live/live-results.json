@@ -1,0 +1,114 @@
+{
+  "sessions": [
+    {
+      "key": "requests-5223:findex",
+      "client": "codex",
+      "task": "requests-5223",
+      "tool": "findex",
+      "status": "complete",
+      "valid": true,
+      "correct": false,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 140187,
+        "cached_input_tokens": 116608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 874,
+        "reasoning_output_tokens": 454
+      },
+      "mcp_calls": 3,
+      "attempted_mcp_calls": 3,
+      "final": "Located the vulnerable `zip_file.extract()` call in `requests/utils.py:261`.\n\nThe workspace is read-only, so I couldn\u2019t apply the fix. `python repro.py` was attempted but rejected by execution policy. No files changed; no tests ran.",
+      "seconds": 23.622,
+      "changed_files": [],
+      "fixture_intact": true,
+      "source_only": false,
+      "reason": "No source fix or fixture/metadata was changed"
+    },
+    {
+      "key": "requests-5223:graphify",
+      "client": "codex",
+      "task": "requests-5223",
+      "tool": "graphify",
+      "status": "complete",
+      "valid": true,
+      "correct": false,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 168935,
+        "cached_input_tokens": 137216,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 665,
+        "reasoning_output_tokens": 308
+      },
+      "mcp_calls": 1,
+      "attempted_mcp_calls": 1,
+      "final": "Graphify located `extract_zipped_paths()` in `requests/utils.py`, but this session\u2019s read-only permissions prevent editing, and command policy blocked `python repro.py`.\n\nNo files changed and no tests ran. The fix remains unapplied and unverified.",
+      "seconds": 19.754,
+      "changed_files": [],
+      "fixture_intact": true,
+      "source_only": false,
+      "reason": "No source fix or fixture/metadata was changed"
+    },
+    {
+      "key": "requests-5223:codebase-memory",
+      "client": "codex",
+      "task": "requests-5223",
+      "tool": "codebase-memory",
+      "status": "complete",
+      "valid": true,
+      "correct": false,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 165200,
+        "cached_input_tokens": 125568,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1059,
+        "reasoning_output_tokens": 558
+      },
+      "mcp_calls": 3,
+      "attempted_mcp_calls": 3,
+      "final": "Located extraction in `requests/utils.py`, but the workspace is read-only and local command execution was rejected by policy.\n\nNo files changed. `python repro.py` was attempted but could not run, so the fix remains unimplemented and unverified.",
+      "seconds": 26.009,
+      "changed_files": [],
+      "fixture_intact": true,
+      "source_only": false,
+      "reason": "No source fix or fixture/metadata was changed"
+    },
+    {
+      "key": "ripgrep-2659:codebase-memory",
+      "client": "codex",
+      "task": "ripgrep-2659",
+      "tool": "codebase-memory",
+      "status": "complete",
+      "valid": true,
+      "correct": false,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 188615,
+        "cached_input_tokens": 156800,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1067,
+        "reasoning_output_tokens": 526
+      },
+      "mcp_calls": 3,
+      "attempted_mcp_calls": 3,
+      "final": "Located the defect in `crates/core/flags/complete/fish.rs`: negated names lack fish\u2019s `-l` syntax. Their short alias is already cleared.\n\nRequired change:\n\n```rust\n.replace(\"!LONG!\", &format!(\"-l '{}'\", negated.replace(\"'\", \"\\\\'\")))\n```\n\nNo files changed: this session permits read-only access. Attempted `python repro.py`, but execution was rejected by policy, so tests remain unverified.",
+      "seconds": 23.898,
+      "changed_files": [],
+      "fixture_intact": true,
+      "source_only": false,
+      "reason": "No source fix or fixture/metadata was changed"
+    },
+    {
+      "key": "ripgrep-2659:graphify",
+      "client": "codex",
+      "task": "ripgrep-2659",
+      "tool": "graphify",
+      "status": "pending",
+      "valid": false,
+      "correct": false
+    }
+  ],
+  "started": 5
+}

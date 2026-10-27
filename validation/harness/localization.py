@@ -12,6 +12,7 @@ Usage: localization.py [--out DIR] [--limit N] [--split dev|test]
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -44,13 +45,17 @@ def findex_rank(log: CommandLog, exe: Path, repo: Path, state: Path, argv: list[
     started = time.perf_counter()
     proc = log.run([str(exe), *argv], cwd=repo, env=isolated_env(state), timeout=600)
     elapsed = time.perf_counter() - started
+    if proc.returncode != 0:
+        raise RuntimeError(f"Retrieval command failed with exit {proc.returncode}; no score recorded")
     paths: list[str] = []
     if argv[0] == "context":
         try:
             report = json.loads(proc.stdout)
-        except ValueError:
-            report = {"evidence": []}
-        candidates = [e["path"] for e in report.get("evidence", [])]
+        except ValueError as exc:
+            raise RuntimeError("Context response is not valid JSON; no score recorded") from exc
+        if not isinstance(report, dict) or not isinstance(report.get("evidence"), list):
+            raise RuntimeError("Context response has no evidence array; no score recorded")
+        candidates = [e["path"] for e in report["evidence"]]
     else:
         candidates = [line.split(":", 1)[0] for line in proc.stdout.splitlines() if re.match(r"^\S+:\d+\s", line)]
     for path in candidates:
@@ -83,14 +88,41 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--split", choices=("dev", "test"), default=None,
                         help="evaluate one split only (development work must use dev)")
+    parser.add_argument("--baseline-context", type=Path,
+                        help="pair context with a frozen context binary instead of historical main lexical search")
+    parser.add_argument("--budget-tokens", type=int, default=8000,
+                        help="same rendered-context budget for both arms (200-8000)")
     args = parser.parse_args()
+    if not 200 <= args.budget_tokens <= 8000:
+        parser.error("budget-tokens must be between 200 and 8000")
     out = results_dir(args.out)
+    if (out / "manifest.json").exists() or (out / "localization.json").exists():
+        raise ValueError("Preserve attempted measurements; select a new output directory")
     log = CommandLog(out)
     tasks = [json.loads(line) for line in (VALIDATION / "golden" / "issue_localization.jsonl").open(encoding="utf-8")]
     tasks = [t for t in tasks if args.split in (None, split(t))]
     tasks = tasks[: args.limit] if args.limit else tasks
-    systems = {"findex-main": findex_binary("main"), "findex-context": findex_binary("current")}
-    scratch = WORK / "localization"
+    systems = {"findex-baseline-context" if args.baseline_context else "findex-main":
+               args.baseline_context or findex_binary("main"), "findex-context": findex_binary("current")}
+    identities = {}
+    for name, source in list(systems.items()):
+        source = source.resolve(strict=True)
+        digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        frozen = WORK / "bin" / "localization" / digest / "findex.exe"
+        frozen.parent.mkdir(parents=True, exist_ok=True)
+        if not frozen.exists():
+            shutil.copy2(source, frozen)
+        if hashlib.sha256(frozen.read_bytes()).hexdigest() != digest:
+            raise ValueError("Frozen runtime mismatch")
+        systems[name] = frozen
+        identities[name] = digest
+    write_json(out / "manifest.json", {"binary_sha256": identities,
+        "golden_sha256": hashlib.sha256((VALIDATION / "golden/issue_localization.jsonl").read_bytes()).hexdigest(),
+        "task_ids": [t["id"] for t in tasks], "split": args.split,
+        "budget_tokens": args.budget_tokens, "policy": "Historical frozen issue-title tasks; dev inspected, test aggregate only; no model/API calls"})
+    scratch = (WORK / "localization" / out.name).resolve()
+    if not scratch.is_relative_to(WORK.resolve()):
+        raise ValueError("Scratch path escaped validation workspace")
     per_task = []
     for task in tasks:
         history = HISTORY / task["corpus"]
@@ -108,8 +140,10 @@ def main() -> int:
         for name, exe in systems.items():
             state = scratch / f"state-{name}"
             shutil.rmtree(state, ignore_errors=True)
-            log.run([str(exe), "index"], cwd=tree, env=isolated_env(state), timeout=900)
-            argv = ["context", "--json", "--budget", "8000", task["query"]] if name == "findex-context" else ["search", task["query"]]
+            indexed = log.run([str(exe), "index"], cwd=tree, env=isolated_env(state), timeout=900)
+            if indexed.returncode:
+                raise RuntimeError(f"Index initialization failed for {task['id']}; no score recorded")
+            argv = ["context", "--json", "--budget", str(args.budget_tokens), task["query"]] if name.endswith("context") else ["search", task["query"]]
             results[name] = findex_rank(log, exe, tree, state, argv)
         gold = set(task["gold_files"])
         row = {"id": task["id"], "corpus": task["corpus"], "split": split(task), "query": task["query"],

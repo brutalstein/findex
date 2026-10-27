@@ -1,0 +1,105 @@
+{
+  "authorization": "User approved six NEW Codex subscription sessions after engine coding; previous 12 starts remain historical",
+  "max_sessions": 6,
+  "timeout_seconds": 300,
+  "profile": {
+    "model": "gpt-6.1-sol",
+    "model_reasoning_effort": "high",
+    "service_tier": "priority"
+  },
+  "tasks": {
+    "requests-5223": {
+      "base_commit": "2ed84f55b22f19a1e1e8eea2e50963dce62052d3",
+      "upstream_fix_commit": "24630743cecd3d0e9db7bee7e47381dbadf2d789",
+      "baseline_exit": 1,
+      "upstream_fix_exit": 0,
+      "status": "PASS",
+      "scope": "Curated real issue; public offline reproduction, not an unseen broad bugfix benchmark"
+    },
+    "ripgrep-2659": {
+      "base_commit": "2e81a7adfeeb9a213786b8331b244f97e7b66657",
+      "upstream_fix_commit": "8575d261790fe393d1768d12b3336cbb4cf0a9fc",
+      "baseline_exit": 1,
+      "upstream_fix_exit": 0,
+      "status": "PASS",
+      "scope": "Curated real issue; public offline reproduction, not an unseen broad bugfix benchmark"
+    }
+  },
+  "trials": [
+    {
+      "key": "requests-5223:findex",
+      "task": "requests-5223",
+      "tool": "findex",
+      "root": "target/quality/live-bugfix/trials/requests-5223/findex/project",
+      "baseline_head": "3a56fbcdf97eabc7a68f7cc8d915fa4660597c78",
+      "source_tree": "2ffa13e28e9967f0a5d443f50923b9f1938af87b",
+      "repro_sha256": "12a6ec32987dd3efb5b42eda49635706b710bb3d03c6e5065d8fc007ee62ad4d",
+      "setup_seconds": 1.3
+    },
+    {
+      "key": "requests-5223:graphify",
+      "task": "requests-5223",
+      "tool": "graphify",
+      "root": "target/quality/live-bugfix/trials/requests-5223/graphify/project",
+      "baseline_head": "f4b9a2be0aa840fbe58a9a1215ca19dc97af4677",
+      "source_tree": "2ffa13e28e9967f0a5d443f50923b9f1938af87b",
+      "repro_sha256": "12a6ec32987dd3efb5b42eda49635706b710bb3d03c6e5065d8fc007ee62ad4d",
+      "setup_seconds": 5.757
+    },
+    {
+      "key": "requests-5223:codebase-memory",
+      "task": "requests-5223",
+      "tool": "codebase-memory",
+      "root": "target/quality/live-bugfix/trials/requests-5223/codebase-memory/project",
+      "baseline_head": "1b0d26f0177fa2e76b988ea239cad340dff7f043",
+      "source_tree": "2ffa13e28e9967f0a5d443f50923b9f1938af87b",
+      "repro_sha256": "12a6ec32987dd3efb5b42eda49635706b710bb3d03c6e5065d8fc007ee62ad4d",
+      "project_name": "findex-bugfix-20261028-requests-5223",
+      "setup_seconds": 5.89
+    },
+    {
+      "key": "ripgrep-2659:codebase-memory",
+      "task": "ripgrep-2659",
+      "tool": "codebase-memory",
+      "root": "target/quality/live-bugfix/trials/ripgrep-2659/codebase-memory/project",
+      "baseline_head": "e3a5da72c35401ee3d452b3b6e3b2e9879cc21ef",
+      "source_tree": "89af599a4de33b2b8e0278514e9adb4e6228ae2d",
+      "repro_sha256": "477b13663925a926717f570962910741c8c792f3ea03939f452735d8bd3dab1a",
+      "project_name": "findex-bugfix-20261028-ripgrep-2659",
+      "setup_seconds": 17.794
+    },
+    {
+      "key": "ripgrep-2659:graphify",
+      "task": "ripgrep-2659",
+      "tool": "graphify",
+      "root": "target/quality/live-bugfix/trials/ripgrep-2659/graphify/project",
+      "baseline_head": "6d2d532a0007efd3486d3068b913ac1857b08763",
+      "source_tree": "89af599a4de33b2b8e0278514e9adb4e6228ae2d",
+      "repro_sha256": "477b13663925a926717f570962910741c8c792f3ea03939f452735d8bd3dab1a",
+      "setup_seconds": 17.447
+    },
+    {
+      "key": "ripgrep-2659:findex",
+      "task": "ripgrep-2659",
+      "tool": "findex",
+      "root": "target/quality/live-bugfix/trials/ripgrep-2659/findex/project",
+      "baseline_head": "cc1b9a77c92a450de365170c2e091f2639524485",
+      "source_tree": "89af599a4de33b2b8e0278514e9adb4e6228ae2d",
+      "repro_sha256": "477b13663925a926717f570962910741c8c792f3ea03939f452735d8bd3dab1a",
+      "setup_seconds": 12.77
+    }
+  ],
+  "tool_sha256": {
+    "codex": "1103e9e09c71fa2cd0afd6d8f3b9a2d63174fe8efd7cb5bd09f1cb14ef58a098",
+    "findex": "ccb6299d315c18d7d65c06d86b640f9e54100f1092f928e51bd65d2638243c73",
+    "codebase-memory": "b4b403b1d7c4def3785f148b93f345ce8427858f4f5489ce28580c4387a336a6",
+    "graphify": "295f799adf8f88e32e8c0810c20a01d21c534a799572cced26d4d08e6f4dbcc3",
+    "graphify-python": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a"
+  },
+  "limits": [
+    "Two curated real issues, one repetition per tool; not a general or statistically powered bugfix claim",
+    "Setup/index/build costs excluded from model session time and reported separately",
+    "No APIs, external providers, agents or subagents; workspace-write only"
+  ],
+  "order_policy": "Reverse tool order on second task; every tool has mean run position 2; frozen before first model turn"
+}

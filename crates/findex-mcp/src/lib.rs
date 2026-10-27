@@ -985,6 +985,7 @@ mod tests {
                 assert_eq!((task, budget), ("who calls `run`", 900));
                 Ok(findex_index::ContextReport {
                     intent: "callers",
+                    scope: "indexed source; syntax evidence, not compiler-resolved",
                     identifiers: vec!["run".into()],
                     evidence: vec![findex_index::Evidence {
                         kind: "call",

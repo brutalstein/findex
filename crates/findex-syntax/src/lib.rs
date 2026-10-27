@@ -8,6 +8,9 @@ use std::io;
 use std::path::{Component, Path};
 use tree_sitter::{Language, Node, Parser};
 
+mod rust_receivers;
+pub use rust_receivers::{receiver_hints as rust_receiver_hints, ReceiverHint};
+
 const MAX_SYMBOLS: usize = 2048;
 
 #[derive(Clone, Debug, Serialize)]
