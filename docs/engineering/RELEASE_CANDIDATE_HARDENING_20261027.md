@@ -31,19 +31,31 @@ enterprise certification or a claim of superiority on all coding tasks.
   now distinguishes local retrieval from the assistant's provider transmission,
   and name-matched references from type-resolved calls. Architecture docs no
   longer incorrectly say corrupt caches are automatically rebuilt.
+- Full synchronization now queues at most eight native file reads, rechecks
+  admission before opening and writes SQLite rows in the original order.
+  Thread-start failure falls back to serial reads. Targeted refresh uses the
+  same bounded reader. No reader threads remain after synchronization.
+- Full-text retrieval sorts bounded path/rank/hash metadata, then fetches bodies
+  only within the existing candidate window. The metadata cursor pins the read
+  snapshot; reference tests compare old/new SQL and a concurrent writer.
+- Codex installation uses verified immutable runtime paths by SHA-256. Native
+  regressions cover a locked legacy executable, locked repeated installation
+  and a corrupt cached runtime that must preserve the prior MCP configuration.
 
 No ranking, schema migration, language coverage, authentication provider or
 source-admission boundary was changed. No new runtime dependency was added.
 
 ## Fresh evidence
 
-Authoritative local run: `validation/results/20261027-release-candidate/`.
+Authoritative local run: `validation/results/20261027-performance-release/`.
+`20261027-release-candidate/` is the passing predecessor before native I/O/SQL
+optimization; it is retained with its original identities and counts.
 
 | Check | Result |
 |---|---|
-| MSVC Rust 1.97.0 fmt, Clippy `-D warnings`, all-target tests, optimized build | PASS; 151 tests |
-| Declared MSRV Rust 1.85.0, MSVC/static CRT | PASS; 151 tests |
-| Offline Python evidence/gate/adapter regressions | PASS; 33 tests |
+| MSVC Rust 1.97.0 fmt, Clippy `-D warnings`, all-target tests, optimized build | PASS; 153 tests |
+| Declared MSRV Rust 1.85.0, MSVC/static CRT | PASS; 153 tests |
+| Offline Python evidence/gate/adapter/locked-installer regressions | PASS; 34 tests |
 | RustSec advisory scan and cargo-deny license/bans/sources | PASS |
 | Quick native black-box security/recovery/fuzz | 29 PASS, 0 FAIL, 0 skipped; 40 random SCIP + 40 mutated LSP inputs |
 | Sensitive-path privacy | 17 secret-path shapes excluded; normal source still found |
@@ -62,7 +74,7 @@ attempts remain labelled as intermediate evidence, not passing release gates.
 
 ## Comparative outcome
 
-[`20261027-final-comparison`](../../validation/results/20261027-final-comparison/NOTE.md):
+[`20261027-performance-comparison`](../../validation/results/20261027-performance-comparison/NOTE.md):
 55 queries new relative to the historical comparison plus 60 regression controls.
 All 115: Findex compact averages 263.83 raw output tokens, codebase tree 266.37,
 Graphify code-only MCP 2274.87. File hit@1 is 112/115, 85/115 and 87/115.
@@ -74,7 +86,7 @@ The raw-token advantage over codebase is narrow overall and **does not hold on
 three of four individual corpora or the historical 60 subset**. Both dev-selected
 format revisions used the same evaluation queries for confirmation; no second
 blind replication is claimed. Corpus-level failures are explicit in the saved
-gates. No cold-speed, RAM, idle-CPU or disk superiority was measured here.
+gates. No competitor cold-speed, RAM, idle-CPU or disk superiority was measured.
 
 [`20261027-codex-live`](../../validation/results/20261027-codex-live/NOTE.md):
 six real sequential Codex subscription sessions, two navigation tasks per tool,
@@ -84,6 +96,54 @@ used the earlier matrix-only GNU build; it is not re-labelled as a live study
 of the final MSVC executable. Final installed-client and source-hit equivalence
 checks establish the compatibility bridge. Cumulative starts including the
 earlier stopped study are twelve; no additional sessions were started.
+
+## Native scaling and query work
+
+[`20261027-native-scale-final`](../../validation/results/20261027-native-scale-final/NOTE.md)
+freezes the previous and final MSVC executables. Each build/repetition gets its
+own identical synthetic Rust directory and fresh database, with alternating
+build order. OS/antivirus caches are **not** flushed. Three paired repetitions
+cover 200/2,000/10,000 files; 100k is candidate-only, one repetition.
+
+| Files | Previous initial index, median s | Final, median s | Final max sampled peak MiB |
+|---|---:|---:|---:|
+| 200 | 0.374 | 0.251 | 8.75 |
+| 2,000 | 5.619 | 1.968 | 10.17 |
+| 10,000 | 49.007 | 10.212 | 12.46 |
+| 100,000 | Not measured | 106.159 | 23.39 |
+
+The 10k improvement is 4.80x on this machine. The first study reused source
+directories across builds; its asymmetric cache conditions must not be used to
+claim a larger speedup. The corrected v2 precedes the final rebuild and has a
+different executable hash; both predecessor studies remain labelled separately.
+20-ms sampling may miss the final sub-20-ms resource interval. Files are tiny
+synthetic Rust sources; this is a file-count test, not a large-byte-volume study.
+
+All 245 warm-query checks return expected path/line anchors; all 105 paired
+query hit lists match. At 100k, exact-symbol p95 is 3.47 ms,
+unique lexical p95 4.18 ms and broad common-term p95
+83.44 ms, with truncation explicit. First MCP startup/reconciliation
+there takes 5.09 s; warm timings exclude startup.
+Warm queries report zero traversed files. Every five-second idle sample records
+0.0 CPU seconds at OS-counter resolution. All post-query thread counts are four.
+The 100k warmed process RSS is 9.34 MiB,
+with 39.37 MiB lifetime peak during
+startup/queries; the table measures the separate CLI indexing process.
+
+After nine edits plus a 100,001st file, the transaction fails, preserves all
+nine old hashes and 100k rows, passes integrity, then admits all nine edits
+after removing the extra file. The 100k file cap and 512 KiB source cap remain
+deliberate limits; arbitrary project sizes and nonblocking cold scans are not
+claimed.
+
+[`20261027-wide-query-v2`](../../validation/results/20261027-wide-query-v2/NOTE.md)
+uses 1,200 sources of 64 KiB each and ten alternating warm common-term calls
+per build. All 20 full expanded responses match, including source flags and
+truncation. Median native MCP latency falls 140.97 → 16.12 ms (8.74x);
+p95 is 146.12 → 21.25 ms. Lifetime process peak is 14.39 → 13.24 MiB.
+This is a targeted wide-body workload, not an average across real projects.
+The first attempt stopped on a harness lifecycle mistake before timed
+responses and is retained separately; the correction reuses existing close hooks.
 
 ## Review scope and remaining work
 
@@ -96,7 +156,7 @@ or native dependency.
 
 Before broad performance/enterprise claims: independently authored unseen tasks,
 repeated live code-edit/architecture studies, wider language/compiler oracles,
-Windows 10 and real remote SMB, larger scale/soak/resource measurements, and
+Windows 10 and real remote SMB, larger mixed-project/soak measurements, and
 publisher signing. Existing 100k-file / 512-KiB-file caps, lexical call matching
 and known-shape-only secret redaction remain. The preview is explicitly unsigned;
 verify SHA-256. Production/enterprise readiness and universal superiority remain

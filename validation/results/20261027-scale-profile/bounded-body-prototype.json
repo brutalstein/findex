@@ -1,0 +1,53 @@
+{
+  "scope": "SQL prototype only, not native Findex performance",
+  "sqlite_version": "3.53.2",
+  "files": 8000,
+  "body_bytes_per_file": 8221,
+  "records": [
+    {
+      "variant": "direct",
+      "rep": 0,
+      "seconds": 0.08772810000027675,
+      "rows": 129
+    },
+    {
+      "variant": "bounded-body",
+      "rep": 0,
+      "seconds": 0.01153229999999894,
+      "rows": 129
+    },
+    {
+      "variant": "bounded-body",
+      "rep": 1,
+      "seconds": 0.009901299999910407,
+      "rows": 129
+    },
+    {
+      "variant": "direct",
+      "rep": 1,
+      "seconds": 0.08615150000014182,
+      "rows": 129
+    },
+    {
+      "variant": "direct",
+      "rep": 2,
+      "seconds": 0.08795779999991282,
+      "rows": 129
+    },
+    {
+      "variant": "bounded-body",
+      "rep": 2,
+      "seconds": 0.010632699999860051,
+      "rows": 129
+    }
+  ],
+  "identical_rows": true,
+  "candidate_query_plan": [
+    "MATERIALIZE candidates",
+    "SCAN docs VIRTUAL TABLE INDEX 0:M3",
+    "SEARCH files USING INTEGER PRIMARY KEY (rowid=?)",
+    "USE TEMP B-TREE FOR ORDER BY",
+    "SCAN c",
+    "SCAN docs VIRTUAL TABLE INDEX 0:="
+  ]
+}

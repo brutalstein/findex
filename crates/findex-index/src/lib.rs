@@ -4,6 +4,7 @@
 mod context;
 mod overview;
 mod refresh;
+mod source_reads;
 mod symbols;
 
 pub use context::{context, context_in_db, ContextReport, Evidence};
@@ -25,6 +26,12 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
+
+// Sort metadata first; fetch source only inside the bounded candidate loop.
+// files.path and docs.path share the rowid contract enforced by store_document.
+const FTS_CANDIDATES_SQL: &str = "SELECT files.path, docs.rank, files.hash, files.id
+     FROM docs JOIN files ON files.id = docs.rowid
+     WHERE docs MATCH ?1 ORDER BY docs.rank ASC, files.path ASC LIMIT ?2";
 
 #[derive(Debug, Default, Clone, Serialize)]
 pub struct SyncStats {
@@ -351,6 +358,9 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
     // was indexed before is removed, without re-reading files a second time.
     let mut admitted = HashSet::new();
     let mut stats = SyncStats::default();
+    let width = std::thread::available_parallelism().map_or(1, |count| count.get().min(8));
+    let mut reader = source_reads::SourceReads::new(width);
+    let mut pending = Vec::with_capacity(reader.capacity());
     let walker = WalkBuilder::new(project)
         .hidden(true)
         .git_ignore(true)
@@ -418,7 +428,51 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
             stats.cloud_only += 1;
             continue;
         }
-        let bytes = match fs::read(entry.path()) {
+        pending.push((rel_string, entry.path().to_path_buf()));
+        if pending.len() == reader.capacity() {
+            store_source_batch(
+                &tx,
+                &mut pending,
+                &mut reader,
+                &existing,
+                &mut admitted,
+                &mut stats,
+            )?;
+        }
+    }
+    store_source_batch(
+        &tx,
+        &mut pending,
+        &mut reader,
+        &existing,
+        &mut admitted,
+        &mut stats,
+    )?;
+
+    // Skipped but previously indexed files must be removed to prevent leaking obsolete results.
+    for old_path in existing.keys() {
+        if !admitted.contains(old_path) {
+            remove_document(&tx, old_path)?;
+            symbols::clear(&tx, old_path)?;
+            stats.removed += 1;
+        }
+    }
+    tx.commit()?;
+    Ok(stats)
+}
+
+fn store_source_batch(
+    tx: &rusqlite::Transaction<'_>,
+    pending: &mut Vec<(String, PathBuf)>,
+    reader: &mut source_reads::SourceReads,
+    existing: &HashMap<String, String>,
+    admitted: &mut HashSet<String>,
+    stats: &mut SyncStats,
+) -> Result<()> {
+    let paths: Vec<_> = pending.iter().map(|(_, path)| path.clone()).collect();
+    let reads = reader.read(&paths)?;
+    for ((rel_string, _), read) in pending.drain(..).zip(reads) {
+        let bytes = match read {
             Ok(b) => b,
             Err(err) => {
                 if keeps_entry(&err) && existing.contains_key(&rel_string) {
@@ -443,31 +497,22 @@ fn synchronize_once(project: &Path, conn: &mut Connection) -> Result<SyncStats> 
             .get(&rel_string)
             .is_some_and(|old| old.as_str() == digest.as_str())
         {
-            if symbols::upsert(&tx, &rel_string, &digest, contents)? {
+            if symbols::upsert(tx, &rel_string, &digest, contents)? {
                 stats.symbols_parsed += 1;
-            } else if findex_syntax::supports_path(rel) {
+            } else if findex_syntax::supports_path(Path::new(&rel_string)) {
                 stats.symbols_reused += 1;
             }
             stats.unchanged += 1;
             continue;
         }
-        if symbols::upsert(&tx, &rel_string, &digest, contents)? {
+        if symbols::upsert(tx, &rel_string, &digest, contents)? {
             stats.symbols_parsed += 1;
         }
-        store_document(&tx, &rel_string, contents, &digest, bytes.len() as i64)?;
+        store_document(tx, &rel_string, contents, &digest, bytes.len() as i64)?;
         stats.indexed += 1;
     }
 
-    // Skipped but previously indexed files must be removed to prevent leaking obsolete results.
-    for old_path in existing.keys() {
-        if !admitted.contains(old_path) {
-            remove_document(&tx, old_path)?;
-            symbols::clear(&tx, old_path)?;
-            stats.removed += 1;
-        }
-    }
-    tx.commit()?;
-    Ok(stats)
+    Ok(())
 }
 
 /// Upsert one file's metadata and lexical row, including derived identifier
@@ -608,11 +653,8 @@ pub fn search_in_db(
     }
 
     // Stage 2: BM25 candidates over source text and identifier/path words.
-    let mut stmt = conn.prepare(
-        "SELECT docs.path, docs.body, docs.rank, files.hash
-         FROM docs JOIN files ON files.id = docs.rowid
-         WHERE docs MATCH ?1 ORDER BY docs.rank ASC, docs.path ASC LIMIT ?2",
-    )?;
+    let mut stmt = conn.prepare(FTS_CANDIDATES_SQL)?;
+    let mut bodies = conn.prepare("SELECT body FROM docs WHERE rowid = ?1")?;
     // Collect a bounded but generous window before reranking. An extra
     // candidate makes truncation explicit rather than silently claiming
     // completeness after stale-result rejection or multi-term reranking.
@@ -621,9 +663,9 @@ pub fn search_in_db(
         stmt.query_map(params![expression, (candidate_budget + 1) as i64], |row| {
             Ok((
                 row.get::<_, String>(0)?,
-                row.get::<_, String>(1)?,
-                row.get::<_, f64>(2)?,
-                row.get::<_, String>(3)?,
+                row.get::<_, f64>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, i64>(3)?,
             ))
         })?;
     let mut candidates = Vec::new();
@@ -632,7 +674,9 @@ pub fn search_in_db(
             report.truncated = true;
             break;
         }
-        let (path, body, score, indexed_hash) = row?;
+        let (path, score, indexed_hash, id) = row?;
+        // The metadata statement remains active, so this shares its read snapshot.
+        let body: String = bodies.query_row(params![id], |row| row.get(0))?;
         if seen_paths.contains(&path) {
             continue;
         }
@@ -868,6 +912,102 @@ mod tests {
         let db = state.path().join("index.sqlite3");
         synchronize_into(project.path(), &db).expect("sync");
         (project, state, db)
+    }
+
+    #[test]
+    fn bounded_body_query_matches_direct_rank_path_and_source_reference() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        for number in (0..96).rev() {
+            let body = format!(
+                "fn node_{number}() {{}}\n// {} beta\n",
+                "alpha ".repeat(1 + number % 8)
+            );
+            fs::write(project.path().join(format!("file_{number:03}.rs")), body).expect("source");
+        }
+        synchronize_into(project.path(), &db).expect("index");
+        let conn = connect(&db).expect("connection");
+        let direct = "SELECT docs.path,docs.body,docs.rank,files.hash
+            FROM docs JOIN files ON files.id=docs.rowid
+            WHERE docs MATCH ?1 ORDER BY docs.rank ASC,docs.path ASC LIMIT ?2";
+        for query in ["\"alpha\"", "\"alpha\" OR \"beta\"", "\"missing\""] {
+            for limit in [1, 32, 161] {
+                let fetch = |sql: &str| {
+                    conn.prepare(sql)
+                        .expect("query")
+                        .query_map(params![query, limit], |row| {
+                            Ok((
+                                row.get::<_, String>(0)?,
+                                row.get::<_, String>(1)?,
+                                row.get::<_, f64>(2)?,
+                                row.get::<_, String>(3)?,
+                            ))
+                        })
+                        .expect("rows")
+                        .collect::<rusqlite::Result<Vec<_>>>()
+                        .expect("values")
+                };
+                let mut statement = conn.prepare(FTS_CANDIDATES_SQL).expect("metadata query");
+                let metadata = statement
+                    .query_map(params![query, limit], |row| {
+                        Ok((
+                            row.get::<_, String>(0)?,
+                            row.get::<_, f64>(1)?,
+                            row.get::<_, String>(2)?,
+                            row.get::<_, i64>(3)?,
+                        ))
+                    })
+                    .expect("metadata");
+                let bounded: Vec<_> = metadata
+                    .map(|row| {
+                        let (path, rank, hash, id) = row.expect("candidate");
+                        let body: String = conn
+                            .query_row("SELECT body FROM docs WHERE rowid=?1", params![id], |row| {
+                                row.get(0)
+                            })
+                            .expect("body in same snapshot");
+                        (path, body, rank, hash)
+                    })
+                    .collect();
+                assert_eq!(bounded, fetch(direct), "query={query}, limit={limit}");
+            }
+        }
+        let id;
+        {
+            let mut metadata = conn.prepare(FTS_CANDIDATES_SQL).expect("snapshot query");
+            let mut rows = metadata
+                .query(params!["\"alpha\"", 32])
+                .expect("snapshot rows");
+            let first = rows.next().expect("row").expect("candidate");
+            id = first.get::<_, i64>(3).expect("id");
+            let path = first.get::<_, String>(0).expect("path");
+            let original: String = conn
+                .query_row("SELECT body FROM docs WHERE rowid=?1", params![id], |row| {
+                    row.get(0)
+                })
+                .expect("original body");
+            let mut writer = connect(&db).expect("writer");
+            let tx = writer.transaction().expect("write transaction");
+            store_document(&tx, &path, "replacement body", "replacement hash", 16)
+                .expect("replace");
+            tx.commit().expect("concurrent commit");
+            let during: String = conn
+                .query_row("SELECT body FROM docs WHERE rowid=?1", params![id], |row| {
+                    row.get(0)
+                })
+                .expect("snapshot body");
+            assert_eq!(
+                during, original,
+                "candidate metadata and body must share a read snapshot"
+            );
+        }
+        let after: String = conn
+            .query_row("SELECT body FROM docs WHERE rowid=?1", params![id], |row| {
+                row.get(0)
+            })
+            .expect("new snapshot");
+        assert_eq!(after, "replacement body");
     }
 
     #[test]

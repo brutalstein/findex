@@ -85,6 +85,9 @@ or Turkish, or use `/findex:navigate`, `/findex:map-project` or
 .\plugin\scripts\install-codex.ps1 -Binary C:\Tools\findex\findex.exe
 ```
 
+Updates use a verified runtime path per executable hash, allowing existing
+Windows MCP sessions to keep running. Start a new Codex session after updating.
+
 **Build it yourself** (Windows x64, Rust MSVC toolchain)
 
 ```powershell
@@ -93,6 +96,12 @@ cargo build --release -p findex
 ```
 
 ## What you get
+
+Native Windows scaling checks cover 200 to 100,000 synthetic source files.
+On this machine, the 10k-file initial-index median fell from 49.01 to 10.21 s
+against the previous build; the 100k-file run used 23.39 MiB peak working set.
+These are local synthetic measurements, not an all-project or competitor speed
+claim. [Method, warm-query results and limits](docs/engineering/RELEASE_CANDIDATE_HARDENING_20261027.md#native-scaling-and-query-work).
 
 | | |
 |---|---|

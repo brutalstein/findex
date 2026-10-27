@@ -222,6 +222,8 @@ def main() -> None:
         try:
             subprocess.run(["git", "init", "-q", str(root)], check=True)
             (root / "local.rs").write_text("pub fn local_marker() {}\n", encoding="utf-8")
+            for number in range(12):  # Exercise queued local reads alongside placeholders.
+                (root / f"local_{number}.rs").write_text(f"fn local_{number}() {{}}\n", encoding="utf-8")
             provider.create(list(contents))
             assert all(cloud_only(root / n) for n in contents)
 

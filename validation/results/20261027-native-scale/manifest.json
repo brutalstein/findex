@@ -1,0 +1,41 @@
+{
+  "binary_sha256": {
+    "baseline": "fa45e39476a288a5885aa43c31e9a5e59b0570836d3aa0605fcc6584d87a9e81",
+    "candidate": "503f0f2f87402d2cc04a89753d1c4c9a9a388a88077b13c51a79f9fb2fee1f96"
+  },
+  "sizes": [
+    200,
+    2000,
+    10000,
+    100000
+  ],
+  "paired_repetitions": 3,
+  "100k": "candidate only, one repetition; no baseline speedup claim",
+  "recipe": "pkg/{i:06}.rs: pub fn scale_marker_{i:06}() -> u32 { i } newline",
+  "environment": {
+    "utc": "20261027T112541Z",
+    "git_sha": "fdf2b25fa3e5b78523580628c6f7347bd258da0d",
+    "git_dirty": true,
+    "git_branch": "codex/token-efficiency-hardening",
+    "os": "Windows-11-10.0.26200-SP0",
+    "windows_build": "10.0.26200",
+    "machine": "AMD64",
+    "logical_processors": 32,
+    "physical_cores": 16,
+    "ram_bytes": 33521238016,
+    "python": "3.14.6",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+    "rustc_host": "x86_64-pc-windows-gnullvm",
+    "cargo": "cargo 1.96.1 (356927216 2026-06-26)",
+    "git": "git version 2.51.2.windows.1",
+    "claude_code": "not queried",
+    "cpu_model": "AMD Ryzen 9 8945HX with Radeon Graphics",
+    "storage": [
+      "SSD NVMe CT1000P310SSD8"
+    ],
+    "ci_run_url": ""
+  },
+  "model_sessions": 0,
+  "api_calls": 0,
+  "conditions": "Fresh database each cold run; OS and antivirus caches not flushed; order alternates"
+}

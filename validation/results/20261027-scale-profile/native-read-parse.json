@@ -1,0 +1,12 @@
+{
+  "wall_s": 6.882140400000026,
+  "exit_code": 0,
+  "peak_working_set": 3989504,
+  "cpu_user_s": 0.21875,
+  "cpu_system_s": 0.1875,
+  "read_bytes": 96968,
+  "write_bytes": 0,
+  "stdout_tail": "{\"iterations\":2000,\"seconds\":6.755113,\"with_file_io\":true}\n",
+  "stderr_tail": "",
+  "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved"
+}

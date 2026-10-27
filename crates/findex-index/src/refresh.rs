@@ -112,7 +112,7 @@ pub fn refresh_known_paths_into(
                         }
                     };
                     if inside {
-                        match fs::read(&absolute) {
+                        match super::source_reads::read_one(&absolute) {
                             Ok(bytes) => Some(bytes).filter(|bytes| {
                                 (bytes.len() as u64) <= MAX_SOURCE_BYTES
                                     && !bytes.contains(&0)

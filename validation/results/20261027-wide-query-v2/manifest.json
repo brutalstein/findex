@@ -1,0 +1,34 @@
+{
+  "binary_sha256": {
+    "baseline": "fa45e39476a288a5885aa43c31e9a5e59b0570836d3aa0605fcc6584d87a9e81",
+    "candidate": "1e49405dd0dd90b55cff28eb8af0cef56ac3e330ae0a72b14bd51513e51993ca"
+  },
+  "files": 1200,
+  "body_bytes": 65536,
+  "repetitions": 10,
+  "environment": {
+    "utc": "20261027T154246Z",
+    "git_sha": "fdf2b25fa3e5b78523580628c6f7347bd258da0d",
+    "git_dirty": true,
+    "git_branch": "codex/token-efficiency-hardening",
+    "os": "Windows-11-10.0.26200-SP0",
+    "windows_build": "10.0.26200",
+    "machine": "AMD64",
+    "logical_processors": 32,
+    "physical_cores": 16,
+    "ram_bytes": 33521238016,
+    "python": "3.12.10",
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+    "rustc_host": "x86_64-pc-windows-gnullvm",
+    "cargo": "cargo 1.96.1 (356927216 2026-06-26)",
+    "git": "git version 2.51.2.windows.1",
+    "claude_code": "not queried",
+    "cpu_model": "AMD Ryzen 9 8945HX with Radeon Graphics",
+    "storage": [
+      "SSD NVMe CT1000P310SSD8"
+    ],
+    "ci_run_url": ""
+  },
+  "model_sessions": 0,
+  "scope": "Synthetic equal-rank wide-body common-term queries, OS caches not flushed"
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "sizes": [
+    200,
+    2000,
+    10000,
+    100000
+  ],
+  "scope": "Synthetic Rust file-count scaling; no general all-project claim"
+}

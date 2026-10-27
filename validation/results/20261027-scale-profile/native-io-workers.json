@@ -1,0 +1,83 @@
+{
+  "scope": "Synthetic native source read + parse prototype, separate fresh directories; no production index change",
+  "records": [
+    {
+      "wall_s": 1.26951669999994,
+      "exit_code": 0,
+      "peak_working_set": 4218880,
+      "cpu_user_s": 0.25,
+      "cpu_system_s": 0.125,
+      "read_bytes": 94410,
+      "write_bytes": 0,
+      "stdout_tail": "{\"iterations\":2000,\"workers\":4,\"seconds\":1.1557894,\"with_file_io\":true}\n",
+      "stderr_tail": "",
+      "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+      "workers": 4
+    },
+    {
+      "wall_s": 3.683125599999812,
+      "exit_code": 0,
+      "peak_working_set": 4026368,
+      "cpu_user_s": 0.0625,
+      "cpu_system_s": 0.1875,
+      "read_bytes": 94650,
+      "write_bytes": 0,
+      "stdout_tail": "{\"iterations\":2000,\"workers\":1,\"seconds\":3.6241775,\"with_file_io\":true}\n",
+      "stderr_tail": "",
+      "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+      "workers": 1
+    },
+    {
+      "wall_s": 0.817083299999922,
+      "exit_code": 0,
+      "peak_working_set": 4427776,
+      "cpu_user_s": 0.3125,
+      "cpu_system_s": 0.234375,
+      "read_bytes": 94890,
+      "write_bytes": 72,
+      "stdout_tail": "{\"iterations\":2000,\"workers\":8,\"seconds\":0.7546655,\"with_file_io\":true}\n",
+      "stderr_tail": "",
+      "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+      "workers": 8
+    },
+    {
+      "wall_s": 0.5720214000000396,
+      "exit_code": 0,
+      "peak_working_set": 4919296,
+      "cpu_user_s": 0.296875,
+      "cpu_system_s": 0.296875,
+      "read_bytes": 94506,
+      "write_bytes": 0,
+      "stdout_tail": "{\"iterations\":2000,\"workers\":16,\"seconds\":0.5187336,\"with_file_io\":true}\n",
+      "stderr_tail": "",
+      "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+      "workers": 16
+    },
+    {
+      "wall_s": 3.646807699999954,
+      "exit_code": 0,
+      "peak_working_set": 4022272,
+      "cpu_user_s": 0.078125,
+      "cpu_system_s": 0.1875,
+      "read_bytes": 94602,
+      "write_bytes": 0,
+      "stdout_tail": "{\"iterations\":2000,\"workers\":1,\"seconds\":3.5888788,\"with_file_io\":true}\n",
+      "stderr_tail": "",
+      "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+      "workers": 1
+    },
+    {
+      "wall_s": 0.7952647999998135,
+      "exit_code": 0,
+      "peak_working_set": 4489216,
+      "cpu_user_s": 0.234375,
+      "cpu_system_s": 0.21875,
+      "read_bytes": 94794,
+      "write_bytes": 0,
+      "stdout_tail": "{\"iterations\":2000,\"workers\":8,\"seconds\":0.7348531,\"with_file_io\":true}\n",
+      "stderr_tail": "",
+      "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+      "workers": 8
+    }
+  ]
+}

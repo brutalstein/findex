@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "global_plugin_cached_runtime_sha256": "1e49405dd0dd90b55cff28eb8af0cef56ac3e330ae0a72b14bd51513e51993ca",
+  "runtime_path": "%LOCALAPPDATA%\\Findex\\codex-runtimes\\1e49405dd0dd90b55cff28eb8af0cef56ac3e330ae0a72b14bd51513e51993ca\\findex.exe",
+  "native_client_fixture": "codex-integration.json",
+  "model_sessions": 0,
+  "upgrade_regression": "34-test offline suite includes locked old/new runtime, repeated install, corrupt cache preservation"
+}

@@ -1,0 +1,23 @@
+{
+  "manifest": "PASS",
+  "codex_manifest": "PASS",
+  "codex_mcp_config": "PASS",
+  "marketplace": "PASS",
+  "mcp_config": "PASS",
+  "skills": [
+    "maintenance",
+    "map-project",
+    "navigate",
+    "trace-impact"
+  ],
+  "self_contained_mcp": "PASS",
+  "windows_system_path_only": "PASS",
+  "all_eight_tools": "PASS",
+  "on_demand_model_context": "PASS",
+  "fixture_source_evidence": "PASS",
+  "explicit_runtime_override": "PASS",
+  "missing_runtime_fails_closed": "PASS",
+  "status": "PASS",
+  "model_sessions": 0,
+  "paid_api_calls": 0
+}

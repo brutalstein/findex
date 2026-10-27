@@ -1,0 +1,31 @@
+{
+  "binary_sha256": "fa45e39476a288a5885aa43c31e9a5e59b0570836d3aa0605fcc6584d87a9e81",
+  "records": [
+    {
+      "wall_s": 8.03977789999999,
+      "exit_code": 0,
+      "peak_working_set": 10108928,
+      "cpu_user_s": 0.421875,
+      "cpu_system_s": 0.34375,
+      "read_bytes": 1287058,
+      "write_bytes": 2457404,
+      "stdout_tail": "Indexed 2000 changed, 0 unchanged, 0 removed, 0 skipped (examined 2000)\n",
+      "stderr_tail": "",
+      "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+      "size": 2000
+    },
+    {
+      "wall_s": 34.12572560000001,
+      "exit_code": 0,
+      "peak_working_set": 12054528,
+      "cpu_user_s": 1.5,
+      "cpu_system_s": 1.34375,
+      "read_bytes": 11499250,
+      "write_bytes": 11529340,
+      "stdout_tail": "Indexed 10000 changed, 0 unchanged, 0 removed, 0 skipped (examined 10000)\n",
+      "stderr_tail": "",
+      "note": "resource counters sampled every 20 ms; final <20 ms may be unobserved",
+      "size": 10000
+    }
+  ]
+}

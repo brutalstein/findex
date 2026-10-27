@@ -1,4 +1,4 @@
-# Findex for Claude Code (Windows)
+# Findex for Claude Code and Codex (Windows)
 
 A local-first, on-demand code-navigation plugin for **the official Claude Code CLI**, including Claude Code in VS Code. Findex MCP is the native Rust engine; the skills route code questions and explain uncertainty. The plugin does not replace Claude, touch Claude authentication, run network services, launch paid model tests or take over built-in search.
 
@@ -30,7 +30,24 @@ claude --plugin-dir "C:\Path\To\findex\plugin"
 ```
 Do not set `FINDEX_BIN` to a binary from an untrusted code repository. The launcher refuses an implicitly discovered `findex.exe` inside the project working directory.
 
-## Native Claude tools
+### Install in Codex
+
+Run the included installer with a trusted, absolute Windows executable path:
+
+```powershell
+.\scripts\install-codex.ps1 -Binary C:\Tools\findex\findex.exe
+```
+
+From a repository checkout, use `.\plugin\scripts\install-codex.ps1`.
+The installer registers the local marketplace with the official Codex client.
+Each executable is verified and stored under `Findex\codex-runtimes\<sha256>`
+in LOCALAPPDATA. Reinstalling keeps active MCP sessions running: Windows does
+not need to overwrite their locked executable. A mismatched cached runtime
+fails before replacing the MCP configuration. Old runtimes are retained for
+active sessions; cleanup is manual after those sessions close. Start a new
+Codex session to load an updated plugin. The installer makes no model calls.
+
+## Native tools
 
 All eight tools are available as ordinary MCP tools:
 - `findex_context` — small task-focused source excerpts, always discoverable.
@@ -66,4 +83,4 @@ You can simply ask Claude in Turkish or English to find the implementation of a 
 claude plugin validate "C:\Tools\findex-plugin" --strict
 python validation/harness/plugin_check.py --plugin plugin --marketplace .claude-plugin/marketplace.json --binary target/release/findex.exe --out plugin-validation.json
 ```
-The Python test uses the actual native MCP server through PowerShell in a directory containing spaces, validates the six-tool contract and tests missing runtime failure. It makes **zero** model/API calls. The CLI plugin validator is the authoritative syntax check; it may not be available on a CI runner without Claude Code installed.
+The Python test uses the actual native MCP server through PowerShell in a directory containing spaces, validates the eight-tool contract and tests missing runtime failure. It makes **zero** model/API calls. The CLI plugin validator is the authoritative syntax check; it may not be available on a CI runner without Claude Code installed.

@@ -1,0 +1,26 @@
+{
+  "sqlite_version": "3.53.2",
+  "records": [
+    {
+      "size": 2000,
+      "variant": "delete-insert",
+      "seconds": 0.025783099999898695
+    },
+    {
+      "size": 2000,
+      "variant": "replace",
+      "seconds": 0.022834499999930813
+    },
+    {
+      "size": 10000,
+      "variant": "delete-insert",
+      "seconds": 0.11716599999999744
+    },
+    {
+      "size": 10000,
+      "variant": "replace",
+      "seconds": 0.11235990000000129
+    }
+  ],
+  "scope": "isolated SQL ablation, not native Findex result; no security or content omitted"
+}

@@ -4,6 +4,16 @@ param(
     [string]$Codex = 'codex'
 )
 $ErrorActionPreference = 'Stop'
+function Get-RuntimeDigest([string]$Path) {
+    $stream = [IO.File]::OpenRead($Path)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try {
+        return [BitConverter]::ToString($sha.ComputeHash($stream)).Replace('-', '').ToLowerInvariant()
+    } finally {
+        $stream.Dispose()
+        $sha.Dispose()
+    }
+}
 if (-not [IO.Path]::IsPathRooted($Binary) -or
     -not (Test-Path -LiteralPath $Binary -PathType Leaf) -or
     [IO.Path]::GetFileName($Binary) -ine 'findex.exe') {
@@ -17,7 +27,7 @@ $source = Split-Path -Parent $PSScriptRoot
 $marketplace = Join-Path $env:LOCALAPPDATA 'Findex\codex-plugin-marketplace'
 $installed = Join-Path $marketplace 'plugin'
 New-Item -ItemType Directory -Force -Path $installed | Out-Null
-$digest = (Get-FileHash -LiteralPath $runtime -Algorithm SHA256).Hash.ToLowerInvariant()
+$digest = Get-RuntimeDigest $runtime
 # Windows locks running executables. Keep each verified runtime immutable so an
 # update never overwrites the binary used by an existing MCP session.
 $runtimeDir = Join-Path $env:LOCALAPPDATA "Findex\codex-runtimes\$digest"
@@ -26,7 +36,7 @@ $boundRuntime = Join-Path $runtimeDir 'findex.exe'
 if (-not (Test-Path -LiteralPath $boundRuntime)) {
     Copy-Item -LiteralPath $runtime -Destination $boundRuntime
 }
-if ((Get-FileHash -LiteralPath $boundRuntime -Algorithm SHA256).Hash.ToLowerInvariant() -ne $digest) {
+if ((Get-RuntimeDigest $boundRuntime) -ne $digest) {
     throw 'Installed runtime hash mismatch; existing MCP configuration was preserved.'
 }
 Get-ChildItem -LiteralPath $source -Force |

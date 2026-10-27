@@ -10,6 +10,17 @@ Measured claims and their limits are listed in [docs/EVIDENCE.md](docs/EVIDENCE.
 
 First release candidate. No earlier version was published.
 
+### Performance and installation
+- Bound native source reads to at most eight workers while keeping SQLite
+  writes ordered and transactional; recheck cloud-only, size and link status
+  immediately before each read. Fall back to serial reads if workers cannot start.
+- Rank and limit full-text candidates before fetching their bodies in the same
+  SQLite read snapshot; retain ranking, source verification and truncation flags.
+- Install Codex runtimes by verified content hash so active Windows MCP sessions
+  do not block upgrades; reject a corrupt runtime before changing configuration.
+- Record native 200–100,000-file scaling and wide-source query measurements,
+  with source-equivalence, idle-resource and over-budget rollback assertions.
+
 ### Added
 - Optional lossless `format="compact"` for MCP lexical and exact-symbol results;
   the existing JSON object format remains the default.

@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "records": 245,
+  "expected_paths_and_line_1_verified": 245,
+  "paired_hit_list_equivalences": 105,
+  "results_sha256": "c2f5d1a8bd1b11adcd02dbaabc86accad501582d751eb9510f795cb0af30daa7",
+  "method": "For every record: unique probe path by number, or ordered common-term paths pkg/000000.rs through pkg/000007.rs; every hit line/start_line equals 1. Assertions checked by final document generation."
+}

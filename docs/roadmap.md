@@ -12,8 +12,15 @@ Status means *evidence*, not aspiration. No milestone is considered complete mer
   output; six real Codex subscription sessions, all answers correct (small pilot).
 - [x] Evidence guards for frozen sources/tools, interrupted live attempts,
   successful MCP calls and nDCG duplicate ranks; offline regressions in CI.
+- [x] Bounded native I/O and metadata-first full-text retrieval, with unchanged
+  reference results and concurrent-read-snapshot regressions on stable/MSRV.
+- [x] Synthetic 200–100k-file native scaling, bounded idle resources and
+  100001-file transactional rollback/recovery; arbitrary sizes remain unproven.
+- [x] Codex upgrades while the previous executable is locked, repeat installation
+  and corrupt-runtime refusal; verified immutable runtimes preserve active sessions.
 - [ ] Universal superiority over alternatives: not demonstrated. Codebase-memory
-  tree output remains smaller; code-edit, architecture and large live studies
+  tree output remains smaller on three corpora and historical controls; code-edit,
+  architecture and large live studies
   are outside the new pilot. See `docs/EVIDENCE.md` and the dated release report.
 
 The initial milestone checklist below is historical planning, supplemented by

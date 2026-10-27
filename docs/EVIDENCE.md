@@ -25,10 +25,18 @@ Verdicts:
 | New navigation comparison | New 55: file hit@1 Findex 54/55, codebase 47/55, Graphify 48/55; definition span@1 54/55, 40/55, 42/55 | Supported within author-created, four-language golden |
 | Findex is the smallest response | New 55 aggregate: compact 222.07, codebase tree 240.31, Graphify raw 2663.47; all-115 margin over codebase only 0.95% | Supported on these aggregates; codebase is smaller on three of four corpora and historical 60 controls |
 | Real Codex subscription navigation | Six valid sessions, two tasks per tool, all correct. Total input+output: Findex 149527, Graphify 217280, codebase 592385; cache counts reported | Supported small pilot; no general savings or code-edit claim |
-| Native Windows release checks | 151 Rust tests on stable/MSRV; 33 offline Python tests; fmt, Clippy, release build, RustSec; 29/29 quick black-box security checks; native installed Codex fixture and compact response, Claude strict plugin validator, package/privacy/overview harnesses | See `validation/results/20261027-release-candidate/` for exact scope |
+| Native Windows release checks | 153 Rust tests on stable/MSRV; 34 offline Python tests; fmt, Clippy, release build, RustSec; 29/29 quick black-box security checks; native installed Codex fixture and compact response, Claude strict plugin validator, package/privacy/overview harnesses | See `validation/results/20261027-performance-release/` for exact scope |
+
+Native scaling against the previous MSVC build: 10k-file median initial index
+49.01 → 10.21 s (4.80x),
+three paired fresh-directory repetitions. One 100k-file candidate run takes
+106.16 s; excess-file rollback preserves the old snapshot.
+The wide-body workload falls 140.97 → 16.12 ms median with identical full
+responses. These are synthetic local measurements, not competitor or arbitrary
+project guarantees. [Methods and resource limits](engineering/RELEASE_CANDIDATE_HARDENING_20261027.md#native-scaling-and-query-work).
 
 Methods, raw/visible output distinction and all losses:
-[`20261027-final-comparison`](../validation/results/20261027-final-comparison/NOTE.md),
+[`20261027-performance-comparison`](../validation/results/20261027-performance-comparison/NOTE.md),
 [`20261027-codex-live`](../validation/results/20261027-codex-live/NOTE.md).
 The 115-query comparison contains 60 historical controls, not 115 new independent
 queries. The final encoding reuses the preliminary evaluation set; it is a

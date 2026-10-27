@@ -17,7 +17,8 @@ class McpProcess:
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.ps = psutil.Process(self.proc.pid)
         self.stderr: list[bytes] = []
-        threading.Thread(target=self._drain_stderr, daemon=True).start()
+        self.stderr_thread = threading.Thread(target=self._drain_stderr, daemon=True)
+        self.stderr_thread.start()
         self.next_id = 0
         if legacy_init:
             self.request("initialize", {"protocolVersion": "2025-11-25", "capabilities": {},
@@ -96,7 +97,11 @@ class McpProcess:
         except OSError:
             pass
         try:
-            return self.proc.wait(timeout=30)
+            code = self.proc.wait(timeout=30)
         except subprocess.TimeoutExpired:
             self.proc.kill()
-            return self.proc.wait()
+            code = self.proc.wait()
+        self.stderr_thread.join(timeout=5)
+        self.proc.stdout.close()
+        self.proc.stderr.close()
+        return code

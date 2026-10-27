@@ -1,0 +1,54 @@
+{
+  "offline-python": {
+    "status": "PASS",
+    "exit_code": 0,
+    "passed": 34
+  },
+  "plugin-validation": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "claude-validator": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "hardening_offline": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "sensitive_paths": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "project_overview_smoke": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "cloud_placeholders": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "network_volume": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "stress-10k": {
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "security-quick": {
+    "status": "PASS",
+    "exit_code": 0,
+    "evidence": "security-corrected/security.json",
+    "earlier_setup_failure": "Initial run used an isolated validation root without corpora; retained command failure in commands.jsonl. Corrected run explicitly used target/tool-comparison/corpora."
+  },
+  "msrv-1.85.0": {
+    "status": "PASS",
+    "exit_code": 0,
+    "passed": 153
+  },
+  "cargo-deny": {
+    "status": "PASS",
+    "exit_code": 0
+  }
+}
