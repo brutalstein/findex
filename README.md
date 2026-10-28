@@ -19,19 +19,20 @@ the evidence; name matches do not prove type-resolved calls.
 Findex retrieves locally without API keys. The official assistant may send
 selected excerpts to its provider.
 
-**Current source (2026-10-28):** native Windows checks pass 186 Rust tests on
-stable and MSRV plus 46 offline Python tests. Native syntax extraction covers
+**Current source (2026-10-29):** native Windows checks pass 188 Rust tests on
+stable and MSRV plus 49 offline Python tests. Native syntax extraction covers
 Rust, Python, JavaScript, TypeScript/TSX, C, C++, Go, Java and C#.
 Imported compiler identities can now be resolved from a source position, including
 aliases and same-named methods. This requires a SCIP/LSP snapshot; ordinary
 context retrieval remains lexical/syntactic. Context ranking separates conceptual tasks from exact
 symbol lookup, checks local Rust receiver annotations and states its evidence
-scope explicitly. On 65 historical real issues, hit@1 rose from **30.8% to
-40.0%**, and gold recall@10 from **66.2% to 79.2%**, at the same 1,200-token
+scope explicitly. Exact filename words and nearby evidence now contribute to
+task retrieval. On 65 reused historical issues, this iteration raises hit@1
+from **40.0% to 44.6%**, and gold recall@10 from **79.2% to 80.8%**, at the same 1,200-token
 rendered budget. The 60% / 90% targets remain unmet. Higher conditional call
 precision comes with substantially fewer confident calls; it does not establish
 general semantic resolution or better bugfix outcomes.
-[Quality results and tradeoffs](docs/engineering/QUALITY_TARGETS_20261028.md).
+[Measured changes, remaining gaps and tradeoffs](docs/engineering/COMPETITIVE_GAPS_20261029.md).
 
 **Previously packaged 0.2.0 preview:** Claude and Codex plugin integration,
 extracted packages, Cloud Files, loopback SMB and 100k-file synthetic scaling
@@ -71,7 +72,15 @@ the raw column includes Graphify's over-budget output. The golden is
 author-created and reused during format iteration; this is no universal win.
 [Method, losses and reproduction](validation/results/20261027-performance-comparison/NOTE.md).
 
-**New live bugfix pilot:** six Codex subscription starts, two real tasks per tool.
+**Latest live bugfix pilot (2026-10-29):** six Codex subscription starts; all
+three tools pass both independent Windows host regressions. Findex uses 494,954
+total input+output tokens, Graphify 723,857 and codebase-memory 419,689: Findex
+uses 31.6% less than Graphify and 17.9% more than codebase-memory, and its model
+sessions are slower than both. No SCIP preparation is selected in this run.
+Two reused public tasks do not establish general superiority.
+[Frozen inputs, patches, costs and limits](validation/results/20261029-locality-bugfix-live/NOTE.md).
+
+**Earlier semantic-prepared live bugfix pilot:** six Codex subscription starts, two real tasks per tool.
 Findex passes 1/2 with one 300-second timeout; Graphify and codebase-memory pass
 2/2 each under independent Windows host regression grading. On the one complete
 matched task, Findex uses 33.6% fewer total input+output tokens than Graphify and

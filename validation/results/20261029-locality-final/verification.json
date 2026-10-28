@@ -1,0 +1,163 @@
+{
+  "binary_sha256": "f70b0834d7742ae211b5ef08252a13de3c1af4a0a2e70cc7800e1403454a5833",
+  "product_commit": "3a41999",
+  "native_windows": true,
+  "stable_rust_passed": 188,
+  "msrv_1_85_rust_passed": 188,
+  "offline_python_passed": 49,
+  "gates": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.465
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 3.07
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--workspace",
+        "--all-targets"
+      ],
+      "exit_code": 0,
+      "seconds": 19.261
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--release",
+        "-p",
+        "findex"
+      ],
+      "exit_code": 0,
+      "seconds": 0.465
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "validation/harness",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "seconds": 10.528
+    }
+  ],
+  "navigation_budget": {
+    "queries": 115,
+    "same_hits": 115,
+    "budget_reports": 460,
+    "over_budget": 0,
+    "model_calls": 0,
+    "candidate_sha256": "f70b0834d7742ae211b5ef08252a13de3c1af4a0a2e70cc7800e1403454a5833",
+    "memory_observations": [
+      {
+        "corpus": "fmt",
+        "memory": {
+          "rss": 14901248,
+          "peak_wset": 22147072,
+          "private": 4939776
+        }
+      },
+      {
+        "corpus": "requests",
+        "memory": {
+          "rss": 10371072,
+          "peak_wset": 14258176,
+          "private": 2940928
+        }
+      },
+      {
+        "corpus": "ripgrep",
+        "memory": {
+          "rss": 11722752,
+          "peak_wset": 19378176,
+          "private": 3932160
+        }
+      },
+      {
+        "corpus": "zod",
+        "memory": {
+          "rss": 12763136,
+          "peak_wset": 18808832,
+          "private": 4259840
+        }
+      }
+    ],
+    "limits": "Reused navigation controls; final RSS observations, not a peak-memory or scale study"
+  },
+  "plugin": {
+    "manifest": "PASS",
+    "codex_manifest": "PASS",
+    "codex_mcp_config": "PASS",
+    "marketplace": "PASS",
+    "mcp_config": "PASS",
+    "skills": [
+      "maintenance",
+      "map-project",
+      "navigate",
+      "trace-impact"
+    ],
+    "self_contained_mcp": "PASS",
+    "windows_system_path_only": "PASS",
+    "all_eight_tools": "PASS",
+    "on_demand_model_context": "PASS",
+    "fixture_source_evidence": "PASS",
+    "explicit_runtime_override": "PASS",
+    "missing_runtime_fails_closed": "PASS",
+    "status": "PASS",
+    "model_sessions": 0,
+    "paid_api_calls": 0
+  },
+  "hardening": {
+    "model_sessions": 0,
+    "paid_calls": 0,
+    "checks": {
+      "baseline_integrity": "PASS",
+      "corrupt_cache_preserved": "PASS",
+      "integrity_rejects_corruption": "PASS",
+      "mcp_private_errors_and_fallback": "PASS",
+      "capability_contract_works_with_corrupt_cache": "PASS",
+      "forget_rejects_arguments_without_deleting": "PASS",
+      "forget_then_rebuild_recovers_corrupt_cache": "PASS",
+      "forget_is_project_scoped_and_repeatable": "PASS"
+    },
+    "status": "PASS"
+  },
+  "security_summary": {
+    "PASS": 29,
+    "FAIL": 0,
+    "SKIPPED": 0
+  },
+  "limits": [
+    "Existing exposed test split; aggregate evaluation after candidate freeze, not a new holdout",
+    "Timing runs overlap deterministic validation; no controlled latency superiority claim",
+    "Actual failed initial security invocation retained separately"
+  ]
+}

@@ -30,25 +30,25 @@ Ponytail, planning, TDD and verification workflows are used instead.
 
 ## Tasks and gates
 
-- [ ] Write failing reference tests in `crates/findex-index/src/context.rs` for
+- [x] Write failing reference tests in `crates/findex-index/src/context.rs` for
   exact filename terms against unrelated mentions, substring collisions, source
   validation and nearby evidence. Implement at `search_ranked_in_db` in
   `crates/findex-index/src/lib.rs` / context assembly, retaining caps/redaction.
-- [ ] Measure dev issues against the frozen binary at 1,200 tokens; retain every
+- [x] Measure dev issues against the frozen binary at 1,200 tokens; retain every
   attempted result. Require no lower dev hit@1/recall@10; then freeze code and
   report test aggregate once. Existing exposed test split is not a new holdout.
-- [ ] Add offline tests and minimal changes to `bugfix_live.py`: explicit SCIP
+- [x] Add offline tests and minimal changes to `bugfix_live.py`: explicit SCIP
   opt-in, recorded setup mode, path-free event diagnostics after normal/timeout
   exits. Keep the 300-second cap, no automatic retries, official ChatGPT login,
   immutable inputs, native sandbox and independent Windows grading.
-- [ ] Run native fmt, Clippy, all Rust/Python tests, release, security, plugin,
+- [x] Run native fmt, Clippy, all Rust/Python tests, release, security, plugin,
   budget and navigation controls; real compiler fixtures remain separate.
-- [ ] Freeze a new campaign: at most six subscription starts, the same two
+- [x] Freeze a new campaign: at most six subscription starts, the same two
   public tasks x three tools, one repetition, no paid API/subagents. No previous
   attempt is removed. No semantic snapshot unless explicitly selected before
   freezing. Report preparation, model/grading seconds, cache/uncached/output
   tokens, source-only guards and supplied regression success separately.
-- [ ] Update README/evidence with actual results and limitations, refresh the
+- [x] Update README/evidence with actual results and limitations, refresh the
   AST graph, verify committed hashes, integrate and push main when gates pass.
 
 ## Interpretation and stop conditions

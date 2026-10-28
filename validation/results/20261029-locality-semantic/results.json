@@ -1,0 +1,364 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "disk alias",
+      "line": 8,
+      "column": 10,
+      "gold_definition_line": 3,
+      "pass": true,
+      "result": {
+        "path": "src/lib.rs",
+        "line": 8,
+        "column": 10,
+        "position_encoding": "utf8",
+        "resolution": "resolved",
+        "symbols": [
+          "rust-analyzer cargo semantic-fixture 0.1.0 impl#[Disk]flush()."
+        ],
+        "evidence": {
+          "symbol": "rust-analyzer cargo semantic-fixture 0.1.0 impl#[Disk]flush().",
+          "sites": [
+            {
+              "path": "src/lib.rs",
+              "line": 3,
+              "column": 19,
+              "end_line": 3,
+              "end_column": 24,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "definition",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 8,
+              "column": 9,
+              "end_line": 8,
+              "end_column": 14,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 13,
+              "column": 9,
+              "end_line": 13,
+              "end_column": 14,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            }
+          ],
+          "relationships": [],
+          "stale_evidence_discarded": 0,
+          "truncated": false,
+          "interpretation": "SCIP/LSP source-backed observations; references are not proven function calls"
+        },
+        "stale_evidence_discarded": 0,
+        "unresolved_positions": 0,
+        "truncated": false,
+        "interpretation": "Source-matched imported compiler/LSP snapshot identities; compiler bindings are not recomputed by this query. No lexical fallback. A reference is not a proven call. LSP points require the exact anchor; SCIP ranges are end-exclusive."
+      }
+    },
+    {
+      "case": "shadowed socket",
+      "line": 11,
+      "column": 14,
+      "gold_definition_line": 4,
+      "pass": true,
+      "result": {
+        "path": "src/lib.rs",
+        "line": 11,
+        "column": 14,
+        "position_encoding": "utf8",
+        "resolution": "resolved",
+        "symbols": [
+          "rust-analyzer cargo semantic-fixture 0.1.0 impl#[Socket]flush()."
+        ],
+        "evidence": {
+          "symbol": "rust-analyzer cargo semantic-fixture 0.1.0 impl#[Socket]flush().",
+          "sites": [
+            {
+              "path": "src/lib.rs",
+              "line": 4,
+              "column": 21,
+              "end_line": 4,
+              "end_column": 26,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "definition",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 11,
+              "column": 13,
+              "end_line": 11,
+              "end_column": 18,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            }
+          ],
+          "relationships": [],
+          "stale_evidence_discarded": 0,
+          "truncated": false,
+          "interpretation": "SCIP/LSP source-backed observations; references are not proven function calls"
+        },
+        "stale_evidence_discarded": 0,
+        "unresolved_positions": 0,
+        "truncated": false,
+        "interpretation": "Source-matched imported compiler/LSP snapshot identities; compiler bindings are not recomputed by this query. No lexical fallback. A reference is not a proven call. LSP points require the exact anchor; SCIP ranges are end-exclusive."
+      }
+    },
+    {
+      "case": "outer disk",
+      "line": 13,
+      "column": 10,
+      "gold_definition_line": 3,
+      "pass": true,
+      "result": {
+        "path": "src/lib.rs",
+        "line": 13,
+        "column": 10,
+        "position_encoding": "utf8",
+        "resolution": "resolved",
+        "symbols": [
+          "rust-analyzer cargo semantic-fixture 0.1.0 impl#[Disk]flush()."
+        ],
+        "evidence": {
+          "symbol": "rust-analyzer cargo semantic-fixture 0.1.0 impl#[Disk]flush().",
+          "sites": [
+            {
+              "path": "src/lib.rs",
+              "line": 3,
+              "column": 19,
+              "end_line": 3,
+              "end_column": 24,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "definition",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 8,
+              "column": 9,
+              "end_line": 8,
+              "end_column": 14,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 13,
+              "column": 9,
+              "end_line": 13,
+              "end_column": 14,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            }
+          ],
+          "relationships": [],
+          "stale_evidence_discarded": 0,
+          "truncated": false,
+          "interpretation": "SCIP/LSP source-backed observations; references are not proven function calls"
+        },
+        "stale_evidence_discarded": 0,
+        "unresolved_positions": 0,
+        "truncated": false,
+        "interpretation": "Source-matched imported compiler/LSP snapshot identities; compiler bindings are not recomputed by this query. No lexical fallback. A reference is not a proven call. LSP points require the exact anchor; SCIP ranges are end-exclusive."
+      }
+    },
+    {
+      "case": "trait declaration",
+      "line": 18,
+      "column": 10,
+      "gold_definition_line": 15,
+      "pass": true,
+      "result": {
+        "path": "src/lib.rs",
+        "line": 18,
+        "column": 10,
+        "position_encoding": "utf8",
+        "resolution": "resolved",
+        "symbols": [
+          "rust-analyzer cargo semantic-fixture 0.1.0 Flush#flush()."
+        ],
+        "evidence": {
+          "symbol": "rust-analyzer cargo semantic-fixture 0.1.0 Flush#flush().",
+          "sites": [
+            {
+              "path": "src/lib.rs",
+              "line": 15,
+              "column": 21,
+              "end_line": 15,
+              "end_column": 26,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "definition",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 18,
+              "column": 9,
+              "end_line": 18,
+              "end_column": 14,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            }
+          ],
+          "relationships": [],
+          "stale_evidence_discarded": 0,
+          "truncated": false,
+          "interpretation": "SCIP/LSP source-backed observations; references are not proven function calls"
+        },
+        "stale_evidence_discarded": 0,
+        "unresolved_positions": 0,
+        "truncated": false,
+        "interpretation": "Source-matched imported compiler/LSP snapshot identities; compiler bindings are not recomputed by this query. No lexical fallback. A reference is not a proven call. LSP points require the exact anchor; SCIP ranges are end-exclusive."
+      }
+    },
+    {
+      "case": "function alias",
+      "line": 23,
+      "column": 5,
+      "gold_definition_line": 20,
+      "pass": true,
+      "result": {
+        "path": "src/lib.rs",
+        "line": 23,
+        "column": 5,
+        "position_encoding": "utf8",
+        "resolution": "resolved",
+        "symbols": [
+          "rust-analyzer cargo semantic-fixture 0.1.0 function()."
+        ],
+        "evidence": {
+          "symbol": "rust-analyzer cargo semantic-fixture 0.1.0 function().",
+          "sites": [
+            {
+              "path": "src/lib.rs",
+              "line": 20,
+              "column": 7,
+              "end_line": 20,
+              "end_column": 15,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "definition",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 21,
+              "column": 8,
+              "end_line": 21,
+              "end_column": 16,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 21,
+              "column": 20,
+              "end_line": 21,
+              "end_column": 25,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 23,
+              "column": 4,
+              "end_line": 23,
+              "end_column": 9,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            }
+          ],
+          "relationships": [],
+          "stale_evidence_discarded": 0,
+          "truncated": false,
+          "interpretation": "SCIP/LSP source-backed observations; references are not proven function calls"
+        },
+        "stale_evidence_discarded": 0,
+        "unresolved_positions": 0,
+        "truncated": false,
+        "interpretation": "Source-matched imported compiler/LSP snapshot identities; compiler bindings are not recomputed by this query. No lexical fallback. A reference is not a proven call. LSP points require the exact anchor; SCIP ranges are end-exclusive."
+      }
+    },
+    {
+      "case": "local closure",
+      "line": 25,
+      "column": 5,
+      "gold_definition_line": 24,
+      "pass": true,
+      "result": {
+        "path": "src/lib.rs",
+        "line": 25,
+        "column": 5,
+        "position_encoding": "utf8",
+        "resolution": "resolved",
+        "symbols": [
+          "scip-local:src/lib.rs:local 8"
+        ],
+        "evidence": {
+          "symbol": "scip-local:src/lib.rs:local 8",
+          "sites": [
+            {
+              "path": "src/lib.rs",
+              "line": 24,
+              "column": 8,
+              "end_line": 24,
+              "end_column": 13,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "definition",
+              "provider": "scip-protobuf"
+            },
+            {
+              "path": "src/lib.rs",
+              "line": 25,
+              "column": 4,
+              "end_line": 25,
+              "end_column": 9,
+              "position_encoding": "utf8",
+              "language": "rust",
+              "kind": "reference",
+              "provider": "scip-protobuf"
+            }
+          ],
+          "relationships": [],
+          "stale_evidence_discarded": 0,
+          "truncated": false,
+          "interpretation": "SCIP/LSP source-backed observations; references are not proven function calls"
+        },
+        "stale_evidence_discarded": 0,
+        "unresolved_positions": 0,
+        "truncated": false,
+        "interpretation": "Source-matched imported compiler/LSP snapshot identities; compiler bindings are not recomputed by this query. No lexical fallback. A reference is not a proven call. LSP points require the exact anchor; SCIP ranges are end-exclusive."
+      }
+    }
+  ],
+  "scip_sha256": "6cee335cd02fedb0ad34481ab8126ab8f8692938cc88c6c9df453090cd0fc7eb",
+  "model_calls": 0,
+  "paid_api_calls": 0
+}

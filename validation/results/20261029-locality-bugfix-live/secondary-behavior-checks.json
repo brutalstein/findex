@@ -1,0 +1,36 @@
+{
+  "scope": "Post-campaign exploratory controls reused from earlier study; not primary scoring or full upstream suite",
+  "model_calls": 0,
+  "checks": [
+    {
+      "key": "requests-5223:findex",
+      "exit_code": 0,
+      "assertions": 3,
+      "controls": [
+        "non_archive_path_unchanged",
+        "missing_zip_member_unchanged",
+        "ordinary_nested_extraction_exact_bytes"
+      ]
+    },
+    {
+      "key": "requests-5223:graphify",
+      "exit_code": 0,
+      "assertions": 3,
+      "controls": [
+        "non_archive_path_unchanged",
+        "missing_zip_member_unchanged",
+        "ordinary_nested_extraction_exact_bytes"
+      ]
+    },
+    {
+      "key": "requests-5223:codebase-memory",
+      "exit_code": 0,
+      "assertions": 3,
+      "controls": [
+        "non_archive_path_unchanged",
+        "missing_zip_member_unchanged",
+        "ordinary_nested_extraction_exact_bytes"
+      ]
+    }
+  ]
+}

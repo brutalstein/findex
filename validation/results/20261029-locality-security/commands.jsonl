@@ -1,0 +1,5 @@
+{"utc": "20261028T210219Z", "argv": ["%REPO%\\target\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.3616, "timed_out": false}
+{"utc": "20261028T210220Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "symlink_escape_marker"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.1258, "timed_out": false}
+{"utc": "20261028T210220Z", "argv": ["%REPO%\\target\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.1625, "timed_out": false}
+{"utc": "20261028T210220Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "load_settings"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 1, "duration_s": 0.1351, "timed_out": false}
+{"utc": "20261028T210220Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "load_settings"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.1737, "timed_out": false}

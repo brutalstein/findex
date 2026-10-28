@@ -1,0 +1,18 @@
+{
+  "requests-5223": {
+    "base_commit": "2ed84f55b22f19a1e1e8eea2e50963dce62052d3",
+    "upstream_fix_commit": "24630743cecd3d0e9db7bee7e47381dbadf2d789",
+    "baseline_exit": 1,
+    "upstream_fix_exit": 0,
+    "status": "PASS",
+    "scope": "Reused public issue; fresh local red/green oracles, not blind/full-suite evidence"
+  },
+  "ripgrep-2659": {
+    "base_commit": "2e81a7adfeeb9a213786b8331b244f97e7b66657",
+    "upstream_fix_commit": "8575d261790fe393d1768d12b3336cbb4cf0a9fc",
+    "baseline_exit": 1,
+    "upstream_fix_exit": 0,
+    "status": "PASS",
+    "scope": "Reused public issue; fresh local red/green oracles, not blind/full-suite evidence"
+  }
+}

@@ -1,0 +1,7 @@
+{"utc": "20261028T210413Z", "argv": ["%REPO%\\target\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.1406, "timed_out": false}
+{"utc": "20261028T210413Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "symlink_escape_marker"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.1217, "timed_out": false}
+{"utc": "20261028T210413Z", "argv": ["%REPO%\\target\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.152, "timed_out": false}
+{"utc": "20261028T210414Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "load_settings"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 1, "duration_s": 0.1275, "timed_out": false}
+{"utc": "20261028T210414Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "load_settings"], "cwd": "%FINDEX_VALIDATION_HOME%\\scratch\\security-fixture", "exit_code": 0, "duration_s": 0.164, "timed_out": false}
+{"utc": "20261028T210426Z", "argv": ["%REPO%\\target\\release\\findex.exe", "index"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 3.1013, "timed_out": false}
+{"utc": "20261028T210427Z", "argv": ["%REPO%\\target\\release\\findex.exe", "search", "spawn"], "cwd": "%FINDEX_VALIDATION_HOME%\\corpora\\tokio", "exit_code": 0, "duration_s": 0.1108, "timed_out": false}

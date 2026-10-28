@@ -1,0 +1,128 @@
+{
+  "checks": [
+    {
+      "key": "requests-5223:findex",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "findex_graph_symbol",
+        "findex_search",
+        "findex_context",
+        "findex_find_symbol",
+        "findex_symbols",
+        "findex_impact"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    },
+    {
+      "key": "requests-5223:graphify",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "query_graph",
+        "get_neighbors",
+        "get_node"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    },
+    {
+      "key": "requests-5223:codebase-memory",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "search_graph",
+        "get_code_snippet",
+        "check_index_coverage",
+        "trace_path"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    },
+    {
+      "key": "ripgrep-2659:codebase-memory",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "get_code_snippet",
+        "check_index_coverage",
+        "search_graph",
+        "trace_path"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    },
+    {
+      "key": "ripgrep-2659:graphify",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "get_node",
+        "query_graph",
+        "get_neighbors"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    },
+    {
+      "key": "ripgrep-2659:findex",
+      "status": "PASS",
+      "model": "gpt-6.1-sol",
+      "tools": [
+        "findex_graph_symbol",
+        "findex_find_symbol",
+        "findex_impact",
+        "findex_context",
+        "findex_symbols",
+        "findex_search"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    }
+  ],
+  "model_sessions": 0,
+  "codex_sha256": "5c1b55966bf9f757dcbf00065c9a6cb862ead55d34b015f1be1939ff18e43943"
+}

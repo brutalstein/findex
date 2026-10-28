@@ -1,0 +1,106 @@
+{
+  "authorization": "User renewed live subscription comparison after semantic coding; at most six new starts, no paid APIs or subagents. Earlier starts remain historical.",
+  "max_sessions": 6,
+  "timeout_seconds": 300,
+  "profile": {
+    "model": "gpt-6.1-sol",
+    "model_reasoning_effort": "high",
+    "service_tier": "priority"
+  },
+  "tasks": {
+    "requests-5223": {
+      "base_commit": "2ed84f55b22f19a1e1e8eea2e50963dce62052d3",
+      "upstream_fix_commit": "24630743cecd3d0e9db7bee7e47381dbadf2d789",
+      "baseline_exit": 1,
+      "upstream_fix_exit": 0,
+      "status": "PASS",
+      "scope": "Reused public issue; fresh local red/green oracles, not blind/full-suite evidence"
+    },
+    "ripgrep-2659": {
+      "base_commit": "2e81a7adfeeb9a213786b8331b244f97e7b66657",
+      "upstream_fix_commit": "8575d261790fe393d1768d12b3336cbb4cf0a9fc",
+      "baseline_exit": 1,
+      "upstream_fix_exit": 0,
+      "status": "PASS",
+      "scope": "Reused public issue; fresh local red/green oracles, not blind/full-suite evidence"
+    }
+  },
+  "trials": [
+    {
+      "key": "requests-5223:findex",
+      "task": "requests-5223",
+      "tool": "findex",
+      "root": "target/quality/live-bugfix/20261029-locality-bugfix-live/trials/requests-5223/findex/project",
+      "baseline_head": "1c3ac102bc4ab4b7493c00c7a678337ab90a8739",
+      "source_tree": "2ffa13e28e9967f0a5d443f50923b9f1938af87b",
+      "repro_sha256": "12a6ec32987dd3efb5b42eda49635706b710bb3d03c6e5065d8fc007ee62ad4d",
+      "setup_seconds": 1.557
+    },
+    {
+      "key": "requests-5223:graphify",
+      "task": "requests-5223",
+      "tool": "graphify",
+      "root": "target/quality/live-bugfix/20261029-locality-bugfix-live/trials/requests-5223/graphify/project",
+      "baseline_head": "1f4ebd2fa9cd173e792dbb58ca5bb0ec7839b640",
+      "source_tree": "2ffa13e28e9967f0a5d443f50923b9f1938af87b",
+      "repro_sha256": "12a6ec32987dd3efb5b42eda49635706b710bb3d03c6e5065d8fc007ee62ad4d",
+      "setup_seconds": 6.788
+    },
+    {
+      "key": "requests-5223:codebase-memory",
+      "task": "requests-5223",
+      "tool": "codebase-memory",
+      "root": "target/quality/live-bugfix/20261029-locality-bugfix-live/trials/requests-5223/codebase-memory/project",
+      "baseline_head": "9754f2958cc3ffd28ba71390c0aac16407dd8bab",
+      "source_tree": "2ffa13e28e9967f0a5d443f50923b9f1938af87b",
+      "repro_sha256": "12a6ec32987dd3efb5b42eda49635706b710bb3d03c6e5065d8fc007ee62ad4d",
+      "project_name": "findex-bugfix-20261029-locality-bugfix-live-requests-5223",
+      "setup_seconds": 6.872
+    },
+    {
+      "key": "ripgrep-2659:codebase-memory",
+      "task": "ripgrep-2659",
+      "tool": "codebase-memory",
+      "root": "target/quality/live-bugfix/20261029-locality-bugfix-live/trials/ripgrep-2659/codebase-memory/project",
+      "baseline_head": "a90d0b2291528b079b4fe406c40c81771e3e8b12",
+      "source_tree": "d35de67f67b3ca10760dd6543e66cbb0e4677dc3",
+      "repro_sha256": "c9298cb65e300316e30f32e6325597beff6ee577167dd1fa8d6cb6d3e9426d6f",
+      "project_name": "findex-bugfix-20261029-locality-bugfix-live-ripgrep-2659",
+      "setup_seconds": 22.836
+    },
+    {
+      "key": "ripgrep-2659:graphify",
+      "task": "ripgrep-2659",
+      "tool": "graphify",
+      "root": "target/quality/live-bugfix/20261029-locality-bugfix-live/trials/ripgrep-2659/graphify/project",
+      "baseline_head": "8479921abb8325f46beda1188289c9164da8586b",
+      "source_tree": "d35de67f67b3ca10760dd6543e66cbb0e4677dc3",
+      "repro_sha256": "c9298cb65e300316e30f32e6325597beff6ee577167dd1fa8d6cb6d3e9426d6f",
+      "setup_seconds": 22.948
+    },
+    {
+      "key": "ripgrep-2659:findex",
+      "task": "ripgrep-2659",
+      "tool": "findex",
+      "root": "target/quality/live-bugfix/20261029-locality-bugfix-live/trials/ripgrep-2659/findex/project",
+      "baseline_head": "8965009cd20029826ce4f29a8ed490f28c02cd4c",
+      "source_tree": "d35de67f67b3ca10760dd6543e66cbb0e4677dc3",
+      "repro_sha256": "c9298cb65e300316e30f32e6325597beff6ee577167dd1fa8d6cb6d3e9426d6f",
+      "setup_seconds": 16.271
+    }
+  ],
+  "semantic_preparation": "not_requested",
+  "findex_binary": "target/quality/live-bugfix/20261029-locality-bugfix-live/bin/f70b0834d7742ae211b5ef08252a13de3c1af4a0a2e70cc7800e1403454a5833/findex.exe",
+  "tool_sha256": {
+    "codex": "5c1b55966bf9f757dcbf00065c9a6cb862ead55d34b015f1be1939ff18e43943",
+    "findex": "f70b0834d7742ae211b5ef08252a13de3c1af4a0a2e70cc7800e1403454a5833",
+    "codebase-memory": "b4b403b1d7c4def3785f148b93f345ce8427858f4f5489ce28580c4387a336a6",
+    "graphify": "295f799adf8f88e32e8c0810c20a01d21c534a799572cced26d4d08e6f4dbcc3",
+    "graphify-python": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a"
+  },
+  "limits": [
+    "Two curated real issues, one repetition per tool; not a general or statistically powered bugfix claim",
+    "Setup/index/build costs excluded from model session time and reported separately",
+    "No APIs, external providers, agents or subagents; workspace-write only"
+  ]
+}

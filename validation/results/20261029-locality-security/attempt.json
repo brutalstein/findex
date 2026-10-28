@@ -1,0 +1,6 @@
+{
+  "status": "NOT_COMPLETED",
+  "model_sessions": 0,
+  "cause": "Configured WORK/corpora was absent. Earlier checks ran but no complete security result was emitted. Rerun uses existing pinned corpora and a separate result directory.",
+  "rerun": "../20261029-locality-security-v2/security.json"
+}

@@ -2,6 +2,24 @@
 
 Status means *evidence*, not aspiration. No milestone is considered complete merely because source files exist.
 
+## Context locality checkpoint (2026-10-29)
+
+- [x] Bounded basename-word ranking and nearby query evidence; exact search and
+  symbol hit lists stay unchanged on 115 reused navigation controls.
+- [x] Native stable/MSRV 188 Rust tests, 49 Python tests, 29 security checks,
+  six compiler fixtures and 460 rendered budgets without overruns.
+- [x] Explicit optional SCIP preparation and path-free live event diagnostics,
+  including concurrent calls to the same tool and native result envelopes.
+- [x] Frozen 65-task comparison: hit@1 40.0% -> 44.62%, gold recall@10
+  79.23% -> 80.77%; test aggregate also improves, with individual losses.
+- [x] Six renewed live starts: all tools 2/2 public host regressions. Findex
+  total tokens beat Graphify but lose to codebase-memory; model time loses to
+  both. No timeout occurs; earlier failures remain historical evidence.
+- [ ] Targets 60%/90%, general call precision/coverage, broad live superiority,
+  all-language/all-size semantics and a newly validated release artifact.
+
+[Prioritized gaps, implementation and evidence](engineering/COMPETITIVE_GAPS_20261029.md).
+
 ## Semantic position checkpoint (2026-10-28)
 
 - [x] Nine native syntax languages; C, Go, Java and C# backfill unchanged source

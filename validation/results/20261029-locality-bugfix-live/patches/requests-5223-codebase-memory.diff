@@ -1,0 +1,25 @@
+diff --git a/requests/utils.py b/requests/utils.py
+index db67938..c928700 100644
+--- a/requests/utils.py
++++ b/requests/utils.py
+@@ -10,6 +10,7 @@ that are also useful for external consumption.
+ 
+ import codecs
+ import contextlib
++import errno
+ import io
+ import os
+ import re
+@@ -258,6 +259,12 @@ def extract_zipped_paths(path):
+     tmp = tempfile.gettempdir()
+     extracted_path = os.path.join(tmp, *member.split('/'))
+     if not os.path.exists(extracted_path):
++        extracted_dir = os.path.dirname(extracted_path)
++        try:
++            os.makedirs(extracted_dir)
++        except OSError as e:
++            if e.errno != errno.EEXIST or not os.path.isdir(extracted_dir):
++                raise
+         extracted_path = zip_file.extract(member, path=tmp)
+ 
+     return extracted_path

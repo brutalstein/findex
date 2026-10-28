@@ -1,0 +1,68 @@
+[
+  {
+    "key": "requests-5223:findex",
+    "patch": "requests-5223-findex.diff",
+    "sha256": "49dc6b015b886605cbecbb1847e4c962ce75c18731a7fb417b10c50dedbd71ba",
+    "changed_files": [
+      "requests/utils.py"
+    ],
+    "fixture_intact": true,
+    "source_only": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "requests-5223:graphify",
+    "patch": "requests-5223-graphify.diff",
+    "sha256": "f72e267abe9babb3edb0f64f15e1d242ba34ce4626ccd56c56bce20f619d2e99",
+    "changed_files": [
+      "requests/utils.py"
+    ],
+    "fixture_intact": true,
+    "source_only": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "requests-5223:codebase-memory",
+    "patch": "requests-5223-codebase-memory.diff",
+    "sha256": "4e1e886e7d4ea1de08ca17d13d13326f6661fde5f342f54a7eee218616596240",
+    "changed_files": [
+      "requests/utils.py"
+    ],
+    "fixture_intact": true,
+    "source_only": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "ripgrep-2659:codebase-memory",
+    "patch": "ripgrep-2659-codebase-memory.diff",
+    "sha256": "82278bc4d0ec9de6681c9d94922b6fa3d293528ae85b599c1572c8130945a226",
+    "changed_files": [
+      "crates/core/flags/complete/fish.rs"
+    ],
+    "fixture_intact": true,
+    "source_only": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "ripgrep-2659:graphify",
+    "patch": "ripgrep-2659-graphify.diff",
+    "sha256": "82278bc4d0ec9de6681c9d94922b6fa3d293528ae85b599c1572c8130945a226",
+    "changed_files": [
+      "crates/core/flags/complete/fish.rs"
+    ],
+    "fixture_intact": true,
+    "source_only": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "ripgrep-2659:findex",
+    "patch": "ripgrep-2659-findex.diff",
+    "sha256": "82278bc4d0ec9de6681c9d94922b6fa3d293528ae85b599c1572c8130945a226",
+    "changed_files": [
+      "crates/core/flags/complete/fish.rs"
+    ],
+    "fixture_intact": true,
+    "source_only": true,
+    "regression_exit": 0
+  }
+]

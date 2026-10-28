@@ -93,6 +93,14 @@ Import aliases, trait dispatch, cfg selection and inferred receiver types remain
 partial. Caller precision must be reported alongside site recall and confident
 function/site coverage; abstaining more is not by itself a complete quality win.
 
+The 2026-10-29 concept ranker adds a bounded BM25 contribution for complete
+basename words (at least three characters), without changing exact search/symbol
+ranking. Snippets select the five-line window covering the most distinct query
+terms, using a 12-term bit mask. All current source checks, candidate/output caps,
+redaction and rendered budgets still apply. These are lexical features, not
+semantic similarity or compiler resolution. Imported semantic identities remain
+an explicit separate lookup; live harness SCIP preparation is opt-in.
+
 ## Open engineering risks
 
 - Real Claude plugin validation and `--plugin-dir` behavior on all targeted versions.

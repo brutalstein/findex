@@ -1,0 +1,125 @@
+{
+  "sessions": 6,
+  "all_regressions_pass": true,
+  "semantic_preparation": "not_requested",
+  "summary": [
+    {
+      "tool": "findex",
+      "sessions": 2,
+      "valid": 2,
+      "correct": 2,
+      "mcp_calls": 3,
+      "input_tokens": 491968,
+      "cached_input_tokens": 431360,
+      "output_tokens": 2986,
+      "reasoning_output_tokens": 1165,
+      "total_tokens": 494954,
+      "uncached_input_tokens": 60608,
+      "model_seconds": 80.951,
+      "setup_seconds": 17.828,
+      "grader_seconds": 3.197,
+      "native_commands": 16
+    },
+    {
+      "tool": "graphify",
+      "sessions": 2,
+      "valid": 2,
+      "correct": 2,
+      "mcp_calls": 3,
+      "input_tokens": 721152,
+      "cached_input_tokens": 638336,
+      "output_tokens": 2705,
+      "reasoning_output_tokens": 765,
+      "total_tokens": 723857,
+      "uncached_input_tokens": 82816,
+      "model_seconds": 71.073,
+      "setup_seconds": 29.736,
+      "grader_seconds": 3.272,
+      "native_commands": 10
+    },
+    {
+      "tool": "codebase-memory",
+      "sessions": 2,
+      "valid": 2,
+      "correct": 2,
+      "mcp_calls": 9,
+      "input_tokens": 416649,
+      "cached_input_tokens": 351616,
+      "output_tokens": 3040,
+      "reasoning_output_tokens": 1226,
+      "total_tokens": 419689,
+      "uncached_input_tokens": 65033,
+      "model_seconds": 70.904,
+      "setup_seconds": 29.708,
+      "grader_seconds": 3.424,
+      "native_commands": 10
+    }
+  ],
+  "per_arm": [
+    {
+      "key": "requests-5223:findex",
+      "model_seconds": 52.538,
+      "setup_seconds": 1.557,
+      "grader_seconds": 0.508,
+      "native_commands": 10,
+      "mcp_calls": 2,
+      "total_tokens": 257314
+    },
+    {
+      "key": "requests-5223:graphify",
+      "model_seconds": 40.414,
+      "setup_seconds": 6.788,
+      "grader_seconds": 0.5,
+      "native_commands": 4,
+      "mcp_calls": 1,
+      "total_tokens": 324645
+    },
+    {
+      "key": "requests-5223:codebase-memory",
+      "model_seconds": 45.156,
+      "setup_seconds": 6.872,
+      "grader_seconds": 0.476,
+      "native_commands": 5,
+      "mcp_calls": 5,
+      "total_tokens": 201005
+    },
+    {
+      "key": "ripgrep-2659:codebase-memory",
+      "model_seconds": 25.748,
+      "setup_seconds": 22.836,
+      "grader_seconds": 2.948,
+      "native_commands": 5,
+      "mcp_calls": 4,
+      "total_tokens": 218684
+    },
+    {
+      "key": "ripgrep-2659:graphify",
+      "model_seconds": 30.659,
+      "setup_seconds": 22.948,
+      "grader_seconds": 2.772,
+      "native_commands": 6,
+      "mcp_calls": 2,
+      "total_tokens": 399212
+    },
+    {
+      "key": "ripgrep-2659:findex",
+      "model_seconds": 28.413,
+      "setup_seconds": 16.271,
+      "grader_seconds": 2.689,
+      "native_commands": 6,
+      "mcp_calls": 1,
+      "total_tokens": 237640
+    }
+  ],
+  "findex_total_token_change_vs_graphify": -0.3162268238063596,
+  "findex_total_token_change_vs_codebase_memory": 0.1793351743791236,
+  "findex_uncached_input_change_vs_codebase_memory": -0.06804237848476924,
+  "overall_superiority": "NOT_ESTABLISHED",
+  "previous_timeout": "Preserved in previous study; new successful sessions do not explain or replace it",
+  "limits": [
+    "Two reused public tasks, one repetition, differing caches and source-setup modes; exploratory, not a blind/statistically powered study",
+    "Native host public reproduction grading; no model-side build or full upstream suite",
+    "Total tokens include cached input; no subscription quota or monetary weighting inferred",
+    "SCIP not prepared in this study; setup decrease is not equivalent semantic work for free"
+  ]
+}
