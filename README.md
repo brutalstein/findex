@@ -19,8 +19,12 @@ the evidence; name matches do not prove type-resolved calls.
 Findex retrieves locally without API keys. The official assistant may send
 selected excerpts to its provider.
 
-**Current source (2026-10-28):** native Windows checks pass 167 Rust tests on
-stable and MSRV plus 42 offline Python tests. Context ranking now separates conceptual tasks from exact
+**Current source (2026-10-28):** native Windows checks pass 186 Rust tests on
+stable and MSRV plus 46 offline Python tests. Native syntax extraction covers
+Rust, Python, JavaScript, TypeScript/TSX, C, C++, Go, Java and C#.
+Imported compiler identities can now be resolved from a source position, including
+aliases and same-named methods. This requires a SCIP/LSP snapshot; ordinary
+context retrieval remains lexical/syntactic. Context ranking separates conceptual tasks from exact
 symbol lookup, checks local Rust receiver annotations and states its evidence
 scope explicitly. On 65 historical real issues, hit@1 rose from **30.8% to
 40.0%**, and gold recall@10 from **66.2% to 79.2%**, at the same 1,200-token
@@ -67,7 +71,15 @@ the raw column includes Graphify's over-budget output. The golden is
 author-created and reused during format iteration; this is no universal win.
 [Method, losses and reproduction](validation/results/20261027-performance-comparison/NOTE.md).
 
-**Real Codex subscription pilot:** six sequential sessions, two tasks per tool,
+**New live bugfix pilot:** six Codex subscription starts, two real tasks per tool.
+Findex passes 1/2 with one 300-second timeout; Graphify and codebase-memory pass
+2/2 each under independent Windows host regression grading. On the one complete
+matched task, Findex uses 33.6% fewer total input+output tokens than Graphify and
+43.9% fewer than codebase-memory, while taking longer. A separately authorized
+Findex diagnostic retry passes in 34.1 seconds; it does not replace the timeout.
+The two-task token comparison is incomplete. [Results, patches and limits](validation/results/20261028-semantic-bugfix-live/NOTE.md).
+
+**Earlier real Codex navigation pilot:** six sequential sessions, two tasks per tool,
 all answers correct. Findex used 149,527 total input+output tokens, Graphify
 217,280 and codebase-memory 592,385. Cache differences are reported separately.
 The pilot used the earlier matrix-only build. Two tasks with one repetition
@@ -109,6 +121,20 @@ Windows MCP sessions to keep running. Start a new Codex session after updating.
 cargo build --release -p findex
 .\target\release\findex.exe context "who calls parse_config"
 ```
+
+**Compiler-backed identity lookup** (Rust example; installed rust-analyzer required)
+
+```powershell
+rust-analyzer scip .
+findex graph-import-scip .\index.scip
+findex graph-symbol --at src\lib.rs 8 10
+```
+
+The location uses a one-based line and zero-based UTF-8 byte column. Claude and
+Codex can use `findex_graph_symbol` with `path`, `line` and `column`, or an exact
+imported symbol ID. Evidence is checked against source hashes; ambiguous, stale
+and incomplete results stay explicit. A semantic reference does not prove a
+runtime call. [Semantics, encoding and limits](docs/reference.md#semantic-reference-imports-and-impact-graph-experimental).
 
 ## What you get
 

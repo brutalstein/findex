@@ -1,0 +1,12 @@
+{
+  "source_commit": "7068eb3e8fcfc4951aa703c8c3de855c95976435",
+  "harness_sha256": "44741e9fdea3c424a91c5634ab5d3a461d597100c2318a959a33050eca6151a2",
+  "agent_phase": "Official Codex subscription, workspace-write, native MXC, selected read MCP tools plus built-in source edits; no subagents or network",
+  "grading_phase": "Independent native Windows host runs unchanged repro.py after source-only patch; not model-run tests or a full upstream suite",
+  "platform_limit": "MXC private temp permissions and MSVC linking are unsupported here; native host grading used consistently for all tools",
+  "per_session_timeout_seconds": 300,
+  "new_starts_cap": 6,
+  "no_paid_apis": true,
+  "no_hidden_tests": true,
+  "known_task_reuse": "Two curated public historical bugs, one repetition per tool; not a blind or powered study"
+}

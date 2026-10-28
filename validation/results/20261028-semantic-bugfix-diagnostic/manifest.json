@@ -1,0 +1,24 @@
+{
+  "authorization": "User explicitly approved one additional diagnostic Codex subscription session after six-arm campaign timeout",
+  "max_starts": 1,
+  "primary_campaign": "20261028-semantic-bugfix-live",
+  "input_key": "ripgrep-2659:findex",
+  "same_argv_as_primary": true,
+  "argv_sha256": "89ab8d662e0f40de67624e6e09d19daddb50f2e80a7d93293965458c0dd09736",
+  "tool_sha256": {
+    "codex": "5c1b55966bf9f757dcbf00065c9a6cb862ead55d34b015f1be1939ff18e43943",
+    "findex": "5ccdbc390cfcfbcf198437c1ca6e0f41885306cf1dad5546e65196d5693e2f8e",
+    "codebase-memory": "b4b403b1d7c4def3785f148b93f345ce8427858f4f5489ce28580c4387a336a6",
+    "graphify": "295f799adf8f88e32e8c0810c20a01d21c534a799572cced26d4d08e6f4dbcc3",
+    "graphify-python": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a"
+  },
+  "profile": {
+    "model": "gpt-6.1-sol",
+    "model_reasoning_effort": "high",
+    "service_tier": "priority"
+  },
+  "source_tree": "d35de67f67b3ca10760dd6543e66cbb0e4677dc3",
+  "scope": "Diagnostic retry; warm caches after offline probes. Never replaces primary timeout or establishes paired superiority.",
+  "paid_apis": false,
+  "subagents": false
+}

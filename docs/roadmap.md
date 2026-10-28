@@ -2,6 +2,25 @@
 
 Status means *evidence*, not aspiration. No milestone is considered complete merely because source files exist.
 
+## Semantic position checkpoint (2026-10-28)
+
+- [x] Nine native syntax languages; C, Go, Java and C# backfill unchanged source
+  and respect stale-source/cache checks.
+- [x] Imported semantic identities resolve from UTF-8 source positions through
+  CLI/MCP, with explicit ambiguity, encoding, cap and stale statuses.
+- [x] SCIP UTF-8/16/32 ranges, EOF positions and enclosing-module precedence;
+  schema migration preserves old exact-ID access without inventing old ranges.
+- [x] Native stable/MSRV 186 Rust tests, 46 Python tests, 29 security checks,
+  115 unchanged navigation controls and six real rust-analyzer fixture cases.
+- [x] Six primary subscription bugfix starts plus one separately approved
+  diagnostic: published patches, source-only guards and native host grading.
+- [ ] Live reliability/quality superiority: primary Findex 1/2 (one timeout),
+  alternatives 2/2; the successful diagnostic does not replace the timeout.
+- [ ] Complete runtime call graph, all-language/all-size semantics and broad
+  competitor superiority remain unproven.
+
+[Implementation, evidence and live-study scope](engineering/SEMANTIC_RESOLUTION_20261028.md).
+
 ## Quality targets checkpoint (2026-10-28)
 
 - [x] Bounded concept retrieval and local Rust receiver-annotation evidence;

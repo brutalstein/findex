@@ -1,0 +1,68 @@
+{
+  "all_primary_starts": [
+    {
+      "tool": "findex",
+      "starts": 2,
+      "passed": 1,
+      "timeouts": 1,
+      "usage_complete": false,
+      "setup_seconds": 42.086
+    },
+    {
+      "tool": "graphify",
+      "starts": 2,
+      "passed": 2,
+      "timeouts": 0,
+      "usage_complete": true,
+      "setup_seconds": 30.233
+    },
+    {
+      "tool": "codebase-memory",
+      "starts": 2,
+      "passed": 2,
+      "timeouts": 0,
+      "usage_complete": true,
+      "setup_seconds": 36.012
+    }
+  ],
+  "matched_task": "requests-5223",
+  "matched_task_usage": [
+    {
+      "tool": "findex",
+      "passed": true,
+      "input_tokens": 189577,
+      "cached_input_tokens": 160768,
+      "uncached_input_tokens": 28809,
+      "output_tokens": 1738,
+      "total_tokens": 191315,
+      "model_seconds": 68.847
+    },
+    {
+      "tool": "graphify",
+      "passed": true,
+      "input_tokens": 286449,
+      "cached_input_tokens": 250752,
+      "uncached_input_tokens": 35697,
+      "output_tokens": 1703,
+      "total_tokens": 288152,
+      "model_seconds": 54.05
+    },
+    {
+      "tool": "codebase-memory",
+      "passed": true,
+      "input_tokens": 339307,
+      "cached_input_tokens": 295040,
+      "uncached_input_tokens": 44267,
+      "output_tokens": 1543,
+      "total_tokens": 340850,
+      "model_seconds": 61.682
+    }
+  ],
+  "findex_total_token_reduction_on_matched_task_only": {
+    "graphify": 0.33606221716316387,
+    "codebase-memory": 0.43871204342085957
+  },
+  "two_task_token_comparison": "NOT_EVALUABLE: Findex timeout has missing usage",
+  "overall_superiority": "NOT_ESTABLISHED",
+  "limits": "One matched task; public authored repro, caches not controlled, host grading not full suite, no general cost/quality/latency claim. Primary timeout remains a failure."
+}

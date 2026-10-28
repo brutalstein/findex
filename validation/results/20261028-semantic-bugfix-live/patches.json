@@ -1,0 +1,52 @@
+[
+  {
+    "key": "requests-5223:findex",
+    "patch": "requests-5223-findex.diff",
+    "sha256": "b143d3fc1d7d52bae28c4847f2fc5d511c784e63132b04ce71a94024eb247c88",
+    "changed_files": [
+      "requests/utils.py"
+    ],
+    "fixture_intact": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "requests-5223:graphify",
+    "patch": "requests-5223-graphify.diff",
+    "sha256": "72711f5e47bc30dd944cc53d57c8e72d1333426af7a211a8152b4cd1725868d1",
+    "changed_files": [
+      "requests/utils.py"
+    ],
+    "fixture_intact": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "requests-5223:codebase-memory",
+    "patch": "requests-5223-codebase-memory.diff",
+    "sha256": "ba1d1e6ba241ad6da8fba6f941a8d06b81b153706f26f365091d51b399368dfc",
+    "changed_files": [
+      "requests/utils.py"
+    ],
+    "fixture_intact": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "ripgrep-2659:codebase-memory",
+    "patch": "ripgrep-2659-codebase-memory.diff",
+    "sha256": "eb5d6c12d759e2d3c99f6788f994d682268c3ddb38ca2e26ceaad90851d411a4",
+    "changed_files": [
+      "crates/core/flags/complete/fish.rs"
+    ],
+    "fixture_intact": true,
+    "regression_exit": 0
+  },
+  {
+    "key": "ripgrep-2659:graphify",
+    "patch": "ripgrep-2659-graphify.diff",
+    "sha256": "eb5d6c12d759e2d3c99f6788f994d682268c3ddb38ca2e26ceaad90851d411a4",
+    "changed_files": [
+      "crates/core/flags/complete/fish.rs"
+    ],
+    "fixture_intact": true,
+    "regression_exit": 0
+  }
+]

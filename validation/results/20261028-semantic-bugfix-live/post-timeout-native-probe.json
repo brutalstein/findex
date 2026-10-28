@@ -1,0 +1,30 @@
+{
+  "model_calls": 0,
+  "checks": [
+    {
+      "tool": "findex_context",
+      "seconds": 0.0884,
+      "is_error": false,
+      "bytes": 4642
+    },
+    {
+      "tool": "findex_context",
+      "seconds": 0.004,
+      "is_error": false,
+      "bytes": 727
+    },
+    {
+      "tool": "findex_symbols",
+      "seconds": 0.0048,
+      "is_error": false,
+      "bytes": 323
+    },
+    {
+      "tool": "findex_graph_symbol",
+      "seconds": 0.0384,
+      "is_error": false,
+      "bytes": 1314
+    }
+  ],
+  "interpretation": "Direct native MCP latency probes after timeout, not a replay of lost model events; root cause remains undetermined"
+}

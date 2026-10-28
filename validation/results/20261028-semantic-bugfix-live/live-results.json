@@ -1,0 +1,174 @@
+{
+  "sessions": [
+    {
+      "key": "requests-5223:findex",
+      "client": "codex",
+      "task": "requests-5223",
+      "tool": "findex",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 189577,
+        "cached_input_tokens": 160768,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1738,
+        "reasoning_output_tokens": 916
+      },
+      "mcp_calls": 2,
+      "attempted_mcp_calls": 2,
+      "infrastructure_failure": null,
+      "final": "Updated `requests/utils.py` to retry ZIP extraction when concurrent directory creation raises `EEXIST` for an existing directory. Binary extraction and missing-member/non-archive behavior remain unchanged.\n\n`git diff --check` passed. No reproduction, compilation, or runtime tests were run; tests are left to the host grader.",
+      "seconds": 68.847,
+      "changed_files": [
+        "requests/utils.py"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 0.538,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    },
+    {
+      "key": "requests-5223:graphify",
+      "client": "codex",
+      "task": "requests-5223",
+      "tool": "graphify",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 286449,
+        "cached_input_tokens": 250752,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1703,
+        "reasoning_output_tokens": 739
+      },
+      "mcp_calls": 2,
+      "attempted_mcp_calls": 2,
+      "infrastructure_failure": null,
+      "final": "Updated `requests/utils.py` to retry ZIP extraction on `EEXIST`, allowing file bytes to be written after the directory race. Missing-member and non-archive behavior remains unchanged.\n\n`git diff --check` passed. No tests, repro.py, or compilation were run; tests are left to the native Windows host grader.",
+      "seconds": 54.05,
+      "changed_files": [
+        "requests/utils.py"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 0.487,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    },
+    {
+      "key": "requests-5223:codebase-memory",
+      "client": "codex",
+      "task": "requests-5223",
+      "tool": "codebase-memory",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 339307,
+        "cached_input_tokens": 295040,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1543,
+        "reasoning_output_tokens": 481
+      },
+      "mcp_calls": 4,
+      "attempted_mcp_calls": 4,
+      "infrastructure_failure": null,
+      "final": "Updated `requests/utils.py` to tolerate concurrent parent-directory creation while retaining ZIP byte extraction and missing-member/non-archive behavior.\n\n`git diff --check` passed. Only application source changed. Tests are left to the host grader; no reproduction or compilation was run.",
+      "seconds": 61.682,
+      "changed_files": [
+        "requests/utils.py"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 0.515,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    },
+    {
+      "key": "ripgrep-2659:codebase-memory",
+      "client": "codex",
+      "task": "ripgrep-2659",
+      "tool": "codebase-memory",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 361964,
+        "cached_input_tokens": 320384,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1292,
+        "reasoning_output_tokens": 112
+      },
+      "mcp_calls": 6,
+      "attempted_mcp_calls": 6,
+      "infrastructure_failure": null,
+      "final": "Fixed negated fish completions to emit `-l 'name'`, preserving short-alias removal and other completion behavior. Only `crates/core/flags/complete/fish.rs` changed.\n\n`git diff --check` passed. No compilation or `repro.py` run; tests are left to the host grader.",
+      "seconds": 55.588,
+      "changed_files": [
+        "crates/core/flags/complete/fish.rs"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 3.195,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    },
+    {
+      "key": "ripgrep-2659:graphify",
+      "client": "codex",
+      "task": "ripgrep-2659",
+      "tool": "graphify",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 290478,
+        "cached_input_tokens": 248832,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 921,
+        "reasoning_output_tokens": 93
+      },
+      "mcp_calls": 2,
+      "attempted_mcp_calls": 2,
+      "infrastructure_failure": null,
+      "final": "Fixed negated fish completions to emit escaped `-l 'option'` declarations while retaining no short alias. Other completions are unchanged; only application source was modified.\n\n`git diff --check` passed. No compilation or repro.py run; tests are left to the host grader.",
+      "seconds": 43.179,
+      "changed_files": [
+        "crates/core/flags/complete/fish.rs"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 2.933,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    },
+    {
+      "key": "ripgrep-2659:findex",
+      "client": "codex",
+      "task": "ripgrep-2659",
+      "tool": "findex",
+      "status": "invalid",
+      "valid": false,
+      "correct": false,
+      "error": "Codex session timed out after 300 seconds; no patch. Partial stdout/stderr were not preserved by the original harness; root cause undetermined.",
+      "outcome": "timeout_no_patch",
+      "usage_complete": false,
+      "source_changed": false
+    }
+  ],
+  "started": 6,
+  "stopped": "codex: failed, missing usage or unsuccessful supplied-server MCP call; no retries or fallback"
+}

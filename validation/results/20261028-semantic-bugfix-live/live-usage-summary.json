@@ -1,0 +1,48 @@
+{
+  "summary": {
+    "findex": {
+      "sessions": 2,
+      "valid": 1,
+      "correct": 1,
+      "mcp_calls": 2,
+      "input_tokens": 189577,
+      "cached_input_tokens": 160768,
+      "output_tokens": 1738,
+      "reasoning_output_tokens": 916,
+      "total_tokens": 191315,
+      "uncached_input_tokens": 28809
+    },
+    "graphify": {
+      "sessions": 2,
+      "valid": 2,
+      "correct": 2,
+      "mcp_calls": 4,
+      "input_tokens": 576927,
+      "cached_input_tokens": 499584,
+      "output_tokens": 2624,
+      "reasoning_output_tokens": 832,
+      "total_tokens": 579551,
+      "uncached_input_tokens": 77343
+    },
+    "codebase-memory": {
+      "sessions": 2,
+      "valid": 2,
+      "correct": 2,
+      "mcp_calls": 10,
+      "input_tokens": 701271,
+      "cached_input_tokens": 615424,
+      "output_tokens": 2835,
+      "reasoning_output_tokens": 593,
+      "total_tokens": 704106,
+      "uncached_input_tokens": 85847
+    }
+  },
+  "authorized_new_starts": 6,
+  "actual_new_starts": 6,
+  "prior_historical_starts": 17,
+  "limits": "One Findex arm timed out with no patch and missing final usage. Counts include all starts; two-task token ranking is not evaluable. Valid five patches pass unchanged host regressions; no full-suite or general superiority claim.",
+  "two_task_comparison_complete": false,
+  "missing_usage_sessions": [
+    "ripgrep-2659:findex"
+  ]
+}

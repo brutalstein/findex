@@ -1,0 +1,36 @@
+{
+  "sessions": [
+    {
+      "key": "ripgrep-2659:findex:diagnostic",
+      "client": "codex",
+      "tool": "findex",
+      "task": "ripgrep-2659",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 210660,
+        "cached_input_tokens": 184448,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 915,
+        "reasoning_output_tokens": 127
+      },
+      "mcp_calls": 1,
+      "attempted_mcp_calls": 1,
+      "infrastructure_failure": null,
+      "final": "Fixed fish generation so negated options use `-l 'name'` and retain no short alias. Other completions are unchanged.\n\n`git diff --check` and source assertions passed. No compilation or repro.py execution; tests are left to the host grader.",
+      "seconds": 34.104,
+      "changed_files": [
+        "crates/core/flags/complete/fish.rs"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 2.742,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    }
+  ],
+  "started": 1
+}

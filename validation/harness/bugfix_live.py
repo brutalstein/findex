@@ -273,6 +273,17 @@ def validate_patch(trial: dict, env: dict, raw: Path) -> dict:
             'scope':'Unchanged real-issue reproduction; not the full upstream test suite'}
 
 
+def capture_process(argv: list[str], env: dict, raw: Path) -> int:
+    # Stream to owned files so timeout/interruption cannot discard completed tool events.
+    with (raw/'events.jsonl').open('w',encoding='utf-8') as output, (raw/'stderr.txt').open('w',encoding='utf-8') as errors:
+        try:
+            return subprocess.run(argv,env=env,stdout=output,stderr=errors,timeout=TIMEOUT).returncode
+        except subprocess.TimeoutExpired:
+            reason=f'Codex session exceeded {TIMEOUT}s; partial events retained; no retry authorized'
+            (raw/'timeout.log').write_text(reason,encoding='utf-8')
+            raise RuntimeError(reason) from None
+
+
 def run_live() -> None:
     if os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS'):
         raise SystemExit('BLOCKED: live model sessions never run in CI')
@@ -309,18 +320,12 @@ def run_live() -> None:
         print('Starting authorized trial',trial['key'],flush=True)
         with trial_attempt(saved,results,record,CAP):
             started=time.monotonic()
-            try:
-                completed=subprocess.run(argv,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=TIMEOUT)
-            except subprocess.TimeoutExpired as exc:
-                (raw/'timeout.log').write_text(str(exc),encoding='utf-8')
-                raise
-            (raw/'events.jsonl').write_text(completed.stdout,encoding='utf-8')
-            (raw/'stderr.txt').write_text(completed.stderr,encoding='utf-8')
+            exit_code=capture_process(argv,env,raw)
             events=[]
-            for line in completed.stdout.splitlines():
+            for line in (raw/'events.jsonl').read_text(encoding='utf-8',errors='replace').splitlines():
                 try:events.append(json.loads(line))
                 except ValueError:pass
-            record.update(execution_record(completed.returncode,events,tool),seconds=round(time.monotonic()-started,3))
+            record.update(execution_record(exit_code,events,tool),seconds=round(time.monotonic()-started,3))
             if record['valid']: record.update(validate_patch(trial,env,raw))
         write_json(OUT/'live-usage-summary.json',{'summary':usage_summary(results),'authorized_new_starts':CAP,
             'actual_new_starts':results['started'],'prior_historical_starts':json.loads((OUT/'authorization.json').read_text()).get('earlier_started_sessions',12) if (OUT/'authorization.json').exists() else 12,

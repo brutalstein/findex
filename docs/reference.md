@@ -228,6 +228,7 @@ executes downloaded indexers; you generate the source evidence separately.
 
 ```powershell
 findex graph-import-scip .\index.scip
+findex graph-symbol --at src\lib.rs 8 10
 findex impact crates\findex-index\src\lib.rs
 findex impact crates\findex-index\src\lib.rs 2
 ```
@@ -240,3 +241,30 @@ previously imported verified evidence to Claude Code. Direct references are
 source-backed; indirect file impact is marked **potential**, never a proven
 call graph. SCIP imports replace the full semantic snapshot. Captured LSP imports now merge separate symbol identities, replacing only the same definition anchor and invalidating prior edges that reference updated source content. A capture remains a single-symbol reference set; all imported evidence is bounded and hash-verified.
 See `docs/adr/0006-scip-lsp-evidence-graph.md` for format, budgets and limits.
+
+`graph-symbol --at <relative-file> <line> <column>` resolves an imported identity
+at a one-based line and zero-based **UTF-8 byte column**. Its MCP equivalent is
+`findex_graph_symbol` with `{ "path": "src/lib.rs", "line": 8, "column": 10 }`.
+The existing exact `symbol` argument remains supported; choose one input form.
+No compiler, indexer, model or network request runs during a lookup.
+
+SCIP start/end ranges and producer encodings are retained in relations schema 3.
+UTF-8/16/32 positions are checked at character boundaries and mapped to the query's
+UTF-8 coordinates. Final empty lines after a newline are valid compiler positions.
+Strictly enclosing module ranges yield to narrower token ranges; equal or
+crossing ranges with distinct identities remain ambiguous. Captured LSP data has
+points, so it requires the exact anchor; no token length is invented.
+
+Results state `resolved`, `ambiguous`, `not_found`, `no_snapshot`, `not_imported`,
+`incomplete` or `stale`. Only a unique uncapped match includes its source-backed
+symbol evidence. Identity selection examines at most 128 candidate ranges;
+evidence lists have their own explicit truncation flag. Unspecified encodings on
+non-ASCII positions are incomplete, rather than guessed. Existing schema-2
+identities remain available after migration, but reimport is required to recover
+their encoding and full ranges. Older executables refuse schema 3.
+
+This resolves **imported snapshot observations**, not a newly compiled project.
+Changed/ignored source is rejected, but hash matching is not proof that all
+dependencies, compiler flags or bindings elsewhere remain unchanged. Reimport
+after relevant changes. Import limits remain 16 MiB, 1,000 documents and 100,000
+occurrences; this does not establish complete semantics for arbitrary repositories.

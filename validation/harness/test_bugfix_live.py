@@ -2,6 +2,7 @@
 import os
 import unittest
 import tempfile
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -11,6 +12,19 @@ from bugfix_fixtures import FISH_REPRO
 
 
 class BugfixLiveTests(unittest.TestCase):
+    def test_timeout_retains_partial_events_without_publishing_command_paths(self):
+        def interrupted(argv,**options):
+            options['stdout'].write('{"type":"item.completed"}\n');options['stdout'].flush()
+            options['stderr'].write('native diagnostic\n');options['stderr'].flush()
+            raise subprocess.TimeoutExpired(argv,300)
+        with tempfile.TemporaryDirectory() as folder, patch('subprocess.run',side_effect=interrupted):
+            root=Path(folder)
+            with self.assertRaisesRegex(RuntimeError,'partial events retained'):
+                bugfix_live.capture_process(['codex','private-command-path'],{},root)
+            self.assertIn('item.completed',(root/'events.jsonl').read_text())
+            self.assertIn('native diagnostic',(root/'stderr.txt').read_text())
+            self.assertNotIn('private-command-path',(root/'timeout.log').read_text())
+
     def test_campaign_cannot_write_outside_result_directory(self):
         with tempfile.TemporaryDirectory() as folder, patch.object(bugfix_live,'OUT'), patch('sys.argv',['bugfix_live.py','prepare','--out',folder]), patch('subprocess.run') as run:
             with self.assertRaises(SystemExit):bugfix_live.main()

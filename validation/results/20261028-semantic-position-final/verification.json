@@ -1,0 +1,100 @@
+{
+  "product_source_commit": "6f72e4d",
+  "binary_sha256": "5ccdbc390cfcfbcf198437c1ca6e0f41885306cf1dad5546e65196d5693e2f8e",
+  "native_windows": true,
+  "rust": {
+    "stable": {
+      "passed": 186,
+      "failed": 0
+    },
+    "msrv_1_85": {
+      "passed": 186,
+      "failed": 0
+    }
+  },
+  "offline_python_passed": 46,
+  "security": {
+    "PASS": 29,
+    "FAIL": 0,
+    "SKIPPED": 0
+  },
+  "navigation": {
+    "queries": 115,
+    "same_hits": 115,
+    "model_calls": 0
+  },
+  "plugin_contract": "PASS",
+  "hardening": "PASS",
+  "semantic_compiler_fixture_cases": 6,
+  "all_expected_definitions": true,
+  "cli_mcp_equivalent": true,
+  "limits": [
+    "Authored Rust fixtures, not all languages or a general accuracy study",
+    "Imported compiler identities, no hidden compiler execution in lookup",
+    "Independent live bugfix experiment recorded separately"
+  ],
+  "completion_checks": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.617
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 4.887
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--workspace",
+        "--all-targets"
+      ],
+      "exit_code": 0,
+      "seconds": 11.581
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--release",
+        "-p",
+        "findex"
+      ],
+      "exit_code": 0,
+      "seconds": 4.817
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "validation/harness",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "seconds": 11.563
+    }
+  ]
+}

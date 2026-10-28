@@ -1,0 +1,12 @@
+[
+  {
+    "key": "ripgrep-2659:findex:diagnostic",
+    "patch": "ripgrep-2659-findex.diff",
+    "sha256": "a909ee87de89d4add03d49823158f0516fce4ba292426573c70d576c0bb6a528",
+    "changed_files": [
+      "crates/core/flags/complete/fish.rs"
+    ],
+    "fixture_intact": true,
+    "regression_exit": 0
+  }
+]

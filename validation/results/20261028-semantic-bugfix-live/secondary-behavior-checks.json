@@ -1,0 +1,36 @@
+{
+  "model_calls": 0,
+  "checks": [
+    {
+      "tool": "findex",
+      "task": "requests-5223",
+      "pass": true,
+      "checks": [
+        "missing-path unchanged",
+        "missing-member unchanged",
+        "normal nested extraction correct bytes"
+      ]
+    },
+    {
+      "tool": "graphify",
+      "task": "requests-5223",
+      "pass": true,
+      "checks": [
+        "missing-path unchanged",
+        "missing-member unchanged",
+        "normal nested extraction correct bytes"
+      ]
+    },
+    {
+      "tool": "codebase-memory",
+      "task": "requests-5223",
+      "pass": true,
+      "checks": [
+        "missing-path unchanged",
+        "missing-member unchanged",
+        "normal nested extraction correct bytes"
+      ]
+    }
+  ],
+  "scope": "Post-campaign exploratory behavior controls. Primary scoring is unchanged; not hidden tests or full upstream suite."
+}

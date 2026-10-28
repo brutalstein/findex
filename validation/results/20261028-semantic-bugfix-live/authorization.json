@@ -1,0 +1,8 @@
+{
+  "request": "User renewed real and live testing after the semantic implementation; bounded to six new Codex subscription starts as announced",
+  "max_new_starts": 6,
+  "paid_api_calls": false,
+  "subagents": false,
+  "earlier_started_sessions": 17,
+  "earlier_invalid_starts": 5
+}
