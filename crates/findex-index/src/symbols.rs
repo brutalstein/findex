@@ -10,8 +10,8 @@ use serde::Serialize;
 use std::fs;
 use std::path::{Component, Path};
 
-// 2: method/impl/macro/constant kinds, C++ forward-declaration filtering, JS via TSX grammar.
-const EXTRACTOR_REVISION: i64 = 2;
+// 3: native C, Go, Java and C# definitions; unchanged sources must backfill too.
+const EXTRACTOR_REVISION: i64 = 3;
 const MAX_RESULTS: usize = 32;
 
 #[derive(Debug, Clone, Serialize)]
@@ -484,6 +484,96 @@ mod tests {
         assert_eq!(hits.hits.len(), 1);
         assert_eq!(hits.hits[0].start_line, 2);
         assert_eq!(hits.hits[0].kind, "function");
+    }
+
+    #[test]
+    fn new_languages_backfill_unchanged_sources_and_refresh_stale_definitions() {
+        let workspace = tempdir().expect("workspace");
+        let state = tempdir().expect("state");
+        let db = state.path().join("db.sqlite3");
+        let sources = [
+            (
+                "engine.c",
+                "int native_open_c(void) { return 1; }\n",
+                "native_open_c",
+                "C",
+            ),
+            (
+                "engine.go",
+                "package engine\nfunc NativeOpenGo() {}\n",
+                "NativeOpenGo",
+                "Go",
+            ),
+            (
+                "Engine.java",
+                "class Engine { static void nativeOpenJava() {} }\n",
+                "nativeOpenJava",
+                "Java",
+            ),
+            (
+                "Engine.cs",
+                "class Engine { static void NativeOpenCs() {} }\n",
+                "NativeOpenCs",
+                "C#",
+            ),
+        ];
+        for (path, source, _, _) in sources {
+            fs::write(workspace.path().join(path), source).expect("source");
+        }
+        fs::write(workspace.path().join("existing.rs"), "fn existing() {}\n")
+            .expect("existing source");
+        synchronize_into(workspace.path(), &db).expect("initialize");
+        // Simulate the previous extractor: lexical rows exist, new languages have no symbols.
+        let conn = connect(&db).expect("connection");
+        conn.execute("DELETE FROM symbols WHERE path != 'existing.rs'", [])
+            .expect("old symbols");
+        conn.execute("DELETE FROM symbol_state WHERE path != 'existing.rs'", [])
+            .expect("old state");
+        conn.execute("UPDATE symbol_state SET extractor_revision = 2", [])
+            .expect("old revision");
+        drop(conn);
+        let backfilled = synchronize_into(workspace.path(), &db).expect("backfill");
+        assert_eq!(backfilled.unchanged, 5);
+        assert_eq!(backfilled.symbols_parsed, 5);
+        for (path, _, name, language) in sources {
+            let report = search_symbols_in_db(workspace.path(), &db, name, 8).expect("lookup");
+            assert_eq!(report.hits.len(), 1, "{path}");
+            assert_eq!(report.hits[0].path, path);
+            assert_eq!(report.hits[0].language, language);
+            assert!(!report.hits[0].has_syntax_errors);
+        }
+        let warm = synchronize_into(workspace.path(), &db).expect("warm sync");
+        assert_eq!(warm.symbols_parsed, 0);
+        assert_eq!(warm.symbols_reused, 5);
+        fs::write(
+            workspace.path().join("engine.go"),
+            "package engine\nfunc Replacement() {}\n",
+        )
+        .expect("edit");
+        assert!(
+            search_symbols_in_db(workspace.path(), &db, "NativeOpenGo", 8)
+                .expect("stale")
+                .hits
+                .is_empty()
+        );
+        refresh_known_paths_into(workspace.path(), &db, &["engine.go".into()])
+            .expect("watcher refresh");
+        assert_eq!(
+            search_symbols_in_db(workspace.path(), &db, "Replacement", 8)
+                .expect("fresh")
+                .hits
+                .len(),
+            1
+        );
+        fs::remove_file(workspace.path().join("engine.go")).expect("delete");
+        refresh_known_paths_into(workspace.path(), &db, &["engine.go".into()])
+            .expect("watcher deletion");
+        assert!(
+            search_symbols_in_db(workspace.path(), &db, "Replacement", 8)
+                .expect("deleted")
+                .hits
+                .is_empty()
+        );
     }
 
     #[test]

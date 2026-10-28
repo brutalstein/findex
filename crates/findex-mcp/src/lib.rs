@@ -377,7 +377,7 @@ where
                     }
                 },{
                     "name": "findex_symbols",
-                    "description": "Read one project-relative Rust, Python, TypeScript/TSX or C++ file and return bounded Tree-sitter syntax definitions with 1-based line ranges. No LSP references or call graph.",
+                    "description": "Read one project-relative Rust, Python, JavaScript/TypeScript/TSX, C/C++, Go, Java or C# file and return bounded Tree-sitter syntax definitions with 1-based line ranges. No LSP references or call graph.",
                     "inputSchema": {
                         "type":"object",
                         "properties":{
@@ -427,7 +427,7 @@ where
                             "ignored_files_excluded": true,
                             "all_results_complete": false
                         },
-                        "syntax_languages": ["rust", "python", "typescript", "javascript", "cpp"],
+                        "syntax_languages": ["rust", "python", "typescript", "javascript", "cpp", "c", "go", "java", "csharp"],
                         "retrieval": ["task-context", "lexical-fts5", "exact-symbol", "syntax-definitions", "project-inventory"],
                         "relationships": {
                             "requires_explicit_scip_or_lsp_import": true,
@@ -1058,8 +1058,14 @@ mod tests {
                 .as_array()
                 .expect("languages")
                 .len(),
-            5
+            9
         );
+        for language in ["c", "go", "java", "csharp"] {
+            assert!(contract["syntax_languages"]
+                .as_array()
+                .expect("languages")
+                .contains(&json!(language)));
+        }
     }
 
     #[test]

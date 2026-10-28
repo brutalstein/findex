@@ -1174,6 +1174,7 @@ fn sites_of(
         let rust = path.ends_with(".rs") && !external.is_empty();
         let imported = rust && imported_externally(&text, identifier, &external);
         // Owner rules follow Rust call syntax; other languages keep every line.
+        let unresolved_owner = scope.is_some() && !path.ends_with(".rs");
         let scope = scope.filter(|_| path.ends_with(".rs"));
         let owner_visible =
             scope.is_some_and(|s| s.files.contains(&path) || contains_word(&text, &s.owner));
@@ -1217,13 +1218,20 @@ fn sites_of(
                 continue;
             }
             let spans = containing(conn, &path, &hash, number)?;
-            let mut reached = scope.map_or(Reach::Yes, |s| {
-                let self_ty = spans
-                    .iter()
-                    .find(|(_, kind)| matches!(kind.as_str(), "impl" | "type"))
-                    .map(|(name, _)| name.as_str());
-                reach(&code, identifier, s, owner_visible, other_only, self_ty)
-            });
+            let mut reached = scope.map_or(
+                if unresolved_owner {
+                    Reach::Possible
+                } else {
+                    Reach::Yes
+                },
+                |s| {
+                    let self_ty = spans
+                        .iter()
+                        .find(|(_, kind)| matches!(kind.as_str(), "impl" | "type"))
+                        .map(|(name, _)| name.as_str());
+                    reach(&code, identifier, s, owner_visible, other_only, self_ty)
+                },
+            );
             if kind == "call" {
                 if let Some(scope) = scope.filter(|s| s.method) {
                     let first = receiver_hints.partition_point(|h| h.line < number);
@@ -1843,6 +1851,34 @@ mod tests {
     const LIB: &str = "pub fn poll_proceed(cx: u32) -> u32 {\n    cx + 1\n}\n\npub fn other() {}\n";
     const USER: &str = "use crate::lib::poll_proceed;\n\nfn poll_read() -> u32 {\n    // poll_proceed is cheap\n    let v = poll_proceed(3);\n    v\n}\n\nfn register() {\n    let f = poll_proceed;\n    let _ = f;\n}\n";
     const TEST: &str = "#[cfg(test)]\nmod tests {\n    #[test]\n    fn proceeds() {\n        assert_eq!(crate::lib::poll_proceed(1), 2);\n    }\n}\n";
+
+    #[test]
+    fn qualified_java_context_preserves_uncertain_receiver_calls() {
+        let (root, _state, db) = project(&[
+            (
+                "Engine.java",
+                "class Engine {\n  int readValue() { return 1; }\n}\n",
+            ),
+            (
+                "Use.java",
+                "class Use {\n  int run(Engine engine) { return engine.readValue(); }\n}\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "callers of `Engine::readValue`", 2000);
+        assert!(report
+            .evidence
+            .iter()
+            .any(|e| e.kind == "definition" && e.path == "Engine.java" && e.line == 2));
+        assert!(report
+            .evidence
+            .iter()
+            .any(|e| e.kind == "possible call" && e.path == "Use.java"));
+        assert!(
+            !report.missing.iter().any(|m| m.contains("Rust files")),
+            "{:?}",
+            report.missing
+        );
+    }
 
     #[test]
     fn complete_reports_state_exhaustive_coverage_and_omitted_comments() {

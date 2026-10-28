@@ -149,7 +149,7 @@ pub fn analyze(path: &Path, source: &str) -> Result<Option<Analysis>, String> {
 fn cpp_declarator_name<'tree>(node: Node<'tree>) -> Option<Node<'tree>> {
     if matches!(
         node.kind(),
-        "identifier" | "field_identifier" | "operator_name" | "destructor_name"
+        "identifier" | "type_identifier" | "field_identifier" | "operator_name" | "destructor_name"
     ) {
         return Some(node);
     }
@@ -274,7 +274,43 @@ fn definition<'tree>(language: &str, node: Node<'tree>) -> Option<(&'static str,
         ("TypeScript" | "JavaScript", "class_declaration" | "abstract_class_declaration") => {
             "class"
         }
-        ("C++", "function_definition") => {
+        ("Go", "function_declaration") => "function",
+        ("Go", "method_declaration" | "method_elem") => "method",
+        ("Go", "type_spec" | "type_alias") => "type",
+        ("Java", "class_declaration" | "record_declaration") => "class",
+        ("Java", "interface_declaration" | "enum_declaration" | "annotation_type_declaration") => {
+            "type"
+        }
+        (
+            "Java",
+            "method_declaration" | "constructor_declaration" | "compact_constructor_declaration",
+        ) => "method",
+        ("C#", "class_declaration" | "record_declaration") => "class",
+        (
+            "C#",
+            "struct_declaration"
+            | "interface_declaration"
+            | "enum_declaration"
+            | "delegate_declaration",
+        ) => "type",
+        ("C#", "namespace_declaration" | "file_scoped_namespace_declaration") => "module",
+        ("C#", "method_declaration" | "constructor_declaration" | "destructor_declaration") => {
+            "method"
+        }
+        ("C#", "local_function_statement") => "function",
+        ("C#", "property_declaration") => "property",
+        ("C", "struct_specifier" | "union_specifier" | "enum_specifier")
+            if node.child_by_field_name("body").is_some() =>
+        {
+            "type"
+        }
+        ("C", "type_definition") => {
+            return node
+                .child_by_field_name("declarator")
+                .and_then(cpp_declarator_name)
+                .map(|name| ("type", name))
+        }
+        ("C" | "C++", "function_definition") => {
             let declarator = node.child_by_field_name("declarator")?;
             let kind = if enclosing_kind(node, &["template_declaration"])
                 == Some("field_declaration_list")
@@ -328,6 +364,10 @@ fn language_for(path: &Path) -> Option<(&'static str, Language)> {
         "js" | "jsx" | "mjs" | "cjs" => {
             Some(("JavaScript", tree_sitter_typescript::LANGUAGE_TSX.into()))
         }
+        "c" => Some(("C", tree_sitter_c::LANGUAGE.into())),
+        "go" => Some(("Go", tree_sitter_go::LANGUAGE.into())),
+        "java" => Some(("Java", tree_sitter_java::LANGUAGE.into())),
+        "cs" => Some(("C#", tree_sitter_c_sharp::LANGUAGE.into())),
         "cc" | "cpp" | "cxx" | "hpp" | "hxx" | "hh" | "h" => {
             Some(("C++", tree_sitter_cpp::LANGUAGE.into()))
         }
@@ -425,6 +465,155 @@ mod tests {
             .iter()
             .map(|symbol| (symbol.name.as_str(), symbol.kind))
             .collect()
+    }
+
+    #[test]
+    fn go_types_receivers_and_interface_signatures() {
+        let analysis = analyze(Path::new("store.go"),
+            "package store\ntype Store[T any] struct {}\ntype Reader interface { Read() int }\ntype Alias = int\nfunc Open[T any](v T) T { return v }\nfunc (s *Store[T]) Read() int { return 1 }\n")
+            .expect("parse").expect("Go grammar");
+        assert_eq!(analysis.language, "Go");
+        assert!(!analysis.has_syntax_errors);
+        for expected in [
+            ("Store", "type"),
+            ("Reader", "type"),
+            ("Alias", "type"),
+            ("Open", "function"),
+            ("Read", "method"),
+        ] {
+            assert!(
+                names(&analysis).contains(&expected),
+                "{expected:?}: {:?}",
+                names(&analysis)
+            );
+        }
+        assert_eq!(
+            analysis.symbols.iter().filter(|s| s.name == "Read").count(),
+            2
+        );
+        assert_eq!(
+            analysis
+                .symbols
+                .iter()
+                .find(|s| s.name == "Open")
+                .expect("function")
+                .start_line,
+            5
+        );
+    }
+
+    #[test]
+    fn java_records_annotations_constructors_and_methods() {
+        let analysis = analyze(Path::new("Store.JAVA"),
+            "package demo;\n@interface Marker {}\ninterface Reader { int read(); }\nrecord Item(int id) {}\nclass Store implements Reader {\n  Store() {}\n  public int read() { return 1; }\n}\n")
+            .expect("parse").expect("Java grammar");
+        assert_eq!(analysis.language, "Java");
+        assert!(!analysis.has_syntax_errors);
+        for expected in [
+            ("Marker", "type"),
+            ("Reader", "type"),
+            ("Item", "class"),
+            ("Store", "class"),
+            ("Store", "method"),
+            ("read", "method"),
+        ] {
+            assert!(
+                names(&analysis).contains(&expected),
+                "{expected:?}: {:?}",
+                names(&analysis)
+            );
+        }
+        let method = analysis
+            .symbols
+            .iter()
+            .find(|s| s.name == "read" && s.start_line == 7)
+            .expect("method");
+        assert_eq!(method.end_line, 7);
+    }
+
+    #[test]
+    fn csharp_records_properties_delegates_and_expression_methods() {
+        let analysis = analyze(Path::new("Store.cs"),
+            "namespace Demo;\npublic delegate int ReadDelegate();\npublic record Item(int Id);\npublic interface IReader { int Read(); }\npublic class Store : IReader {\n  public Store() {}\n  public int Count { get; set; }\n  public int Read() => Count;\n}\n")
+            .expect("parse").expect("C# grammar");
+        assert_eq!(analysis.language, "C#");
+        assert!(!analysis.has_syntax_errors);
+        for expected in [
+            ("Demo", "module"),
+            ("ReadDelegate", "type"),
+            ("Item", "class"),
+            ("IReader", "type"),
+            ("Store", "class"),
+            ("Store", "method"),
+            ("Count", "property"),
+            ("Read", "method"),
+        ] {
+            assert!(
+                names(&analysis).contains(&expected),
+                "{expected:?}: {:?}",
+                names(&analysis)
+            );
+        }
+    }
+
+    #[test]
+    fn c_definitions_skip_forward_declarations_and_function_pointer_variables() {
+        let analysis = analyze(Path::new("engine.c"),
+            "struct Engine;\nstruct Engine { int count; };\nenum Mode { ON, OFF };\ntypedef int (*Callback)(int);\nint (*callback)(int);\nint open_engine(int value) { return value; }\nconst char *name(void) { return \"engine\"; }\n")
+            .expect("parse").expect("C grammar");
+        assert_eq!(analysis.language, "C");
+        assert!(!analysis.has_syntax_errors);
+        assert_eq!(
+            names(&analysis),
+            vec![
+                ("Engine", "type"),
+                ("Mode", "type"),
+                ("Callback", "type"),
+                ("open_engine", "function"),
+                ("name", "function")
+            ]
+        );
+    }
+
+    #[test]
+    fn new_grammars_do_not_index_declarations_in_comments_or_strings() {
+        for (path, source) in [
+            ("main.go", "package main\n// func Ghost() {}\nvar text = `func Ghost() {}`\nfunc Actual() {}\n"),
+            ("Main.java", "// class Ghost {}\nclass Actual { String text = \"class Ghost {}\"; }\n"),
+            ("Main.cs", "// class Ghost {}\nclass Actual { string text = \"class Ghost {}\"; }\n"),
+            ("main.c", "// int Ghost() {}\nchar *text = \"int Ghost() {}\";\nint Actual(void) { return 1; }\n"),
+        ] {
+            let analysis = analyze(Path::new(path), source).expect("parse").expect("grammar");
+            assert!(!analysis.has_syntax_errors,"{path}");
+            assert!(analysis.symbols.iter().any(|s|s.name=="Actual"),"{path}");
+            assert!(!analysis.symbols.iter().any(|s|s.name=="Ghost"),"{path}");
+        }
+    }
+
+    #[test]
+    fn new_grammars_keep_large_definition_sets_bounded() {
+        for (path, prefix, suffix) in [
+            ("many.go", "package main\n", ""),
+            ("Many.java", "class Many {\n", "}\n"),
+            ("Many.cs", "class Many {\n", "}\n"),
+            ("many.c", "", ""),
+        ] {
+            let mut source = String::from(prefix);
+            for index in 0..MAX_SYMBOLS + 1 {
+                if path.ends_with(".go") {
+                    source.push_str(&format!("func f{index}() {{}}\n"));
+                } else {
+                    source.push_str(&format!("void f{index}() {{}}\n"));
+                }
+            }
+            source.push_str(suffix);
+            let analysis = analyze(Path::new(path), &source)
+                .expect("parse")
+                .expect("grammar");
+            assert!(!analysis.has_syntax_errors, "{path}");
+            assert_eq!(analysis.symbols.len(), MAX_SYMBOLS, "{path}");
+            assert!(analysis.truncated, "{path}");
+        }
     }
 
     #[test]
