@@ -1,0 +1,47 @@
+[
+  {
+    "command": [
+      "%USERPROFILE%\\miniconda3\\python.exe",
+      "validation/harness/plugin_check.py",
+      "--plugin",
+      "plugin",
+      "--marketplace",
+      ".claude-plugin/marketplace.json",
+      "--binary",
+      "target/release/findex.exe",
+      "--out",
+      "validation\\results\\20261028-quality-integration\\plugin.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "%USERPROFILE%\\miniconda3\\python.exe",
+      "validation/harness/sensitive_paths.py",
+      "target/release/findex.exe",
+      "--output",
+      "validation\\results\\20261028-quality-integration\\sensitive-paths.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "%USERPROFILE%\\miniconda3\\python.exe",
+      "validation/harness/hardening_offline.py",
+      "target/release/findex.exe",
+      "--output",
+      "validation\\results\\20261028-quality-integration\\hardening.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "%USERPROFILE%\\miniconda3\\python.exe",
+      "validation/harness/project_overview_smoke.py",
+      "target/release/findex.exe",
+      "--output",
+      "validation\\results\\20261028-quality-integration\\overview.json"
+    ],
+    "exit_code": 0
+  }
+]

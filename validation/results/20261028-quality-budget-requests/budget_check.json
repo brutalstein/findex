@@ -1,0 +1,28 @@
+{
+  "status": "EXECUTED",
+  "corpus": "requests",
+  "names": 40,
+  "budgets": {
+    "200": {
+      "p50": 0.805,
+      "p95": 0.91125,
+      "max": 0.95125,
+      "over_budget": 0,
+      "reports": 80
+    },
+    "500": {
+      "p50": 0.421,
+      "p95": 0.929,
+      "max": 0.9335,
+      "over_budget": 0,
+      "reports": 80
+    },
+    "2000": {
+      "p50": 0.106,
+      "p95": 0.4085,
+      "max": 0.967125,
+      "over_budget": 0,
+      "reports": 80
+    }
+  }
+}

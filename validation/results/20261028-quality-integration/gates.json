@@ -1,0 +1,61 @@
+[
+  {
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.758
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "--workspace",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "seconds": 3.99
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--all-targets"
+    ],
+    "exit_code": 0,
+    "seconds": 7.537
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "-p",
+      "findex"
+    ],
+    "exit_code": 0,
+    "seconds": 2.321
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "validation/harness",
+      "-p",
+      "test_*.py"
+    ],
+    "exit_code": 0,
+    "seconds": 8.807
+  }
+]

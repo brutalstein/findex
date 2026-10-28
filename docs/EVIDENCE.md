@@ -1,9 +1,27 @@
 # Evidence status
 
-Living summary of what Findex has demonstrated, as of **2026-10-27**
+Living summary of what Findex has demonstrated, as of **2026-10-28**
 (version 0.2.0 release candidate, not yet released). Every number points to a committed run under
 `validation/results/` or a campaign record; campaign records themselves are
 historical and are not rewritten. Machine: native Windows 11, NVMe.
+
+## Quality checkpoint — 2026-10-28
+
+Current source passes 167 Rust tests on native Windows stable and MSRV 1.85.0,
+plus 42 offline Python tests, 29 security checks, 199/199 coverage claims and
+960 rendered-budget checks with zero overruns.
+The 115-query navigation regression preserves the previous source-hit lists and
+all compact roundtrips. On 65 reused real issues, hit@1 improves from 30.8% to
+40.0%, and gold recall@10 from 66.2% to 79.2%; the 60% / 90% targets are unmet.
+Rust call precision improves conditionally, while confident-site recall drops
+sharply. These tradeoffs prevent a blanket quality or competitor-superiority claim.
+The new bugfix pilot has **zero evaluable trials**: five starts were consumed by
+an execution-permission failure, then stopped. The user declined new sessions;
+there is no new live bugfix or token-efficiency result.
+[Full paired results, coverage losses and verification](engineering/QUALITY_TARGETS_20261028.md).
+
+The sections below retain earlier measurements on their dated binaries. The
+previous preview packages do not contain the new context engine.
 
 Historical CI (all green for PR #34, run 40342169198): fmt, Clippy
 `-D warnings`, all tests on Windows latest, Windows Server 2022 and Rust 1.85
@@ -109,8 +127,9 @@ was called in 3 of 18 sessions. Run 4 superseded it.
 
 ## Are we on track?
 
-Accuracy work since 2026-10-12 improved every frozen held-out number it
-touched, and none regressed. Safety blockers A11 and A12 from the enterprise
+Earlier accuracy work and its frozen measurements are recorded above. The new
+context engine improves issue retrieval and precision, but reduces confident
+call coverage; it has not passed the full quality targets. Safety blockers A11 and A12 from the enterprise
 campaign are closed. Live tests now run on the subscription only. A real
 enterprise bug (indexing a OneDrive folder downloaded every cloud-only file)
 was found and fixed with a regression check in CI, and SMB paths are covered.

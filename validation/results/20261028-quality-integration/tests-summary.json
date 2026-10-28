@@ -1,0 +1,19 @@
+{
+  "stable": {
+    "status": "PASS",
+    "passed": 167,
+    "failed": 0,
+    "suites": 9
+  },
+  "msrv_1_85_0": {
+    "status": "PASS",
+    "passed": 167,
+    "failed": 0,
+    "suites": 9
+  },
+  "offline_python": {
+    "status": "PASS",
+    "passed": 42,
+    "failed": 0
+  }
+}

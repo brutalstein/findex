@@ -1,0 +1,28 @@
+{
+  "status": "EXECUTED",
+  "corpus": "fmt",
+  "names": 40,
+  "budgets": {
+    "200": {
+      "p50": 0.8075,
+      "p95": 0.95,
+      "max": 0.97125,
+      "over_budget": 0,
+      "reports": 80
+    },
+    "500": {
+      "p50": 0.475,
+      "p95": 0.9335,
+      "max": 0.989,
+      "over_budget": 0,
+      "reports": 80
+    },
+    "2000": {
+      "p50": 0.124,
+      "p95": 0.54425,
+      "max": 0.987875,
+      "over_budget": 0,
+      "reports": 80
+    }
+  }
+}

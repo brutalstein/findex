@@ -2,6 +2,23 @@
 
 Status means *evidence*, not aspiration. No milestone is considered complete merely because source files exist.
 
+## Quality targets checkpoint (2026-10-28)
+
+- [x] Bounded concept retrieval and local Rust receiver-annotation evidence;
+  explicit source/scope on every context report.
+- [x] Native stable/MSRV: 167 Rust tests; 42 offline Python tests, 29 security
+  checks, 115 unchanged navigation hit lists, 199 coverage claims and 960 budget
+  checks pass.
+- [ ] Real issue hit@1 >=60% and gold recall@10 >=90%: current 40.0% and 79.2%.
+- [ ] General call-resolution quality >=90%: conditional macro precision exceeds
+  90%, but Tokio micro precision is 88.1% and confident coverage falls sharply.
+- [ ] Same-model/budget bugfix improvement: the new live campaign was blocked by
+  execution permissions; no evaluable bugfix trials. The user declined new starts.
+- [ ] Repackage and revalidate the new engine for a public release. Earlier
+  package/cloud/SMB/scale evidence remains tied to the previous binary.
+
+[Measured results and limitations](engineering/QUALITY_TARGETS_20261028.md).
+
 ## Release-candidate hardening (2026-10-27)
 
 - [x] Lossless compact MCP search/symbol output; 115 roundtrips and unchanged

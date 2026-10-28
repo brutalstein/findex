@@ -5,9 +5,9 @@
       "client": "codex",
       "task": "requests-5223",
       "tool": "findex",
-      "status": "complete",
-      "valid": true,
-      "correct": false,
+      "status": "invalid",
+      "valid": false,
+      "correct": null,
       "exit_code": 0,
       "usage": {
         "input_tokens": 140187,
@@ -23,16 +23,18 @@
       "changed_files": [],
       "fixture_intact": true,
       "source_only": false,
-      "reason": "No source fix or fixture/metadata was changed"
+      "reason": "Environment prevented an editable bugfix trial; excluded from quality and cost comparisons",
+      "quality_evaluable": false,
+      "infrastructure_failure": "reported_read_only"
     },
     {
       "key": "requests-5223:graphify",
       "client": "codex",
       "task": "requests-5223",
       "tool": "graphify",
-      "status": "complete",
-      "valid": true,
-      "correct": false,
+      "status": "invalid",
+      "valid": false,
+      "correct": null,
       "exit_code": 0,
       "usage": {
         "input_tokens": 168935,
@@ -48,16 +50,18 @@
       "changed_files": [],
       "fixture_intact": true,
       "source_only": false,
-      "reason": "No source fix or fixture/metadata was changed"
+      "reason": "Environment prevented an editable bugfix trial; excluded from quality and cost comparisons",
+      "quality_evaluable": false,
+      "infrastructure_failure": "reported_read_only"
     },
     {
       "key": "requests-5223:codebase-memory",
       "client": "codex",
       "task": "requests-5223",
       "tool": "codebase-memory",
-      "status": "complete",
-      "valid": true,
-      "correct": false,
+      "status": "invalid",
+      "valid": false,
+      "correct": null,
       "exit_code": 0,
       "usage": {
         "input_tokens": 165200,
@@ -73,16 +77,18 @@
       "changed_files": [],
       "fixture_intact": true,
       "source_only": false,
-      "reason": "No source fix or fixture/metadata was changed"
+      "reason": "Environment prevented an editable bugfix trial; excluded from quality and cost comparisons",
+      "quality_evaluable": false,
+      "infrastructure_failure": "reported_read_only"
     },
     {
       "key": "ripgrep-2659:codebase-memory",
       "client": "codex",
       "task": "ripgrep-2659",
       "tool": "codebase-memory",
-      "status": "complete",
-      "valid": true,
-      "correct": false,
+      "status": "invalid",
+      "valid": false,
+      "correct": null,
       "exit_code": 0,
       "usage": {
         "input_tokens": 188615,
@@ -98,17 +104,23 @@
       "changed_files": [],
       "fixture_intact": true,
       "source_only": false,
-      "reason": "No source fix or fixture/metadata was changed"
+      "reason": "Environment prevented an editable bugfix trial; excluded from quality and cost comparisons",
+      "quality_evaluable": false,
+      "infrastructure_failure": "reported_read_only"
     },
     {
       "key": "ripgrep-2659:graphify",
       "client": "codex",
       "task": "ripgrep-2659",
       "tool": "graphify",
-      "status": "pending",
+      "status": "interrupted",
       "valid": false,
-      "correct": false
+      "correct": null,
+      "quality_evaluable": false,
+      "infrastructure_failure": "interrupted_after_read_only_failures",
+      "reason": "Environment prevented an editable bugfix trial; excluded from quality and cost comparisons"
     }
   ],
-  "started": 5
+  "started": 5,
+  "stopped": "Infrastructure failure; five starts consumed, sixth not started. User declined new sessions on 2026-10-28."
 }

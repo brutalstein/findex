@@ -32,11 +32,16 @@ READ_TOOLS = {'findex': ['findex_context','findex_search','findex_find_symbol','
 
 def locations() -> dict:
     home=Path(os.environ['USERPROFILE'])
-    return {'codex':home/'AppData/Local/OpenAI/Codex/bin/2993767bd1dfb009/codex.exe',
+    return {'codex':Path(os.environ.get('CODEX_APP_RUNTIME_CLI_PATH',str(home/'AppData/Local/OpenAI/Codex/bin/2993767bd1dfb009/codex.exe'))),
             'findex':REPO/'target/quality/candidate/findex.exe',
             'codebase-memory':home/'.cbm-bin/codebase-memory-mcp.exe',
             'graphify':home/'AppData/Local/Programs/Python/Python312/Scripts/graphify.exe',
             'graphify-python':home/'AppData/Local/Programs/Python/Python312/python.exe'}
+
+
+def bugfix_env(env: dict) -> dict:
+    # A standalone client must not inherit the parent app's tool pipe or permission context.
+    return {k:v for k,v in codex_env(env).items() if not k.startswith('CODEX_') or k=='CODEX_HOME'}
 
 
 def server(trial: dict) -> dict:
@@ -53,8 +58,9 @@ def server(trial: dict) -> dict:
 
 def overrides(profile: dict, trial: dict) -> list[str]:
     config=dict(profile, forced_login_method='chatgpt',model_provider='openai',approval_policy='never',
+                default_permissions=':workspace',
                 approvals_reviewer='user', project_doc_max_bytes=0,
-                **{'features.plugins':False,'features.multi_agent':False,'features.multi_agent_v2':False})
+                **{'windows.sandbox':'mxc','features.plugins':False,'features.multi_agent':False,'features.multi_agent_v2':False})
     name=trial['tool']; settings=server(trial)
     for key,value in settings.items():
         if key=='env':
@@ -159,7 +165,7 @@ def preflight() -> None:
     manifest=json.loads((OUT/'pilot-manifest.json').read_text())
     checks=[]
     for trial in manifest['trials']:
-        env=codex_env(fixture_env((REPO/trial['root']).parent/'native-client-state').copy())
+        env=bugfix_env(fixture_env((REPO/trial['root']).parent/'native-client-state').copy())
         isolated_home=(REPO/trial['root']).parent/'native-codex-home'
         isolated_home.mkdir(exist_ok=True)
         env['CODEX_HOME']=str(isolated_home)
@@ -167,6 +173,18 @@ def preflight() -> None:
         try:
             client.request('initialize',{'clientInfo':{'name':'findex-bugfix-preflight','version':'1'},'capabilities':{'experimentalApi':True}})
             started=client.request('thread/start',{'cwd':str(REPO/trial['root']),'ephemeral':True,'approvalPolicy':'never','sandbox':'workspace-write'})
+            assert started['sandbox']['type']=='workspaceWrite', started['sandbox']
+            root=REPO/trial['root']
+            outside=str(root.parent/'permission-probe-outside.txt').replace("'","''")
+            script=("$ErrorActionPreference='Stop'; [IO.File]::WriteAllText('permission-probe.txt','ok'); "
+                    "if([IO.File]::ReadAllText('permission-probe.txt') -ne 'ok'){throw 'readback failed'}; "
+                    "Remove-Item -LiteralPath permission-probe.txt; $blocked=$false; "
+                    f"try{{[IO.File]::WriteAllText('{outside}','unexpected')}}catch{{$blocked=$true}}; "
+                    f"if(!$blocked){{Remove-Item -LiteralPath '{outside}'; throw 'outside write was allowed'}}; "
+                    "'WRITE_EXEC_BOUNDARY_OK'")
+            command=client.request('command/exec',{'cwd':str(root),'command':['powershell.exe','-NoProfile','-Command',script],
+                'sandboxPolicy':started['sandbox'],'timeoutMs':15000})
+            assert command['exitCode']==0 and not command['stderr'] and 'WRITE_EXEC_BOUNDARY_OK' in command['stdout'],command
             tid=started['thread']['id']
             servers=client.request('mcpServerStatus/list',{'threadId':tid})['data']
             selected=next(s for s in servers if s['name']==trial['tool'])
@@ -176,12 +194,14 @@ def preflight() -> None:
             else: name,args='search_graph',{'project':trial['project_name'],'query':'extract_zipped_paths' if trial['task'].startswith('requests') else 'fish','format':'tree','limit':5}
             result=client.request('mcpServer/tool/call',{'threadId':tid,'server':trial['tool'],'tool':name,'arguments':args})
             assert result.get('isError') is False and result.get('content'),result
-            checks.append({'key':trial['key'],'status':'PASS','model':started.get('model'),'tools':list(selected['tools'])})
+            checks.append({'key':trial['key'],'status':'PASS','model':started.get('model'),'tools':list(selected['tools']),
+                           'effective_sandbox':started['sandbox'],'write_exec_boundary':'PASS'})
         finally:
             client.close()
             (OUT/'raw'/('preflight-'+trial['key'].replace(':','-')+'.log')).write_text(''.join(client.errors),encoding='utf-8')
         print('Native no-model preflight PASS',trial['key'],flush=True)
-    write_json(OUT/'native-preflight.json',{'checks':checks,'model_sessions':0})
+    write_json(OUT/'native-preflight-v2.json',{'checks':checks,'model_sessions':0,
+               'codex_sha256':hashlib.sha256(locations()['codex'].read_bytes()).hexdigest()})
 
 
 def execution_record(code: int, events: list[dict], tool: str) -> dict:
@@ -192,9 +212,11 @@ def execution_record(code: int, events: list[dict], tool: str) -> dict:
                 and isinstance(item.get('result'),dict) and not item['result'].get('isError')
                 and 'requires approval' not in json.dumps(item).lower()]
     agents=[item for item in items if 'collab' in item.get('type','')]
+    final=next((item.get('text','') for item in reversed(items) if item.get('type')=='agent_message'),'')
+    blocked='read-only' in final.lower() and not any(item.get('type')=='file_change' for item in items)
     return {'exit_code':code,'usage':usage,'mcp_calls':len(successful),'attempted_mcp_calls':len(calls),
-            'valid':code==0 and real_usage(usage) and bool(successful) and not agents,
-            'final':next((item.get('text','') for item in reversed(items) if item.get('type')=='agent_message'),'')}
+            'valid':code==0 and real_usage(usage) and bool(successful) and not agents and not blocked,
+            'infrastructure_failure':'reported_read_only' if blocked else None,'final':final}
 
 
 def validate_patch(trial: dict, env: dict, raw: Path) -> dict:
@@ -219,8 +241,10 @@ def run_live() -> None:
     if os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS'):
         raise SystemExit('BLOCKED: live model sessions never run in CI')
     manifest=json.loads((OUT/'pilot-manifest.json').read_text())
-    preflight=json.loads((OUT/'native-preflight.json').read_text())
+    preflight=json.loads((OUT/'native-preflight-v2.json').read_text())
     assert len(preflight['checks'])==CAP and all(c['status']=='PASS' for c in preflight['checks'])
+    assert all(c['write_exec_boundary']=='PASS' for c in preflight['checks'])
+    assert preflight['codex_sha256']==manifest['tool_sha256']['codex'], 'Preflight and frozen live client differ'
     assert len(manifest['trials'])==manifest['max_sessions']==CAP
     for key,path in locations().items():
         if hashlib.sha256(path.read_bytes()).hexdigest()!=manifest['tool_sha256'][key]:
@@ -234,7 +258,7 @@ def run_live() -> None:
         if any(row['key']==trial['key'] for row in results['sessions']): continue
         root=REPO/trial['root']; tool=trial['tool'];spec=TASKS[trial['task']]
         raw=OUT/'raw/live'/trial['key'].replace(':','-');raw.mkdir(parents=True,exist_ok=True)
-        env=codex_env(fixture_env(root.parent/'native-client-state'))
+        env=bugfix_env(fixture_env(root.parent/'native-client-state'))
         env['LOCALAPPDATA']=os.environ['LOCALAPPDATA']
         prompt=(spec['prompt']+' Start by navigating with the supplied '+tool+' MCP server, then verify source and edit the application. '
                 'Use built-in source reading, editing and local test commands as needed. Do not use the network, install packages, '
@@ -263,7 +287,7 @@ def run_live() -> None:
         write_json(OUT/'live-usage-summary.json',{'summary':usage_summary(results),'authorized_new_starts':CAP,
             'actual_new_starts':results['started'],'prior_historical_starts':12,
             'limits':'Two curated real issues, one repetition per tool; regression-only success, not the full upstream suite or statistical/general superiority. All source-based setup is excluded from model usage.'})
-        print(trial['key'],'valid=',record['valid'],'regression_pass=',record['correct'],flush=True)
+        print(trial['key'],'valid=',record['valid'],'regression_pass=',record.get('correct'),flush=True)
         if results.get('stopped'):break
 
 

@@ -19,10 +19,19 @@ the evidence; name matches do not prove type-resolved calls.
 Findex retrieves locally without API keys. The official assistant may send
 selected excerpts to its provider.
 
-**0.2.0 preview candidate:** native Windows checks pass 153 Rust tests on stable
-and MSRV plus 34 offline Python tests. Claude and Codex plugin integration,
+**Current source (2026-10-28):** native Windows checks pass 167 Rust tests on
+stable and MSRV plus 42 offline Python tests. Context ranking now separates conceptual tasks from exact
+symbol lookup, checks local Rust receiver annotations and states its evidence
+scope explicitly. On 65 historical real issues, hit@1 rose from **30.8% to
+40.0%**, and gold recall@10 from **66.2% to 79.2%**, at the same 1,200-token
+rendered budget. The 60% / 90% targets remain unmet. Higher conditional call
+precision comes with substantially fewer confident calls; it does not establish
+general semantic resolution or better bugfix outcomes.
+[Quality results and tradeoffs](docs/engineering/QUALITY_TARGETS_20261028.md).
+
+**Previously packaged 0.2.0 preview:** Claude and Codex plugin integration,
 extracted packages, Cloud Files, loopback SMB and 100k-file synthetic scaling
-are verified locally. The candidate is unsigned; no public release is published
+were verified locally on the previous build. That package is unsigned; no public release is published
 yet. [Verification and remaining limits](docs/engineering/RELEASE_CANDIDATE_HARDENING_20261027.md).
 
 <p align="center">

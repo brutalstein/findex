@@ -34,11 +34,11 @@ evidence, not a fresh independent held-out study. Do not tune on test failures.
   sites and report certainty coverage rather than hiding missing calls.
 - [x] Add explicit machine-readable scope/provenance where the current context
   contract lacks it. Verify stale, skipped, capped and ambiguous cases.
-- [ ] Freeze candidate; evaluate all historical issue controls, dev/heldout
+- [x] Freeze candidate; evaluate all historical issue controls, dev/heldout
   oracle samples and the 115-query navigation regression. Report misses and
   target failures honestly. Run native fmt/clippy/tests/release + MSRV, privacy,
   budget and coverage checks appropriate to the changes.
-- [ ] Update evidence/README, refresh graphify without API calls, and keep main
+- [x] Update evidence/README, refresh graphify without API calls, and keep main
   current only after passing checks. Do not infer bugfix success or universal
   superiority from these local measurements.
 
@@ -63,4 +63,25 @@ evidence, not a fresh independent held-out study. Do not tune on test failures.
 - Frozen post-coding candidate SHA-256:
   `ccb6299d315c18d7d65c06d86b640f9e54100f1092f928e51bd65d2638243c73`.
   Subsequent work prepares test fixtures/harnesses; engine sources stay frozen
-  during measurement. New live starts so far: zero.
+  during measurement. At this checkpoint, new live starts were zero.
+
+## Verification and integration checkpoint — 2026-10-28
+
+- All 65 real-issue controls and eight 80-function paired call-oracle runs are
+  recorded. Hit@1 is 40.0%, gold recall@10 79.23%; the targets remain unmet.
+  Conditional call precision improves at substantial confident-coverage cost.
+- Fresh native stable/MSRV gates pass 167 Rust tests; 42 Python tests, 29
+  security checks, 115 navigation equivalences, 199 coverage claims and 960
+  rendered-budget checks pass. Graphify was refreshed AST-only without models.
+- Five subscription sessions started; four reported read-only execution, the
+  fifth was interrupted, and the sixth did not start. The audited journal has
+  zero evaluable bugfix trials and preserves original flags separately.
+- A corrected zero-model preflight verifies workspace write/exec, outside-write
+  rejection and MCP availability in all six arms. No global permissions or
+  authentication files were changed. The updated Codex executable differs from
+  the frozen pilot; drift checks prevent reusing the old campaign.
+- The user declined new sessions and requested verified source/documentation
+  integration into main. No new live model calls are authorized or performed.
+- Implementation and measurement work are complete for this source checkpoint;
+  the quality targets and public release remain open. See
+  `docs/engineering/QUALITY_TARGETS_20261028.md` for exact limits.

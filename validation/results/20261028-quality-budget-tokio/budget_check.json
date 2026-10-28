@@ -1,0 +1,28 @@
+{
+  "status": "EXECUTED",
+  "corpus": "tokio",
+  "names": 40,
+  "budgets": {
+    "200": {
+      "p50": 0.77375,
+      "p95": 0.95,
+      "max": 0.9625,
+      "over_budget": 0,
+      "reports": 80
+    },
+    "500": {
+      "p50": 0.397,
+      "p95": 0.875,
+      "max": 0.9735,
+      "over_budget": 0,
+      "reports": 80
+    },
+    "2000": {
+      "p50": 0.102125,
+      "p95": 0.26825,
+      "max": 0.349125,
+      "over_budget": 0,
+      "reports": 80
+    }
+  }
+}

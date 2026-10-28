@@ -1,44 +1,18 @@
 {
-  "summary": {
-    "findex": {
-      "sessions": 1,
-      "valid": 1,
-      "correct": 0,
-      "mcp_calls": 3,
-      "input_tokens": 140187,
-      "cached_input_tokens": 116608,
-      "output_tokens": 874,
-      "reasoning_output_tokens": 454,
-      "total_tokens": 141061,
-      "uncached_input_tokens": 23579
-    },
-    "graphify": {
-      "sessions": 1,
-      "valid": 1,
-      "correct": 0,
-      "mcp_calls": 1,
-      "input_tokens": 168935,
-      "cached_input_tokens": 137216,
-      "output_tokens": 665,
-      "reasoning_output_tokens": 308,
-      "total_tokens": 169600,
-      "uncached_input_tokens": 31719
-    },
-    "codebase-memory": {
-      "sessions": 2,
-      "valid": 2,
-      "correct": 0,
-      "mcp_calls": 6,
-      "input_tokens": 353815,
-      "cached_input_tokens": 282368,
-      "output_tokens": 2126,
-      "reasoning_output_tokens": 1084,
-      "total_tokens": 355941,
-      "uncached_input_tokens": 71447
-    }
-  },
   "authorized_new_starts": 6,
-  "actual_new_starts": 4,
-  "prior_historical_starts": 12,
-  "limits": "Two curated real issues, one repetition per tool; regression-only success, not the full upstream suite or statistical/general superiority. All source-based setup is excluded from model usage."
+  "actual_new_starts": 5,
+  "completed_with_usage": 4,
+  "interrupted_without_complete_usage": 1,
+  "unstarted_arms": [
+    "ripgrep-2659:findex"
+  ],
+  "valid_bugfix_trials": 0,
+  "known_usage_totals": {
+    "input_tokens": 662937,
+    "cached_input_tokens": 536192,
+    "output_tokens": 3665
+  },
+  "comparison": "NOT_EVALUABLE: permission failure; partial usage is not a per-tool efficiency comparison",
+  "new_starts_authorized": false,
+  "user_decision": "No new live sessions; integrate verified code and documentation"
 }
