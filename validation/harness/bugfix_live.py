@@ -46,6 +46,14 @@ def bugfix_env(env: dict) -> dict:
     return {k:v for k,v in codex_env(env).items() if not k.startswith('CODEX_') or k=='CODEX_HOME'}
 
 
+def native_env(trial: dict) -> dict:
+    env=bugfix_env(fixture_env((REPO/trial['root']).parent/'native-client-state'))
+    # MXC owns its package temp paths under the real LocalAppData; MCP state is isolated separately.
+    env['LOCALAPPDATA']=os.environ['LOCALAPPDATA']
+    env['PATH']=str(locations()['graphify-python'].parent)+os.pathsep+env['PATH']
+    return env
+
+
 def server(trial: dict) -> dict:
     paths=locations(); root=REPO/trial['root']; tool=trial['tool']
     if tool=='findex':
@@ -184,7 +192,7 @@ def preflight() -> None:
     manifest=json.loads((OUT/'pilot-manifest.json').read_text())
     checks=[]
     for trial in manifest['trials']:
-        env=bugfix_env(fixture_env((REPO/trial['root']).parent/'native-client-state').copy())
+        env=native_env(trial)
         isolated_home=(REPO/trial['root']).parent/'native-codex-home'
         isolated_home.mkdir(exist_ok=True)
         env['CODEX_HOME']=str(isolated_home)
@@ -204,10 +212,11 @@ def preflight() -> None:
             command=client.request('command/exec',{'cwd':str(root),'command':['powershell.exe','-NoProfile','-Command',script],
                 'sandboxPolicy':started['sandbox'],'timeoutMs':15000})
             assert command['exitCode']==0 and not command['stderr'] and 'WRITE_EXEC_BOUNDARY_OK' in command['stdout'],command
-            repro=client.request('command/exec',{'cwd':str(root),'command':[sys.executable,'repro.py'],
-                'sandboxPolicy':started['sandbox'],'timeoutMs':120000})
+            # MXC private-temp/MSVC linking is unsupported here. The independent
+            # native host grader runs the unchanged regression for every arm.
+            repro=run_repro(root,fixture_env(root.parent/'grader-state'))
             expected='FileExistsError' if trial['task'].startswith('requests') else 'AssertionError'
-            assert repro['exitCode']!=0 and expected in repro['stderr'],repro
+            assert repro.returncode!=0 and expected in repro.stderr,repro.stderr[-1500:]
             tid=started['thread']['id']
             servers=client.request('mcpServerStatus/list',{'threadId':tid})['data']
             selected=next(s for s in servers if s['name']==trial['tool'])
@@ -219,7 +228,7 @@ def preflight() -> None:
             assert result.get('isError') is False and result.get('content'),result
             checks.append({'key':trial['key'],'status':'PASS','model':started.get('model'),'tools':list(selected['tools']),
                            'effective_sandbox':started['sandbox'],'write_exec_boundary':'PASS'})
-            checks[-1]['baseline_repro_executable']='PASS'
+            checks[-1]['baseline_repro_executable']='NATIVE_HOST_GRADER'
         finally:
             client.close()
             (OUT/'raw'/('preflight-'+trial['key'].replace(':','-')+'.log')).write_text(''.join(client.errors),encoding='utf-8')
@@ -255,10 +264,13 @@ def validate_patch(trial: dict, env: dict, raw: Path) -> dict:
     (raw/'patch.diff').write_text(patch,encoding='utf-8')
     if head!=trial['baseline_head'] or not intact or not allowed:
         return {'correct':False,'changed_files':changed,'fixture_intact':intact,'source_only':allowed,'reason':'No source fix or fixture/metadata was changed'}
+    grading_started=time.monotonic()
     tested=run_repro(root,env)
     (raw/'regression.log').write_text(tested.stdout+tested.stderr,encoding='utf-8')
     return {'correct':tested.returncode==0,'changed_files':changed,'fixture_intact':True,'source_only':True,
-            'regression_exit':tested.returncode,'scope':'Unchanged real-issue reproduction; not the full upstream test suite'}
+            'regression_exit':tested.returncode,'grader_seconds':round(time.monotonic()-grading_started,3),
+            'grader_execution':'independent-native-windows-host',
+            'scope':'Unchanged real-issue reproduction; not the full upstream test suite'}
 
 
 def run_live() -> None:
@@ -268,7 +280,7 @@ def run_live() -> None:
     preflight=json.loads((OUT/'native-preflight-v2.json').read_text())
     assert len(preflight['checks'])==CAP and all(c['status']=='PASS' for c in preflight['checks'])
     assert all(c['write_exec_boundary']=='PASS' for c in preflight['checks'])
-    assert all(c['baseline_repro_executable']=='PASS' for c in preflight['checks'])
+    assert all(c['baseline_repro_executable']=='NATIVE_HOST_GRADER' for c in preflight['checks'])
     assert preflight['codex_sha256']==manifest['tool_sha256']['codex'], 'Preflight and frozen live client differ'
     assert len(manifest['trials'])==manifest['max_sessions']==CAP
     for key,path in locations().items():
@@ -283,12 +295,12 @@ def run_live() -> None:
         if any(row['key']==trial['key'] for row in results['sessions']): continue
         root=REPO/trial['root']; tool=trial['tool'];spec=TASKS[trial['task']]
         raw=OUT/'raw/live'/trial['key'].replace(':','-');raw.mkdir(parents=True,exist_ok=True)
-        env=bugfix_env(fixture_env(root.parent/'native-client-state'))
-        env['LOCALAPPDATA']=os.environ['LOCALAPPDATA']
-        prompt=(spec['prompt']+' Start by navigating with the supplied '+tool+' MCP server, then verify source and edit the application. '
+        env=native_env(trial)
+        prompt=(spec['prompt'].replace('Run python repro.py. ','')+' Start by navigating with the supplied '+tool+' MCP server, then verify source and edit the application. '
                 'Use built-in source reading, editing and local test commands as needed. Do not use the network, install packages, '
                 'read secrets/authentication, launch agents/subagents/other model clients, or edit outside this workspace. '
                 'Do not commit, reset, stage, delete tests or change metadata. Finish with a short account of the fix and actual tests. ')
+        prompt+='For this campaign do not run repro.py or compile: the independent native Windows host grader runs the unchanged reproduction after your patch. Sandbox private-temp and MSVC linking are unsupported. State that tests are left to the host grader. '
         if tool=='findex': prompt+='Prefer findex_context with budget_tokens=1200; use compact for search/symbol lookups. '
         if trial.get('semantic_imported'):prompt+='Compiler SCIP evidence is imported. findex_graph_symbol accepts path + one-based line + zero-based UTF-8 byte column for semantic disambiguation; references are not proven calls. '
         if tool=='codebase-memory': prompt+='Use existing project '+trial['project_name']+'; prefer tree search output, do not reindex. '
@@ -311,7 +323,7 @@ def run_live() -> None:
             record.update(execution_record(completed.returncode,events,tool),seconds=round(time.monotonic()-started,3))
             if record['valid']: record.update(validate_patch(trial,env,raw))
         write_json(OUT/'live-usage-summary.json',{'summary':usage_summary(results),'authorized_new_starts':CAP,
-            'actual_new_starts':results['started'],'prior_historical_starts':12,
+            'actual_new_starts':results['started'],'prior_historical_starts':json.loads((OUT/'authorization.json').read_text()).get('earlier_started_sessions',12) if (OUT/'authorization.json').exists() else 12,
             'limits':'Two curated real issues, one repetition per tool; regression-only success, not the full upstream suite or statistical/general superiority. All source-based setup is excluded from model usage.'})
         print(trial['key'],'valid=',record['valid'],'regression_pass=',record.get('correct'),flush=True)
         if results.get('stopped'):break
