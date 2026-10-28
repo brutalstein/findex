@@ -717,18 +717,52 @@ fn search_ranked_in_db(
             1_usize,
             excerpt_of(body.lines().next().unwrap_or("")),
         );
+        let mut line_terms = Vec::new();
         for (line_index, line) in body.lines().enumerate() {
             let folded_line = line.to_lowercase();
-            let matches = terms
-                .iter()
-                .filter(|term| line_has_term(&folded_line, term))
-                .count();
+            let mask = terms.iter().enumerate().fold(0_u16, |mask, (i, term)| {
+                mask | (u16::from(line_has_term(&folded_line, term)) << i)
+            });
+            let matches = mask.count_ones() as usize;
             if matches > best.0 {
                 best = (matches, line_index + 1, excerpt_of(line));
             }
+            if concept {
+                line_terms.push(mask);
+            }
         }
+        if concept {
+            let mut best_window = 0;
+            for center in 0..line_terms.len() {
+                let covered = line_terms
+                    [center.saturating_sub(2)..(center + 3).min(line_terms.len())]
+                    .iter()
+                    .fold(0_u16, |mask, line| mask | line)
+                    .count_ones();
+                if covered > best_window {
+                    best_window = covered;
+                    best.1 = center + 1;
+                }
+            }
+            best.2 = excerpt_of(body.lines().nth(best.1 - 1).unwrap_or(""));
+        }
+        let filename_terms = if concept {
+            identifier_terms(
+                Path::new(&path)
+                    .file_stem()
+                    .and_then(|s| s.to_str())
+                    .unwrap_or(""),
+                "",
+            )
+        } else {
+            String::new()
+        };
+        let filename_matches = filename_terms
+            .split_whitespace()
+            .filter(|word| word.chars().count() >= 3 && terms.iter().any(|term| term == word))
+            .count();
         candidates.push((
-            (coverage, best.0),
+            (coverage, best.0, filename_matches),
             SearchHit {
                 path,
                 line: best.1,
@@ -745,7 +779,11 @@ fn search_ranked_in_db(
             let role = |path: &str| (!context::is_code_path(path), context::is_test_path(path));
             return role(&left.1.path)
                 .cmp(&role(&right.1.path))
-                .then_with(|| left.1.bm25_score.total_cmp(&right.1.bm25_score))
+                // Filename matches are an additional field, not substring hits.
+                .then_with(|| {
+                    (left.1.bm25_score * (1.0 + 2.0 * left.0 .2 as f64))
+                        .total_cmp(&(right.1.bm25_score * (1.0 + 2.0 * right.0 .2 as f64)))
+                })
                 .then_with(|| left.1.path.cmp(&right.1.path));
         }
         right

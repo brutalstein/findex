@@ -84,7 +84,7 @@ def overrides(profile: dict, trial: dict) -> list[str]:
     return args
 
 
-def prepare() -> None:
+def prepare(*, semantic: bool = False) -> None:
     if (OUT/'pilot-manifest.json').exists(): raise ValueError('Preserve frozen pilot inputs')
     oracle=json.loads((OUT/'fixture-oracles.json').read_text())
     assert len(oracle)==2 and all(v['status']=='PASS' for v in oracle.values())
@@ -101,6 +101,7 @@ def prepare() -> None:
     assert hashlib.sha256(frozen.read_bytes()).hexdigest()==digest,'Immutable candidate mismatch'
     manifest={'authorization':'User renewed live subscription comparison after semantic coding; at most six new starts, no paid APIs or subagents. Earlier starts remain historical.',
               'max_sessions':CAP,'timeout_seconds':TIMEOUT,'profile':profile,'tasks':oracle,'trials':[],
+              'semantic_preparation':'rust-analyzer-scip' if semantic else 'not_requested',
               'findex_binary':frozen.relative_to(REPO).as_posix(),
               'tool_sha256':{k:hashlib.sha256(v.read_bytes()).hexdigest() for k,v in locations().items()},
               'limits':['Two curated real issues, one repetition per tool; not a general or statistically powered bugfix claim',
@@ -140,7 +141,7 @@ def prepare() -> None:
                         response=child.call_tool('index_repository',{'repo_path':str(project),'name':trial['project_name'],'mode':'full','persistence':False})
                     if response[3]: raise RuntimeError('Native benchmark index setup failed: '+response[1][:500])
                 finally: child.close()
-                if tool=='findex' and spec['corpus']=='ripgrep':
+                if semantic and tool=='findex' and spec['corpus']=='ripgrep':
                     analyzer=shutil.which('rust-analyzer')
                     if not analyzer:raise RuntimeError('rust-analyzer required for the frozen Rust semantic arm')
                     trial['semantic_provider_sha256']=hashlib.sha256(Path(analyzer).read_bytes()).hexdigest()
@@ -273,15 +274,58 @@ def validate_patch(trial: dict, env: dict, raw: Path) -> dict:
             'scope':'Unchanged real-issue reproduction; not the full upstream test suite'}
 
 
+def capture_diagnostics(raw: Path, seconds: float, timed_out: bool) -> dict:
+    report={'seconds':round(seconds,3),'timed_out':timed_out,'events':0,
+            'malformed_lines':0,'last_phase':'no_events','pending_tools':[],
+            'completed_mcp_calls':0,'failed_mcp_calls':0,'usage_complete':False}
+    pending={}
+    with (raw/'events.jsonl').open(encoding='utf-8',errors='replace') as stream:
+        for line in stream:
+            try: event=json.loads(line)
+            except ValueError:
+                report['malformed_lines']+=1;continue
+            if not isinstance(event,dict):
+                report['malformed_lines']+=1;continue
+            report['events']+=1
+            kind=event.get('type');item=event.get('item',{})
+            if not isinstance(item,dict):item={}
+            if item.get('type')=='mcp_tool_call':
+                server_name=item.get('server');tool=item.get('tool')
+                name=f'{server_name}:{tool}' if server_name in READ_TOOLS and tool in READ_TOOLS[server_name] else 'unknown_tool'
+                call_id=str(item.get('id',name))
+                if kind=='item.started':
+                    pending[call_id]=name;report['last_phase']='mcp_in_progress'
+                elif kind=='item.completed':
+                    pending.pop(call_id,None);report['completed_mcp_calls']+=1
+                    result=item.get('result')
+                    failed=item.get('status')!='completed' or bool(item.get('error')) or not isinstance(result,dict) or bool(result.get('isError'))
+                    report['failed_mcp_calls']+=int(failed)
+                    report['last_phase']='mcp_failed' if failed else 'mcp_completed'
+            elif kind=='turn.completed':
+                report['usage_complete']=isinstance(event.get('usage'),dict)
+                report['last_phase']='turn_completed'
+            elif kind=='turn.failed':report['last_phase']='turn_failed'
+            elif kind in ('item.started','item.completed'):
+                report['last_phase']='command_in_progress' if item.get('type')=='command_execution' and kind=='item.started' else 'model_or_edit_activity'
+    report['pending_tools']=sorted(pending.values())
+    write_json(raw/'diagnostics.json',report)
+    return report
+
+
 def capture_process(argv: list[str], env: dict, raw: Path) -> int:
     # Stream to owned files so timeout/interruption cannot discard completed tool events.
+    started=time.monotonic();timed_out=False
     with (raw/'events.jsonl').open('w',encoding='utf-8') as output, (raw/'stderr.txt').open('w',encoding='utf-8') as errors:
         try:
             return subprocess.run(argv,env=env,stdout=output,stderr=errors,timeout=TIMEOUT).returncode
         except subprocess.TimeoutExpired:
+            timed_out=True
             reason=f'Codex session exceeded {TIMEOUT}s; partial events retained; no retry authorized'
             (raw/'timeout.log').write_text(reason,encoding='utf-8')
             raise RuntimeError(reason) from None
+        finally:
+            output.flush();errors.flush()
+            capture_diagnostics(raw,time.monotonic()-started,timed_out)
 
 
 def run_live() -> None:
@@ -320,7 +364,10 @@ def run_live() -> None:
         print('Starting authorized trial',trial['key'],flush=True)
         with trial_attempt(saved,results,record,CAP):
             started=time.monotonic()
-            exit_code=capture_process(argv,env,raw)
+            try:exit_code=capture_process(argv,env,raw)
+            finally:
+                record['seconds']=round(time.monotonic()-started,3)
+                record['diagnostics']=json.loads((raw/'diagnostics.json').read_text(encoding='utf-8'))
             events=[]
             for line in (raw/'events.jsonl').read_text(encoding='utf-8',errors='replace').splitlines():
                 try:events.append(json.loads(line))
@@ -340,11 +387,13 @@ def main() -> None:
     parser.add_argument('mode',choices=('prepare','preflight','run'))
     parser.add_argument('--out',type=Path,default=OUT)
     parser.add_argument('--enable-live-model-tests',action='store_true')
+    parser.add_argument('--with-semantic-evidence',action='store_true',help='Prepare an explicit Rust SCIP snapshot; adds compiler setup cost')
     args=parser.parse_args()
     OUT=args.out.resolve()
     if not OUT.is_relative_to((REPO/'validation/results').resolve()):
         raise SystemExit('BLOCKED: campaign output must stay inside validation/results')
-    if args.mode=='prepare':prepare();return
+    if args.with_semantic_evidence and args.mode!='prepare':parser.error('semantic setup is selected only during prepare')
+    if args.mode=='prepare':prepare(semantic=args.with_semantic_evidence);return
     if args.mode=='preflight':preflight();return
     if not args.enable_live_model_tests or os.environ.get(APPROVAL_ENV)!=APPROVAL:
         raise SystemExit('NOT_RUN: explicit six-session subscription authorization and live flag required')

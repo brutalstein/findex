@@ -12,6 +12,35 @@ from bugfix_fixtures import FISH_REPRO
 
 
 class BugfixLiveTests(unittest.TestCase):
+    def test_semantic_setup_requires_explicit_prepare_option(self):
+        for extra,expected in [([],False),(['--with-semantic-evidence'],True)]:
+            with patch.object(bugfix_live,'OUT'), patch('sys.argv',['bugfix_live.py','prepare',*extra]), patch.object(bugfix_live,'prepare') as prepare:
+                bugfix_live.main()
+                prepare.assert_called_once_with(semantic=expected)
+
+    def test_capture_diagnostics_report_pending_mcp_without_source_or_arguments(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            (root/'events.jsonl').write_text('{"type":"thread.started"}\n'+
+                '{"type":"item.started","item":{"type":"mcp_tool_call","server":"findex","tool":"findex_context","arguments":{"task":"private-source"}}}\n'+
+                '{"incomplete":',encoding='utf-8')
+            report=bugfix_live.capture_diagnostics(root,300.0,True)
+            self.assertEqual(report['last_phase'],'mcp_in_progress')
+            self.assertEqual(report['pending_tools'],['findex:findex_context'])
+            self.assertFalse(report['usage_complete'])
+            self.assertEqual(report['malformed_lines'],1)
+            self.assertNotIn('private-source',str(report))
+
+    def test_capture_diagnostics_accept_native_result_and_track_call_ids(self):
+        import json
+        events=[{'type':'item.started','item':{'id':i,'type':'mcp_tool_call','server':'findex','tool':'findex_context'}} for i in ('a','b')]
+        events.append({'type':'item.completed','item':{'id':'a','type':'mcp_tool_call','server':'findex','tool':'findex_context','status':'completed','result':{'content':[]}}})
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);(root/'events.jsonl').write_text('\n'.join(map(json.dumps,events)),encoding='utf-8')
+            report=bugfix_live.capture_diagnostics(root,1.0,False)
+            self.assertEqual(report['failed_mcp_calls'],0)
+            self.assertEqual(report['pending_tools'],['findex:findex_context'])
+
     def test_timeout_retains_partial_events_without_publishing_command_paths(self):
         def interrupted(argv,**options):
             options['stdout'].write('{"type":"item.completed"}\n');options['stdout'].flush()

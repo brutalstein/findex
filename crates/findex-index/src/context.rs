@@ -2762,6 +2762,36 @@ void render_duration() {}
     }
 
     #[test]
+    fn concept_filename_terms_outweigh_incidental_body_mentions() {
+        let (root, _state, db) = project(&[
+            (
+                "src/shell.rs",
+                "// shell completions invalid arguments\nfn parse() {}\n",
+            ),
+            ("src/fish.rs", "// completions\nfn generate() {}\n"),
+        ]);
+        let report = ask(&root, &db, "fish completions invalid arguments", 1200);
+        assert_eq!(report.evidence[0].path, "src/fish.rs", "{report:?}");
+    }
+
+    #[test]
+    fn concept_snippet_prefers_nearby_terms_over_isolated_mentions() {
+        let (root, _state, db) = project(&[(
+            "src/engine.py",
+            "# transport authenticate\n\n\n\n\n\ndef dispatch():\n    transport = open_channel()\n    credentials = load()\n    return authenticate(credentials)\n",
+        )]);
+        let report = ask(&root, &db, "transport authenticate credentials", 1200);
+        assert!(
+            report.evidence[0].text.contains("authenticate"),
+            "{report:?}"
+        );
+        assert!(
+            report.evidence[0].text.contains("def dispatch"),
+            "{report:?}"
+        );
+    }
+
+    #[test]
     fn concept_ranking_prefers_discriminative_source_evidence_over_generic_word_count() {
         let (root, _state, db) = project(&[
             ("src/transport.py", "def render():\n    return quasar()\n"),
