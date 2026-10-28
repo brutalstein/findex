@@ -1,12 +1,34 @@
 """Pilot must not contact a model client before both explicit gates pass."""
 import os
 import unittest
+import tempfile
+from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import bugfix_live
+from bugfix_fixtures import FISH_REPRO
 
 
 class BugfixLiveTests(unittest.TestCase):
+    def test_campaign_cannot_write_outside_result_directory(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(bugfix_live,'OUT'), patch('sys.argv',['bugfix_live.py','prepare','--out',folder]), patch('subprocess.run') as run:
+            with self.assertRaises(SystemExit):bugfix_live.main()
+            run.assert_not_called()
+            self.assertFalse(list(Path(folder).iterdir()))
+
+    def test_fish_oracle_accepts_equivalent_option_quoting(self):
+        for quote in ["'",'"','']:
+            output='\n'.join(f'complete -c rg -l {quote}{name}{quote}' for name in ['no-ignore','no-hidden','no-ignore-dot'])
+            with patch('subprocess.run',return_value=SimpleNamespace(stdout=output)):
+                exec(FISH_REPRO,{'__file__':__file__})
+
+    def test_fish_oracle_rejects_missing_long_flag_and_inherited_short_alias(self):
+        for prefix,suffix in [('', ''),('-l ',' -s x')]:
+            output='\n'.join(f'complete -c rg {prefix}{name}{suffix}' for name in ['no-ignore','no-hidden','no-ignore-dot'])
+            with patch('subprocess.run',return_value=SimpleNamespace(stdout=output)):
+                with self.assertRaises(AssertionError):exec(FISH_REPRO,{'__file__':__file__})
+
     def test_child_does_not_inherit_parent_app_permission_context(self):
         env=bugfix_live.bugfix_env({'CODEX_HOME':'official-home','CODEX_THREAD_ID':'parent',
             'CODEX_APP_TOOLS_PIPE_PATH':'parent-pipe','CODEX_PERMISSION_PROFILE':':read-only',

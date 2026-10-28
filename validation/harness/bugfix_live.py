@@ -25,15 +25,17 @@ APPROVAL_ENV = 'FINDEX_CODEX_BUGFIX_APPROVAL'
 APPROVAL = 'I approve 6 Codex subscription bugfix sessions'
 CAP = 6
 TIMEOUT = 300
-READ_TOOLS = {'findex': ['findex_context','findex_search','findex_find_symbol','findex_symbols'],
+READ_TOOLS = {'findex': ['findex_context','findex_search','findex_find_symbol','findex_symbols','findex_graph_symbol','findex_impact'],
               'graphify': ['query_graph','get_node','get_neighbors'],
               'codebase-memory': ['search_graph','get_code_snippet','check_index_coverage','trace_path']}
 
 
 def locations() -> dict:
     home=Path(os.environ['USERPROFILE'])
+    manifest=OUT/'pilot-manifest.json'
+    frozen=json.loads(manifest.read_text()).get('findex_binary','target/quality/candidate/findex.exe') if manifest.exists() else 'target/release/findex.exe'
     return {'codex':Path(os.environ.get('CODEX_APP_RUNTIME_CLI_PATH',str(home/'AppData/Local/OpenAI/Codex/bin/2993767bd1dfb009/codex.exe'))),
-            'findex':REPO/'target/quality/candidate/findex.exe',
+            'findex':REPO/frozen,
             'codebase-memory':home/'.cbm-bin/codebase-memory-mcp.exe',
             'graphify':home/'AppData/Local/Programs/Python/Python312/Scripts/graphify.exe',
             'graphify-python':home/'AppData/Local/Programs/Python/Python312/python.exe'}
@@ -85,20 +87,26 @@ def prepare() -> None:
     values=tomllib.loads(config.read_text(encoding='utf-8')) if config.exists() else {}
     profile={key:values[key] for key in ('model','model_reasoning_effort','service_tier') if key in values}
     assert profile.get('model'), 'Current native model profile must be explicit before live testing'
-    manifest={'authorization':'User approved six NEW Codex subscription sessions after engine coding; previous 12 starts remain historical',
+    binary=locations()['findex']; digest=hashlib.sha256(binary.read_bytes()).hexdigest()
+    frozen=WORK/'live-bugfix'/OUT.name/'bin'/digest/'findex.exe';frozen.parent.mkdir(parents=True,exist_ok=True)
+    if not frozen.exists(): shutil.copy2(binary,frozen)
+    assert hashlib.sha256(frozen.read_bytes()).hexdigest()==digest,'Immutable candidate mismatch'
+    manifest={'authorization':'User renewed live subscription comparison after semantic coding; at most six new starts, no paid APIs or subagents. Earlier starts remain historical.',
               'max_sessions':CAP,'timeout_seconds':TIMEOUT,'profile':profile,'tasks':oracle,'trials':[],
+              'findex_binary':frozen.relative_to(REPO).as_posix(),
               'tool_sha256':{k:hashlib.sha256(v.read_bytes()).hexdigest() for k,v in locations().items()},
               'limits':['Two curated real issues, one repetition per tool; not a general or statistically powered bugfix claim',
                         'Setup/index/build costs excluded from model session time and reported separately',
                         'No APIs, external providers, agents or subagents; workspace-write only']}
     for case_index,(key,spec) in enumerate(TASKS.items()):
-        order=TOOLS[case_index:]+TOOLS[:case_index]
+        order=TOOLS if case_index%2==0 else TOOLS[::-1]
         for tool in order:
-            project=WORK/'live-bugfix/trials'/key/tool/'project'
+            project=WORK/'live-bugfix'/OUT.name/'trials'/key/tool/'project'
             print('Preparing',key,tool,flush=True)
             started=time.monotonic()
             shutil.copytree(WORK/'live-bugfix/seeds'/key,project,
                             ignore=shutil.ignore_patterns('.git','target','node_modules','graphify-out','__pycache__','*.pyc'))
+            (project/'repro.py').write_text(spec['repro'],encoding='utf-8',newline='\n')
             subprocess.run(['git','init','-q',str(project)],check=True)
             subprocess.run(['git','add','.'],cwd=project,check=True,capture_output=True)
             subprocess.run(['git','-c','user.name=Findex validation','-c','user.email=validation@local.invalid','commit','-qm','Frozen bugfix fixture'],cwd=project,check=True)
@@ -120,10 +128,21 @@ def prepare() -> None:
                     if tool=='findex':
                         response=child.call_tool('findex_context',{'task':'certificate extraction' if key.startswith('requests') else 'fish completions','budget_tokens':1200})
                     else:
-                        trial['project_name']='findex-bugfix-20261028-'+key
+                        trial['project_name']='findex-bugfix-'+OUT.name+'-'+key
                         response=child.call_tool('index_repository',{'repo_path':str(project),'name':trial['project_name'],'mode':'full','persistence':False})
                     if response[3]: raise RuntimeError('Native benchmark index setup failed: '+response[1][:500])
                 finally: child.close()
+                if tool=='findex' and spec['corpus']=='ripgrep':
+                    analyzer=shutil.which('rust-analyzer')
+                    if not analyzer:raise RuntimeError('rust-analyzer required for the frozen Rust semantic arm')
+                    trial['semantic_provider_sha256']=hashlib.sha256(Path(analyzer).read_bytes()).hexdigest()
+                    generated=subprocess.run([analyzer,'scip','.'],cwd=project,env=env,capture_output=True,text=True,timeout=900)
+                    if generated.returncode:raise RuntimeError('SCIP generation failed: '+generated.stderr[-1500:])
+                    imported=subprocess.run([str(locations()['findex']),'graph-import-scip','index.scip'],cwd=project,env=dict(env,**settings['env']),capture_output=True,text=True,timeout=180)
+                    if imported.returncode:raise RuntimeError('SCIP import failed: '+imported.stderr[-1500:])
+                    trial['semantic_imported']=True
+                    trial['scip_sha256']=hashlib.sha256((project/'index.scip').read_bytes()).hexdigest()
+                    (project/'index.scip').unlink()
             trial['setup_seconds']=round(time.monotonic()-started,3)
             manifest['trials'].append(trial)
     for key in TASKS:
@@ -185,6 +204,10 @@ def preflight() -> None:
             command=client.request('command/exec',{'cwd':str(root),'command':['powershell.exe','-NoProfile','-Command',script],
                 'sandboxPolicy':started['sandbox'],'timeoutMs':15000})
             assert command['exitCode']==0 and not command['stderr'] and 'WRITE_EXEC_BOUNDARY_OK' in command['stdout'],command
+            repro=client.request('command/exec',{'cwd':str(root),'command':[sys.executable,'repro.py'],
+                'sandboxPolicy':started['sandbox'],'timeoutMs':120000})
+            expected='FileExistsError' if trial['task'].startswith('requests') else 'AssertionError'
+            assert repro['exitCode']!=0 and expected in repro['stderr'],repro
             tid=started['thread']['id']
             servers=client.request('mcpServerStatus/list',{'threadId':tid})['data']
             selected=next(s for s in servers if s['name']==trial['tool'])
@@ -196,6 +219,7 @@ def preflight() -> None:
             assert result.get('isError') is False and result.get('content'),result
             checks.append({'key':trial['key'],'status':'PASS','model':started.get('model'),'tools':list(selected['tools']),
                            'effective_sandbox':started['sandbox'],'write_exec_boundary':'PASS'})
+            checks[-1]['baseline_repro_executable']='PASS'
         finally:
             client.close()
             (OUT/'raw'/('preflight-'+trial['key'].replace(':','-')+'.log')).write_text(''.join(client.errors),encoding='utf-8')
@@ -244,6 +268,7 @@ def run_live() -> None:
     preflight=json.loads((OUT/'native-preflight-v2.json').read_text())
     assert len(preflight['checks'])==CAP and all(c['status']=='PASS' for c in preflight['checks'])
     assert all(c['write_exec_boundary']=='PASS' for c in preflight['checks'])
+    assert all(c['baseline_repro_executable']=='PASS' for c in preflight['checks'])
     assert preflight['codex_sha256']==manifest['tool_sha256']['codex'], 'Preflight and frozen live client differ'
     assert len(manifest['trials'])==manifest['max_sessions']==CAP
     for key,path in locations().items():
@@ -265,6 +290,7 @@ def run_live() -> None:
                 'read secrets/authentication, launch agents/subagents/other model clients, or edit outside this workspace. '
                 'Do not commit, reset, stage, delete tests or change metadata. Finish with a short account of the fix and actual tests. ')
         if tool=='findex': prompt+='Prefer findex_context with budget_tokens=1200; use compact for search/symbol lookups. '
+        if trial.get('semantic_imported'):prompt+='Compiler SCIP evidence is imported. findex_graph_symbol accepts path + one-based line + zero-based UTF-8 byte column for semantic disambiguation; references are not proven calls. '
         if tool=='codebase-memory': prompt+='Use existing project '+trial['project_name']+'; prefer tree search output, do not reindex. '
         argv=[str(locations()['codex']),'exec','--ignore-user-config','--ephemeral','--json','--sandbox','workspace-write','-C',str(root),*overrides(manifest['profile'],trial),prompt]
         record={'key':trial['key'],'client':'codex','task':trial['task'],'tool':tool}
@@ -292,10 +318,15 @@ def run_live() -> None:
 
 
 def main() -> None:
+    global OUT
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode',choices=('prepare','preflight','run'))
+    parser.add_argument('--out',type=Path,default=OUT)
     parser.add_argument('--enable-live-model-tests',action='store_true')
     args=parser.parse_args()
+    OUT=args.out.resolve()
+    if not OUT.is_relative_to((REPO/'validation/results').resolve()):
+        raise SystemExit('BLOCKED: campaign output must stay inside validation/results')
     if args.mode=='prepare':prepare();return
     if args.mode=='preflight':preflight();return
     if not args.enable_live_model_tests or os.environ.get(APPROVAL_ENV)!=APPROVAL:

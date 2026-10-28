@@ -207,16 +207,44 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             );
         }
         "graph-symbol" => {
-            let symbol = args
-                .next()
-                .ok_or("usage: findex graph-symbol <exact-scip-or-lsp-id>")?
-                .to_string_lossy()
-                .into_owned();
-            if args.next().is_some() {
-                return Err("usage: findex graph-symbol <exact-scip-or-lsp-id>".into());
+            const USAGE: &str = "usage: findex graph-symbol <symbol-id> | --at <relative-file> <line:1-based> <UTF-8-column:0-based>";
+            let symbol = args.next().ok_or(USAGE)?.to_string_lossy().into_owned();
+            if symbol == "--at" {
+                let path = args.next().ok_or(USAGE)?;
+                let line = args
+                    .next()
+                    .ok_or(USAGE)?
+                    .to_string_lossy()
+                    .parse::<usize>()?;
+                let column = args
+                    .next()
+                    .ok_or(USAGE)?
+                    .to_string_lossy()
+                    .parse::<usize>()?;
+                if args.next().is_some() {
+                    return Err(USAGE.into());
+                }
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&findex_relations::symbol_at(
+                        &project,
+                        Path::new(&path),
+                        line,
+                        column,
+                        64
+                    )?)?
+                );
+            } else {
+                if args.next().is_some() {
+                    return Err(USAGE.into());
+                }
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&findex_relations::symbol_evidence(
+                        &project, &symbol, 64
+                    )?)?
+                );
             }
-            let report = findex_relations::symbol_evidence(&project, &symbol, 64)?;
-            println!("{}", serde_json::to_string_pretty(&report)?);
         }
         "impact" => {
             let file = args
@@ -385,6 +413,7 @@ fn print_help() {
     println!("  findex graph-import-lsp <file>  Import normalized captured LSP references");
     println!("  findex impact <relative-file> [depth:1-3]  Find reference-backed file impact");
     println!("  findex graph-symbol <symbol-id> Show imported definition/reference sites");
+    println!("  findex graph-symbol --at <file> <line> <column> Resolve imported identity (1-based line, UTF-8 byte column)");
     println!("  findex refresh <paths...>       Refresh known relative files without a full scan");
     println!("  findex doctor                   Check local integration and system");
     println!("  findex status                   Show current project and index location");

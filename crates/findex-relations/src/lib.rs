@@ -2,6 +2,7 @@
 //! No guessed call edges, hidden language server execution or external network calls.
 
 mod lsp;
+mod resolve;
 mod scip_import;
 
 use findex_core::{
@@ -17,6 +18,7 @@ use std::time::Duration;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 pub use lsp::import_lsp_snapshot;
+pub use resolve::{symbol_at, SymbolAtReport};
 pub use scip_import::{import_scip, import_scip_bytes};
 
 fn language_for_path(path: &str) -> &'static str {
@@ -40,6 +42,13 @@ fn language_for_path(path: &str) -> &'static str {
     }
 }
 
+fn source_lines(source: &str) -> impl Iterator<Item = &str> {
+    // Compiler positions include the empty final line; str::lines alone drops it.
+    source
+        .lines()
+        .chain((source.is_empty() || source.ends_with('\n')).then_some(""))
+}
+
 const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
 const MAX_DOCUMENTS: usize = 1_000;
 const MAX_OCCURRENCES: usize = 100_000;
@@ -47,7 +56,7 @@ const MAX_SYMBOL_LENGTH: usize = 2_048;
 const MAX_IMPACT_FILES: usize = 64;
 const MAX_DEPTH: usize = 3;
 /// Relations schema is independent of the lexical index schema.
-const RELATIONS_SCHEMA: i64 = 2;
+const RELATIONS_SCHEMA: i64 = 3;
 const MAX_TYPED_RESULTS: usize = 128;
 
 #[derive(Debug)]
@@ -70,6 +79,9 @@ struct SemanticSite {
     path: String,
     line: usize,
     column: usize,
+    end_line: Option<usize>,
+    end_column: Option<usize>,
+    position_encoding: i32,
     language: String,
     kind: &'static str,
 }
@@ -87,6 +99,9 @@ pub struct SymbolSite {
     pub path: String,
     pub line: usize,
     pub column: usize,
+    pub end_line: Option<usize>,
+    pub end_column: Option<usize>,
+    pub position_encoding: &'static str,
     pub language: String,
     pub kind: String,
     pub provider: String,
@@ -214,6 +229,16 @@ fn try_open(db: &Path) -> rusqlite::Result<Connection> {
         );
         CREATE INDEX IF NOT EXISTS semantic_links_owner ON semantic_links(owner_symbol);",
     )?;
+    if version < 3 {
+        tx.execute_batch(
+            "ALTER TABLE semantic_sites ADD COLUMN end_line INTEGER;
+            ALTER TABLE semantic_sites ADD COLUMN end_column INTEGER;
+            ALTER TABLE semantic_sites ADD COLUMN position_encoding INTEGER NOT NULL DEFAULT 0;",
+        )?;
+    }
+    tx.execute_batch(
+        "CREATE INDEX IF NOT EXISTS semantic_sites_position ON semantic_sites(path,line,column);",
+    )?;
     // A schema-0/legacy snapshot cannot provide typed information until
     // explicitly reimported. Its existing untyped impact evidence is preserved.
     if version < RELATIONS_SCHEMA {
@@ -282,7 +307,7 @@ fn admitted(project: &Path, db: &Connection, raw: &str) -> Result<Evidence> {
     Ok(Evidence {
         path,
         digest,
-        lines: source.lines().count().max(1),
+        lines: source_lines(source).count(),
     })
 }
 fn prepare(project: &Path) -> Result<Connection> {
@@ -419,8 +444,8 @@ fn persist(
     }
     {
         let mut insert = tx.prepare(
-            "INSERT OR IGNORE INTO semantic_sites(symbol,path,line,column,language,kind)
-             VALUES(?1,?2,?3,?4,?5,?6)",
+            "INSERT OR IGNORE INTO semantic_sites(symbol,path,line,column,language,kind,end_line,end_column,position_encoding)
+             VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9)",
         )?;
         for site in sites {
             insert.execute(params![
@@ -430,6 +455,9 @@ fn persist(
                 site.column as i64,
                 site.language,
                 site.kind,
+                site.end_line.map(|n| n as i64),
+                site.end_column.map(|n| n as i64),
+                site.position_encoding,
             ])?;
         }
     }
@@ -541,6 +569,16 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
     }
     let indexed = prepare(project)?;
     let conn = open(project)?;
+    symbol_evidence_in_db(project, symbol, limit, &indexed, &conn)
+}
+
+fn symbol_evidence_in_db(
+    project: &Path,
+    symbol: &str,
+    limit: usize,
+    indexed: &Connection,
+    conn: &Connection,
+) -> Result<SymbolEvidenceReport> {
     let max = limit.clamp(1, MAX_TYPED_RESULTS);
     let mut report = SymbolEvidenceReport {
         symbol: symbol.to_owned(),
@@ -553,7 +591,7 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
     };
     let mut stmt = conn.prepare(
         "SELECT s.path, s.line, s.column, s.language, s.kind,
-                e.digest, COALESCE(p.source, 'unattributed')
+                e.digest, COALESCE(p.source, 'unattributed'), s.end_line, s.end_column, s.position_encoding
          FROM semantic_sites s
          JOIN evidence_files e ON e.path=s.path
          LEFT JOIN symbol_provenance p ON p.symbol=s.symbol
@@ -569,15 +607,19 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
             r.get::<_, String>(4)?,
             r.get::<_, String>(5)?,
             r.get::<_, String>(6)?,
+            r.get::<_, Option<i64>>(7)?,
+            r.get::<_, Option<i64>>(8)?,
+            r.get::<_, i32>(9)?,
         ))
     })?;
     for row in entries {
-        let (path, line, column, language, kind, digest, provider) = row?;
+        let (path, line, column, language, kind, digest, provider, end_line, end_column, encoding) =
+            row?;
         if report.sites.len() >= max {
             report.truncated = true;
             break;
         }
-        if !currently_admitted(&indexed, &path, &digest) || !verify_path(project, &path, &digest) {
+        if !currently_admitted(indexed, &path, &digest) || !verify_path(project, &path, &digest) {
             report.stale_evidence_discarded += 1;
             continue;
         }
@@ -585,6 +627,14 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
             path,
             line: usize::try_from(line)?,
             column: usize::try_from(column)?,
+            end_line: end_line.map(usize::try_from).transpose()?,
+            end_column: end_column.map(usize::try_from).transpose()?,
+            position_encoding: match encoding {
+                1 => "utf8",
+                2 => "utf16",
+                3 => "utf32",
+                _ => "unspecified",
+            },
             language,
             kind,
             provider,
@@ -615,7 +665,7 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
             report.truncated = true;
             break;
         }
-        if !currently_admitted(&indexed, &path, &digest) || !verify_path(project, &path, &digest) {
+        if !currently_admitted(indexed, &path, &digest) || !verify_path(project, &path, &digest) {
             report.stale_evidence_discarded += 1;
             continue;
         }
@@ -773,6 +823,38 @@ mod tests {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .expect("version");
         assert_eq!(version, 99);
+    }
+
+    #[test]
+    fn version_two_positions_remain_available_but_need_reimport_for_unicode_resolution() {
+        let root = tempdir().expect("root");
+        fs::write(root.path().join("main.py"), "value = '😀'; target()\n").expect("source");
+        let capture =
+            r#"{"definition":{"path":"main.py","line":0,"character":14},"references":[]}"#;
+        import_lsp_snapshot(root.path(), capture).expect("import");
+        let conn = open(root.path()).expect("open");
+        conn.execute_batch(
+            "ALTER TABLE semantic_sites DROP COLUMN end_line;
+            ALTER TABLE semantic_sites DROP COLUMN end_column;
+            ALTER TABLE semantic_sites DROP COLUMN position_encoding;
+            PRAGMA user_version=2;",
+        )
+        .expect("legacy schema");
+        drop(conn);
+        let old = symbol_evidence(root.path(), "lsp:main.py:0:14", 8).expect("old identity");
+        assert_eq!(old.sites.len(), 1);
+        assert_eq!(old.sites[0].position_encoding, "unspecified");
+        let position =
+            symbol_at(root.path(), Path::new("main.py"), 1, 16, 8).expect("legacy position");
+        assert_eq!(position.resolution, "incomplete");
+        assert!(position.evidence.is_none());
+        import_lsp_snapshot(root.path(), capture).expect("reimport");
+        assert_eq!(
+            symbol_at(root.path(), Path::new("main.py"), 1, 16, 8)
+                .expect("new position")
+                .resolution,
+            "resolved"
+        );
     }
 
     #[test]

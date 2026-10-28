@@ -77,13 +77,9 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
                     return Err("LSP source changed during position validation".into());
                 }
                 let source = std::str::from_utf8(&bytes)?;
-                let mut lengths = source
-                    .lines()
+                let lengths = super::source_lines(source)
                     .map(|line| line.encode_utf16().count())
                     .collect::<Vec<_>>();
-                if lengths.is_empty() {
-                    lengths.push(0);
-                }
                 line_lengths.insert(loc.path.clone(), lengths);
                 docs.insert(loc.path.clone(), checked);
                 if docs.len() > MAX_DOCUMENTS {
@@ -124,6 +120,9 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
             path: definition_file.path.clone(),
             line,
             column: capture.definition.character,
+            end_line: None,
+            end_column: None,
+            position_encoding: 2,
             language: language_for_path(&definition_file.path).to_string(),
             kind: "definition",
         });
@@ -136,6 +135,9 @@ pub fn import_lsp_snapshot(project: &Path, json: &str) -> Result<ImportReport> {
                 path: file.path.clone(),
                 line,
                 column: reference.character,
+                end_line: None,
+                end_column: None,
+                position_encoding: 2,
                 language: language_for_path(&file.path).to_string(),
                 kind: "reference",
             });

@@ -349,14 +349,17 @@ where
                     }
                 },{
                     "name": "findex_graph_symbol",
-                    "description": "Inspect exact opaque SCIP/LSP symbol identity after an explicit semantic import. Returns verified typed definition/import/reference occurrences and producer-asserted implementation/type relationships with language and source provenance. A reference is NOT necessarily a function call; never infer CALLS_RESOLVED.",
+                    "description": "Resolve an imported semantic identity at path + one-based line + zero-based UTF-8 byte column, or inspect an exact SCIP/LSP symbol ID. Returns source-matched definition/reference evidence and provider relationships. Overlaps, stale data, unknown encoding and caps are explicit; no lexical fallback or compiler execution. A reference is not a proven call. Import SCIP/LSP first.",
                     "inputSchema": {
                         "type": "object",
                         "properties": {
                             "symbol": {"type":"string","minLength":1,"maxLength":2048},
+                            "path": {"type":"string","minLength":1,"maxLength":500},
+                            "line": {"type":"integer","minimum":1},
+                            "column": {"type":"integer","minimum":0,"description":"Zero-based UTF-8 byte offset, at a character boundary. LSP point captures require the exact anchor."},
                             "limit": {"type":"integer","minimum":1,"maximum":128,"default":32}
                         },
-                        "required": ["symbol"],
+                        "oneOf": [{"required":["symbol"]},{"required":["path","line","column"]}],
                         "additionalProperties": false
                     }
                 },{
@@ -430,6 +433,8 @@ where
                         "syntax_languages": ["rust", "python", "typescript", "javascript", "cpp", "c", "go", "java", "csharp"],
                         "retrieval": ["task-context", "lexical-fts5", "exact-symbol", "syntax-definitions", "project-inventory"],
                         "relationships": {
+                            "source_position_lookup": true,
+                            "query_position_encoding": "utf8",
                             "requires_explicit_scip_or_lsp_import": true,
                             "reference_is_proven_call": false,
                             "complete_typed_call_graph": false
@@ -531,26 +536,60 @@ where
                     }
                 }
             } else if name == Some("findex_graph_symbol") {
+                let arguments = request.pointer("/params/arguments");
                 let symbol = request
                     .pointer("/params/arguments/symbol")
                     .and_then(Value::as_str)
                     .unwrap_or("");
+                let path = arguments
+                    .and_then(|a| a.get("path"))
+                    .and_then(Value::as_str);
+                let line = arguments
+                    .and_then(|a| a.get("line"))
+                    .and_then(Value::as_u64);
+                let column = arguments
+                    .and_then(|a| a.get("column"))
+                    .and_then(Value::as_u64);
                 let limit = request
                     .pointer("/params/arguments/limit")
                     .and_then(Value::as_u64)
                     .unwrap_or(32);
-                if symbol.is_empty()
-                    || symbol.len() > 2048
-                    || symbol.chars().any(char::is_control)
-                    || !(1..=128).contains(&limit)
-                {
+                let exact = !symbol.is_empty()
+                    && symbol.len() <= 2048
+                    && !symbol.chars().any(char::is_control)
+                    && arguments.is_some_and(|a| {
+                        ["path", "line", "column"]
+                            .iter()
+                            .all(|k| a.get(k).is_none())
+                    });
+                let position = arguments.is_some_and(|a| a.get("symbol").is_none())
+                    && path.is_some_and(|p| !p.is_empty() && p.len() <= 500)
+                    && line.is_some_and(|l| l > 0 && l <= 524288)
+                    && column.is_some_and(|c| c <= 524288);
+                let valid_limit = arguments
+                    .and_then(|a| a.get("limit"))
+                    .is_none_or(|v| v.as_u64().is_some());
+                if !(exact || position) || !valid_limit || !(1..=128).contains(&limit) {
                     error(
                         id,
                         -32602,
-                        "exact symbol ID must be 1-2048 bytes; limit 1-128",
+                        "provide either symbol ID or relative path + line (1-based) + UTF-8 column (0-based); limit 1-128",
                     )
                 } else {
-                    match findex_relations::symbol_evidence(project, symbol, limit as usize) {
+                    let found = if exact {
+                        findex_relations::symbol_evidence(project, symbol, limit as usize)
+                            .map(|r| json!(r))
+                    } else {
+                        findex_relations::symbol_at(
+                            project,
+                            Path::new(path.unwrap_or_default()),
+                            line.unwrap_or_default() as usize,
+                            column.unwrap_or_default() as usize,
+                            limit as usize,
+                        )
+                        .map(|r| json!(r))
+                    };
+                    match found {
                         Ok(report) => success(
                             id,
                             json!({"content":[{"type":"text",
@@ -560,7 +599,7 @@ where
                         Err(_err) => success(
                             id,
                             json!({"content":[{"type":"text",
-                                "text":"Typed semantic graph unavailable; import SCIP/LSP evidence and retry"}],
+                                "text":"Semantic lookup unavailable. Verify the admitted relative path and UTF-8 position, then import fresh SCIP/LSP evidence."}],
                                 "isError":true}),
                         ),
                     }
@@ -1065,6 +1104,23 @@ mod tests {
                 .as_array()
                 .expect("languages")
                 .contains(&json!(language)));
+        }
+    }
+
+    #[test]
+    fn graph_symbol_rejects_mixed_or_incomplete_positions_before_accessing_files() {
+        for arguments in [
+            json!({"symbol":"id","path":"main.rs","line":1,"column":0}),
+            json!({"symbol":"id","column":0}),
+            json!({"path":"main.rs","line":1}),
+            json!({"path":"main.rs","line":0,"column":0}),
+            json!({"path":"main.rs","line":1,"column":-1}),
+            json!({"path":"main.rs","line":1,"column":1.5}),
+            json!({"path":"main.rs","line":1,"column":0,"limit":129}),
+            json!({"path":"main.rs","line":1,"column":0,"limit":"4"}),
+        ] {
+            let response=handle(&json!({"jsonrpc":"2.0","id":31,"method":"tools/call","params":{"name":"findex_graph_symbol","arguments":arguments}}),Path::new("does-not-exist")).expect("response");
+            assert_eq!(response["error"]["code"], -32602, "{response}");
         }
     }
 

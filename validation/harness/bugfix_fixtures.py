@@ -36,7 +36,8 @@ root=pathlib.Path(__file__).resolve().parent
 result=subprocess.run(['cargo','run','--quiet','--locked','--','--generate','complete-fish'],cwd=root,capture_output=True,text=True,check=True)
 entries=[line.split(' -d ',1)[0] for line in result.stdout.splitlines() if line.startswith('complete ')]
 for name in ('no-ignore','no-hidden','no-ignore-dot'):
-    matches=[line for line in entries if re.search(r"-l\s+'"+re.escape(name)+r"'(?=\s|$)",line)]
+    token=re.escape(name)
+    matches=[line for line in entries if re.search(r"(?:^|\s)-l\s+(?:'"+token+"'|\""+token+"\"|"+token+r")(?=\s|$)",line)]
     assert len(matches)==1,(name,'must have exactly one fish long-option declaration')
     assert not re.search(r'(^|\s)-s\s',matches[0]),(name,'negative option inherited a short alias')
 assert not any('!LONG!' in line or '!SHORT!' in line or '!DOC!' in line for line in entries)

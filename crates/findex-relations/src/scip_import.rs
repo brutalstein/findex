@@ -21,7 +21,11 @@ pub fn import_scip(project: &Path, file: &Path) -> Result<ImportReport> {
 }
 /// SCIP 0.10 typed ranges take precedence over the older packed field.
 /// Validate start/end locations against the actual hash-verified source.
-fn checked_range(occ: &ScipOccurrence, lines: &[&str], encoding: i32) -> Result<(usize, usize)> {
+fn checked_range(
+    occ: &ScipOccurrence,
+    lines: &[&str],
+    encoding: i32,
+) -> Result<(usize, usize, usize, usize)> {
     let typed = if occ.has_single_line_range() {
         let range = occ.single_line_range();
         Some((
@@ -88,7 +92,13 @@ fn checked_range(occ: &ScipOccurrence, lines: &[&str], encoding: i32) -> Result<
     {
         return Err("SCIP source character offset out of bounds".into());
     }
-    Ok((start_line, start))
+    if (1..=3).contains(&encoding)
+        && (super::resolve::utf8_column(first, start, encoding).is_none()
+            || super::resolve::utf8_column(last, end, encoding).is_none())
+    {
+        return Err("SCIP position splits an encoded character".into());
+    }
+    Ok((start_line, start, end_line, end))
 }
 
 /// Symbol IDs are opaque and scoped to the exact SCIP producer. Local SCIP
@@ -128,14 +138,14 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
             return Err("SCIP source changed during location validation".into());
         }
         let contents = std::str::from_utf8(&body)?;
-        let lines: Vec<&str> = contents.lines().collect();
-        let lines = if lines.is_empty() { vec![""] } else { lines };
+        let lines: Vec<&str> = super::source_lines(contents).collect();
         let encoding = doc.position_encoding.value();
         for occurrence in &doc.occurrences {
             if occurrence.symbol.is_empty() {
                 continue;
             }
-            let (start_line, column) = checked_range(occurrence, &lines, encoding)?;
+            let (start_line, column, end_line, end_column) =
+                checked_range(occurrence, &lines, encoding)?;
             let symbol = if occurrence.symbol.starts_with("local ") {
                 format!("scip-local:{}:{}", source.path, occurrence.symbol)
             } else {
@@ -160,6 +170,9 @@ pub fn import_scip_bytes(project: &Path, bytes: &[u8]) -> Result<ImportReport> {
                 path: source.path.clone(),
                 line: start_line + 1,
                 column,
+                end_line: Some(end_line + 1),
+                end_column: Some(end_column),
+                position_encoding: encoding,
                 language: language.clone(),
                 kind,
             });
@@ -326,7 +339,7 @@ mod tests {
         };
         let bytes = payload.write_to_bytes().expect("encode");
         let report = import_scip_bytes(root.path(), &bytes).expect("import");
-        assert_eq!(report.schema_version, 2);
+        assert_eq!(report.schema_version, 3);
         assert_eq!(report.typed_relationships, 1);
         let rust = symbol_evidence(root.path(), rust_sym, 16).expect("rust");
         assert_eq!(rust.sites.len(), 2);
