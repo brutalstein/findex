@@ -1,6 +1,10 @@
 //! Small MCP JSON-RPC stdio adapter. Each line is one UTF-8 JSON-RPC message.
 //! No network listener, telemetry upload or credential interception.
 
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![warn(clippy::all)]
+
 use serde_json::{json, Value};
 use std::cell::RefCell;
 use std::io::{self, BufRead, BufReader, Read, Write};

@@ -74,32 +74,48 @@ pub enum FileType {
     Other,
 }
 
+/// Input parameters for [`rank_file`].
+///
+/// Groups all ranking inputs into a single struct to avoid a long argument
+/// list and make the call site self-documenting.
+#[derive(Debug, Clone)]
+pub struct RankParams {
+    /// Workspace-relative path.
+    pub path: String,
+    /// Raw BM25 score from FTS5 (lower is better).
+    pub bm25_score: f64,
+    /// Names this file defines (from Tree-sitter).
+    pub defined_names: Vec<String>,
+    /// Names this file syntactically calls.
+    pub called_names: Vec<String>,
+    /// Query terms to match against (BM25).
+    pub query_terms: Vec<String>,
+    /// Category of the file.
+    pub file_type: FileType,
+    /// Recency score 0..1 where 1 = most recently modified.
+    pub recency: f64,
+    /// Size penalty 0..1 where 1 = no penalty (small file).
+    pub size_penalty: f64,
+    /// Weights for combining signals.
+    pub weights: RankWeights,
+}
+
 /// Rank files for a query using only structural + lexical signals.
 ///
-/// `query_terms` are the lexical terms to match (BM25).
-/// `defined_names` is a set of names the file defines (from Tree-sitter).
-/// `called_names` is a set of names the file syntactically calls.
-/// `file_type` is the category of the file.
-/// `recency` is 0..1 where 1 = most recently modified.
-/// `size_penalty` is 0..1 where 1 = no penalty (small file).
-pub fn rank_file(
-    path: &Path,
-    bm25_score: f64,
-    defined_names: &[String],
-    called_names: &[String],
-    query_terms: &[String],
-    file_type: FileType,
-    recency: f64,
-    size_penalty: f64,
-    weights: RankWeights,
-) -> RankedFile {
-    let query_set: HashMap<&str, bool> = query_terms.iter().map(|t| (t.as_str(), true)).collect();
+/// Takes a single [`RankParams`] struct instead of a long argument list.
+pub fn rank_file(params: &RankParams) -> RankedFile {
+    let query_set: HashMap<&str, bool> = params
+        .query_terms
+        .iter()
+        .map(|t| (t.as_str(), true))
+        .collect();
 
     // BM25: lower is better; invert and clamp to 0..1.
-    let bm25_norm = (1.0 / (1.0 + bm25_score.max(0.0))).clamp(0.0, 1.0);
+    let bm25_norm = (1.0 / (1.0 + params.bm25_score.max(0.0))).clamp(0.0, 1.0);
 
     // Definition match: any query term is a defined name.
-    let definition = if defined_names
+    let definition = if params
+        .defined_names
         .iter()
         .any(|n| query_set.contains_key(n.as_str()))
     {
@@ -109,13 +125,17 @@ pub fn rank_file(
     };
 
     // Call-site match: any query term is a syntactically called name.
-    let call_site = if called_names.iter().any(|n| query_set.contains_key(n.as_str())) {
+    let call_site = if params
+        .called_names
+        .iter()
+        .any(|n| query_set.contains_key(n.as_str()))
+    {
         1.0
     } else {
         0.0
     };
 
-    let file_type_score = match file_type {
+    let file_type_score = match params.file_type {
         FileType::Source => 1.0,
         FileType::Test => 0.8,
         FileType::Doc => 0.6,
@@ -123,25 +143,25 @@ pub fn rank_file(
         FileType::Other => 0.5,
     };
 
-    let score = weights.bm25 * bm25_norm
-        + weights.definition * definition
-        + weights.call_site * call_site
-        + weights.recency * recency
-        + weights.file_type * file_type_score
-        + weights.size_penalty * size_penalty;
+    let score = params.weights.bm25 * bm25_norm
+        + params.weights.definition * definition
+        + params.weights.call_site * call_site
+        + params.weights.recency * params.recency
+        + params.weights.file_type * file_type_score
+        + params.weights.size_penalty * params.size_penalty;
 
-    let reason = build_reason(bm25_norm, definition, call_site, file_type_score, recency);
+    let reason = build_reason(bm25_norm, definition, call_site, file_type_score, params.recency);
 
     RankedFile {
-        path: path.to_string_lossy().into_owned(),
+        path: params.path.clone(),
         score,
         signals: RankSignals {
             bm25: bm25_norm,
             definition,
             call_site,
-            recency,
+            recency: params.recency,
             file_type: file_type_score,
-            size_penalty,
+            size_penalty: params.size_penalty,
         },
         reason,
     }
@@ -201,101 +221,101 @@ mod tests {
     #[test]
     fn definition_match_outranks_lexical_only() {
         let weights = RankWeights::default();
-        let a = rank_file(
-            Path::new("src/lib.rs"),
-            10.0,
-            &["foo".to_string()],
-            &[],
-            &["foo".to_string()],
-            FileType::Source,
-            0.5,
-            1.0,
+        let a = rank_file(&RankParams {
+            path: "src/lib.rs".into(),
+            bm25_score: 10.0,
+            defined_names: vec!["foo".to_string()],
+            called_names: vec![],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
             weights,
-        );
-        let b = rank_file(
-            Path::new("src/use.rs"),
-            1.0,
-            &[],
-            &[],
-            &["foo".to_string()],
-            FileType::Source,
-            0.5,
-            1.0,
+        });
+        let b = rank_file(&RankParams {
+            path: "src/use.rs".into(),
+            bm25_score: 1.0,
+            defined_names: vec![],
+            called_names: vec![],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
             weights,
-        );
+        });
         assert!(a.score > b.score, "definition should outrank lexical-only: {a:?} vs {b:?}");
     }
 
     #[test]
     fn call_site_boosts_rank() {
         let weights = RankWeights::default();
-        let a = rank_file(
-            Path::new("src/caller.rs"),
-            5.0,
-            &[],
-            &["foo".to_string()],
-            &["foo".to_string()],
-            FileType::Source,
-            0.5,
-            1.0,
+        let a = rank_file(&RankParams {
+            path: "src/caller.rs".into(),
+            bm25_score: 5.0,
+            defined_names: vec![],
+            called_names: vec!["foo".to_string()],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
             weights,
-        );
-        let b = rank_file(
-            Path::new("src/other.rs"),
-            5.0,
-            &[],
-            &[],
-            &["foo".to_string()],
-            FileType::Source,
-            0.5,
-            1.0,
+        });
+        let b = rank_file(&RankParams {
+            path: "src/other.rs".into(),
+            bm25_score: 5.0,
+            defined_names: vec![],
+            called_names: vec![],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
             weights,
-        );
+        });
         assert!(a.score > b.score, "call site should boost rank: {a:?} vs {b:?}");
     }
 
     #[test]
     fn source_outranks_config() {
         let weights = RankWeights::default();
-        let a = rank_file(
-            Path::new("src/main.rs"),
-            1.0,
-            &[],
-            &[],
-            &["foo".to_string()],
-            FileType::Source,
-            0.5,
-            1.0,
+        let a = rank_file(&RankParams {
+            path: "src/main.rs".into(),
+            bm25_score: 1.0,
+            defined_names: vec![],
+            called_names: vec![],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
             weights,
-        );
-        let b = rank_file(
-            Path::new("config.toml"),
-            1.0,
-            &[],
-            &[],
-            &["foo".to_string()],
-            FileType::Config,
-            0.5,
-            1.0,
+        });
+        let b = rank_file(&RankParams {
+            path: "config.toml".into(),
+            bm25_score: 1.0,
+            defined_names: vec![],
+            called_names: vec![],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Config,
+            recency: 0.5,
+            size_penalty: 1.0,
             weights,
-        );
+        });
         assert!(a.score > b.score, "source should outrank config: {a:?} vs {b:?}");
     }
 
     #[test]
     fn zero_query_terms_yields_low_score() {
         let weights = RankWeights::default();
-        let r = rank_file(
-            Path::new("src/lib.rs"),
-            0.0,
-            &[],
-            &[],
-            &[],
-            FileType::Source,
-            0.5,
-            1.0,
+        let r = rank_file(&RankParams {
+            path: "src/lib.rs".into(),
+            bm25_score: 0.0,
+            defined_names: vec![],
+            called_names: vec![],
+            query_terms: vec![],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
             weights,
-        );
+        });
         assert_eq!(r.signals.bm25, 1.0);
         assert_eq!(r.signals.definition, 0.0);
         assert_eq!(r.signals.call_site, 0.0);

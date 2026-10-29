@@ -1,6 +1,10 @@
 //! Explicit, bounded semantic-reference import and evidence-backed file impact.
 //! No guessed call edges, hidden language server execution or external network calls.
 
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![warn(clippy::all)]
+
 mod lsp;
 mod resolve;
 mod scip_import;

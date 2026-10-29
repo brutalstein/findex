@@ -1,3 +1,7 @@
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![warn(clippy::all)]
+
 use std::env;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};

@@ -1,6 +1,10 @@
 //! Shared paths, project identity and policy for the Findex engine.
 //! No network I/O and no credential access.
 
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![warn(clippy::all)]
+
 use std::env;
 use std::io;
 use std::path::{Component, Path, PathBuf};

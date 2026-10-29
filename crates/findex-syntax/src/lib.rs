@@ -1,6 +1,10 @@
 //! Bounded, on-demand AST definition extraction.
 //! This is structural discovery, NOT a precise LSP reference/call graph.
 
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![warn(clippy::all)]
+
 use findex_core::{is_sensitive_filename, MAX_SOURCE_BYTES};
 use serde::Serialize;
 use std::fs;

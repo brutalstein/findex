@@ -1,8 +1,9 @@
-feat(semantic): end-to-end blast-radius + stale detection test, benchmark updated
+refactor(code): enforce code quality, fix clippy warnings, optimize rank_file
 
-- Add blast_radius_and_stale_detection_end_to_end test: verifies blast-radius
-  works before/after source change and LSP reimport
-- Update COMPETITOR_COMPARISON.md: 195 tests, semantic graph end-to-end verified
-- Update summary.json: 195 tests, semantic_graph_end_to_end, blast_radius, stale_semantic_detection claims
-- All 195 workspace tests pass, zero warnings
-- Live dogfooding: all 7 steps pass
+- Add #![deny(clippy::unwrap_used)] to all 6 crates (compile-time enforcement)
+- Add #![deny(clippy::expect_used)] to all 6 crates (compile-time enforcement)
+- Add #![warn(clippy::all)] to all 6 crates (broader lint coverage)
+- Refactor rank_file() to use RankParams struct (fixes clippy::too_many_arguments)
+- Update all call sites and tests to use RankParams
+- All 196 workspace tests pass, zero clippy warnings
+- Release build and live dogfooding pass

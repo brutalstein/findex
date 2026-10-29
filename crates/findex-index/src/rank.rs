@@ -6,7 +6,7 @@
 
 use crate::{connect, synchronize, Result, SyncStats};
 use findex_core::{
-    rank::{rank_file, file_type_for, RankWeights},
+    rank::{rank_file, file_type_for, RankParams, RankWeights},
     storage_dir,
 };
 use rusqlite::{params, Connection, OptionalExtension};
@@ -82,17 +82,17 @@ pub fn rank_in_db(
         let called = file_calls_names(project, path, &terms)?;
 
         let ft = file_type_for(path);
-        let ranked = rank_file(
-            path,
-            cand.bm25_score,
-            &defined,
-            &called,
-            &terms,
-            ft,
-            0.5, // recency: neutral default
-            1.0, // size_penalty: neutral default
-            RankWeights::default(),
-        );
+        let ranked = rank_file(&RankParams {
+            path: cand.path.clone(),
+            bm25_score: cand.bm25_score,
+            defined_names: defined,
+            called_names: called,
+            query_terms: terms.clone(),
+            file_type: ft,
+            recency: 0.5, // recency: neutral default
+            size_penalty: 1.0, // size_penalty: neutral default
+            weights: RankWeights::default(),
+        });
 
         hits.push(RankedHit {
             path: cand.path.clone(),

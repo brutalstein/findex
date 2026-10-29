@@ -1,6 +1,10 @@
 //! SQLite/FTS5-backed *lexical* code discovery. No embeddings or model calls.
 //! CLI searches reconcile file contents first; the MCP server refreshes through `findex-watch`.
 
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![warn(clippy::all)]
+
 mod context;
 mod overview;
 mod rank;

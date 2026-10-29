@@ -2,6 +2,10 @@
 //! Events are hints, never a source of truth. Overflow and uncertain events
 //! trigger full reconciliation; retrieved code is still verified by its hash.
 
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![warn(clippy::all)]
+
 use findex_core::{is_excluded_scan_entry, storage_dir};
 use findex_index::{ContextReport, SearchReport, SymbolSearchReport, SyncStats};
 use notify::event::ModifyKind;
