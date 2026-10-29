@@ -1,9 +1,6 @@
-refactor(code): enforce code quality, fix clippy warnings, optimize rank_file
+ci(workflow): add GitHub Actions CI for main branch
 
-- Add #![deny(clippy::unwrap_used)] to all 6 crates (compile-time enforcement)
-- Add #![deny(clippy::expect_used)] to all 6 crates (compile-time enforcement)
-- Add #![warn(clippy::all)] to all 6 crates (broader lint coverage)
-- Refactor rank_file() to use RankParams struct (fixes clippy::too_many_arguments)
-- Update all call sites and tests to use RankParams
-- All 196 workspace tests pass, zero clippy warnings
-- Release build and live dogfooding pass
+- Add .github/workflows/ci.yml: clippy with -D warnings, all tests,
+  release build, cargo fmt --check, working-tree-clean verification
+- Runs on push and pull_request to main
+- Cargo registry cache for faster runs
