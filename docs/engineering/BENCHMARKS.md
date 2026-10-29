@@ -26,6 +26,7 @@ preserved.
 | FX-BM-003 | 501bbae | 115 navigation queries | Windows x64 | Historical | hit@1 0.982 (Findex compact) | same | 0 | validation/results/20261027-performance-comparison/ |
 | FX-BM-004 | 501bbae | 115 navigation queries | Windows x64 | Historical | tokens 222 (Findex compact) | same | 0 | validation/results/20261027-performance-comparison/ |
 | FX-BM-005 | 0490018 | — | Windows x64 | NOT MEASURED | — | — | — | None |
+| FX-BM-008 | 91d7ab2 (code = main f0501da) | 65 historical issue titles, frozen | Windows x64 | Measured 2026-10-30 | hit@1 0.446, MRR 0.581, hit@10 0.831, gold recall@10 0.808 (`findex context`) | git grep words: 0.062 / 0.253 / 0.646 / 0.626; `findex search` (frozen main caf33fa): 0.154 / 0.297 / 0.692 / 0.667 | vs FX-BM-001/002 +0.0pp: confirms 44.6% / 80.8% on HEAD | validation/results/20261030-localization-head/ |
 
 ## Notes
 
@@ -42,3 +43,5 @@ preserved.
 - Memory peak during indexing and query
 - Candidate recall@k independent of final ranking
 - FTS5 BM25 score ordering correctness (fixture-based)
+
+- FX-BM-008 (2026-10-30): the historical hit@1 44.6% and recall@10 80.8% are re-verified on HEAD with `validation/harness/localization.py` (no model calls). `findex context` returns a mean of 12,950 bytes per query; the 60% / 90% targets are still unmet. The run used `FINDEX_VALIDATION_HOME` outside `%LOCALAPPDATA%` because the Claude desktop app virtualizes writes below it.
