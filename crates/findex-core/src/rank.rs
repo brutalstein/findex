@@ -110,8 +110,11 @@ pub fn rank_file(params: &RankParams) -> RankedFile {
         .map(|t| (t.as_str(), true))
         .collect();
 
-    // BM25: lower is better; invert and clamp to 0..1.
-    let bm25_norm = (1.0 / (1.0 + params.bm25_score.max(0.0))).clamp(0.0, 1.0);
+    // BM25: FTS5 returns negative values where lower (more negative) =
+    // better match. Convert to a quality score (higher = better) then
+    // normalize to 0..1 so distinct relevance levels are preserved.
+    let bm25_quality = (-params.bm25_score).max(0.0);
+    let bm25_norm = bm25_quality / (1.0 + bm25_quality);
 
     // Definition match: any query term is a defined name.
     let definition = if params
@@ -337,8 +340,52 @@ mod tests {
             size_penalty: 1.0,
             weights,
         });
-        assert_eq!(r.signals.bm25, 1.0);
+        assert_eq!(r.signals.bm25, 0.0); // bm25_score 0.0 = no match → norm 0.0
         assert_eq!(r.signals.definition, 0.0);
         assert_eq!(r.signals.call_site, 0.0);
+    }
+
+    /// After the fix, distinct negative BM25 scores produce distinct norms.
+    #[test]
+    fn bm25_negative_scores_produce_distinct_norms() {
+        let weights = RankWeights::default();
+        let better = rank_file(&RankParams {
+            path: "a.rs".into(),
+            bm25_score: -10.0,
+            defined_names: vec![],
+            called_names: vec![],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
+            weights,
+        });
+        let worse = rank_file(&RankParams {
+            path: "b.rs".into(),
+            bm25_score: -2.0,
+            defined_names: vec![],
+            called_names: vec![],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
+            weights,
+        });
+        // Better match (more negative) → higher normalized quality.
+        assert!(better.signals.bm25 > worse.signals.bm25);
+        assert!(better.score > worse.score);
+        // bm25_score 0.0 (no match) → norm 0.0.
+        let none = rank_file(&RankParams {
+            path: "c.rs".into(),
+            bm25_score: 0.0,
+            defined_names: vec![],
+            called_names: vec![],
+            query_terms: vec!["foo".to_string()],
+            file_type: FileType::Source,
+            recency: 0.5,
+            size_penalty: 1.0,
+            weights,
+        });
+        assert_eq!(none.signals.bm25, 0.0);
     }
 }

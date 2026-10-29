@@ -142,8 +142,11 @@ pub fn rank_in_db(
             .then_with(|| a.path.cmp(&b.path))
     });
 
-    let returned = hits.len();
+    // Truncate first, then report the accurate count of what is actually
+    // returned. `returned` must reflect hits.len() after truncation so
+    // consumers never see a count larger than the hit array.
     hits.truncate(limit);
+    let returned = hits.len();
 
     Ok(RankReport {
         query: query.to_string(),
