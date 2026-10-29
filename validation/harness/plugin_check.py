@@ -19,6 +19,7 @@ import tempfile
 EXPECTED_TOOLS = {
     "findex_context", "findex_search", "findex_find_symbol",
     "findex_symbols", "findex_impact", "findex_graph_symbol", "findex_capabilities", "findex_overview",
+    "findex_rank", "findex_blast_radius", "findex_refresh_semantic", "findex_benchmark",
 }
 SKILLS = {"navigate", "map-project", "trace-impact", "maintenance"}
 
