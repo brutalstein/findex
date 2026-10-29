@@ -683,7 +683,6 @@ fn symbol_evidence_in_db(
 /// Breadth-first *file* impact. A link means "this file references a symbol
 /// defined in that file"; no exact invocation, execution, or impact guarantee.
 pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Result<ImpactReport> {
-    // Reapply current scanner admission, even when ignore rules changed since import.
     let accepted_files = prepare(project)?;
     let (changed, _) = project_file(project, relative)?;
     let conn = open(project)?;
@@ -792,6 +791,18 @@ pub fn impact(project: &Path, relative: &Path, depth: usize, limit: usize) -> Re
         }
     }
     Ok(report)
+}
+
+/// Blast radius: which files could be affected if `relative` changes.
+/// Depth 1 = verified semantic references; depth 2/3 = potential transitive impact.
+/// Returns `stale_evidence_discarded` for sources that changed since import.
+pub fn blast_radius(
+    project: &Path,
+    relative: &Path,
+    depth: usize,
+    limit: usize,
+) -> Result<ImpactReport> {
+    impact(project, relative, depth, limit)
 }
 
 #[cfg(test)]

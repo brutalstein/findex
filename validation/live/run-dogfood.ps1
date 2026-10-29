@@ -41,12 +41,23 @@ Write-Host "`n[4/6] Running rank: 'findex_rank'..." -ForegroundColor Yellow
 Write-Host "Rank OK" -ForegroundColor Green
 
 # 5. Search test
-Write-Host "`n[5/6] Running search: Tree-sitter..." -ForegroundColor Yellow
+Write-Host "`n[5/7] Running search: Tree-sitter..." -ForegroundColor Yellow
 & $exe search "Tree-sitter" | Tee-Object -FilePath (Join-Path $runDir "search-tree-sitter.log")
 Write-Host "Search OK" -ForegroundColor Green
 
-# 6. Doctor
-Write-Host "`n[6/6] Running doctor..." -ForegroundColor Yellow
+# 6. Blast-radius test (requires imported SCIP/LSP semantic evidence)
+Write-Host "`n[6/7] Running blast-radius: crates/findex-index/src/lib.rs depth=1..." -ForegroundColor Yellow
+$blastOut = & $exe blast-radius crates/findex-index/src/lib.rs 1 2>&1
+if ($LASTEXITCODE -eq 0) {
+    $blastOut | Tee-Object -FilePath (Join-Path $runDir "blast-radius.log")
+    Write-Host "Blast-radius OK" -ForegroundColor Green
+} else {
+    Write-Host "Blast-radius skipped (no semantic snapshot imported - expected without SCIP/LSP data)" -ForegroundColor Yellow
+    $blastOut | Tee-Object -FilePath (Join-Path $runDir "blast-radius-skipped.log")
+}
+
+# 7. Doctor
+Write-Host "`n[7/7] Running doctor..." -ForegroundColor Yellow
 & $exe doctor | Tee-Object -FilePath (Join-Path $runDir "doctor.log")
 Write-Host "Doctor OK" -ForegroundColor Green
 

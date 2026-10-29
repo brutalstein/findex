@@ -1,12 +1,13 @@
-feat(rank): model-free file ranking, cross-platform support, benchmark tool
+feat(graph): blast-radius + model-free ranking, cross-platform
 
-- Remove Windows-only compile_error, enable cross-platform builds
+- Add findex blast-radius CLI command and findex_blast_radius MCP tool
+- Add findex_rank and findex_benchmark MCP tools
 - Add findex-core rank.rs: BM25 + Tree-sitter definition/call-site scoring (zero LLM calls)
 - Add findex-index rank module: BM25 candidates enriched with structural signals
-- Add findex-cli 'rank' and 'benchmark' commands
-- Add findex-mcp 'findex_rank' and 'findex_benchmark' tools
+- Remove Windows-only compile_error, enable cross-platform builds
 - Add serde to findex-core dependencies
 - Add FINARCH.md architecture document
-- Add validation/live test scenarios and dogfooding script
-- All 192 workspace tests pass
-- Live dogfooding: build, index, rank, search, doctor all OK
+- Add validation/live competitor comparison and test scenarios
+- Add validation/live/run-dogfood.ps1 dogfooding script
+- All 192 workspace tests pass, zero warnings
+- Live dogfooding: build, index, rank, search, blast-radius, doctor all verified

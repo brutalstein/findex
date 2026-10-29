@@ -426,6 +426,19 @@ where
                         "required":["query"],
                         "additionalProperties":false
                     }
+                },{
+                    "name": "findex_blast_radius",
+                    "description": "Blast radius: which project files could be affected if a file changes. Depth 1 = verified semantic references; depth 2/3 = potential transitive file impact. Requires imported SCIP/LSP evidence. Zero LLM calls.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{
+                            "path":{"type":"string","minLength":1,"maxLength":500},
+                            "depth":{"type":"integer","minimum":1,"maximum":3,"default":1},
+                            "limit":{"type":"integer","minimum":1,"maximum":32,"default":8}
+                        },
+                        "required":["path"],
+                        "additionalProperties":false
+                    }
                 }]
             }),
         ),
@@ -700,6 +713,48 @@ where
                             "text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
                         ),
                         Err(_err) => unavailable(id, "benchmark"),
+                    }
+                }
+            } else if name == Some("findex_blast_radius") {
+                let args = request.pointer("/params/arguments");
+                let path = args
+                    .and_then(|v| v.get("path"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let depth = args
+                    .and_then(|v| v.get("depth"))
+                    .and_then(Value::as_u64)
+                    .unwrap_or(1);
+                let limit = args
+                    .and_then(|v| v.get("limit"))
+                    .and_then(Value::as_u64)
+                    .unwrap_or(8)
+                    .clamp(1, 32) as usize;
+                if path.is_empty()
+                    || path.len() > 500
+                    || depth == 0
+                    || depth > 3
+                    || limit == 0
+                    || limit > 32
+                {
+                    error(
+                        id,
+                        -32602,
+                        "blast_radius requires relative path, depth 1-3, limit 1-32",
+                    )
+                } else {
+                    match findex_relations::blast_radius(
+                        project,
+                        Path::new(path),
+                        depth as usize,
+                        limit,
+                    ) {
+                        Ok(report) => success(
+                            id,
+                            json!({"content":[{"type":"text",
+                            "text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
+                        ),
+                        Err(_err) => unavailable(id, "blast radius"),
                     }
                 }
             } else if name != Some("findex_search") {

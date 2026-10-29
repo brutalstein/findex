@@ -185,6 +185,44 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 );
             }
         }
+        "blast-radius" => {
+            let relative = args
+                .next()
+                .ok_or("usage: findex blast-radius <relative-file> [depth:1-3]")?;
+            let depth = match args.next() {
+                Some(s) => s.to_string_lossy().parse::<usize>()?,
+                None => 1,
+            };
+            if depth == 0 || depth > 3 || args.next().is_some() {
+                return Err("usage: findex blast-radius <relative-file> [depth:1-3]".into());
+            }
+            let found = findex_relations::blast_radius(&project, Path::new(&relative), depth, 32)?;
+            println!(
+                "Blast radius for {} (depth {}): {} impacted files",
+                found.changed_file, depth, found.hits.len()
+            );
+            for hit in &found.hits {
+                println!(
+                    "  {}:{} <= {}:{} [depth {}] {} ({})",
+                    hit.path,
+                    hit.referenced_at_line,
+                    hit.definition_path,
+                    hit.definition_line,
+                    hit.depth,
+                    hit.interpretation,
+                    hit.provenance
+                );
+            }
+            if found.truncated {
+                eprintln!("Blast radius results were truncated");
+            }
+            if found.stale_evidence_discarded > 0 {
+                eprintln!(
+                    "Discarded {} stale reference files",
+                    found.stale_evidence_discarded
+                );
+            }
+        }
         "context" => {
             let mut budget = 2000;
             let mut as_json = false;
@@ -446,6 +484,7 @@ fn print_help() {
     println!("  findex search <terms...>        Search matching code and line evidence");
     println!("  findex rank <terms...>          Rank files by BM25 + definition + call-site (no LLM)");
     println!("  findex benchmark <terms...>     Rank with benchmark summary line");
+    println!("  findex blast-radius <file> [depth]  Blast radius from a changed file (semantic graph)");
     println!("  findex context <task> [--budget N] [--json]  Definitions, call sites or tests for a task");
     println!("  findex symbols <relative-file>  Parse definitions with Tree-sitter");
     println!("  findex find-symbol <exact-name>  Search persistent project definitions");
