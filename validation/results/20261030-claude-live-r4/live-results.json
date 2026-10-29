@@ -1,0 +1,1042 @@
+{
+  "sessions": [
+    {
+      "key": "claude:fmt:KeyMatcher:exact:findex",
+      "client": "claude",
+      "tool": "findex",
+      "task": "fmt:KeyMatcher:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 11.08,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 7640,
+        "input_tokens": 28,
+        "output_tokens": 670,
+        "cache_creation_input_tokens": 2735,
+        "cache_read_input_tokens": 69414,
+        "total_cost_usd_estimate": 0.015789400000000002,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 670,
+            "cacheReadInputTokens": 69414,
+            "cacheCreationInputTokens": 2735,
+            "webSearchRequests": 0,
+            "costUSD": 0.015789400000000002,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 447,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__findex__findex_find_symbol"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 524,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [
+          {
+            "tool": "mcp__findex__findex_find_symbol",
+            "input": "{\"name\": \"KeyMatcher\", \"format\": \"compact\"}"
+          }
+        ],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "findex",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [
+          "mcp__findex__findex_benchmark",
+          "mcp__findex__findex_blast_radius",
+          "mcp__findex__findex_capabilities",
+          "mcp__findex__findex_context",
+          "mcp__findex__findex_find_symbol",
+          "mcp__findex__findex_graph_symbol",
+          "mcp__findex__findex_impact",
+          "mcp__findex__findex_overview",
+          "mcp__findex__findex_rank",
+          "mcp__findex__findex_refresh_semantic",
+          "mcp__findex__findex_search",
+          "mcp__findex__findex_symbols"
+        ],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"test/gtest/gmock/gmock.h\",\"line\":5683}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:fmt:KeyMatcher:exact:graphify",
+      "client": "claude",
+      "tool": "graphify",
+      "task": "fmt:KeyMatcher:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 14.27,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 8713,
+        "input_tokens": 28,
+        "output_tokens": 730,
+        "cache_creation_input_tokens": 9035,
+        "cache_read_input_tokens": 68173,
+        "total_cost_usd_estimate": 0.028565300000000002,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 730,
+            "cacheReadInputTokens": 68173,
+            "cacheCreationInputTokens": 9035,
+            "webSearchRequests": 0,
+            "costUSD": 0.028565300000000002,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 472,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__graphify__query_graph"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 18179,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "graphify",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"test/gtest/gmock/gmock.h\",\"line\":5683}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:fmt:KeyMatcher:exact:codebase-memory",
+      "client": "claude",
+      "tool": "codebase-memory",
+      "task": "fmt:KeyMatcher:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 11.56,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 7359,
+        "input_tokens": 28,
+        "output_tokens": 628,
+        "cache_creation_input_tokens": 3953,
+        "cache_read_input_tokens": 69633,
+        "total_cost_usd_estimate": 0.0180373,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 628,
+            "cacheReadInputTokens": 69633,
+            "cacheCreationInputTokens": 3953,
+            "webSearchRequests": 0,
+            "costUSD": 0.0180373,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 348,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__codebase-memory__search_graph"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 600,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "codebase-memory",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"test/gtest/gmock/gmock.h\",\"line\":5683}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:requests:HTTPProxyAuth:exact:findex",
+      "client": "claude",
+      "tool": "findex",
+      "task": "requests:HTTPProxyAuth:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 9.36,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 6061,
+        "input_tokens": 28,
+        "output_tokens": 464,
+        "cache_creation_input_tokens": 6432,
+        "cache_read_input_tokens": 65521,
+        "total_cost_usd_estimate": 0.021764099999999998,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 464,
+            "cacheReadInputTokens": 65521,
+            "cacheCreationInputTokens": 6432,
+            "webSearchRequests": 0,
+            "costUSD": 0.021764099999999998,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 247,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__findex__findex_find_symbol"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 438,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [
+          {
+            "tool": "mcp__findex__findex_find_symbol",
+            "input": "{\"name\": \"HTTPProxyAuth\", \"format\": \"compact\"}"
+          }
+        ],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "findex",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [
+          "mcp__findex__findex_benchmark",
+          "mcp__findex__findex_blast_radius",
+          "mcp__findex__findex_capabilities",
+          "mcp__findex__findex_context",
+          "mcp__findex__findex_find_symbol",
+          "mcp__findex__findex_graph_symbol",
+          "mcp__findex__findex_impact",
+          "mcp__findex__findex_overview",
+          "mcp__findex__findex_rank",
+          "mcp__findex__findex_refresh_semantic",
+          "mcp__findex__findex_search",
+          "mcp__findex__findex_symbols"
+        ],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"src/requests/auth.py\",\"line\":99}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:requests:HTTPProxyAuth:exact:graphify",
+      "client": "claude",
+      "tool": "graphify",
+      "task": "requests:HTTPProxyAuth:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 15.1,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 4,
+        "duration_api_ms": 9613,
+        "input_tokens": 36,
+        "output_tokens": 823,
+        "cache_creation_input_tokens": 6760,
+        "cache_read_input_tokens": 88228,
+        "total_cost_usd_estimate": 0.0264938,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 36,
+            "outputTokens": 823,
+            "cacheReadInputTokens": 88228,
+            "cacheCreationInputTokens": 6760,
+            "webSearchRequests": 0,
+            "costUSD": 0.0264938,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 478,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__graphify__query_graph",
+          "Read"
+        ],
+        "tool_call_count": 3,
+        "mcp_call_count": 1,
+        "files_read": 1,
+        "tool_result_bytes": 816,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 1,
+        "init_mcp_servers": [
+          {
+            "name": "graphify",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"src/requests/auth.py\",\"line\":99}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:requests:HTTPProxyAuth:exact:codebase-memory",
+      "client": "claude",
+      "tool": "codebase-memory",
+      "task": "requests:HTTPProxyAuth:exact",
+      "status": "invalid",
+      "valid": false,
+      "correct": false,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 21.34,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 5,
+        "duration_api_ms": 16572,
+        "input_tokens": 44,
+        "output_tokens": 1408,
+        "cache_creation_input_tokens": 10268,
+        "cache_read_input_tokens": 124602,
+        "total_cost_usd_estimate": 0.0400802,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 44,
+            "outputTokens": 1408,
+            "cacheReadInputTokens": 124602,
+            "cacheCreationInputTokens": 10268,
+            "webSearchRequests": 0,
+            "costUSD": 0.0400802,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 899,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__codebase-memory__search_graph",
+          "Grep",
+          "Read"
+        ],
+        "tool_call_count": 4,
+        "mcp_call_count": 0,
+        "files_read": 1,
+        "tool_result_bytes": 16789,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 1,
+        "read_calls": 1,
+        "init_mcp_servers": [
+          {
+            "name": "codebase-memory",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"src/requests/auth.py\",\"line\":99}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 0,
+      "mcp_errors": 1,
+      "fatal": false
+    },
+    {
+      "key": "claude:ripgrep:GitignoreBuilder:exact:findex",
+      "client": "claude",
+      "tool": "findex",
+      "task": "ripgrep:GitignoreBuilder:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 9.93,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 6664,
+        "input_tokens": 28,
+        "output_tokens": 621,
+        "cache_creation_input_tokens": 6521,
+        "cache_read_input_tokens": 65578,
+        "total_cost_usd_estimate": 0.022732800000000004,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 621,
+            "cacheReadInputTokens": 65578,
+            "cacheCreationInputTokens": 6521,
+            "webSearchRequests": 0,
+            "costUSD": 0.022732800000000004,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 418,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__findex__findex_find_symbol"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 545,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [
+          {
+            "tool": "mcp__findex__findex_find_symbol",
+            "input": "{\"name\": \"GitignoreBuilder\", \"format\": \"compact\"}"
+          }
+        ],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "findex",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [
+          "mcp__findex__findex_benchmark",
+          "mcp__findex__findex_blast_radius",
+          "mcp__findex__findex_capabilities",
+          "mcp__findex__findex_context",
+          "mcp__findex__findex_find_symbol",
+          "mcp__findex__findex_graph_symbol",
+          "mcp__findex__findex_impact",
+          "mcp__findex__findex_overview",
+          "mcp__findex__findex_rank",
+          "mcp__findex__findex_refresh_semantic",
+          "mcp__findex__findex_search",
+          "mcp__findex__findex_symbols"
+        ],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"crates/ignore/src/gitignore.rs\",\"line\":306}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:ripgrep:GitignoreBuilder:exact:graphify",
+      "client": "claude",
+      "tool": "graphify",
+      "task": "ripgrep:GitignoreBuilder:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 14.39,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 7419,
+        "input_tokens": 28,
+        "output_tokens": 727,
+        "cache_creation_input_tokens": 8960,
+        "cache_read_input_tokens": 64394,
+        "total_cost_usd_estimate": 0.028022400000000003,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 727,
+            "cacheReadInputTokens": 64394,
+            "cacheCreationInputTokens": 8960,
+            "webSearchRequests": 0,
+            "costUSD": 0.028022400000000003,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 484,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__graphify__query_graph"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 6825,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "graphify",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"crates/ignore/src/gitignore.rs\",\"line\":306}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:ripgrep:GitignoreBuilder:exact:codebase-memory",
+      "client": "claude",
+      "tool": "codebase-memory",
+      "task": "ripgrep:GitignoreBuilder:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 11.95,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 7245,
+        "input_tokens": 28,
+        "output_tokens": 563,
+        "cache_creation_input_tokens": 3827,
+        "cache_read_input_tokens": 69607,
+        "total_cost_usd_estimate": 0.0174577,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 563,
+            "cacheReadInputTokens": 69607,
+            "cacheCreationInputTokens": 3827,
+            "webSearchRequests": 0,
+            "costUSD": 0.0174577,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 282,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__codebase-memory__search_graph"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 446,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "codebase-memory",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"crates/ignore/src/gitignore.rs\",\"line\":306}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:fmt:concat:exact:findex",
+      "client": "claude",
+      "tool": "findex",
+      "task": "fmt:concat:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 11.06,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 4,
+        "duration_api_ms": 7793,
+        "input_tokens": 36,
+        "output_tokens": 723,
+        "cache_creation_input_tokens": 3194,
+        "cache_read_input_tokens": 93811,
+        "total_cost_usd_estimate": 0.019420100000000003,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 36,
+            "outputTokens": 723,
+            "cacheReadInputTokens": 93811,
+            "cacheCreationInputTokens": 3194,
+            "webSearchRequests": 0,
+            "costUSD": 0.019420100000000003,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 385,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__findex__findex_find_symbol",
+          "Read"
+        ],
+        "tool_call_count": 3,
+        "mcp_call_count": 1,
+        "files_read": 1,
+        "tool_result_bytes": 1078,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [
+          {
+            "tool": "mcp__findex__findex_find_symbol",
+            "input": "{\"name\": \"concat\", \"format\": \"compact\"}"
+          }
+        ],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 1,
+        "init_mcp_servers": [
+          {
+            "name": "findex",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [
+          "mcp__findex__findex_benchmark",
+          "mcp__findex__findex_blast_radius",
+          "mcp__findex__findex_capabilities",
+          "mcp__findex__findex_context",
+          "mcp__findex__findex_find_symbol",
+          "mcp__findex__findex_graph_symbol",
+          "mcp__findex__findex_impact",
+          "mcp__findex__findex_overview",
+          "mcp__findex__findex_rank",
+          "mcp__findex__findex_refresh_semantic",
+          "mcp__findex__findex_search",
+          "mcp__findex__findex_symbols"
+        ],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\": \"include/fmt/compile.h\", \"line\": 210}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:fmt:concat:exact:graphify",
+      "client": "claude",
+      "tool": "graphify",
+      "task": "fmt:concat:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 13.84,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 8322,
+        "input_tokens": 28,
+        "output_tokens": 479,
+        "cache_creation_input_tokens": 7692,
+        "cache_read_input_tokens": 67842,
+        "total_cost_usd_estimate": 0.0245912,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 479,
+            "cacheReadInputTokens": 67842,
+            "cacheCreationInputTokens": 7692,
+            "webSearchRequests": 0,
+            "costUSD": 0.0245912,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 271,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__graphify__query_graph"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 16104,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "graphify",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"include/fmt/compile.h\",\"line\":210}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1,
+      "mcp_errors": 0,
+      "fatal": false
+    },
+    {
+      "key": "claude:fmt:concat:exact:codebase-memory",
+      "client": "claude",
+      "tool": "codebase-memory",
+      "task": "fmt:concat:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 13.97,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 4,
+        "duration_api_ms": 10054,
+        "input_tokens": 36,
+        "output_tokens": 926,
+        "cache_creation_input_tokens": 4521,
+        "cache_read_input_tokens": 95014,
+        "total_cost_usd_estimate": 0.0232094,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 36,
+            "outputTokens": 926,
+            "cacheReadInputTokens": 95014,
+            "cacheCreationInputTokens": 4521,
+            "webSearchRequests": 0,
+            "costUSD": 0.0232094,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 551,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__codebase-memory__search_graph",
+          "mcp__codebase-memory__get_code_snippet"
+        ],
+        "tool_call_count": 3,
+        "mcp_call_count": 2,
+        "files_read": 0,
+        "tool_result_bytes": 1427,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "codebase-memory",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\"path\":\"include/fmt/compile.h\",\"line\":210}\n```",
+        "attempted_mcp_call_count": 2
+      },
+      "mcp_calls": 2,
+      "mcp_errors": 0,
+      "fatal": false
+    }
+  ],
+  "started": 12
+}

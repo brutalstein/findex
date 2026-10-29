@@ -84,3 +84,18 @@ BLOCKED, WONT_FIX, REGRESSED.
 - Relevant commits: f3bdd2d (cross-platform CI), 0490018 (CLI tests)
 - GitHub links: .github/workflows/ci.yml
 - Remaining limitations: Unix-specific path behavior in `storage_dir()` not yet CI-validated.
+
+## FX-20261030-001 — Fresh index cannot be created from the Claude desktop agent sandbox outside the repository tree
+
+- Priority: P3
+- Status: SUSPECTED (environment-specific; root cause unconfirmed)
+- First observed: 2026-10-30
+- Affected commit: e025889 (release and debug binaries)
+- Affected module: index creation (`findex-index` `connect`/`synchronize`), run by the Claude desktop app's Bash and PowerShell tools
+- Symptom: `findex find-symbol` / `findex index` print `Erişim engellendi. (os error 5)` or `unable to open database file` when `LOCALAPPDATA` points at a new directory outside the repository (for example `C:\Users\cenke\findex-validation-home\...`). Python `sqlite3` (WAL) and the shell can create files in that same directory.
+- Reproduction steps: from the agent sandbox, `LOCALAPPDATA=<new dir outside the repo> findex.exe find-symbol <name>` in any project.
+- Expected behavior: a fresh index is created under any writable `LOCALAPPDATA`.
+- Actual behavior: fails deterministically outside the repository tree; succeeds with state under the repository's `target/` (also tested: debug and release binaries, TEMP inside and outside the tree). Not caused by the `Everyone:(DENY)(DC)` ACE on the repository tree (SQLite opens and writes the database inside that tree; the ACE was left unchanged).
+- Impact: none observed for normal interactive use (the real `%LOCALAPPDATA%` holds thousands of index directories). It broke earlier live studies run from the agent sandbox.
+- Mitigation: `validation/harness/tool_comparison_live.py` keeps Findex state inside the repository (`FINDEX_LIVE_FINDEX_STATE=target/live-state`) and runs a Findex preflight before spending any model session.
+- Remaining limitations: the failing operation was not identified (no syscall trace available in the sandbox).

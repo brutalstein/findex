@@ -46,6 +46,22 @@ class EvidenceGuardsTests(unittest.TestCase):
         events[1]["message"]["content"][0]["is_error"] = False
         self.assertFalse(live.claude_record(session, "graphify", query)["valid"])
 
+    def test_failed_call_does_not_invalidate_a_recovered_session(self):
+        query = {"id": "q", "expected": [["a.rs", 1]]}
+        use = lambda i: {"type": "assistant", "message": {"content": [{"type": "tool_use", "id": i, "name": "mcp__findex__findex_search"}]}}
+        res = lambda i, err: {"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": i, "content": "x", "is_error": err}]}}
+        done = {"type": "result", "is_error": False, "result": '{"path":"a.rs","line":1}',
+                "usage": {"input_tokens": 10, "output_tokens": 3,
+                          "cache_creation_input_tokens": 20, "cache_read_input_tokens": 100}}
+        session = {"events": [use("a"), res("a", True), use("b"), res("b", False), done],
+                   "exit_code": 0, "timed_out": False, "wall_s": 0}
+        record = live.claude_record(session, "findex", query)
+        self.assertEqual(record["usage"], {"input_tokens": 130, "cached_input_tokens": 100, "output_tokens": 3})
+        self.assertTrue(record["valid"])
+        self.assertTrue(record["correct"])
+        self.assertEqual(record["mcp_calls"], 1)
+        self.assertEqual(record["mcp_errors"], 1)
+
     def test_codex_does_not_count_completed_error_results(self):
         query = {"id": "q", "expected": [["a.rs", 1]]}
         events = [{"type": "item.completed", "item": {"type": "mcp_tool_call", "server": "findex", "status": "completed",
@@ -85,6 +101,22 @@ class EvidenceGuardsTests(unittest.TestCase):
                 with self.assertRaises(SystemExit):
                     with live.trial_attempt(saved, results, {"key": "another", "client": "codex"}, 12):
                         self.fail("cap allowed another attempt")
+
+    def test_invalid_trial_continues_unless_fatal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            saved = Path(tmp) / "live-results.json"
+            results = {"sessions": [], "started": 0}
+            with live.trial_attempt(saved, results, {"key": "a", "client": "claude"}, 12, halt_on_invalid=False) as record:
+                record.update(valid=False)
+            self.assertNotIn("stopped", results)
+            self.assertEqual(results["sessions"][0]["status"], "invalid")
+            with live.trial_attempt(saved, results, {"key": "b", "client": "claude"}, 12, halt_on_invalid=False) as record:
+                raise subprocess.TimeoutExpired("synthetic", 1)
+            self.assertNotIn("stopped", results)
+            with live.trial_attempt(saved, results, {"key": "c", "client": "claude"}, 12, halt_on_invalid=False) as record:
+                record.update(valid=False, fatal=True)
+            self.assertIn("stopped", results)
+            self.assertEqual(results["started"], 3)
 
     def test_corpus_freeze_refuses_modified_and_untracked_sources(self):
         with tempfile.TemporaryDirectory() as tmp:

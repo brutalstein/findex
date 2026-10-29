@@ -1,7 +1,9 @@
-"""Subscription-only, sequential two-task pilot; maximum 12 sessions, no API keys.
+"""Subscription-only, sequential live study; maximum 12 sessions, no API keys.
 
 Off by default. Reuses saved sessions on rerun. Never falls back to a provider
-or another model when a client is blocked. Raw transcripts stay in raw/.
+or another model when a client is blocked. An invalid session counts against the
+cap and the study continues; only a subscription or usage limit stops it.
+Raw transcripts stay in raw/.
 """
 from __future__ import annotations
 
@@ -35,8 +37,11 @@ def codex_subscription_error(code: int, text: str) -> str | None:
 
 
 def answer_correct(text: str, query: dict) -> bool:
+    objects = re.findall(r"\{[^{}]*\}", text)
+    if len(objects) != 1:  # a hedged list of candidates is not an answer
+        return False
     try:
-        answer = json.loads(text.strip().removeprefix("```json").removesuffix("```").strip())
+        answer = json.loads(objects[0])
         return any(answer.get("path", "").replace("\\", "/") == path
                    and type(answer.get("line")) is int and abs(answer["line"] - line) <= 1
                    for path, line in query["expected"])
@@ -73,13 +78,40 @@ def claude_record(session: dict, tool: str, query: dict) -> dict:
             if block.get("type") == "tool_result" and block.get("tool_use_id") in calls:
                 (failed if block.get("is_error") else successful).add(block["tool_use_id"])
     usage = {k: summary[k] for k in ("input_tokens", "output_tokens")}
+    # A failed call is reported in mcp_errors; the session stays valid once the model recovers.
     valid = (summary["exit_code"] == 0 and real_usage(usage) and bool(successful)
-             and successful == calls and not failed and not summary["limit_hit"]
-             and summary["is_error"] is False and not summary["timed_out"])
+             and not summary["limit_hit"] and summary["is_error"] is False
+             and not summary["timed_out"])
     summary["attempted_mcp_call_count"] = len(calls)
     summary["mcp_call_count"] = len(successful - failed)
-    return {"summary": summary, "mcp_calls": len(successful - failed), "valid": valid,
+    cached = summary.get("cache_read_input_tokens") or 0
+    processed = {"input_tokens": (usage["input_tokens"] or 0) + (summary.get("cache_creation_input_tokens") or 0) + cached,
+                 "cached_input_tokens": cached, "output_tokens": usage["output_tokens"] or 0}
+    return {"summary": summary, "usage": processed, "mcp_calls": len(successful - failed),
+            "mcp_errors": len(failed), "valid": valid, "fatal": bool(summary["limit_hit"]),
             "correct": valid and answer_correct(summary["final_text"], query)}
+
+
+def select_live_tasks(rows: list[dict], corpora: Path, count: int) -> list[dict]:
+    """Deterministic live tasks: exact-symbol rows with one expected location and
+    exactly one declaration of that name in the frozen corpus, round-robin by corpus."""
+    declaration = (r"(^|[^[:alnum:]_])(def|class|fn|struct|enum|trait|interface|type|function|const|let|var)"
+                   r"[[:space:]]+{}([^[:alnum:]_]|$)")
+    pools: dict[str, list[dict]] = {}
+    for row in sorted(rows, key=lambda r: r["id"]):
+        if row["type"] != "symbol_exact" or len(row["expected"]) != 1 or not re.fullmatch(r"\w+", row["query"]):
+            continue
+        found = subprocess.run(["git", "grep", "-I", "-n", "-E", declaration.format(row["query"])],
+                               cwd=corpora / row["corpus"], capture_output=True, text=True,
+                               encoding="utf-8", errors="replace").stdout.splitlines()
+        if len(found) == 1 and found[0].split(":", 1)[0] == row["expected"][0][0]:
+            pools.setdefault(row["corpus"], []).append(row)
+    chosen = []
+    while len(chosen) < count and any(pools.values()):
+        for corpus in sorted(pools):
+            if pools[corpus] and len(chosen) < count:
+                chosen.append(pools[corpus].pop(0))
+    return chosen
 
 
 def load_results(saved: Path) -> dict:
@@ -107,7 +139,7 @@ def usage_summary(results: dict) -> dict:
 
 
 @contextmanager
-def trial_attempt(saved: Path, results: dict, record: dict, cap: int):
+def trial_attempt(saved: Path, results: dict, record: dict, cap: int, halt_on_invalid: bool = True):
     if results.get("stopped") or results["started"] >= cap or cap > 12:
         raise SystemExit("Session cap or stopped study; no additional calls authorized")
     if any(s["key"] == record["key"] for s in results["sessions"]):
@@ -121,7 +153,7 @@ def trial_attempt(saved: Path, results: dict, record: dict, cap: int):
     except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
         record.update(valid=False, correct=False, error=str(exc))
     record["status"] = "complete" if record["valid"] else "invalid"
-    if not record["valid"]:
+    if not record["valid"] and (halt_on_invalid or record.get("fatal")):
         results["stopped"] = f"{record['client']}: failed, missing usage or unsuccessful supplied-server MCP call; no retries or fallback"
     write_json(saved, results)
 
@@ -134,6 +166,8 @@ def main() -> None:
     parser.add_argument("--cbm", type=Path, required=True)
     parser.add_argument("--graphify-python", type=Path, required=True)
     parser.add_argument("--max-sessions", type=int, default=12)
+    parser.add_argument("--tasks", type=int, default=0,
+                        help="pick this many single-definition tasks by rule instead of the manifest's live_query_ids")
     parser.add_argument("--client", choices=["both", "codex", "claude"], default="both")
     parser.add_argument("--codex-model", help="override the model from config.toml; drops service_tier")
     parser.add_argument("--codex-effort", help="override model_reasoning_effort from config.toml")
@@ -148,11 +182,14 @@ def main() -> None:
     saved = args.out / "live-results.json"
     results = load_results(saved)
     manifest = json.loads((args.out / "manifest.json").read_text(encoding="utf-8"))
-    tasks = [next(q for q in manifest["queries"] if q["id"] == key) for key in manifest["live_query_ids"]] if "live_query_ids" in manifest else [
-        next(q for q in manifest["queries"] if q["corpus"] == corpus and q["type"] == "symbol_exact")
-        for corpus in ("requests", "zod")]
-    if len(tasks) != 2 or len({q["id"] for q in tasks}) != 2:
-        raise SystemExit("BLOCKED: pilot requires two distinct frozen tasks")
+    if args.tasks:
+        tasks = select_live_tasks(manifest["queries"], REPO / "target/tool-comparison/corpora", args.tasks)
+    else:
+        tasks = [next(q for q in manifest["queries"] if q["id"] == key) for key in manifest["live_query_ids"]] if "live_query_ids" in manifest else [
+            next(q for q in manifest["queries"] if q["corpus"] == corpus and q["type"] == "symbol_exact")
+            for corpus in ("requests", "zod")]
+    if not tasks or len({q["id"] for q in tasks}) != len(tasks) or (args.tasks and len(tasks) != args.tasks):
+        raise SystemExit("BLOCKED: the live study needs the requested number of distinct frozen tasks")
     setups = json.loads((args.out / "local-results.json").read_text(encoding="utf-8"))["setups"]
     projects = {s["corpus"]: s["codebase_project"] for s in setups}
     state = args.out / "raw/live"
@@ -192,9 +229,26 @@ def main() -> None:
             "codex_profile": profile, "claude_model": "haiku",
             "blocked": {"codex": codex_block, "claude": claude_block}}
     write_json(args.out / "live-plan.json", plan)
-    pending = sum(6 for reason in (codex_block, claude_block) if reason is None)
+    pending = sum(len(tasks) * len(TOOLS) for reason in (codex_block, claude_block) if reason is None)
     if results["started"] + pending > args.max_sessions and not results["sessions"]:
         raise SystemExit("BLOCKED: planned sessions exceed the cap")
+    findex_state = Path(os.environ.get("FINDEX_LIVE_FINDEX_STATE") or REPO / "target/tool-comparison/state/findex")
+    findex_bin = REPO / "target/release/findex.exe"
+
+    def findex_env(corpus: str) -> dict:
+        # The desktop-app sandbox can make the default %TEMP% and index paths unusable for SQLite.
+        root = findex_state / corpus
+        (root / "tmp").mkdir(parents=True, exist_ok=True)
+        return {"LOCALAPPDATA": str(root), "TEMP": str(root / "tmp"), "TMP": str(root / "tmp")}
+
+    if codex_block is None or claude_block is None:  # prove findex answers before spending any session
+        for query in tasks:
+            probe = subprocess.run([str(findex_bin), "find-symbol", query["query"]],
+                                   cwd=REPO / "target/tool-comparison/corpora" / query["corpus"],
+                                   env=dict(clean, **findex_env(query["corpus"])), capture_output=True,
+                                   text=True, encoding="utf-8", errors="replace", timeout=120)
+            if probe.returncode or query["expected"][0][0] not in probe.stdout.replace("\\", "/"):
+                raise SystemExit(f"BLOCKED: findex preflight failed for {query['id']}: {probe.stderr.strip()[:200]}")
     for client, blocked in (("codex", codex_block), ("claude", claude_block)):
         if blocked:
             print(f"{client}: {blocked}", flush=True)
@@ -204,9 +258,7 @@ def main() -> None:
             repo = REPO / "target/tool-comparison/corpora" / corpus
             graph = REPO / "target/tool-comparison/state/graphify" / corpus / "graphify-out/graph.json"
             servers = {
-                "findex": {"command": str(REPO / "target/release/findex.exe"), "args": ["mcp"],
-                           "env": {"LOCALAPPDATA": str(Path(os.environ.get("FINDEX_LIVE_FINDEX_STATE")
-                                                            or REPO / "target/tool-comparison/state/findex") / corpus)}},
+                "findex": {"command": str(findex_bin), "args": ["mcp"], "env": findex_env(corpus)},
                 "graphify": {"command": str(args.graphify_python), "args": ["-m", "graphify.serve", str(graph)]},
                 "codebase-memory": {"command": str(args.cbm), "args": [], "env": cbm_environment},
             }
@@ -224,15 +276,17 @@ def main() -> None:
                           f"Start with the supplied {tool} MCP server, then read source only if needed. "
                           "Do not edit files, install anything, index another project, or use the network. "
                           "Do not launch agents, subagents or other model sessions. "
-                          "Return only JSON with path (repository-relative) and line (1-based definition). ")
+                          "Return exactly one JSON object, no list and no prose: "
+                          'path (repository-relative) and line (1-based definition), e.g. {"path":"src/a.rs","line":12}. ')
                 if tool == "findex":
-                    prompt += 'Use format="compact" for findex_find_symbol or findex_search; columns names the fields in each hits row. '
+                    prompt += ('findex_context is loaded at session start: call it with the task as a plain sentence. '
+                               'For a lookup tool use format="compact" with findex_find_symbol or findex_search; columns names the fields in each hits row. ')
                 if tool == "codebase-memory":
                     prompt += f'Use existing indexed project `{projects[corpus]}`; do not reindex it. Use format="tree" for search_graph; prefer an anchored name_pattern for an exact symbol. '
                 mcp = dest / "mcp.json"
                 mcp.write_text(json.dumps({"mcpServers": {tool: server}}), encoding="utf-8")
                 record = {"key": key, "client": client, "tool": tool, "task": query["id"]}
-                with trial_attempt(saved, results, record, args.max_sessions):
+                with trial_attempt(saved, results, record, args.max_sessions, halt_on_invalid=False):
                     if client == "codex":
                         argv = [str(args.codex), "exec", "--ignore-user-config", "--ephemeral", "--json",
                                 "--sandbox", "read-only", "--output-schema", str(schema), "-C", str(repo)]
@@ -267,6 +321,7 @@ def main() -> None:
                             except ValueError:
                                 pass
                         record.update(codex_record(proc.returncode, events, tool, query))
+                        record["fatal"] = bool(re.search(r"usage limit|rate limit", proc.stdout + proc.stderr, re.I))
                     else:
                         tool_names = {"findex": ["findex_find_symbol", "findex_context", "findex_search"],
                                       "graphify": ["query_graph", "get_node"],
@@ -282,7 +337,7 @@ def main() -> None:
                 if results.get("stopped"):
                     return
     write_json(args.out / "live-usage-summary.json", {"summary": usage_summary(results),
-        "limits": "Two tasks, one repetition per arm; cache differences included. Not evidence of general superiority or monetary savings."})
+        "limits": f"{len(tasks)} tasks, one repetition per arm; cache differences included. Not evidence of general superiority or monetary savings."})
 
 
 if __name__ == "__main__":

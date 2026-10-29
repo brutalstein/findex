@@ -198,7 +198,8 @@ cheaper.
 
 ## Learn more
 
-[Evidence](docs/EVIDENCE.md) · [Technical reference](docs/reference.md) ·
+[Evidence](docs/EVIDENCE.md) · [Progress by round](docs/PROGRESS.md) ·
+[Technical reference](docs/reference.md) ·
 [Architecture](docs/architecture.md) · [Security](SECURITY.md) ·
 [Engineering status](docs/engineering/STATUS.md) · [Roadmap](docs/roadmap.md) ·
 [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)

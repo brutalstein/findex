@@ -6,10 +6,17 @@ import json
 from pathlib import Path
 import tempfile
 
-from payload_cost import MODES, cbm_tree_hits, expand_hits, save_summary
+from payload_cost import MODES, cbm_tree_hits, expand_hits, same_hits, save_summary
 
 
 class PayloadTests(unittest.TestCase):
+    def test_same_hits_ignores_score_precision_but_nothing_else(self):
+        old = [{"path": "a.py", "line": 1, "bm25_score": -7.556564023538062}]
+        self.assertTrue(same_hits(old, [{"path": "a.py", "line": 1, "bm25_score": -7.557}]))
+        self.assertFalse(same_hits(old, [{"path": "a.py", "line": 2, "bm25_score": -7.557}]))
+        self.assertFalse(same_hits(old, [{"path": "a.py", "line": 1, "bm25_score": -7.6}]))
+        self.assertFalse(same_hits(old, old + old))
+
     def test_idle_sync_expands_all_counters_without_hiding_flags(self):
         expected = {key: 0 for key in ("examined", "indexed", "unchanged", "removed", "skipped", "cloud_only", "symbols_parsed", "symbols_reused")}
         self.assertEqual(expand_hits({"columns": [], "hits": [], "sync": 0, "truncated": True}),
