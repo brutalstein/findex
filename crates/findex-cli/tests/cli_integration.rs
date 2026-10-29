@@ -10,9 +10,12 @@ fn findex_bin() -> std::path::PathBuf {
 }
 
 fn run_findex(args: &[&str], cwd: &std::path::Path) -> std::process::Output {
+    // Isolate the index store so tests never touch the real user profile.
+    let state = std::env::temp_dir().join(format!("findex-cli-tests-{}", std::process::id()));
     Command::new(findex_bin())
         .args(args)
         .current_dir(cwd)
+        .env("LOCALAPPDATA", state)
         .output()
         .expect("failed to run findex")
 }

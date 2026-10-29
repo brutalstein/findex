@@ -26,8 +26,6 @@ preserved.
 | FX-BM-003 | 501bbae | 115 navigation queries | Windows x64 | Historical | hit@1 0.982 (Findex compact) | same | 0 | validation/results/20261027-performance-comparison/ |
 | FX-BM-004 | 501bbae | 115 navigation queries | Windows x64 | Historical | tokens 222 (Findex compact) | same | 0 | validation/results/20261027-performance-comparison/ |
 | FX-BM-005 | 0490018 | — | Windows x64 | NOT MEASURED | — | — | — | None |
-| FX-BM-006 | 0490018 | — | Linux x64 | NOT MEASURED | — | — | — | None |
-| FX-BM-007 | 0490018 | — | macOS x64 | NOT MEASURED | — | — | — | None |
 
 ## Notes
 

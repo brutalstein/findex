@@ -19,7 +19,7 @@
 
 Correctness stabilization in progress. All 211 workspace tests pass, clippy
 `-D warnings` clean, cargo fmt clean, release build passes on Windows.
-Cross-platform CI added (Windows/Linux/macOS). Property-based tests added to
+Windows-only CI restored (Linux/macOS removed, FX-DEC-20261030-001). Property-based tests added to
 `findex-core` and `findex-index`. CLI integration tests added to `findex-cli`.
 The 60% hit@1 / 90% recall@10 targets remain unmet (current ~44.6% / ~80.8%).
 
@@ -53,7 +53,7 @@ The 60% hit@1 / 90% recall@10 targets remain unmet (current ~44.6% / ~80.8%).
 | Retrieval quality vs baseline | hit@1 ~44.6% (baseline 40.0%), recall@10 ~80.8% (baseline 79.2%); targets 60%/90% unmet |
 | Performance regressions | NOT MEASURED on HEAD |
 | Security concerns | None open; threat model documented |
-| Platform coverage | Windows (native-first), Linux/macOS CI added but not yet run |
+| Platform coverage | Windows x64 only (Linux/macOS unsupported) |
 | Live-agent evaluation status | BLOCKED (no authorized model access; `-EnableLiveModelTests` required) |
 
 ## Immediate Next Actions
