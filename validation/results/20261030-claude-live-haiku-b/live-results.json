@@ -1,0 +1,180 @@
+{
+  "sessions": [
+    {
+      "key": "claude:fmt:parse_arg_id:exact:findex",
+      "client": "claude",
+      "tool": "findex",
+      "task": "fmt:parse_arg_id:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": false,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 13.99,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 7654,
+        "input_tokens": 28,
+        "output_tokens": 787,
+        "cache_creation_input_tokens": 2659,
+        "cache_read_input_tokens": 69287,
+        "total_cost_usd_estimate": 0.0162097,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 28,
+            "outputTokens": 787,
+            "cacheReadInputTokens": 69287,
+            "cacheCreationInputTokens": 2659,
+            "webSearchRequests": 0,
+            "costUSD": 0.0162097,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 374,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__findex__findex_find_symbol"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 1,
+        "files_read": 0,
+        "tool_result_bytes": 603,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [
+          {
+            "tool": "mcp__findex__findex_find_symbol",
+            "input": "{\"name\": \"parse_arg_id\", \"format\": \"compact\"}"
+          }
+        ],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 0,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "findex",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [
+          "mcp__findex__findex_benchmark",
+          "mcp__findex__findex_blast_radius",
+          "mcp__findex__findex_capabilities",
+          "mcp__findex__findex_context",
+          "mcp__findex__findex_find_symbol",
+          "mcp__findex__findex_graph_symbol",
+          "mcp__findex__findex_impact",
+          "mcp__findex__findex_overview",
+          "mcp__findex__findex_rank",
+          "mcp__findex__findex_refresh_semantic",
+          "mcp__findex__findex_search",
+          "mcp__findex__findex_symbols"
+        ],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\n  \"definitions\": [\n    {\n      \"path\": \"include/fmt/base.h\",\n      \"line\": 2312,\n      \"kind\": \"function\",\n      \"language\": \"C++\"\n    },\n    {\n      \"path\": \"include/fmt/compile.h\",\n      \"line\": 300,\n      \"kind\": \"function\",\n      \"language\": \"C++\"\n    },\n    {\n      \"path\": \"test/base-test.cc\",\n      \"line\": 500,\n      \"kind\": \"function\",\n      \"language\": \"C++\"\n    }\n  ],\n  \"primary_definition\": {\n    \"path\": \"include/fmt/base.h\",\n    \"line\": 2312\n  }\n}\n```\n\nThe primary definition of `parse_arg_id` is in **include/fmt/base.h** at **line 2312**.",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 1
+    },
+    {
+      "key": "claude:fmt:parse_arg_id:exact:graphify",
+      "client": "claude",
+      "tool": "graphify",
+      "task": "fmt:parse_arg_id:exact",
+      "status": "invalid",
+      "valid": false,
+      "correct": false,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 20.65,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 3,
+        "duration_api_ms": 10669,
+        "input_tokens": 26,
+        "output_tokens": 879,
+        "cache_creation_input_tokens": 24422,
+        "cache_read_input_tokens": 46907,
+        "total_cost_usd_estimate": 0.0579557,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 26,
+            "outputTokens": 879,
+            "cacheReadInputTokens": 46907,
+            "cacheCreationInputTokens": 24422,
+            "webSearchRequests": 0,
+            "costUSD": 0.0579557,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 559,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "Grep",
+          "Read"
+        ],
+        "tool_call_count": 2,
+        "mcp_call_count": 0,
+        "files_read": 1,
+        "tool_result_bytes": 1600,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [],
+        "toolsearch_calls": 0,
+        "builtin_search_calls": 1,
+        "read_calls": 1,
+        "init_mcp_servers": [
+          {
+            "name": "graphify",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "```json\n{\n  \"path\": \"include/fmt/base.h\",\n  \"line\": 2312\n}\n```",
+        "attempted_mcp_call_count": 0
+      },
+      "mcp_calls": 0
+    }
+  ],
+  "started": 2,
+  "stopped": "claude: failed, missing usage or unsuccessful supplied-server MCP call; no retries or fallback"
+}

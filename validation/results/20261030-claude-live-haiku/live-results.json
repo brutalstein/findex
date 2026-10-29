@@ -1,0 +1,104 @@
+{
+  "sessions": [
+    {
+      "key": "claude:fmt:parse_arg_id:exact:findex",
+      "client": "claude",
+      "tool": "findex",
+      "task": "fmt:parse_arg_id:exact",
+      "status": "invalid",
+      "valid": false,
+      "correct": false,
+      "summary": {
+        "limit_hit": false,
+        "exit_code": 0,
+        "timed_out": false,
+        "wall_s": 18.71,
+        "result_subtype": "success",
+        "is_error": false,
+        "num_turns": 5,
+        "duration_api_ms": 12169,
+        "input_tokens": 44,
+        "output_tokens": 1018,
+        "cache_creation_input_tokens": 26245,
+        "cache_read_input_tokens": 96479,
+        "total_cost_usd_estimate": 0.0672719,
+        "model_usage": {
+          "claude-haiku-4-5-20251001": {
+            "inputTokens": 44,
+            "outputTokens": 1018,
+            "cacheReadInputTokens": 96479,
+            "cacheCreationInputTokens": 26245,
+            "webSearchRequests": 0,
+            "costUSD": 0.0672719,
+            "contextWindow": 200000,
+            "maxOutputTokens": 32000,
+            "thinkingTokens": 554,
+            "canonicalModel": "claude-haiku-4-5",
+            "provider": "firstParty",
+            "costBasis": "list"
+          }
+        },
+        "tool_calls": [
+          "ToolSearch",
+          "mcp__findex__findex_find_symbol",
+          "Grep",
+          "Grep"
+        ],
+        "tool_call_count": 4,
+        "mcp_call_count": 0,
+        "files_read": 0,
+        "tool_result_bytes": 4003,
+        "first_evidence_tool_call": null,
+        "findex_inputs": [
+          {
+            "tool": "mcp__findex__findex_find_symbol",
+            "input": "{\"name\": \"parse_arg_id\", \"format\": \"compact\"}"
+          }
+        ],
+        "toolsearch_calls": 1,
+        "builtin_search_calls": 2,
+        "read_calls": 0,
+        "init_mcp_servers": [
+          {
+            "name": "findex",
+            "status": "connected",
+            "source": "dynamic"
+          }
+        ],
+        "init_model": "claude-haiku-4-5-20251001",
+        "init_tools_findex": [
+          "mcp__findex__findex_benchmark",
+          "mcp__findex__findex_blast_radius",
+          "mcp__findex__findex_capabilities",
+          "mcp__findex__findex_context",
+          "mcp__findex__findex_find_symbol",
+          "mcp__findex__findex_graph_symbol",
+          "mcp__findex__findex_impact",
+          "mcp__findex__findex_overview",
+          "mcp__findex__findex_rank",
+          "mcp__findex__findex_refresh_semantic",
+          "mcp__findex__findex_search",
+          "mcp__findex__findex_symbols"
+        ],
+        "init_plugins": [
+          {
+            "name": "agents-md",
+            "path": "builtin",
+            "source": "agents-md@builtin"
+          },
+          {
+            "name": "telemetry",
+            "path": "builtin",
+            "source": "telemetry@builtin"
+          }
+        ],
+        "claude_code_version": "2.1.281",
+        "final_text": "Based on the grep results, the primary definition of `parse_arg_id` is in `include\\fmt\\base.h` at line 2312. This is the main template function definition:\n\n```json\n{\n  \"path\": \"include/fmt/base.h\",\n  \"line\": 2312\n}\n```",
+        "attempted_mcp_call_count": 1
+      },
+      "mcp_calls": 0
+    }
+  ],
+  "started": 1,
+  "stopped": "claude: failed, missing usage or unsuccessful supplied-server MCP call; no retries or fallback"
+}

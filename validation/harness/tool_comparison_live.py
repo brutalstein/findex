@@ -205,7 +205,8 @@ def main() -> None:
             graph = REPO / "target/tool-comparison/state/graphify" / corpus / "graphify-out/graph.json"
             servers = {
                 "findex": {"command": str(REPO / "target/release/findex.exe"), "args": ["mcp"],
-                           "env": {"LOCALAPPDATA": str(REPO / "target/tool-comparison/state/findex" / corpus)}},
+                           "env": {"LOCALAPPDATA": str(Path(os.environ.get("FINDEX_LIVE_FINDEX_STATE")
+                                                            or REPO / "target/tool-comparison/state/findex") / corpus)}},
                 "graphify": {"command": str(args.graphify_python), "args": ["-m", "graphify.serve", str(graph)]},
                 "codebase-memory": {"command": str(args.cbm), "args": [], "env": cbm_environment},
             }

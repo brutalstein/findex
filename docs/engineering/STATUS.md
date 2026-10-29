@@ -12,7 +12,7 @@
 | Latest GitHub-published commit | 351a3da |
 | Branch | main |
 | Pull request | None (work published directly to main) |
-| CI | Last run on main: unknown (CI_NOT_RUN since last push verification) |
+| CI | PR #37 (Windows-only pipeline): all Windows jobs green; merged as 6ae8287. Main run for the merge commit not yet read |
 | Release readiness | NOT_READY (targets 60%/90% unmet; see ISSUES.md) |
 
 ## Current Engineering Verdict
@@ -46,7 +46,7 @@ The 60% hit@1 / 90% recall@10 targets remain unmet (current ~44.6% / ~80.8%).
 |---|---|
 | Confirmed open P0 issues | 0 |
 | Confirmed open P1 issues | 2 (ranking accuracy, live model access blocked) |
-| Confirmed open P2 issues | 1 (CI result not yet verified on cross-platform matrix) |
+| Confirmed open P2 issues | 0 (cross-platform CI removed, FX-DEC-20261030-001) |
 | Resolved issues | 12 (per COMPLETE_REPOSITORY_AUDIT.md findings A1-A12, D1-D4) |
 | Latest test outcomes | 211 pass, 0 fail (workspace, all-targets) |
 | Last benchmark run | Historical (2026-10-27/28 runs under validation/results/) |
@@ -54,7 +54,7 @@ The 60% hit@1 / 90% recall@10 targets remain unmet (current ~44.6% / ~80.8%).
 | Performance regressions | NOT MEASURED on HEAD |
 | Security concerns | None open; threat model documented |
 | Platform coverage | Windows x64 only (Linux/macOS unsupported) |
-| Live-agent evaluation status | BLOCKED (no authorized model access; `-EnableLiveModelTests` required) |
+| Live-agent evaluation status | INCONCLUSIVE (2026-10-30): Codex gpt-5.6-luna hit the ChatGPT usage limit on its first session; Claude Haiku (claude.ai Pro) ran 3 sessions, none usable for a tool comparison (see validation/results/20261030-claude-live-haiku*/NOTE.md) |
 
 ## Immediate Next Actions
 
