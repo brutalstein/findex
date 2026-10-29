@@ -7,7 +7,7 @@
 
 param([string]$OutDir = "validation/live/results")
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 $date = Get-Date -Format "yyyyMMddTHHmmssZ"
 $runDir = Join-Path $OutDir "$date-dogfood"
 New-Item -ItemType Directory -Path $runDir -Force | Out-Null

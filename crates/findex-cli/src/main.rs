@@ -361,6 +361,25 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             }
         }
         "doctor" => doctor(&project),
+        "refresh-semantic" => {
+            let report = findex_relations::stale_semantic_report(&project)?;
+            println!(
+                "Semantic staleness check: {} stale / {} total semantic files",
+                report.stale_files.len(),
+                report.total_semantic_files
+            );
+            for stale in &report.stale_files {
+                println!("  {}: {}", stale.path, stale.reason);
+            }
+            if report.stale_files.is_empty() {
+                println!("All semantic evidence is current.");
+            } else {
+                eprintln!(
+                    "Reimport SCIP/LSP evidence for {} stale files (findex graph-import-lsp or graph-import-scip).",
+                    report.stale_files.len()
+                );
+            }
+        }
         "status" | "stats" => {
             println!("Project: {}", project.display());
             println!("Index: {}", findex_core::storage_dir(&project)?.display());
@@ -491,6 +510,7 @@ fn print_help() {
     println!("  findex graph-import-scip <file> Import bounded SCIP protobuf references");
     println!("  findex graph-import-lsp <file>  Import normalized captured LSP references");
     println!("  findex impact <relative-file> [depth:1-3]  Find reference-backed file impact");
+    println!("  findex refresh-semantic          Detect stale semantic evidence needing reimport");
     println!("  findex graph-symbol <symbol-id> Show imported definition/reference sites");
     println!("  findex graph-symbol --at <file> <line> <column> Resolve imported identity (1-based line, UTF-8 byte column)");
     println!("  findex refresh <paths...>       Refresh known relative files without a full scan");

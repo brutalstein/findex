@@ -439,6 +439,14 @@ where
                         "required":["path"],
                         "additionalProperties":false
                     }
+                },{
+                    "name": "findex_refresh_semantic",
+                    "description": "Detect which project files have stale semantic evidence (source changed or no longer admitted) since the last SCIP/LSP import. Zero LLM calls. Returns stale file list so callers know what to reimport.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{},
+                        "additionalProperties":false
+                    }
                 }]
             }),
         ),
@@ -756,6 +764,15 @@ where
                         ),
                         Err(_err) => unavailable(id, "blast radius"),
                     }
+                }
+            } else if name == Some("findex_refresh_semantic") {
+                match findex_relations::stale_semantic_report(project) {
+                    Ok(report) => success(
+                        id,
+                        json!({"content":[{"type":"text",
+                        "text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
+                    ),
+                    Err(_err) => unavailable(id, "refresh semantic"),
                 }
             } else if name != Some("findex_search") {
                 error(id, -32602, "unknown tool")

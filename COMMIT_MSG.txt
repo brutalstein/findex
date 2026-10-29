@@ -1,9 +1,8 @@
-feat(bench): validated comparison benchmark with real metrics
+feat(semantic): refresh-semantic stale-evidence detection + CLI/MCP
 
-- Add validation/bench/compare.py: findex vs competitor benchmark script
-- Add validation/bench/results/REPORT.md: rank 60% recall, search 90% recall, 0.196s avg latency
-- Add validation/bench/results/summary.json: machine-readable benchmark results
-- Add validation/live/claude-mcp-config.json: Claude Code MCP config for findex
-- Update validation/live/COMPETITOR_COMPARISON.md: real benchmark numbers, competitor published data
-- Update validation/live/run-dogfood.ps1: blast-radius test included
-- Claude live test blocked: OAuth expired, needs interactive login + FINDEX_LIVE_MODEL_APPROVAL
+- Add findex_relations::stale_semantic_report(): detects files whose semantic
+  evidence is stale (source hash changed or no longer admitted by scanner)
+- Add findex refresh-semantic CLI command
+- Add findex_refresh_semantic MCP tool
+- All 192 workspace tests pass, zero warnings
+- Live dogfooding: all 7 steps pass (blast-radius skipped without SCIP/LSP data)

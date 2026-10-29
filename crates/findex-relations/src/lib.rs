@@ -805,6 +805,60 @@ pub fn blast_radius(
     impact(project, relative, depth, limit)
 }
 
+/// Which project files have stale semantic evidence since the last import.
+/// A file is stale when its source hash changed or it is no longer admitted
+/// by the scanner (ignored, deleted, sensitive, etc.). Callers should
+/// reimport SCIP/LSP evidence for these files before trusting blast-radius.
+#[derive(Debug, Serialize)]
+pub struct StaleSemanticFile {
+    pub path: String,
+    pub reason: &'static str,
+}
+
+#[derive(Debug, Serialize)]
+pub struct StaleSemanticReport {
+    pub stale_files: Vec<StaleSemanticFile>,
+    pub total_semantic_files: usize,
+    pub interpretation: &'static str,
+}
+
+/// Scan all files with semantic evidence and return those whose evidence is
+/// stale (source changed or no longer admitted). Does not modify the database.
+pub fn stale_semantic_report(project: &Path) -> Result<StaleSemanticReport> {
+    let _indexed = prepare(project)?;
+    let conn = open(project)?;
+    let mut rows: Vec<(String, String)> = Vec::new();
+    {
+        let mut stmt = conn.prepare("SELECT path,digest FROM evidence_files")?;
+        let mapped = stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?;
+        for r in mapped {
+            let (path, digest) = r?;
+            rows.push((path, digest));
+        }
+    }
+    let mut stale: Vec<StaleSemanticFile> = Vec::new();
+    for (path, digest) in &rows {
+        if !currently_admitted(&conn, path, digest) {
+            stale.push(StaleSemanticFile {
+                path: path.clone(),
+                reason: "no-longer-admitted-by-scanner",
+            });
+            continue;
+        }
+        if !verify_path(project, path, digest) {
+            stale.push(StaleSemanticFile {
+                path: path.clone(),
+                reason: "source-hash-changed",
+            });
+        }
+    }
+    Ok(StaleSemanticReport {
+        stale_files: stale,
+        total_semantic_files: rows.len(),
+        interpretation: "hash-verified;reimport-SCIP-or-LSP-for-stale-files",
+    })
+}
+
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {
