@@ -959,6 +959,7 @@ fn live_source(root: &Path, relative: &str, indexed_hash: &str) -> Option<String
 #[allow(clippy::expect_used)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
     use tempfile::tempdir;
 
     #[test]
@@ -1612,5 +1613,44 @@ mod tests {
         let parsed = fts_query("hello OR world* (secret)").expect("terms");
         assert!(!parsed.0.contains('*'));
         assert!(parsed.0.contains("\"or\""));
+    }
+
+    // =====================================================================
+    // Property-based tests (proptest)
+    // =====================================================================
+
+    proptest::proptest! {
+        #![proptest_config(proptest::test_runner::Config {
+            cases: 300,
+            ..Default::default()
+        })]
+
+        /// FTS query output never contains raw FTS5 operators that could
+        /// change query semantics — every term is double-quoted and escaped.
+        fn prop_fts_query_never_leaks_operators(query in any::<String>()) {
+            prop_assume!(!query.contains('\0'));
+            prop_assume!(query.len() <= 80);
+            if let Some((expr, _terms)) = fts_query(&query) {
+                // No unquoted FTS5 operators: :, *, ^, $, (, ), AND, OR, NOT, NEAR
+                for ch in [':', '*', '^', '$', '(', ')'] {
+                    prop_assert!(!expr.contains(ch), "operator {:?} in {:?}", ch, expr);
+                }
+                // Every term is surrounded by double quotes.
+                for term in &_terms {
+                    let quoted = format!("\"{}\"", term.replace('"', "\"\""));
+                    prop_assert!(expr.contains(&quoted), "term {:?} not quoted in {:?}", term, expr);
+                }
+            }
+        }
+
+        /// split_query_terms always returns at most 12 terms.
+        fn prop_split_terms_capped(query in any::<String>()) {
+            prop_assume!(!query.contains('\0'));
+            prop_assume!(query.len() <= 200);
+            let terms = split_query_terms(&query);
+            prop_assert!(terms.len() <= 12, "{} terms", terms.len());
+            // Empty terms never appear.
+            prop_assert!(terms.iter().all(|t| !t.is_empty()));
+        }
     }
 }

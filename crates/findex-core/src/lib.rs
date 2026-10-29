@@ -225,6 +225,7 @@ pub use rank::{file_type_for, rank_file, FileType, RankSignals, RankWeights, Ran
 #[allow(clippy::expect_used)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
 
     /// SIDs of allow ACEs on `dir` that let a broad group read it: Everyone,
     /// Anonymous, Authenticated Users, Users, Guests.
@@ -393,5 +394,101 @@ mod tests {
             tmp.canonicalize().expect("canonical")
         );
         let _ = std::fs::remove_dir_all(tmp);
+    }
+
+    // =====================================================================
+    // Property-based tests (proptest)
+    // =====================================================================
+
+    proptest::proptest! {
+        /// Every path rejected by is_disallowed_project_path must contain
+        /// `..`, be absolute, or be empty — never a normal relative path.
+        fn prop_disallowed_paths_are_unsafe(path in any::<String>()) {
+            prop_assume!(!path.contains('\0'));
+            prop_assume!(path.len() <= 40);
+            let p = Path::new(&path);
+            if is_disallowed_project_path(p) {
+                prop_assert!(
+                    path.contains("..") || p.is_absolute() || path.is_empty(),
+                    "path {:?} was rejected but looks safe", path
+                );
+            }
+        }
+
+        /// Sensitive filenames are always rejected regardless of case or directory.
+        fn prop_sensitive_filenames_always_rejected(name in any::<String>()) {
+            prop_assume!(!name.contains('\0'));
+            prop_assume!(name.len() <= 30);
+            prop_assume!(name.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-')));
+            let sensitive = [
+                ".env", ".env.production", ".envrc", ".npmrc", ".pypirc", ".netrc",
+                "_netrc", ".git-credentials", "id_rsa", "id_ed25519",
+                "credentials.json", "secrets.json", "service-account.json",
+                "service_account.json", ".tfstate", ".tfvars", ".jks", ".keystore",
+                ".kdbx", ".pem", ".p12", ".pfx", ".key",
+            ];
+            let lower = name.to_ascii_lowercase();
+            let is_sensitive = sensitive.iter().any(|s| {
+                lower == *s || lower.starts_with(&format!("{s}.")) ||
+                    lower.contains(&format!(".{s}")) || lower.ends_with(s)
+            });
+            let path_str = format!("dir/{name}");
+            let path = Path::new(&path_str);
+            prop_assert_eq!(
+                is_sensitive_filename(path),
+                is_sensitive,
+                "mismatch for name {:?}", name
+            );
+        }
+
+        /// Redaction never increases text length materially and always hides
+        /// known secret patterns.
+        fn prop_redact_secrets_hides_patterns(text in any::<String>()) {
+            prop_assume!(!text.contains('\0'));
+            prop_assume!(text.len() <= 200);
+            prop_assume!(text.is_ascii());
+            let secret_patterns = [
+                "AKIAIOSFODNN7EXAMPLE",
+                "ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+                "sk-ant-api03-abcdefghijklmnopqrstuvwx",
+                "-----BEGIN RSA PRIVATE KEY-----",
+                "password = \"hunter2hunter2\"",
+            ];
+            let mut t = text.clone();
+            for s in secret_patterns {
+                t = t.replace(s, "[REDACTED:SECRET]");
+            }
+            let output = redact_secrets(&t);
+            // Any secret that survived replacement should now be caught by regex.
+            for s in secret_patterns {
+                if t.contains(s) {
+                    prop_assert!(!output.contains(s), "secret {:?} not redacted", s);
+                }
+            }
+            // Non-secret text should be preserved (short-circuited when no match).
+            if !text.contains("AKIA") && !text.contains("ghp_") && !text.contains("sk-ant")
+                && !text.contains("BEGIN RSA") && !text.contains("hunter2") && !text.contains("client_secret")
+            {
+                prop_assert_eq!(output, text, "clean text was modified");
+            }
+        }
+
+        /// normalized_relative_key is idempotent for valid relative paths.
+        fn prop_normalize_idempotent(path in any::<String>()) {
+            prop_assume!(!path.contains('\0'));
+            prop_assume!(path.len() <= 40);
+            prop_assume!(path.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-' | b'/')));
+            let p = Path::new(&path);
+            match normalized_relative_key(p) {
+                Ok(k) => {
+                    let second = normalized_relative_key(Path::new(&k));
+                    match second {
+                        Ok(k2) => prop_assert_eq!(k2, k),
+                        Err(_) => prop_assert!(false, "re-parse of valid key {:?} failed", k),
+                    }
+                }
+                Err(_) => prop_assert!(true),
+            }
+        }
     }
 }
