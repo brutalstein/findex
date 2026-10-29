@@ -29,9 +29,36 @@ use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Duration;
 
 type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
+
+/// Process-wide cache of SQLite connections keyed by database path.
+/// Reusing connections across searches avoids re-running schema version
+/// checks, WAL setup and `CREATE TABLE IF NOT EXISTS` on every request.
+static CONNECTION_CACHE: OnceLock<Mutex<HashMap<PathBuf, Arc<Mutex<Connection>>>>> =
+    OnceLock::new();
+
+fn connection_cache() -> &'static Mutex<HashMap<PathBuf, Arc<Mutex<Connection>>>> {
+    CONNECTION_CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+/// Open (or reuse) a cached connection to the lexical index database.
+/// Schema initialization happens once on first use per database path.
+fn cached_connect(db: &Path) -> Result<Arc<Mutex<Connection>>> {
+    let cache = connection_cache();
+    let mut cache = cache
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    if let Some(conn) = cache.get(db) {
+        return Ok(conn.clone());
+    }
+    let conn = connect(db)?;
+    let cached = Arc::new(Mutex::new(conn));
+    cache.insert(db.to_path_buf(), cached.clone());
+    Ok(cached)
+}
 
 // Sort metadata first; fetch source only inside the bounded candidate loop.
 // files.path and docs.path share the rowid contract enforced by store_document.
@@ -640,10 +667,27 @@ fn search_ranked_in_db(
     let Some((expression, terms)) = fts_query(query) else {
         return Ok(report);
     };
-    let conn = connect(database)?;
+    let conn = cached_connect(database)?;
+    let conn = conn.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     let canonical_root = project.canonicalize()?;
     let count = limit.clamp(1, 32);
     let mut seen_paths = HashSet::new();
+    // Cache live_source results within a single search call so a file that
+    // appears as both a definition hit and a BM25 candidate is read from
+    // disk at most once.
+    let mut source_cache: HashMap<String, Option<String>> = HashMap::new();
+    let cached_live_source = |root: &Path,
+                              path: &str,
+                              hash: &str,
+                              cache: &mut HashMap<String, Option<String>>|
+     -> Option<String> {
+        if let Some(cached) = cache.get(path) {
+            return cached.clone();
+        }
+        let result = live_source(root, path, hash);
+        cache.insert(path.to_string(), result.clone());
+        result
+    };
 
     // Stage 1: verified definitions whose identifier equals the whole query
     // (`Engine`, `parse config` -> parseConfig/parse_config). Definitions name
@@ -680,7 +724,9 @@ fn search_ranked_in_db(
             if seen_paths.contains(&row.path) {
                 continue;
             }
-            let Some(text) = live_source(&canonical_root, &row.path, &row.hash) else {
+            let Some(text) =
+                cached_live_source(&canonical_root, &row.path, &row.hash, &mut source_cache)
+            else {
                 // Marked seen so the lexical stage does not count it twice.
                 seen_paths.insert(row.path);
                 report.stale_results_discarded += 1;
@@ -707,8 +753,8 @@ fn search_ranked_in_db(
     }
 
     // Stage 2: BM25 candidates over source text and identifier/path words.
-    let mut stmt = conn.prepare(FTS_CANDIDATES_SQL)?;
-    let mut bodies = conn.prepare("SELECT body FROM docs WHERE rowid = ?1")?;
+    let mut stmt = conn.prepare_cached(FTS_CANDIDATES_SQL)?;
+    let mut bodies = conn.prepare_cached("SELECT body FROM docs WHERE rowid = ?1")?;
     // Collect a bounded but generous window before reranking. An extra
     // candidate makes truncation explicit rather than silently claiming
     // completeness after stale-result rejection or multi-term reranking.
@@ -833,7 +879,9 @@ fn search_ranked_in_db(
             report.truncated = true;
             break;
         }
-        if live_source(&canonical_root, &hit.path, &indexed_hash).is_none() {
+        if cached_live_source(&canonical_root, &hit.path, &indexed_hash, &mut source_cache)
+            .is_none()
+        {
             report.stale_results_discarded += 1;
             continue;
         }

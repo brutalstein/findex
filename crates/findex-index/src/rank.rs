@@ -4,12 +4,12 @@
 //! candidate with Tree-sitter definition / call-site signals from the
 //! persistent symbol tables. Zero LLM calls.
 
-use crate::{connect, split_query_terms, synchronize, Result, SyncStats};
+use crate::{cached_connect, split_query_terms, synchronize, Result, SyncStats};
 use findex_core::{
     rank::{file_type_for, rank_file, RankParams, RankWeights},
     storage_dir, MAX_SOURCE_BYTES,
 };
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{params, Connection};
 use serde::Serialize;
 use std::collections::HashSet;
 use std::path::Path;
@@ -52,7 +52,8 @@ pub fn rank_in_db(
     limit: usize,
     sync: SyncStats,
 ) -> Result<RankReport> {
-    let conn = connect(database)?;
+    let conn = cached_connect(database)?;
+    let conn = conn.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     let terms: Vec<String> = query
         .split_whitespace()
         .map(|t| t.to_ascii_lowercase())
@@ -206,27 +207,24 @@ fn terms_to_fts_query(query: &str) -> String {
 }
 
 /// Check which query terms are defined in the given file's symbol table.
+/// Single query instead of one per term: fetches all defined names for the
+/// path/hash once, then filters against query terms in Rust.
 fn file_defines_names(conn: &Connection, path: &Path, terms: &[String]) -> Result<Vec<String>> {
     let key = findex_core::normalized_relative_key(path)?;
     let term_set: HashSet<&str> = terms.iter().map(|t| t.as_str()).collect();
     let mut found = Vec::new();
-    for term in terms {
-        if !term_set.contains(term.as_str()) {
-            continue;
-        }
-        let count: i64 = conn
-            .query_row(
-                "SELECT COUNT(*) FROM symbols s
-             JOIN symbol_state st ON st.path = s.path AND st.extractor_revision = 3
-             JOIN files f ON f.path = s.path AND f.hash = st.hash
-             WHERE s.path = ?1 AND lower(replace(s.name, '_', '')) = ?2",
-                params![key, term],
-                |row| row.get(0),
-            )
-            .optional()?
-            .unwrap_or(0);
-        if count > 0 {
-            found.push(term.clone());
+    let mut stmt = conn.prepare_cached(
+        "SELECT lower(replace(s.name, '_', '')) as term
+         FROM symbols s
+         JOIN symbol_state st ON st.path = s.path AND st.extractor_revision = ?2
+         JOIN files f ON f.path = s.path AND f.hash = st.hash
+         WHERE s.path = ?1",
+    )?;
+    let rows = stmt.query_map(params![key, 3i64], |row| row.get::<_, String>(0))?;
+    for row in rows {
+        let term = row?;
+        if term_set.contains(term.as_str()) && !found.contains(&term) {
+            found.push(term);
         }
     }
     Ok(found)
