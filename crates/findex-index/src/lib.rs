@@ -564,12 +564,7 @@ pub(crate) fn remove_document(tx: &rusqlite::Transaction<'_>, path: &str) -> Res
 
 /// Constructs an FTS expression without allowing user input to act as query operators.
 fn fts_query(query: &str) -> Option<(String, Vec<String>)> {
-    let terms: Vec<String> = query
-        .split(|c: char| !(c.is_alphanumeric() || c == '_'))
-        .filter(|t| !t.is_empty())
-        .take(12)
-        .map(str::to_lowercase)
-        .collect();
+    let terms = split_query_terms(query);
     if terms.is_empty() {
         return None;
     }
@@ -579,6 +574,33 @@ fn fts_query(query: &str) -> Option<(String, Vec<String>)> {
         .collect::<Vec<_>>()
         .join(" OR ");
     Some((fts, terms))
+}
+
+/// Split a query into FTS5-safe terms, expanding camelCase/PascalCase
+/// identifiers into their sub-words so `parseConfig` matches both
+/// `parseConfig` and `parse config` in the index.
+pub(crate) fn split_query_terms(query: &str) -> Vec<String> {
+    let mut terms: Vec<String> = Vec::new();
+    for token in query
+        .split(|c: char| !(c.is_alphanumeric() || c == '_'))
+        .filter(|t| !t.is_empty())
+    {
+        let lower = token.to_ascii_lowercase();
+        // If the token has mixed case (camelCase/PascalCase), emit sub-words
+        // in addition to the whole token, so both "parseConfig" and "parse
+        // config" queries match indexed sub-words.
+        let has_upper = token.chars().any(char::is_uppercase);
+        let has_lower = token.chars().any(char::is_lowercase);
+        if has_upper && has_lower && token.chars().count() > 2 {
+            for part in camel_parts(token) {
+                if part.chars().count() > 1 {
+                    terms.push(part);
+                }
+            }
+        }
+        terms.push(lower);
+    }
+    terms.into_iter().take(12).collect()
 }
 
 pub fn search_in_db(
@@ -626,7 +648,13 @@ fn search_ranked_in_db(
     // Stage 1: verified definitions whose identifier equals the whole query
     // (`Engine`, `parse config` -> parseConfig/parse_config). Definitions name
     // the place a reader needs first; usages follow as lexical evidence.
-    let identifier = terms.concat().replace('_', "");
+    // Build from the original query (not expanded terms) so camelCase
+    // sub-word expansion doesn't corrupt the identifier match.
+    let identifier: String = query
+        .chars()
+        .filter(|c| (*c).is_alphanumeric() || *c == '_')
+        .collect::<String>()
+        .to_ascii_lowercase();
     if !concept && identifier.chars().count() >= 3 && identifier.len() <= 256 {
         let mut rows = symbols::definitions_by_identifier(&conn, &identifier, 64)?;
         let exact = query.trim();

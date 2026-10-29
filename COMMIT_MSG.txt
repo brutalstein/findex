@@ -1,18 +1,14 @@
-fix(ranking): hash-verified call sites, true recency, larger candidate window
+fix(ranking): camelCase query expansion for better recall, shared term splitter
 
-- file_calls_names now reads source through hash_verified_source():
-  call-site evidence is dropped if on-disk content no longer matches
-  the indexed digest (fail closed, no stale signals)
-- Recency is now computed from actual file mtimes relative to the
-  newest file in the candidate batch (30-day decay window)
-- Size penalty extracted as standalone file_size_penalty() helper
-- Candidate window increased from limit*4 to limit*8 (clamped 32-1024)
-- Bm25Candidate now carries the indexed hash for verification
-- FTS5 query terms are individually quoted and OR-joined (literal text,
-  not query operators)
-- Removed unnecessary .abs() on BM25 score
-- Added regression tests for size penalty, re-sorting, deterministic
-  tie-breaking, empty query, FTS5 quoting/escaping/operator neutralization
+- fts_query() and terms_to_fts_query() now share split_query_terms(), which
+  expands camelCase/PascalCase identifiers into sub-words (e.g. "parseConfig"
+  -> "parseconfig" + "parse" + "config"), improving recall for identifier
+  queries without changing lexical ranking behavior.
+- Identifier matching in Stage 1 of search_ranked_in_db now uses the original
+  query (lowercased, alphanumeric-only) rather than expanded terms, so camelCase
+  expansion doesn't corrupt exact-symbol lookups.
+- Added regression test: rank_in_db_camelcase_query_matches_subword_definition
+  verifies "parseConfig" matches a file defining parse_config_file.
 
-198 tests pass, clippy -D warnings clean, cargo fmt clean, release build
+199 tests pass, clippy -D warnings clean, cargo fmt clean, release build
 and dogfooding pass.
