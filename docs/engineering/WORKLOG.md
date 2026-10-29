@@ -180,3 +180,37 @@ Format: `## [UTC timestamp] [Event ID] Short description`
 - GitHub URL: https://github.com/brutalstein/findex/commit/84fbfbd
 - Remaining limitations: proptest tests use `any::<String>()` with assume guards rather than bounded regex strategies; coverage of adversarial inputs is narrower than originally intended.
 - Next action: Complete cross-platform CI, then M1 ranking audit.
+
+## [2026-10-29T23:15:00Z] [FX-20261029-007] M1: Final sorting and count verification tests added
+
+- Branch: main
+- Starting commit: 3f63d56
+- Current implementation commit: 351a3da
+- Subsystem: crates/findex-index/src/rank.rs
+- Issue ID: FX-20261029-001 (retrieval accuracy below target), Part 5.4
+- Objective: Add tests verifying final sort happens before truncation,
+  `returned` count is accurate, scores are non-increasing, and tie-breaking
+  is deterministic.
+- Files inspected: crates/findex-index/src/rank.rs (rank_in_db sort/truncate)
+- Files modified: crates/findex-index/src/rank.rs (+76 lines, 3 new tests)
+- Reproduction command: cargo test --package findex-index rank_in_db
+- Observed behavior: `rank_in_db` already sorted by final combined score and
+  truncated correctly (fixed in 3dfc311), but had no dedicated tests for
+  count accuracy, score ordering, or tie-breaking.
+- Expected behavior: `returned` == hits.len() after truncation; hits never
+  exceed limit; scores non-increasing; equal scores ordered by path ascending.
+- Error or failure: None (code was already correct after 3dfc311 fix).
+- Root cause: Missing test coverage, not a code defect.
+- Fix implemented: Added 3 tests covering count/truncate, score ordering,
+  path tie-breaking.
+- Tests executed: cargo test --workspace --all-targets → 237 pass
+- Test outcomes: All pass
+- Benchmark impact: None
+- Evidence location: crates/findex-index/src/rank.rs
+- Commit SHA: 351a3da
+- GitHub URL: https://github.com/brutalstein/findex/commit/351a3da
+- Remaining limitations: Real retrieval accuracy not yet measured on HEAD
+  (golden dataset run pending); feature quality audit and candidate recall
+  audit still pending under M1.
+- Next action: Run golden dataset against 351a3da to measure before/after
+  accuracy (FX-BM-005).
