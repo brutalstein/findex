@@ -14,7 +14,7 @@ use findex_core::{
 };
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use std::error::Error;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
@@ -576,23 +576,14 @@ pub fn symbol_evidence(project: &Path, symbol: &str, limit: usize) -> Result<Sym
     symbol_evidence_in_db(project, symbol, limit, &indexed, &conn)
 }
 
-fn symbol_evidence_in_db(
-    project: &Path,
-    symbol: &str,
-    limit: usize,
-    indexed: &Connection,
+/// Load symbol sites for a given symbol, filtering by admission and hash verification.
+fn load_symbol_sites(
     conn: &Connection,
-) -> Result<SymbolEvidenceReport> {
-    let max = limit.clamp(1, MAX_TYPED_RESULTS);
-    let mut report = SymbolEvidenceReport {
-        symbol: symbol.to_owned(),
-        sites: Vec::new(),
-        relationships: Vec::new(),
-        stale_evidence_discarded: 0,
-        truncated: false,
-        interpretation:
-            "SCIP/LSP source-backed observations; references are not proven function calls",
-    };
+    symbol: &str,
+    max: usize,
+    indexed: &Connection,
+    project: &Path,
+) -> Result<Vec<SymbolSite>> {
     let mut stmt = conn.prepare(
         "SELECT s.path, s.line, s.column, s.language, s.kind,
                 e.digest, COALESCE(p.source, 'unattributed'), s.end_line, s.end_column, s.position_encoding
@@ -616,18 +607,17 @@ fn symbol_evidence_in_db(
             r.get::<_, i32>(9)?,
         ))
     })?;
+    let mut sites = Vec::new();
     for row in entries {
         let (path, line, column, language, kind, digest, provider, end_line, end_column, encoding) =
             row?;
-        if report.sites.len() >= max {
-            report.truncated = true;
+        if sites.len() >= max {
             break;
         }
         if !currently_admitted(indexed, &path, &digest) || !verify_path(project, &path, &digest) {
-            report.stale_evidence_discarded += 1;
             continue;
         }
-        report.sites.push(SymbolSite {
+        sites.push(SymbolSite {
             path,
             line: usize::try_from(line)?,
             column: usize::try_from(column)?,
@@ -644,6 +634,88 @@ fn symbol_evidence_in_db(
             provider,
         });
     }
+    Ok(sites)
+}
+
+/// Follow `definition_alias` links transitively from a symbol name.
+/// Returns the set of resolved target symbols (alias chain endpoints).
+fn resolve_aliases(conn: &Connection, symbol: &str) -> Result<Vec<String>> {
+    let mut resolved: BTreeSet<String> = BTreeSet::new();
+    let mut stack: Vec<String> = vec![symbol.to_owned()];
+    let mut enqueued: BTreeSet<String> = BTreeSet::new();
+    enqueued.insert(symbol.to_owned());
+    while let Some(current) = stack.pop() {
+        // Alias where current is the owner (alias -> target)
+        let mut stmt = conn.prepare(
+            "SELECT target_symbol FROM semantic_links
+             WHERE owner_symbol=?1 AND kind='definition_alias'",
+        )?;
+        let rows = stmt.query_map(params![current], |r| r.get::<_, String>(0))?;
+        for target in rows.flatten() {
+            resolved.insert(target.clone());
+            if enqueued.insert(target.clone()) {
+                stack.push(target);
+            }
+        }
+        // Alias where current is the target (target -> alias owner)
+        let mut stmt = conn.prepare(
+            "SELECT owner_symbol FROM semantic_links
+             WHERE target_symbol=?1 AND kind='definition_alias'",
+        )?;
+        let rows = stmt.query_map(params![current], |r| r.get::<_, String>(0))?;
+        for owner in rows.flatten() {
+            resolved.insert(owner.clone());
+            if enqueued.insert(owner.clone()) {
+                stack.push(owner);
+            }
+        }
+    }
+    Ok(resolved.into_iter().collect())
+}
+
+fn symbol_evidence_in_db(
+    project: &Path,
+    symbol: &str,
+    limit: usize,
+    indexed: &Connection,
+    conn: &Connection,
+) -> Result<SymbolEvidenceReport> {
+    let max = limit.clamp(1, MAX_TYPED_RESULTS);
+    let mut report = SymbolEvidenceReport {
+        symbol: symbol.to_owned(),
+        sites: Vec::new(),
+        relationships: Vec::new(),
+        stale_evidence_discarded: 0,
+        truncated: false,
+        interpretation:
+            "SCIP/LSP source-backed observations; references are not proven function calls",
+    };
+    let mut resolved_symbol = symbol.to_owned();
+
+    // Try direct lookup first; if no sites found, follow definition_alias links
+    // (e.g. `use foo::bar as baz` → query "baz" resolves to "bar").
+    let mut sites = load_symbol_sites(conn, symbol, max, indexed, project)?;
+    if sites.is_empty() {
+        let alias_targets = resolve_aliases(conn, symbol)?;
+        for target in &alias_targets {
+            let candidate = load_symbol_sites(conn, target, max, indexed, project)?;
+            if !candidate.is_empty() {
+                resolved_symbol = target.clone();
+                sites = candidate;
+                break;
+            }
+        }
+    }
+    report.sites = sites;
+
+    // Report interpretation reflects alias resolution.
+    if resolved_symbol != symbol {
+        report.interpretation =
+            "SCIP/LSP source-backed observations; symbol resolved through definition_alias link; references are not proven function calls";
+    }
+    let resolved_for_links = resolved_symbol.clone();
+    report.symbol = resolved_symbol;
+
     let mut rel_stmt = conn.prepare(
         "SELECT r.target_symbol, r.kind, r.path, r.language, e.digest,
                 COALESCE(p.source, 'unattributed')
@@ -653,7 +725,7 @@ fn symbol_evidence_in_db(
          WHERE r.owner_symbol=?1
          ORDER BY r.kind,r.path,r.target_symbol LIMIT ?2",
     )?;
-    let links = rel_stmt.query_map(params![symbol, (max + 1) as i64], |r| {
+    let links = rel_stmt.query_map(params![&resolved_for_links, (max + 1) as i64], |r| {
         Ok((
             r.get::<_, String>(0)?,
             r.get::<_, String>(1)?,
@@ -1310,5 +1382,83 @@ mod tests {
         let second_impact =
             impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("reimported impact");
         assert_eq!(second_impact.hits.len(), 1);
+    }
+
+    #[test]
+    fn definition_alias_resolution_finds_target_symbol() {
+        let (workspace, snapshot) = fixture();
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("import");
+
+        // The fixture defines symbol "lsp:a.rs:0:3" in a.rs and references it from b.rs.
+        // Register an alias "lsp:a.rs:0:3-alias" -> "lsp:a.rs:0:3" as a definition_alias.
+        let conn = open(workspace.path()).expect("open");
+        conn.execute(
+            "INSERT INTO semantic_links(owner_symbol,target_symbol,kind,path,language)
+             VALUES(?1,?2,'definition_alias',?3,?4)",
+            params!["lsp:a.rs:0:3-alias", "lsp:a.rs:0:3", "a.rs", "rust"],
+        )
+        .expect("insert alias link");
+
+        // Querying the alias symbol directly should resolve to the target's sites.
+        let alias_report =
+            symbol_evidence(workspace.path(), "lsp:a.rs:0:3-alias", 8).expect("alias");
+        assert_eq!(alias_report.symbol, "lsp:a.rs:0:3");
+        assert_eq!(alias_report.sites.len(), 2);
+        assert!(alias_report
+            .sites
+            .iter()
+            .any(|s| s.path == "a.rs" && s.kind == "definition"));
+        assert!(alias_report
+            .sites
+            .iter()
+            .any(|s| s.path == "b.rs" && s.kind == "reference"));
+        assert!(alias_report.interpretation.contains("definition_alias"));
+
+        // Direct query of the target still works unchanged.
+        let target_report = symbol_evidence(workspace.path(), "lsp:a.rs:0:3", 8).expect("target");
+        assert_eq!(target_report.sites.len(), 2);
+    }
+
+    #[test]
+    fn definition_alias_transitive_chain_resolves_to_endpoint() {
+        let (workspace, snapshot) = fixture();
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("import");
+
+        let conn = open(workspace.path()).expect("open");
+        conn.execute(
+            "INSERT INTO semantic_links(owner_symbol,target_symbol,kind,path,language)
+             VALUES(?1,?2,'definition_alias',?3,?4)",
+            params!["alias-first", "alias-second", "a.rs", "rust"],
+        )
+        .expect("insert first alias");
+        conn.execute(
+            "INSERT INTO semantic_links(owner_symbol,target_symbol,kind,path,language)
+             VALUES(?1,?2,'definition_alias',?3,?4)",
+            params!["alias-second", "lsp:a.rs:0:3", "a.rs", "rust"],
+        )
+        .expect("insert second alias");
+
+        let report = symbol_evidence(workspace.path(), "alias-first", 8).expect("transitive alias");
+        assert_eq!(report.symbol, "lsp:a.rs:0:3");
+        assert_eq!(report.sites.len(), 2);
+        assert!(report
+            .sites
+            .iter()
+            .any(|s| s.path == "a.rs" && s.kind == "definition"));
+        assert!(report
+            .sites
+            .iter()
+            .any(|s| s.path == "b.rs" && s.kind == "reference"));
+    }
+
+    #[test]
+    fn definition_alias_no_match_returns_empty_for_unknown_alias() {
+        let (workspace, snapshot) = fixture();
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("import");
+
+        let report =
+            symbol_evidence(workspace.path(), "nonexistent-alias", 8).expect("unknown alias");
+        assert!(report.sites.is_empty());
+        assert_eq!(report.symbol, "nonexistent-alias");
     }
 }
