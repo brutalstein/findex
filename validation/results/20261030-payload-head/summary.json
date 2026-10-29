@@ -1,0 +1,1047 @@
+{
+  "summary": {
+    "all-115": {
+      "findex-baseline-json": {
+        "queries": 115,
+        "mean_raw_tokens": 366.6608695652174,
+        "mean_visible_tokens": 366.6608695652174,
+        "hit_at_1": 0.9739130434782609,
+        "span_at_1": 0.9739130434782609,
+        "mrr": 0.9869565217391304,
+        "latency_s": {
+          "n": 115,
+          "mean": 0.01200501130420573,
+          "variance": 9.060893283790746e-05,
+          "stdev": 0.009518872456226497,
+          "min": 0.0026776000013342127,
+          "p50": 0.008802699994703289,
+          "p95": 0.027721000005840324,
+          "p99": 0.03484480000042822,
+          "max": 0.03625000000465661
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-json": {
+        "queries": 115,
+        "mean_raw_tokens": 348.2086956521739,
+        "mean_visible_tokens": 348.2086956521739,
+        "hit_at_1": 0.9739130434782609,
+        "span_at_1": 0.9739130434782609,
+        "mrr": 0.9869565217391304,
+        "latency_s": {
+          "n": 115,
+          "mean": 0.00850336782643116,
+          "variance": 4.723052048678376e-05,
+          "stdev": 0.00687244647027416,
+          "min": 0.001690299999609124,
+          "p50": 0.006631800002651289,
+          "p95": 0.020218800003931392,
+          "p99": 0.02334990000235848,
+          "max": 0.034776100001181476
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-compact": {
+        "queries": 115,
+        "mean_raw_tokens": 243.03478260869565,
+        "mean_visible_tokens": 243.03478260869565,
+        "hit_at_1": 0.9739130434782609,
+        "span_at_1": 0.9739130434782609,
+        "mrr": 0.9869565217391304,
+        "latency_s": {
+          "n": 115,
+          "mean": 0.007703910435046292,
+          "variance": 3.9959208925766595e-05,
+          "stdev": 0.006321329680199142,
+          "min": 0.0014819999996689148,
+          "p50": 0.005742599998484366,
+          "p95": 0.0200092000013683,
+          "p99": 0.020341899995401036,
+          "max": 0.028588199995283503
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-json": {
+        "queries": 115,
+        "mean_raw_tokens": 300.90434782608696,
+        "mean_visible_tokens": 300.90434782608696,
+        "hit_at_1": 0.7391304347826086,
+        "span_at_1": 0.6260869565217392,
+        "mrr": 0.7601656314699793,
+        "latency_s": {
+          "n": 115,
+          "mean": 0.016762372173885206,
+          "variance": 6.395695487696046e-05,
+          "stdev": 0.007997309227293919,
+          "min": 0.004717600000731181,
+          "p50": 0.01593950000096811,
+          "p95": 0.03057710000575753,
+          "p99": 0.03458369999862043,
+          "max": 0.060742499998013955
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-tree": {
+        "queries": 115,
+        "mean_raw_tokens": 266.37391304347824,
+        "mean_visible_tokens": 266.37391304347824,
+        "hit_at_1": 0.7391304347826086,
+        "span_at_1": 0.6260869565217392,
+        "mrr": 0.7601656314699793,
+        "latency_s": {
+          "n": 115,
+          "mean": 0.019827244347518147,
+          "variance": 0.00010892162579381512,
+          "stdev": 0.0104365523902204,
+          "min": 0.004161199998634402,
+          "p50": 0.022858600001200102,
+          "p95": 0.03172940000513336,
+          "p99": 0.03617620000295574,
+          "max": 0.04052680000313558
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "graphify-mcp": {
+        "queries": 115,
+        "mean_raw_tokens": 2274.8695652173915,
+        "mean_visible_tokens": 1569.3304347826088,
+        "hit_at_1": 0.7565217391304347,
+        "span_at_1": 0.6608695652173913,
+        "mrr": 0.7818840579710145,
+        "latency_s": {
+          "n": 115,
+          "mean": 0.03943307999965644,
+          "variance": 0.0007449047657999872,
+          "stdev": 0.02729294351659394,
+          "min": 0.004807599994819611,
+          "p50": 0.03422539999883156,
+          "p95": 0.10763240000233054,
+          "p99": 0.11604890000307932,
+          "max": 0.11698099999921396
+        },
+        "errors": 0,
+        "over_budget": 43
+      }
+    },
+    "new-55": {
+      "findex-baseline-json": {
+        "queries": 55,
+        "mean_raw_tokens": 310.05454545454546,
+        "mean_visible_tokens": 310.05454545454546,
+        "hit_at_1": 0.9818181818181818,
+        "span_at_1": 0.9818181818181818,
+        "mrr": 0.990909090909091,
+        "latency_s": {
+          "n": 55,
+          "mean": 0.010403494545210957,
+          "variance": 8.683685956905574e-05,
+          "stdev": 0.009318629704471346,
+          "min": 0.0026776000013342127,
+          "p50": 0.003966600001149345,
+          "p95": 0.026519499995629303,
+          "p99": 0.03372559999843361,
+          "max": 0.03372559999843361
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-json": {
+        "queries": 55,
+        "mean_raw_tokens": 296.92727272727274,
+        "mean_visible_tokens": 296.92727272727274,
+        "hit_at_1": 0.9818181818181818,
+        "span_at_1": 0.9818181818181818,
+        "mrr": 0.990909090909091,
+        "latency_s": {
+          "n": 55,
+          "mean": 0.007360610908786343,
+          "variance": 4.28234251721283e-05,
+          "stdev": 0.006543960969636685,
+          "min": 0.001690299999609124,
+          "p50": 0.002623100001073908,
+          "p95": 0.01908180000464199,
+          "p99": 0.02162059999682242,
+          "max": 0.02162059999682242
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-compact": {
+        "queries": 55,
+        "mean_raw_tokens": 206.03636363636363,
+        "mean_visible_tokens": 206.03636363636363,
+        "hit_at_1": 0.9818181818181818,
+        "span_at_1": 0.9818181818181818,
+        "mrr": 0.990909090909091,
+        "latency_s": {
+          "n": 55,
+          "mean": 0.006558609090279788,
+          "variance": 3.403122935393201e-05,
+          "stdev": 0.00583362917521606,
+          "min": 0.0014819999996689148,
+          "p50": 0.0024766999995335937,
+          "p95": 0.016335100001015235,
+          "p99": 0.02008890000433894,
+          "max": 0.02008890000433894
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-json": {
+        "queries": 55,
+        "mean_raw_tokens": 271.8909090909091,
+        "mean_visible_tokens": 271.8909090909091,
+        "hit_at_1": 0.8545454545454545,
+        "span_at_1": 0.7272727272727273,
+        "mrr": 0.885021645021645,
+        "latency_s": {
+          "n": 55,
+          "mean": 0.016227474545303266,
+          "variance": 8.135991652663164e-05,
+          "stdev": 0.009019973199884334,
+          "min": 0.004717600000731181,
+          "p50": 0.014643999995314516,
+          "p95": 0.03154029999859631,
+          "p99": 0.060742499998013955,
+          "max": 0.060742499998013955
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-tree": {
+        "queries": 55,
+        "mean_raw_tokens": 240.3090909090909,
+        "mean_visible_tokens": 240.3090909090909,
+        "hit_at_1": 0.8545454545454545,
+        "span_at_1": 0.7272727272727273,
+        "mrr": 0.885021645021645,
+        "latency_s": {
+          "n": 55,
+          "mean": 0.021449681817532772,
+          "variance": 0.00010129281769282947,
+          "stdev": 0.010064433302120366,
+          "min": 0.0051848000002792105,
+          "p50": 0.027413600000727456,
+          "p95": 0.03172940000513336,
+          "p99": 0.04052680000313558,
+          "max": 0.04052680000313558
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "graphify-mcp": {
+        "queries": 55,
+        "mean_raw_tokens": 2663.4727272727273,
+        "mean_visible_tokens": 1682.2181818181818,
+        "hit_at_1": 0.8727272727272727,
+        "span_at_1": 0.7636363636363637,
+        "mrr": 0.896969696969697,
+        "latency_s": {
+          "n": 55,
+          "mean": 0.03956584727235498,
+          "variance": 0.0006712989848086387,
+          "stdev": 0.025909438141508177,
+          "min": 0.009995200001867488,
+          "p50": 0.034658199998375494,
+          "p95": 0.10763240000233054,
+          "p99": 0.1154919999971753,
+          "max": 0.1154919999971753
+        },
+        "errors": 0,
+        "over_budget": 23
+      }
+    },
+    "historical-60": {
+      "findex-baseline-json": {
+        "queries": 60,
+        "mean_raw_tokens": 418.55,
+        "mean_visible_tokens": 418.55,
+        "hit_at_1": 0.9666666666666667,
+        "span_at_1": 0.9666666666666667,
+        "mrr": 0.9833333333333333,
+        "latency_s": {
+          "n": 60,
+          "mean": 0.01347306833328427,
+          "variance": 9.101439600408584e-05,
+          "stdev": 0.009540146539969176,
+          "min": 0.0026937000002362765,
+          "p50": 0.011013900002581067,
+          "p95": 0.027721000005840324,
+          "p99": 0.03625000000465661,
+          "max": 0.03625000000465661
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-json": {
+        "queries": 60,
+        "mean_raw_tokens": 395.21666666666664,
+        "mean_visible_tokens": 395.21666666666664,
+        "hit_at_1": 0.9666666666666667,
+        "span_at_1": 0.9666666666666667,
+        "mrr": 0.9833333333333333,
+        "latency_s": {
+          "n": 60,
+          "mean": 0.009550895000938909,
+          "variance": 4.973138050530695e-05,
+          "stdev": 0.00705204796532943,
+          "min": 0.0017396000039298087,
+          "p50": 0.00775880000583129,
+          "p95": 0.020218800003931392,
+          "p99": 0.034776100001181476,
+          "max": 0.034776100001181476
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-compact": {
+        "queries": 60,
+        "mean_raw_tokens": 276.95,
+        "mean_visible_tokens": 276.95,
+        "hit_at_1": 0.9666666666666667,
+        "span_at_1": 0.9666666666666667,
+        "mrr": 0.9833333333333333,
+        "latency_s": {
+          "n": 60,
+          "mean": 0.008753770001082255,
+          "variance": 4.371842019582055e-05,
+          "stdev": 0.006611990637910837,
+          "min": 0.0015455000029760413,
+          "p50": 0.006860599998617545,
+          "p95": 0.020029899998917244,
+          "p99": 0.028588199995283503,
+          "max": 0.028588199995283503
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-json": {
+        "queries": 60,
+        "mean_raw_tokens": 327.5,
+        "mean_visible_tokens": 327.5,
+        "hit_at_1": 0.6333333333333333,
+        "span_at_1": 0.5333333333333333,
+        "mrr": 0.6457142857142857,
+        "latency_s": {
+          "n": 60,
+          "mean": 0.01725269500008532,
+          "variance": 4.8601627526836786e-05,
+          "stdev": 0.006971486751535628,
+          "min": 0.005045999998401385,
+          "p50": 0.016373300000850577,
+          "p95": 0.02888100000564009,
+          "p99": 0.03458369999862043,
+          "max": 0.03458369999862043
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-tree": {
+        "queries": 60,
+        "mean_raw_tokens": 290.26666666666665,
+        "mean_visible_tokens": 290.26666666666665,
+        "hit_at_1": 0.6333333333333333,
+        "span_at_1": 0.5333333333333333,
+        "mrr": 0.6457142857142857,
+        "latency_s": {
+          "n": 60,
+          "mean": 0.018340010000004743,
+          "variance": 0.00011304685662526789,
+          "stdev": 0.010632349534569858,
+          "min": 0.004161199998634402,
+          "p50": 0.01409119999880204,
+          "p95": 0.0317088000010699,
+          "p99": 0.03617620000295574,
+          "max": 0.03617620000295574
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "graphify-mcp": {
+        "queries": 60,
+        "mean_raw_tokens": 1918.65,
+        "mean_visible_tokens": 1465.85,
+        "hit_at_1": 0.65,
+        "span_at_1": 0.5666666666666667,
+        "mrr": 0.6763888888888889,
+        "latency_s": {
+          "n": 60,
+          "mean": 0.039311376666349436,
+          "variance": 0.0008248667784114114,
+          "stdev": 0.02872049404887408,
+          "min": 0.004807599994819611,
+          "p50": 0.03228739999758545,
+          "p95": 0.1025526000012178,
+          "p99": 0.11698099999921396,
+          "max": 0.11698099999921396
+        },
+        "errors": 0,
+        "over_budget": 20
+      }
+    },
+    "requests": {
+      "findex-baseline-json": {
+        "queries": 27,
+        "mean_raw_tokens": 325.6296296296296,
+        "mean_visible_tokens": 325.6296296296296,
+        "hit_at_1": 1.0,
+        "span_at_1": 1.0,
+        "mrr": 1.0,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.006803140740009473,
+          "variance": 1.3854868042530853e-05,
+          "stdev": 0.003722212788454047,
+          "min": 0.0026937000002362765,
+          "p50": 0.007515200006309897,
+          "p95": 0.012226599996211007,
+          "p99": 0.014524999998684507,
+          "max": 0.014524999998684507
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-json": {
+        "queries": 27,
+        "mean_raw_tokens": 307.0740740740741,
+        "mean_visible_tokens": 307.0740740740741,
+        "hit_at_1": 1.0,
+        "span_at_1": 1.0,
+        "mrr": 1.0,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.004685574075092854,
+          "variance": 7.054621982228124e-06,
+          "stdev": 0.0026560538364702106,
+          "min": 0.0017396000039298087,
+          "p50": 0.004489499995543156,
+          "p95": 0.00775880000583129,
+          "p99": 0.011790700002165977,
+          "max": 0.011790700002165977
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-compact": {
+        "queries": 27,
+        "mean_raw_tokens": 209.37037037037038,
+        "mean_visible_tokens": 209.37037037037038,
+        "hit_at_1": 1.0,
+        "span_at_1": 1.0,
+        "mrr": 1.0,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.004147451851976156,
+          "variance": 5.496851406112489e-06,
+          "stdev": 0.002344536501339335,
+          "min": 0.001563700003316626,
+          "p50": 0.003999699998530559,
+          "p95": 0.0077425000054063275,
+          "p99": 0.008168600004864857,
+          "max": 0.008168600004864857
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-json": {
+        "queries": 27,
+        "mean_raw_tokens": 233.88888888888889,
+        "mean_visible_tokens": 233.88888888888889,
+        "hit_at_1": 0.5925925925925926,
+        "span_at_1": 0.5555555555555556,
+        "mrr": 0.6148148148148148,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.01459714814835159,
+          "variance": 5.7952447914133094e-05,
+          "stdev": 0.007612650518323634,
+          "min": 0.004717600000731181,
+          "p50": 0.014365899995027576,
+          "p95": 0.027895700004592072,
+          "p99": 0.03154029999859631,
+          "max": 0.03154029999859631
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-tree": {
+        "queries": 27,
+        "mean_raw_tokens": 207.44444444444446,
+        "mean_visible_tokens": 207.44444444444446,
+        "hit_at_1": 0.5925925925925926,
+        "span_at_1": 0.5555555555555556,
+        "mrr": 0.6148148148148148,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.023758696295974206,
+          "variance": 0.00011057634925820159,
+          "stdev": 0.010515528957603682,
+          "min": 0.004161199998634402,
+          "p50": 0.029095800004142802,
+          "p95": 0.032693299996026326,
+          "p99": 0.033254300004045945,
+          "max": 0.033254300004045945
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "graphify-mcp": {
+        "queries": 27,
+        "mean_raw_tokens": 1562,
+        "mean_visible_tokens": 1492.111111111111,
+        "hit_at_1": 0.7777777777777778,
+        "span_at_1": 0.7407407407407407,
+        "mrr": 0.8055555555555556,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.01587408518443462,
+          "variance": 6.668223460282051e-05,
+          "stdev": 0.008165919091126272,
+          "min": 0.005623899996862747,
+          "p50": 0.014290700004494283,
+          "p95": 0.026020600002084393,
+          "p99": 0.05209739999554586,
+          "max": 0.05209739999554586
+        },
+        "errors": 0,
+        "over_budget": 4
+      }
+    },
+    "zod": {
+      "findex-baseline-json": {
+        "queries": 26,
+        "mean_raw_tokens": 394.61538461538464,
+        "mean_visible_tokens": 394.61538461538464,
+        "hit_at_1": 1.0,
+        "span_at_1": 1.0,
+        "mrr": 1.0,
+        "latency_s": {
+          "n": 26,
+          "mean": 0.01238668461463441,
+          "variance": 8.001990127678787e-05,
+          "stdev": 0.008945384356012203,
+          "min": 0.0034493999992264435,
+          "p50": 0.004419899996719323,
+          "p95": 0.02464009999675909,
+          "p99": 0.02487190000101691,
+          "max": 0.02487190000101691
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-json": {
+        "queries": 26,
+        "mean_raw_tokens": 379.2692307692308,
+        "mean_visible_tokens": 379.2692307692308,
+        "hit_at_1": 1.0,
+        "span_at_1": 1.0,
+        "mrr": 1.0,
+        "latency_s": {
+          "n": 26,
+          "mean": 0.009057457692576393,
+          "variance": 4.645741222914209e-05,
+          "stdev": 0.006815967446308858,
+          "min": 0.0020825999963562936,
+          "p50": 0.007951600004162174,
+          "p95": 0.018937099994218443,
+          "p99": 0.021898399994825013,
+          "max": 0.021898399994825013
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-compact": {
+        "queries": 26,
+        "mean_raw_tokens": 269.9230769230769,
+        "mean_visible_tokens": 269.9230769230769,
+        "hit_at_1": 1.0,
+        "span_at_1": 1.0,
+        "mrr": 1.0,
+        "latency_s": {
+          "n": 26,
+          "mean": 0.008337638461783242,
+          "variance": 4.3636613692633495e-05,
+          "stdev": 0.0066058015178048985,
+          "min": 0.0018060000002151355,
+          "p50": 0.0027208000028622337,
+          "p95": 0.020130800003244076,
+          "p99": 0.020341899995401036,
+          "max": 0.020341899995401036
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-json": {
+        "queries": 26,
+        "mean_raw_tokens": 317.8076923076923,
+        "mean_visible_tokens": 317.8076923076923,
+        "hit_at_1": 0.7692307692307693,
+        "span_at_1": 0.6153846153846154,
+        "mrr": 0.7943223443223443,
+        "latency_s": {
+          "n": 26,
+          "mean": 0.016615542307800543,
+          "variance": 4.73419642959091e-05,
+          "stdev": 0.006880549708846605,
+          "min": 0.006252599996514618,
+          "p50": 0.013610100002551917,
+          "p95": 0.02945719999843277,
+          "p99": 0.03057710000575753,
+          "max": 0.03057710000575753
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-tree": {
+        "queries": 26,
+        "mean_raw_tokens": 278.6923076923077,
+        "mean_visible_tokens": 278.6923076923077,
+        "hit_at_1": 0.7692307692307693,
+        "span_at_1": 0.6153846153846154,
+        "mrr": 0.7943223443223443,
+        "latency_s": {
+          "n": 26,
+          "mean": 0.02013468461490657,
+          "variance": 9.765385096439885e-05,
+          "stdev": 0.009881996304613701,
+          "min": 0.0051848000002792105,
+          "p50": 0.01952529999834951,
+          "p95": 0.03099590000056196,
+          "p99": 0.03172940000513336,
+          "max": 0.03172940000513336
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "graphify-mcp": {
+        "queries": 26,
+        "mean_raw_tokens": 1641.423076923077,
+        "mean_visible_tokens": 1328.3076923076924,
+        "hit_at_1": 0.9615384615384616,
+        "span_at_1": 0.7307692307692307,
+        "mrr": 0.9615384615384616,
+        "latency_s": {
+          "n": 26,
+          "mean": 0.027260034615140354,
+          "variance": 0.0002461754156933683,
+          "stdev": 0.015689978192890145,
+          "min": 0.015464399999473244,
+          "p50": 0.019739600000320934,
+          "p95": 0.06612429999950109,
+          "p99": 0.07714439999836031,
+          "max": 0.07714439999836031
+        },
+        "errors": 0,
+        "over_budget": 12
+      }
+    },
+    "fmt": {
+      "findex-baseline-json": {
+        "queries": 27,
+        "mean_raw_tokens": 373.4074074074074,
+        "mean_visible_tokens": 373.4074074074074,
+        "hit_at_1": 0.9259259259259259,
+        "span_at_1": 0.9259259259259259,
+        "mrr": 0.9629629629629629,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.01433029259270471,
+          "variance": 0.00011026494764607737,
+          "stdev": 0.010500711768545853,
+          "min": 0.0026776000013342127,
+          "p50": 0.01837099999829661,
+          "p95": 0.027721000005840324,
+          "p99": 0.03484480000042822,
+          "max": 0.03484480000042822
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-json": {
+        "queries": 27,
+        "mean_raw_tokens": 353.0740740740741,
+        "mean_visible_tokens": 353.0740740740741,
+        "hit_at_1": 0.9259259259259259,
+        "span_at_1": 0.9259259259259259,
+        "mrr": 0.9629629629629629,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.01015341111148397,
+          "variance": 4.879237096368483e-05,
+          "stdev": 0.006985153610600473,
+          "min": 0.0017252000034204684,
+          "p50": 0.014585600001737475,
+          "p95": 0.01932360000500921,
+          "p99": 0.020218800003931392,
+          "max": 0.020218800003931392
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-compact": {
+        "queries": 27,
+        "mean_raw_tokens": 242.88888888888889,
+        "mean_visible_tokens": 242.88888888888889,
+        "hit_at_1": 0.9259259259259259,
+        "span_at_1": 0.9259259259259259,
+        "mrr": 0.9629629629629629,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.009430366667705433,
+          "variance": 5.655128958394983e-05,
+          "stdev": 0.007520059147636395,
+          "min": 0.0016064000010374002,
+          "p50": 0.009651799999119248,
+          "p95": 0.018318300004466437,
+          "p99": 0.028588199995283503,
+          "max": 0.028588199995283503
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-json": {
+        "queries": 27,
+        "mean_raw_tokens": 348.7037037037037,
+        "mean_visible_tokens": 348.7037037037037,
+        "hit_at_1": 0.7777777777777778,
+        "span_at_1": 0.5925925925925926,
+        "mrr": 0.7962962962962963,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.01706095555494324,
+          "variance": 3.082939600172494e-05,
+          "stdev": 0.005552422534509143,
+          "min": 0.006978400000662077,
+          "p50": 0.017325000000710133,
+          "p95": 0.025795499997911975,
+          "p99": 0.02888100000564009,
+          "max": 0.02888100000564009
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-tree": {
+        "queries": 27,
+        "mean_raw_tokens": 313.22222222222223,
+        "mean_visible_tokens": 313.22222222222223,
+        "hit_at_1": 0.7777777777777778,
+        "span_at_1": 0.5925925925925926,
+        "mrr": 0.7962962962962963,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.018745296296536387,
+          "variance": 0.0001170670922980118,
+          "stdev": 0.01081975472448483,
+          "min": 0.005657400004565716,
+          "p50": 0.0116550999955507,
+          "p95": 0.03617620000295574,
+          "p99": 0.04052680000313558,
+          "max": 0.04052680000313558
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "graphify-mcp": {
+        "queries": 27,
+        "mean_raw_tokens": 2738.3703703703704,
+        "mean_visible_tokens": 1743.2222222222222,
+        "hit_at_1": 0.6666666666666666,
+        "span_at_1": 0.5925925925925926,
+        "mrr": 0.6790123456790124,
+        "latency_s": {
+          "n": 27,
+          "mean": 0.06137578518461884,
+          "variance": 0.000706950969015767,
+          "stdev": 0.02658854958465706,
+          "min": 0.041054400004213676,
+          "p50": 0.046447799999441486,
+          "p95": 0.11604890000307932,
+          "p99": 0.11698099999921396,
+          "max": 0.11698099999921396
+        },
+        "errors": 0,
+        "over_budget": 9
+      }
+    },
+    "ripgrep": {
+      "findex-baseline-json": {
+        "queries": 35,
+        "mean_raw_tokens": 372.34285714285716,
+        "mean_visible_tokens": 372.34285714285716,
+        "hit_at_1": 0.9714285714285714,
+        "span_at_1": 0.9714285714285714,
+        "mrr": 0.9857142857142858,
+        "latency_s": {
+          "n": 35,
+          "mean": 0.01394056571485375,
+          "variance": 0.00012030301599404347,
+          "stdev": 0.010968273154605673,
+          "min": 0.002887499998905696,
+          "p50": 0.013645400002133101,
+          "p95": 0.034210799996799324,
+          "p99": 0.03625000000465661,
+          "max": 0.03625000000465661
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-json": {
+        "queries": 35,
+        "mean_raw_tokens": 353.1142857142857,
+        "mean_visible_tokens": 353.1142857142857,
+        "hit_at_1": 0.9714285714285714,
+        "span_at_1": 0.9714285714285714,
+        "mrr": 0.9857142857142858,
+        "latency_s": {
+          "n": 35,
+          "mean": 0.009764022857000652,
+          "variance": 6.58872010642769e-05,
+          "stdev": 0.008117093141283824,
+          "min": 0.001690299999609124,
+          "p50": 0.009553199997753836,
+          "p95": 0.02334990000235848,
+          "p99": 0.034776100001181476,
+          "max": 0.034776100001181476
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "findex-compact": {
+        "queries": 35,
+        "mean_raw_tokens": 249.14285714285714,
+        "mean_visible_tokens": 249.14285714285714,
+        "hit_at_1": 0.9714285714285714,
+        "span_at_1": 0.9714285714285714,
+        "mrr": 0.9857142857142858,
+        "latency_s": {
+          "n": 35,
+          "mean": 0.008644857142644468,
+          "variance": 4.081671400823788e-05,
+          "stdev": 0.006388795974848303,
+          "min": 0.0014819999996689148,
+          "p50": 0.008900999993784353,
+          "p95": 0.020029899998917244,
+          "p99": 0.02008890000433894,
+          "max": 0.02008890000433894
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-json": {
+        "queries": 35,
+        "mean_raw_tokens": 303.1714285714286,
+        "mean_visible_tokens": 303.1714285714286,
+        "hit_at_1": 0.8,
+        "span_at_1": 0.7142857142857143,
+        "mrr": 0.819047619047619,
+        "latency_s": {
+          "n": 35,
+          "mean": 0.01831142571442927,
+          "variance": 0.00010546123705517094,
+          "stdev": 0.01026943216809824,
+          "min": 0.005045999998401385,
+          "p50": 0.016702900000382215,
+          "p95": 0.03458369999862043,
+          "p99": 0.060742499998013955,
+          "max": 0.060742499998013955
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "codebase-tree": {
+        "queries": 35,
+        "mean_raw_tokens": 266.54285714285714,
+        "mean_visible_tokens": 266.54285714285714,
+        "hit_at_1": 0.8,
+        "span_at_1": 0.7142857142857143,
+        "mrr": 0.819047619047619,
+        "latency_s": {
+          "n": 35,
+          "mean": 0.017400671427978003,
+          "variance": 9.998576798686358e-05,
+          "stdev": 0.009999288374022603,
+          "min": 0.005472000004374422,
+          "p50": 0.011589299996558111,
+          "p95": 0.030530700001691002,
+          "p99": 0.031418599995959084,
+          "max": 0.031418599995959084
+        },
+        "errors": 0,
+        "over_budget": 0
+      },
+      "graphify-mcp": {
+        "queries": 35,
+        "mean_raw_tokens": 2937.8,
+        "mean_visible_tokens": 1673.8,
+        "hit_at_1": 0.6571428571428571,
+        "span_at_1": 0.6,
+        "mrr": 0.7095238095238096,
+        "latency_s": {
+          "n": 35,
+          "mean": 0.04972276571435422,
+          "variance": 0.0006795908183892691,
+          "stdev": 0.026068962740954407,
+          "min": 0.004807599994819611,
+          "p50": 0.03852829999959795,
+          "p95": 0.10763240000233054,
+          "p99": 0.11107179999817163,
+          "max": 0.11107179999817163
+        },
+        "errors": 0,
+        "over_budget": 18
+      }
+    }
+  },
+  "gate": {
+    "vs": {
+      "graphify": {
+        "lower_context_tokens": true,
+        "higher_file_hit_at_1": true,
+        "higher_span_hit_at_1": true
+      },
+      "codebase-memory": {
+        "lower_context_tokens": true,
+        "higher_file_hit_at_1": true,
+        "higher_span_hit_at_1": true
+      }
+    },
+    "local_pass": true,
+    "overall": "NOT_ESTABLISHED",
+    "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+  },
+  "gates_by_scope": {
+    "all-115": {
+      "vs": {
+        "graphify": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        },
+        "codebase-memory": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        }
+      },
+      "local_pass": true,
+      "overall": "NOT_ESTABLISHED",
+      "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+    },
+    "new-55": {
+      "vs": {
+        "graphify": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        },
+        "codebase-memory": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        }
+      },
+      "local_pass": true,
+      "overall": "NOT_ESTABLISHED",
+      "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+    },
+    "historical-60": {
+      "vs": {
+        "graphify": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        },
+        "codebase-memory": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        }
+      },
+      "local_pass": true,
+      "overall": "NOT_ESTABLISHED",
+      "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+    },
+    "requests": {
+      "vs": {
+        "graphify": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        },
+        "codebase-memory": {
+          "lower_context_tokens": false,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        }
+      },
+      "local_pass": false,
+      "overall": "NOT_ESTABLISHED",
+      "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+    },
+    "zod": {
+      "vs": {
+        "graphify": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        },
+        "codebase-memory": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        }
+      },
+      "local_pass": true,
+      "overall": "NOT_ESTABLISHED",
+      "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+    },
+    "fmt": {
+      "vs": {
+        "graphify": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        },
+        "codebase-memory": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        }
+      },
+      "local_pass": true,
+      "overall": "NOT_ESTABLISHED",
+      "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+    },
+    "ripgrep": {
+      "vs": {
+        "graphify": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        },
+        "codebase-memory": {
+          "lower_context_tokens": true,
+          "higher_file_hit_at_1": true,
+          "higher_span_hit_at_1": true
+        }
+      },
+      "local_pass": true,
+      "overall": "NOT_ESTABLISHED",
+      "reason": "Live task success and actual session usage are separate; a small pilot cannot establish general superiority."
+    }
+  },
+  "lossless_roundtrips": 115,
+  "baseline_hit_equivalence": 115,
+  "competitor_parser_equivalence": 115,
+  "limits": [
+    "Author-created navigation golden, four languages, no code-edit tasks",
+    "Graphify code-only extraction",
+    "Output tokens are not whole-session usage or billed money",
+    "Historical 60 queries are not independent confirmation"
+  ]
+}

@@ -86,8 +86,18 @@ pub struct SearchHit {
     pub line: usize,
     pub excerpt: String,
     /// Lower BM25 numbers mean more relevant lexical matches; not a probability.
+    /// Serialized to three decimals: the remaining f64 digits carry no ranking
+    /// information but cost about six model tokens per hit.
+    #[serde(serialize_with = "serialize_score")]
     pub bm25_score: f64,
     pub match_kind: &'static str,
+}
+
+fn serialize_score<S: serde::Serializer>(
+    score: &f64,
+    serializer: S,
+) -> std::result::Result<S::Ok, S::Error> {
+    serializer.serialize_f64((score * 1000.0).round() / 1000.0)
 }
 
 #[derive(Debug, Serialize)]
@@ -961,6 +971,20 @@ mod tests {
     use super::*;
     use proptest::prelude::*;
     use tempfile::tempdir;
+
+    #[test]
+    fn bm25_score_is_serialized_to_three_decimals_without_changing_the_value() {
+        let hit = SearchHit {
+            path: "a.rs".into(),
+            line: 1,
+            excerpt: "x".into(),
+            bm25_score: -7.556_564_023_538_062,
+            match_kind: "lexical",
+        };
+        let json = serde_json::to_value(&hit).expect("serialize");
+        assert_eq!(json["bm25_score"], serde_json::json!(-7.557));
+        assert_eq!(hit.bm25_score, -7.556_564_023_538_062);
+    }
 
     #[test]
     fn finds_code_and_handles_edits_and_removal() {

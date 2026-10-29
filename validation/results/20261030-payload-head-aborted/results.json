@@ -1,0 +1,244 @@
+{
+  "records": [
+    {
+      "id": "requests:HTTPProxyAuth:exact",
+      "corpus": "requests",
+      "type": "symbol_exact",
+      "evaluation_set": "historical-60",
+      "mode": "graphify-mcp",
+      "raw_tokens": 2757,
+      "visible_tokens": 2000,
+      "seconds": 0.014856399997370318,
+      "error": false,
+      "over_budget": true,
+      "hits": [
+        {
+          "path": "src/requests/auth.py",
+          "line": 99
+        },
+        {
+          "path": "src/requests/auth.py",
+          "line": 1
+        },
+        {
+          "path": "src/requests/auth.py",
+          "line": 76
+        },
+        {
+          "path": "src/requests/auth.py",
+          "line": 102
+        },
+        {
+          "path": "src/requests/auth.py",
+          "line": 100
+        },
+        {
+          "path": "src/requests/utils.py",
+          "line": 1
+        },
+        {
+          "path": "src/requests/models.py",
+          "line": 1
+        },
+        {
+          "path": "src/requests/sessions.py",
+          "line": 1
+        },
+        {
+          "path": "src/requests/adapters.py",
+          "line": 1
+        },
+        {
+          "path": "src/requests/models.py",
+          "line": 313
+        }
+      ],
+      "scores": {
+        "file_recall@1": 1.0,
+        "span_recall@1": 1.0,
+        "file_precision@1": 1.0,
+        "file_recall@5": 1.0,
+        "span_recall@5": 1.0,
+        "file_precision@5": 0.2,
+        "file_recall@10": 1.0,
+        "span_recall@10": 1.0,
+        "file_precision@10": 0.1,
+        "file_mrr": 1.0,
+        "span_mrr": 1.0,
+        "file_ndcg@10": 1.0,
+        "missing_evidence": 0.0,
+        "top1_false_positive": 0.0
+      }
+    },
+    {
+      "id": "requests:HTTPProxyAuth:exact",
+      "corpus": "requests",
+      "type": "symbol_exact",
+      "evaluation_set": "historical-60",
+      "mode": "findex-baseline-json",
+      "raw_tokens": 112,
+      "visible_tokens": 112,
+      "seconds": 0.003206800000043586,
+      "error": false,
+      "over_budget": false,
+      "hits": [
+        {
+          "path": "src/requests/auth.py",
+          "line": 99
+        }
+      ],
+      "scores": {
+        "file_recall@1": 1.0,
+        "span_recall@1": 1.0,
+        "file_precision@1": 1.0,
+        "file_recall@5": 1.0,
+        "span_recall@5": 1.0,
+        "file_precision@5": 0.2,
+        "file_recall@10": 1.0,
+        "span_recall@10": 1.0,
+        "file_precision@10": 0.1,
+        "file_mrr": 1.0,
+        "span_mrr": 1.0,
+        "file_ndcg@10": 1.0,
+        "missing_evidence": 0.0,
+        "top1_false_positive": 0.0
+      }
+    },
+    {
+      "id": "requests:HTTPProxyAuth:exact",
+      "corpus": "requests",
+      "type": "symbol_exact",
+      "evaluation_set": "historical-60",
+      "mode": "findex-json",
+      "raw_tokens": 117,
+      "visible_tokens": 117,
+      "seconds": 0.00850910000008298,
+      "error": false,
+      "over_budget": false,
+      "hits": [
+        {
+          "path": "src/requests/auth.py",
+          "line": 99
+        }
+      ],
+      "scores": {
+        "file_recall@1": 1.0,
+        "span_recall@1": 1.0,
+        "file_precision@1": 1.0,
+        "file_recall@5": 1.0,
+        "span_recall@5": 1.0,
+        "file_precision@5": 0.2,
+        "file_recall@10": 1.0,
+        "span_recall@10": 1.0,
+        "file_precision@10": 0.1,
+        "file_mrr": 1.0,
+        "span_mrr": 1.0,
+        "file_ndcg@10": 1.0,
+        "missing_evidence": 0.0,
+        "top1_false_positive": 0.0
+      }
+    },
+    {
+      "id": "requests:HTTPProxyAuth:exact",
+      "corpus": "requests",
+      "type": "symbol_exact",
+      "evaluation_set": "historical-60",
+      "mode": "findex-compact",
+      "raw_tokens": 80,
+      "visible_tokens": 80,
+      "seconds": 0.0015944999977364205,
+      "error": false,
+      "over_budget": false,
+      "hits": [
+        {
+          "path": "src/requests/auth.py",
+          "line": 99
+        }
+      ],
+      "scores": {
+        "file_recall@1": 1.0,
+        "span_recall@1": 1.0,
+        "file_precision@1": 1.0,
+        "file_recall@5": 1.0,
+        "span_recall@5": 1.0,
+        "file_precision@5": 0.2,
+        "file_recall@10": 1.0,
+        "span_recall@10": 1.0,
+        "file_precision@10": 0.1,
+        "file_mrr": 1.0,
+        "span_mrr": 1.0,
+        "file_ndcg@10": 1.0,
+        "missing_evidence": 0.0,
+        "top1_false_positive": 0.0
+      }
+    },
+    {
+      "id": "requests:HTTPProxyAuth:exact",
+      "corpus": "requests",
+      "type": "symbol_exact",
+      "evaluation_set": "historical-60",
+      "mode": "codebase-json",
+      "raw_tokens": 79,
+      "visible_tokens": 79,
+      "seconds": 0.013356499999645166,
+      "error": false,
+      "over_budget": false,
+      "hits": [
+        {
+          "path": "src/requests/auth.py",
+          "line": 99
+        }
+      ],
+      "scores": {
+        "file_recall@1": 1.0,
+        "span_recall@1": 1.0,
+        "file_precision@1": 1.0,
+        "file_recall@5": 1.0,
+        "span_recall@5": 1.0,
+        "file_precision@5": 0.2,
+        "file_recall@10": 1.0,
+        "span_recall@10": 1.0,
+        "file_precision@10": 0.1,
+        "file_mrr": 1.0,
+        "span_mrr": 1.0,
+        "file_ndcg@10": 1.0,
+        "missing_evidence": 0.0,
+        "top1_false_positive": 0.0
+      }
+    },
+    {
+      "id": "requests:HTTPProxyAuth:exact",
+      "corpus": "requests",
+      "type": "symbol_exact",
+      "evaluation_set": "historical-60",
+      "mode": "codebase-tree",
+      "raw_tokens": 73,
+      "visible_tokens": 73,
+      "seconds": 0.03093720000470057,
+      "error": false,
+      "over_budget": false,
+      "hits": [
+        {
+          "path": "src/requests/auth.py",
+          "line": 99
+        }
+      ],
+      "scores": {
+        "file_recall@1": 1.0,
+        "span_recall@1": 1.0,
+        "file_precision@1": 1.0,
+        "file_recall@5": 1.0,
+        "span_recall@5": 1.0,
+        "file_precision@5": 0.2,
+        "file_recall@10": 1.0,
+        "span_recall@10": 1.0,
+        "file_precision@10": 0.1,
+        "file_mrr": 1.0,
+        "span_mrr": 1.0,
+        "file_ndcg@10": 1.0,
+        "missing_evidence": 0.0,
+        "top1_false_positive": 0.0
+      }
+    }
+  ]
+}

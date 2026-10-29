@@ -1,0 +1,41 @@
+{
+  "summary": {
+    "findex": {
+      "sessions": 4,
+      "valid": 4,
+      "correct": 4,
+      "mcp_calls": 4,
+      "input_tokens": 313326,
+      "cached_input_tokens": 294324,
+      "output_tokens": 2478,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 315804,
+      "uncached_input_tokens": 19002
+    },
+    "graphify": {
+      "sessions": 4,
+      "valid": 4,
+      "correct": 4,
+      "mcp_calls": 4,
+      "input_tokens": 321204,
+      "cached_input_tokens": 288637,
+      "output_tokens": 2759,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 323963,
+      "uncached_input_tokens": 32567
+    },
+    "codebase-memory": {
+      "sessions": 4,
+      "valid": 3,
+      "correct": 3,
+      "mcp_calls": 4,
+      "input_tokens": 381561,
+      "cached_input_tokens": 358856,
+      "output_tokens": 3525,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 385086,
+      "uncached_input_tokens": 22705
+    }
+  },
+  "limits": "4 tasks, one repetition per arm; Claude Haiku via subscription; tokens = fresh + cache-creation + cache-read input plus output. Derived from the saved sessions (the first summary read the wrong usage field and showed 0). Not evidence of general superiority or monetary savings."
+}

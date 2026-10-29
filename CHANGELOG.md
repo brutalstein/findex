@@ -20,6 +20,9 @@ First release candidate. No earlier version was published.
   do not block upgrades; reject a corrupt runtime before changing configuration.
 - Record native 200–100,000-file scaling and wide-source query measurements,
   with source-equivalence, idle-resource and over-budget rollback assertions.
+- Serialize `bm25_score` to three decimals in MCP and CLI JSON output. Ordering
+  and hits are unchanged; the 17-digit tail cost about six model tokens per hit
+  (mean raw tokens per query on the 115 frozen lookups: 263.8 to 243.0).
 
 ### Added
 - Optional lossless `format="compact"` for MCP lexical and exact-symbol results;

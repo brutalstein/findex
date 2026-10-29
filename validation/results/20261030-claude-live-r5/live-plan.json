@@ -1,0 +1,24 @@
+{
+  "tasks": [
+    "fmt:KeyMatcher:exact",
+    "requests:HTTPProxyAuth:exact",
+    "ripgrep:GitignoreBuilder:exact",
+    "fmt:concat:exact"
+  ],
+  "tools": [
+    "findex",
+    "graphify",
+    "codebase-memory"
+  ],
+  "max_sessions": 12,
+  "codex_profile": {
+    "model": "gpt-5.6-luna",
+    "model_reasoning_effort": "high",
+    "service_tier": "priority"
+  },
+  "claude_model": "haiku",
+  "blocked": {
+    "codex": "NOT_RUN: Claude-only study",
+    "claude": null
+  }
+}

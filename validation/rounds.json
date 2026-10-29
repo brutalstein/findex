@@ -1,0 +1,57 @@
+{
+  "rounds": [
+    {
+      "id": "R0",
+      "date": "2026-10-27",
+      "lanes": {
+        "definition": "validation/results/20261027-final-comparison/summary.json",
+        "localization": "validation/results/20261026-callsites-qualified-final/localization/localization.json",
+        "navigation_codex": "validation/results/20261027-codex-live/live-usage-summary.json"
+      },
+      "note": "Baseline. Three-tool definition comparison, first localization measurement on the 65 reused issues, and the two-task Codex navigation pilot."
+    },
+    {
+      "id": "R1",
+      "date": "2026-10-28",
+      "lanes": {
+        "localization": "validation/results/20261028-quality-localization-final/localization.json",
+        "bugfix_codex": "validation/results/20261028-semantic-bugfix-live/live-usage-summary.json"
+      },
+      "note": "First context-ranking iteration; localization re-measured. Two-task Codex bugfix pilot: Findex had one 300-second timeout."
+    },
+    {
+      "id": "R2",
+      "date": "2026-10-29",
+      "lanes": {
+        "localization": "validation/results/20261029-locality-final/localization.json",
+        "bugfix_codex": "validation/results/20261029-locality-bugfix-live/live-usage-summary.json"
+      },
+      "note": "Locality ranking iteration (conceptual vs exact split, filename words, nearby evidence). Bugfix pilot repeated: all tools solve both tasks, codebase-memory uses fewer tokens than Findex."
+    },
+    {
+      "id": "R3",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization": "validation/results/20261030-localization-head/localization.json"
+      },
+      "note": "No ranking change since R2. Re-measured on HEAD to confirm the numbers; the live harness was repaired the same day (invalid sessions no longer halt a study; single-definition tasks; answer parsing)."
+    },
+    {
+      "id": "R4",
+      "date": "2026-10-30",
+      "lanes": {
+        "navigation_claude": "validation/results/20261030-claude-live-r4/live-usage-summary.json"
+      },
+      "note": "First Claude Code live round on HEAD with the repaired harness: four single-definition tasks, three tools, Claude Haiku via subscription. Every session spent a tool-search turn; the harness prompt steered Findex to its deferred tools."
+    },
+    {
+      "id": "R5",
+      "date": "2026-10-30",
+      "lanes": {
+        "definition": "validation/results/20261030-payload-head/summary.json",
+        "navigation_claude": "validation/results/20261030-claude-live-r5/live-usage-summary.json"
+      },
+      "note": "BM25 scores serialized to three decimals (about 8% fewer Findex tokens per query, same hits). Harness hint now points Findex sessions at the upfront findex_context tool, so they skip the tool-search turn. Same four tasks as R4."
+    }
+  ]
+}

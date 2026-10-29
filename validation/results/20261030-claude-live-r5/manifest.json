@@ -1,0 +1,2627 @@
+{
+ "queries": [
+  {
+   "corpus": "ripgrep",
+   "name": "GitignoreBuilder",
+   "expected": [
+    [
+     "crates/ignore/src/gitignore.rs",
+     306
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:GitignoreBuilder:exact",
+   "type": "symbol_exact",
+   "query": "GitignoreBuilder",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "GitignoreBuilder",
+   "expected": [
+    [
+     "crates/ignore/src/gitignore.rs",
+     306
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:GitignoreBuilder:words",
+   "type": "identifier_words",
+   "query": "gitignore builder",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "GlobSetBuilder",
+   "expected": [
+    [
+     "crates/globset/src/lib.rs",
+     491
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:GlobSetBuilder:exact",
+   "type": "symbol_exact",
+   "query": "GlobSetBuilder",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "GlobSetBuilder",
+   "expected": [
+    [
+     "crates/globset/src/lib.rs",
+     491
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:GlobSetBuilder:words",
+   "type": "identifier_words",
+   "query": "glob set builder",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "NoIgnoreFiles",
+   "expected": [
+    [
+     "crates/core/flags/defs.rs",
+     4394
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:NoIgnoreFiles:exact",
+   "type": "symbol_exact",
+   "query": "NoIgnoreFiles",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "NoIgnoreFiles",
+   "expected": [
+    [
+     "crates/core/flags/defs.rs",
+     4394
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:NoIgnoreFiles:words",
+   "type": "identifier_words",
+   "query": "no ignore files",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "NoIgnoreMessages",
+   "expected": [
+    [
+     "crates/core/flags/defs.rs",
+     4488
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:NoIgnoreMessages:exact",
+   "type": "symbol_exact",
+   "query": "NoIgnoreMessages",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "NoIgnoreMessages",
+   "expected": [
+    [
+     "crates/core/flags/defs.rs",
+     4488
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:NoIgnoreMessages:words",
+   "type": "identifier_words",
+   "query": "no ignore messages",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "PathSeparator",
+   "expected": [
+    [
+     "crates/core/flags/defs.rs",
+     5087
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:PathSeparator:exact",
+   "type": "symbol_exact",
+   "query": "PathSeparator",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "PathSeparator",
+   "expected": [
+    [
+     "crates/core/flags/defs.rs",
+     5087
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:PathSeparator:words",
+   "type": "identifier_words",
+   "query": "path separator",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "Token",
+   "expected": [
+    [
+     "crates/globset/src/glob.rs",
+     239
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:Token:exact",
+   "type": "symbol_exact",
+   "query": "Token",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "basic",
+   "expected": [
+    [
+     "crates/core/flags/config.rs",
+     110
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:basic:exact",
+   "type": "symbol_exact",
+   "query": "basic",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "context_code1",
+   "expected": [
+    [
+     "crates/searcher/src/searcher/glue.rs",
+     1263
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:context_code1:exact",
+   "type": "symbol_exact",
+   "query": "context_code1",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "context_code1",
+   "expected": [
+    [
+     "crates/searcher/src/searcher/glue.rs",
+     1263
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:context_code1:words",
+   "type": "identifier_words",
+   "query": "context code1",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "from_ast_impl",
+   "expected": [
+    [
+     "crates/regex/src/ast.rs",
+     56
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:from_ast_impl:exact",
+   "type": "symbol_exact",
+   "query": "from_ast_impl",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "from_ast_impl",
+   "expected": [
+    [
+     "crates/regex/src/ast.rs",
+     56
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:from_ast_impl:words",
+   "type": "identifier_words",
+   "query": "from ast impl",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "from_sink_context",
+   "expected": [
+    [
+     "crates/printer/src/util.rs",
+     204
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:from_sink_context:exact",
+   "type": "symbol_exact",
+   "query": "from_sink_context",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "from_sink_context",
+   "expected": [
+    [
+     "crates/printer/src/util.rs",
+     204
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:from_sink_context:words",
+   "type": "identifier_words",
+   "query": "from sink context",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "glob_deserialize_error",
+   "expected": [
+    [
+     "crates/globset/src/serde_impl.rs",
+     102
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:glob_deserialize_error:exact",
+   "type": "symbol_exact",
+   "query": "glob_deserialize_error",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "glob_deserialize_error",
+   "expected": [
+    [
+     "crates/globset/src/serde_impl.rs",
+     102
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:glob_deserialize_error:words",
+   "type": "identifier_words",
+   "query": "glob deserialize error",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "has_uppercase_literal",
+   "expected": [
+    [
+     "crates/pcre2/src/matcher.rs",
+     417
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:has_uppercase_literal:exact",
+   "type": "symbol_exact",
+   "query": "has_uppercase_literal",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "has_uppercase_literal",
+   "expected": [
+    [
+     "crates/pcre2/src/matcher.rs",
+     417
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:has_uppercase_literal:words",
+   "type": "identifier_words",
+   "query": "has uppercase literal",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "max_jit_stack_size",
+   "expected": [
+    [
+     "crates/pcre2/src/matcher.rs",
+     286
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:max_jit_stack_size:exact",
+   "type": "symbol_exact",
+   "query": "max_jit_stack_size",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "max_jit_stack_size",
+   "expected": [
+    [
+     "crates/pcre2/src/matcher.rs",
+     286
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:max_jit_stack_size:words",
+   "type": "identifier_words",
+   "query": "max jit stack size",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "new_regex_set",
+   "expected": [
+    [
+     "crates/globset/src/lib.rs",
+     279
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:new_regex_set:exact",
+   "type": "symbol_exact",
+   "query": "new_regex_set",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "new_regex_set",
+   "expected": [
+    [
+     "crates/globset/src/lib.rs",
+     279
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:new_regex_set:words",
+   "type": "identifier_words",
+   "query": "new regex set",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "parse_backslash",
+   "expected": [
+    [
+     "crates/globset/src/glob.rs",
+     835
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:parse_backslash:exact",
+   "type": "symbol_exact",
+   "query": "parse_backslash",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "parse_backslash",
+   "expected": [
+    [
+     "crates/globset/src/glob.rs",
+     835
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:parse_backslash:words",
+   "type": "identifier_words",
+   "query": "parse backslash",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "to_regex",
+   "expected": [
+    [
+     "crates/regex/src/config.rs",
+     242
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:to_regex:exact",
+   "type": "symbol_exact",
+   "query": "to_regex",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": "to_regex",
+   "expected": [
+    [
+     "crates/regex/src/config.rs",
+     242
+    ]
+   ],
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "id": "ripgrep:to_regex:words",
+   "type": "identifier_words",
+   "query": "to regex",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": null,
+   "expected": [
+    [
+     "crates/printer/src/standard.rs",
+     1755
+    ]
+   ],
+   "query": "defined preceding writes",
+   "id": "ripgrep:line:1",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": null,
+   "expected": [
+    [
+     "crates/core/flags/config.rs",
+     67
+    ]
+   ],
+   "query": "parse reader single",
+   "id": "ripgrep:line:10",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": null,
+   "expected": [
+    [
+     "crates/core/flags/doc/mod.rs",
+     13
+    ]
+   ],
+   "query": "argument buffer second",
+   "id": "ripgrep:line:12",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": null,
+   "expected": [
+    [
+     "crates/grep/src/lib.rs",
+     6
+    ]
+   ],
+   "query": "documentation pieces users",
+   "id": "ripgrep:line:15",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "ripgrep",
+   "name": null,
+   "expected": [
+    [
+     "crates/searcher/src/searcher/mmap.rs",
+     63
+    ]
+   ],
+   "query": "along corresponding returned",
+   "id": "ripgrep:line:16",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "HTTPProxyAuth",
+   "expected": [
+    [
+     "src/requests/auth.py",
+     99
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:HTTPProxyAuth:exact",
+   "type": "symbol_exact",
+   "query": "HTTPProxyAuth",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "HTTPProxyAuth",
+   "expected": [
+    [
+     "src/requests/auth.py",
+     99
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:HTTPProxyAuth:words",
+   "type": "identifier_words",
+   "query": "http proxy auth",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "JSONDecodeError",
+   "expected": [
+    [
+     "src/requests/exceptions.py",
+     31
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:JSONDecodeError:exact",
+   "type": "symbol_exact",
+   "query": "JSONDecodeError",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "JSONDecodeError",
+   "expected": [
+    [
+     "src/requests/exceptions.py",
+     31
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:JSONDecodeError:words",
+   "type": "identifier_words",
+   "query": "json decode error",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "NoLenBoomFile",
+   "expected": [
+    [
+     "tests/test_utils.py",
+     88
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:NoLenBoomFile:exact",
+   "type": "symbol_exact",
+   "query": "NoLenBoomFile",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "NoLenBoomFile",
+   "expected": [
+    [
+     "tests/test_utils.py",
+     88
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:NoLenBoomFile:words",
+   "type": "identifier_words",
+   "query": "no len boom file",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "TLSServer",
+   "expected": [
+    [
+     "tests/testserver/server.py",
+     138
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:TLSServer:exact",
+   "type": "symbol_exact",
+   "query": "TLSServer",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "TLSServer",
+   "expected": [
+    [
+     "tests/testserver/server.py",
+     138
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:TLSServer:words",
+   "type": "identifier_words",
+   "query": "tls server",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "__bool__",
+   "expected": [
+    [
+     "src/requests/models.py",
+     730
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:__bool__:exact",
+   "type": "symbol_exact",
+   "query": "__bool__",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "check_header_validity",
+   "expected": [
+    [
+     "src/requests/utils.py",
+     1034
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:check_header_validity:exact",
+   "type": "symbol_exact",
+   "query": "check_header_validity",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "check_header_validity",
+   "expected": [
+    [
+     "src/requests/utils.py",
+     1034
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:check_header_validity:words",
+   "type": "identifier_words",
+   "query": "check header validity",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "default_hooks",
+   "expected": [
+    [
+     "src/requests/hooks.py",
+     15
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:default_hooks:exact",
+   "type": "symbol_exact",
+   "query": "default_hooks",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "default_hooks",
+   "expected": [
+    [
+     "src/requests/hooks.py",
+     15
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:default_hooks:words",
+   "type": "identifier_words",
+   "query": "default hooks",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "handler",
+   "expected": [
+    [
+     "tests/test_testserver.py",
+     17
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:handler:exact",
+   "type": "symbol_exact",
+   "query": "handler",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "iteritems",
+   "expected": [
+    [
+     "src/requests/cookies.py",
+     259
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:iteritems:exact",
+   "type": "symbol_exact",
+   "query": "iteritems",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "proxy_bypass_registry",
+   "expected": [
+    [
+     "src/requests/utils.py",
+     76
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:proxy_bypass_registry:exact",
+   "type": "symbol_exact",
+   "query": "proxy_bypass_registry",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "proxy_bypass_registry",
+   "expected": [
+    [
+     "src/requests/utils.py",
+     76
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:proxy_bypass_registry:words",
+   "type": "identifier_words",
+   "query": "proxy bypass registry",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "rebuild_proxies",
+   "expected": [
+    [
+     "src/requests/sessions.py",
+     302
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:rebuild_proxies:exact",
+   "type": "symbol_exact",
+   "query": "rebuild_proxies",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "rebuild_proxies",
+   "expected": [
+    [
+     "src/requests/sessions.py",
+     302
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:rebuild_proxies:words",
+   "type": "identifier_words",
+   "query": "rebuild proxies",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "sha256_utf8",
+   "expected": [
+    [
+     "src/requests/auth.py",
+     161
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:sha256_utf8:exact",
+   "type": "symbol_exact",
+   "query": "sha256_utf8",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "sha256_utf8",
+   "expected": [
+    [
+     "src/requests/auth.py",
+     161
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:sha256_utf8:words",
+   "type": "identifier_words",
+   "query": "sha256 utf8",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": "super_len",
+   "expected": [
+    [
+     "src/requests/utils.py",
+     135
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:super_len:exact",
+   "type": "symbol_exact",
+   "query": "super_len",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": "super_len",
+   "expected": [
+    [
+     "src/requests/utils.py",
+     135
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "id": "requests:super_len:words",
+   "type": "identifier_words",
+   "query": "super len",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "requests",
+   "name": null,
+   "expected": [
+    [
+     "src/requests/hooks.py",
+     23
+    ]
+   ],
+   "query": "dictionary given piece",
+   "id": "requests:line:4",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": null,
+   "expected": [
+    [
+     "src/requests/__init__.py",
+     121
+    ]
+   ],
+   "query": "attempt fallback support",
+   "id": "requests:line:5",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": null,
+   "expected": [
+    [
+     "tests/compat.py",
+     19
+    ]
+   ],
+   "query": "future release requests",
+   "id": "requests:line:14",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "requests",
+   "name": null,
+   "expected": [
+    [
+     "src/requests/certs.py",
+     7
+    ]
+   ],
+   "query": "bundle module preferred",
+   "id": "requests:line:18",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "CatchallOutput",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     2355
+    ],
+    [
+     "src/types.ts",
+     2355
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:CatchallOutput:exact",
+   "type": "symbol_exact",
+   "query": "CatchallOutput",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "CatchallOutput",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     2355
+    ],
+    [
+     "src/types.ts",
+     2355
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:CatchallOutput:words",
+   "type": "identifier_words",
+   "query": "catchall output",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "UnknownKeysParam",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     2308
+    ],
+    [
+     "src/types.ts",
+     2308
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:UnknownKeysParam:exact",
+   "type": "symbol_exact",
+   "query": "UnknownKeysParam",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "UnknownKeysParam",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     2308
+    ],
+    [
+     "src/types.ts",
+     2308
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:UnknownKeysParam:words",
+   "type": "identifier_words",
+   "query": "unknown keys param",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "Values",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     4144
+    ],
+    [
+     "src/types.ts",
+     4144
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:Values:exact",
+   "type": "symbol_exact",
+   "query": "Values",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodDefaultDef",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     4717
+    ],
+    [
+     "src/types.ts",
+     4717
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodDefaultDef:exact",
+   "type": "symbol_exact",
+   "query": "ZodDefaultDef",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodDefaultDef",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     4717
+    ],
+    [
+     "src/types.ts",
+     4717
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodDefaultDef:words",
+   "type": "identifier_words",
+   "query": "zod default def",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodDiscriminatedUnionOption",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     3093
+    ],
+    [
+     "src/types.ts",
+     3093
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodDiscriminatedUnionOption:exact",
+   "type": "symbol_exact",
+   "query": "ZodDiscriminatedUnionOption",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodDiscriminatedUnionOption",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     3093
+    ],
+    [
+     "src/types.ts",
+     3093
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodDiscriminatedUnionOption:words",
+   "type": "identifier_words",
+   "query": "zod discriminated union option",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodIssueBase",
+   "expected": [
+    [
+     "deno/lib/ZodError.ts",
+     39
+    ],
+    [
+     "src/ZodError.ts",
+     39
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodIssueBase:exact",
+   "type": "symbol_exact",
+   "query": "ZodIssueBase",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodIssueBase",
+   "expected": [
+    [
+     "deno/lib/ZodError.ts",
+     39
+    ],
+    [
+     "src/ZodError.ts",
+     39
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodIssueBase:words",
+   "type": "identifier_words",
+   "query": "zod issue base",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodNumber",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     1264
+    ],
+    [
+     "src/types.ts",
+     1264
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodNumber:exact",
+   "type": "symbol_exact",
+   "query": "ZodNumber",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodNumber",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     1264
+    ],
+    [
+     "src/types.ts",
+     1264
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodNumber:words",
+   "type": "identifier_words",
+   "query": "zod number",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodNumberDef",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     1258
+    ],
+    [
+     "src/types.ts",
+     1258
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodNumberDef:exact",
+   "type": "symbol_exact",
+   "query": "ZodNumberDef",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodNumberDef",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     1258
+    ],
+    [
+     "src/types.ts",
+     1258
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodNumberDef:words",
+   "type": "identifier_words",
+   "query": "zod number def",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodUnknownDef",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     2058
+    ],
+    [
+     "src/types.ts",
+     2058
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodUnknownDef:exact",
+   "type": "symbol_exact",
+   "query": "ZodUnknownDef",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "ZodUnknownDef",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     2058
+    ],
+    [
+     "src/types.ts",
+     2058
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:ZodUnknownDef:words",
+   "type": "identifier_words",
+   "query": "zod unknown def",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "finalizeSet",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     3791
+    ],
+    [
+     "src/types.ts",
+     3791
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:finalizeSet:exact",
+   "type": "symbol_exact",
+   "query": "finalizeSet",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "finalizeSet",
+   "expected": [
+    [
+     "deno/lib/types.ts",
+     3791
+    ],
+    [
+     "src/types.ts",
+     3791
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:finalizeSet:words",
+   "type": "identifier_words",
+   "query": "finalize set",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "nativeEnumTest",
+   "expected": [
+    [
+     "deno/lib/__tests__/async-parsing.test.ts",
+     264
+    ],
+    [
+     "src/__tests__/async-parsing.test.ts",
+     263
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:nativeEnumTest:exact",
+   "type": "symbol_exact",
+   "query": "nativeEnumTest",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "nativeEnumTest",
+   "expected": [
+    [
+     "deno/lib/__tests__/async-parsing.test.ts",
+     264
+    ],
+    [
+     "src/__tests__/async-parsing.test.ts",
+     263
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:nativeEnumTest:words",
+   "type": "identifier_words",
+   "query": "native enum test",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "recordWithLiteralKeys",
+   "expected": [
+    [
+     "deno/lib/__tests__/record.test.ts",
+     18
+    ],
+    [
+     "src/__tests__/record.test.ts",
+     17
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:recordWithLiteralKeys:exact",
+   "type": "symbol_exact",
+   "query": "recordWithLiteralKeys",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": "recordWithLiteralKeys",
+   "expected": [
+    [
+     "deno/lib/__tests__/record.test.ts",
+     18
+    ],
+    [
+     "src/__tests__/record.test.ts",
+     17
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:recordWithLiteralKeys:words",
+   "type": "identifier_words",
+   "query": "record with literal keys",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "recursiveZodFormattedError",
+   "expected": [
+    [
+     "deno/lib/ZodError.ts",
+     180
+    ],
+    [
+     "src/ZodError.ts",
+     180
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:recursiveZodFormattedError:exact",
+   "type": "symbol_exact",
+   "query": "recursiveZodFormattedError",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "zod",
+   "name": "recursiveZodFormattedError",
+   "expected": [
+    [
+     "deno/lib/ZodError.ts",
+     180
+    ],
+    [
+     "src/ZodError.ts",
+     180
+    ]
+   ],
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "id": "zod:recursiveZodFormattedError:words",
+   "type": "identifier_words",
+   "query": "recursive zod formatted error",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "zod",
+   "name": null,
+   "expected": [
+    [
+     "src/__tests__/language-server.test.ts",
+     205
+    ]
+   ],
+   "query": "could literal property",
+   "id": "zod:line:0",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "KeyMatcher",
+   "expected": [
+    [
+     "test/gtest/gmock/gmock.h",
+     5683
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:KeyMatcher:exact",
+   "type": "symbol_exact",
+   "query": "KeyMatcher",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "KeyMatcher",
+   "expected": [
+    [
+     "test/gtest/gmock/gmock.h",
+     5683
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:KeyMatcher:words",
+   "type": "identifier_words",
+   "query": "key matcher",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "MakePredicateFormatterFromMatcher",
+   "expected": [
+    [
+     "test/gtest/gmock/gmock.h",
+     4434
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:MakePredicateFormatterFromMatcher:exact",
+   "type": "symbol_exact",
+   "query": "MakePredicateFormatterFromMatcher",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "MakePredicateFormatterFromMatcher",
+   "expected": [
+    [
+     "test/gtest/gmock/gmock.h",
+     4434
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:MakePredicateFormatterFromMatcher:words",
+   "type": "identifier_words",
+   "query": "make predicate formatter from matcher",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "concat",
+   "expected": [
+    [
+     "include/fmt/compile.h",
+     210
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:concat:exact",
+   "type": "symbol_exact",
+   "query": "concat",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "context",
+   "expected": [
+    [
+     "include/fmt/base.h",
+     1942
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:context:exact",
+   "type": "symbol_exact",
+   "query": "context",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "has_flip",
+   "expected": [
+    [
+     "include/fmt/std.h",
+     561
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:has_flip:exact",
+   "type": "symbol_exact",
+   "query": "has_flip",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "has_flip",
+   "expected": [
+    [
+     "include/fmt/std.h",
+     561
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:has_flip:words",
+   "type": "identifier_words",
+   "query": "has flip",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "is_contiguous",
+   "expected": [
+    [
+     "include/fmt/base.h",
+     507
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:is_contiguous:exact",
+   "type": "symbol_exact",
+   "query": "is_contiguous",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "is_contiguous",
+   "expected": [
+    [
+     "include/fmt/base.h",
+     507
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:is_contiguous:words",
+   "type": "identifier_words",
+   "query": "is contiguous",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "is_set",
+   "expected": [
+    [
+     "include/fmt/ranges.h",
+     38
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:is_set:exact",
+   "type": "symbol_exact",
+   "query": "is_set",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "is_set",
+   "expected": [
+    [
+     "include/fmt/ranges.h",
+     38
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:is_set:words",
+   "type": "identifier_words",
+   "query": "is set",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "parse_arg_id",
+   "expected": [
+    [
+     "include/fmt/compile.h",
+     300
+    ],
+    [
+     "test/base-test.cc",
+     500
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:parse_arg_id:exact",
+   "type": "symbol_exact",
+   "query": "parse_arg_id",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "parse_arg_id",
+   "expected": [
+    [
+     "include/fmt/compile.h",
+     300
+    ],
+    [
+     "test/base-test.cc",
+     500
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:parse_arg_id:words",
+   "type": "identifier_words",
+   "query": "parse arg id",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "parse_tail",
+   "expected": [
+    [
+     "include/fmt/compile.h",
+     244
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:parse_tail:exact",
+   "type": "symbol_exact",
+   "query": "parse_tail",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "parse_tail",
+   "expected": [
+    [
+     "include/fmt/compile.h",
+     244
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:parse_tail:words",
+   "type": "identifier_words",
+   "query": "parse tail",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "report_truncation",
+   "expected": [
+    [
+     "include/fmt/base.h",
+     2797
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:report_truncation:exact",
+   "type": "symbol_exact",
+   "query": "report_truncation",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "report_truncation",
+   "expected": [
+    [
+     "include/fmt/base.h",
+     2797
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:report_truncation:words",
+   "type": "identifier_words",
+   "query": "report truncation",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "utf8_system_category",
+   "expected": [
+    [
+     "src/os.cc",
+     117
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:utf8_system_category:exact",
+   "type": "symbol_exact",
+   "query": "utf8_system_category",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": "utf8_system_category",
+   "expected": [
+    [
+     "src/os.cc",
+     117
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:utf8_system_category:words",
+   "type": "identifier_words",
+   "query": "utf8 system category",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": "year",
+   "expected": [
+    [
+     "include/fmt/chrono.h",
+     2070
+    ]
+   ],
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "id": "fmt:year:exact",
+   "type": "symbol_exact",
+   "query": "year",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": null,
+   "expected": [
+    [
+     "test/test-assert.h",
+     35
+    ]
+   ],
+   "query": "assertion expects failure",
+   "id": "fmt:line:1",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "evaluation_set": "new-55"
+  },
+  {
+   "corpus": "fmt",
+   "name": null,
+   "expected": [
+    [
+     "test/perf-sanity.cc",
+     24
+    ]
+   ],
+   "query": "count duration print",
+   "id": "fmt:line:2",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": null,
+   "expected": [
+    [
+     "test/perf-sanity.cc",
+     13
+    ]
+   ],
+   "query": "chrono clock start",
+   "id": "fmt:line:6",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": null,
+   "expected": [
+    [
+     "include/fmt/xchar.h",
+     122
+    ]
+   ],
+   "query": "basic tuple wchar",
+   "id": "fmt:line:9",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": null,
+   "expected": [
+    [
+     "test/test-assert.h",
+     1
+    ]
+   ],
+   "query": "formatting library version",
+   "id": "fmt:line:13",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "evaluation_set": "historical-60"
+  },
+  {
+   "corpus": "fmt",
+   "name": null,
+   "expected": [
+    [
+     "include/fmt/base.h",
+     438
+    ]
+   ],
+   "query": "avoid dependency experimental",
+   "id": "fmt:line:16",
+   "type": "line_terms",
+   "split": "heldout",
+   "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+   "evaluation_set": "historical-60"
+  }
+ ],
+ "identity": {
+  "corpora": {
+   "requests": {
+    "commit": "0e322af87745eff34caffe4df68456ebc20d9068",
+    "admitted_sha256": {
+     "AUTHORS.rst": "a7fdc3865415a216d56c8e41222a8ac547aa8b6f7daede20bcd3e04b72bbecca",
+     "HISTORY.md": "8a8ebd7038521f36c20a9fde9994af6e0abf352e9d056a768d0912e9b2367c54",
+     "LICENSE": "88046bf22d5b4f4b8cc85079ae6aae5424a3a1999db952ed152828ff325b2c6d",
+     "MANIFEST.in": "aa24a32844d64ffa6c7b5b817e9592708e9b8801676a642f9809aea05ca33f18",
+     "Makefile": "7787d1365c9f50e417f72cb638ad0cddb58e3db6dbe7d1bc6a261d4a13327b58",
+     "NOTICE": "8c7a3a90f8ca49f813f75e75ceb20aa4b488c57f4aa72c872771f22558c837d9",
+     "README.md": "8be7d28da85adac3c7b064105a3a7e3a0859b73587ce9bf4a397dd489c980646",
+     "docs/Makefile": "e7513349af58601f09d63c7facb29628ccbbda0de2a0c3cc46aa92e0854a0f55",
+     "docs/_static/custom.css": "086cc0acec72734e4ceb037ad3c5e12469d21682625a85884b1a1f8b9a4a8a5d",
+     "docs/_templates/hacks.html": "50e8be2bd9ca84e187e6b807a03045a1f0abdaa9d0e0abef9e38f30516c90785",
+     "docs/_templates/sidebarintro.html": "91ccebe04112f1865a8e79f06a36b0a25a4d53c9ee74bd5457164b38e3e0e824",
+     "docs/_templates/sidebarlogo.html": "c3e6ef58c4f117e2e54155725ca4ce6a9d95c08b3657fe14bf607b5b8e874f75",
+     "docs/_themes/LICENSE": "a9086ee2cf4160954cc7195caa8b32bf59e5e0acaa77b5205933bf5e4060224a",
+     "docs/_themes/flask_theme_support.py": "afc582667afd86a1395d4d59ca976594446b9aca69bc5b21236c879a9a7ae9bc",
+     "docs/api.rst": "8e1cfa673510c46745297f45c32e774d41e794a7d442942189f438a2d541a32c",
+     "docs/community/faq.rst": "96556b96cb4e09749205a1f7e189cb3b11ec2525418aacb59ec70a9db713ee30",
+     "docs/community/out-there.rst": "f59ca836cc9a2b638a180c94d2d61362e97a64fcc48a67634e8945160d269824",
+     "docs/community/recommended.rst": "b2c35b4e74daa3025d82ad62cdfbb56fcb2bf29df5ed2ee2e00c97ebd933d09c",
+     "docs/community/release-process.rst": "e53cab96eeee55601a35ae062f27342a22ac8b0cbe9e3c7be59249a5f65622af",
+     "docs/community/support.rst": "94ffcb6a896f4341ebeb50c191c15397ac7da07aa3a1187ae0ebd9ba68169aab",
+     "docs/community/updates.rst": "f59fa722bb74ca1de411263d4b03aac797b08967132416a284347e361d93005f",
+     "docs/community/vulnerabilities.rst": "f6711408163b4dd9fe5f7978e0cc4fb83fc79e953472921a22c0bafe5b0b56e5",
+     "docs/conf.py": "c29138e7100688b71cf109716e15caca86835466b83776f916833fa5826cc491",
+     "docs/dev/authors.rst": "bf85da9f103cb1d35f294cc12f9d6677e56ac9c41366b29bb7faf88e33100653",
+     "docs/dev/contributing.rst": "43776d62cf24a41a017b065e880fd67bbc89488688fba938173888e358fe66ec",
+     "docs/index.rst": "0f63614a9dc1e6216d20b48ed95ce9fbd76c47877453c305806ecf0e35988f6f",
+     "docs/make.bat": "d65d3af3fd9f81bfa4dd7b773d057125af36f4df5e5bc4234fe3127ccf6c6dcc",
+     "docs/requirements.txt": "6034ea7697a48ec5a1282bbb0e85d16c7e4b2e4efebdc85fc2287ddacb2713de",
+     "docs/user/advanced.rst": "30d6156b7fbdaecdf91b8b1b5711208ebdcecd5dad13e9ecaa5fcaf8c2be863f",
+     "docs/user/authentication.rst": "3617952bd1b46f04103fbb21d0b1f453443d830a500eec829b442cdb26d54379",
+     "docs/user/install.rst": "c5606c4174189422bf71d5207befec38d6ccc835cb94b8e1731f8829bfe10de2",
+     "docs/user/quickstart.rst": "53610341dc0914a5cd13215562c82de95adeea592e5c7a59c0ce6004fce4bc76",
+     "ext/LICENSE": "30fff57f9d51ef5888f888ecf0b50807499fdd0cfd9fa4824b6a3e2c40e255b3",
+     "pyproject.toml": "c3f3b79508e75d15597bbea9772322d6ca7c47c004083ae0b845382f0fb612c2",
+     "requirements-dev.txt": "2726bbeacd151f7b6848823105deaf792c56728abdcb958c0d990da5c6192dd1",
+     "setup.cfg": "4dc4dd1ec26ce8b9d8015a96be83d3402a339b0b77ca21de79995df4902fcda5",
+     "setup.py": "3e12b1ceea3d3791ff0167d62b59285c5863f5d7dcbc85250d8723f4d0d10ac3",
+     "src/requests/__init__.py": "43df72db850e5f5751d022bdf01d02dfa07c7a6e10645a73e80f1eccd2b02511",
+     "src/requests/__version__.py": "a9068bc29c05de0ce7a2ce5a8b1636b457773bb577824b59ff1a2f946beb8d1b",
+     "src/requests/_internal_utils.py": "534eda8a19edd8b2634ba9006e071c4f91f4fee8c7ddc4fa2c134b13f4213b8d",
+     "src/requests/adapters.py": "47fc49ea336e4cfd2d5343c3f70ecaff40c2b61500fbfc6a4fbda44fd8746b06",
+     "src/requests/api.py": "c20586062a530b464394aac38c14eb0851d3b4ee5d5b7fca484759d27b27f8a2",
+     "src/requests/auth.py": "f9321b1855873d1518fc2a5705a2b99ea0784d017067ccdbe8e036f530f01b34",
+     "src/requests/certs.py": "53fa47ebbf69a0c7c07ee1eac2b754f91c2e71f4d7dd75403209255f93da4067",
+     "src/requests/compat.py": "6d030727a460ac87b83d4dfa9681416a2eb5cea2ac1f72359de9d93866ec93d5",
+     "src/requests/cookies.py": "8d10a3772ad0a04c87c710ea8889eace0a56d8a367d5d6f4cb1b6e45cc7b91ee",
+     "src/requests/exceptions.py": "dfb98429347306c8a5ab81c0caa08032010499825ae3bde605e0b515f883301c",
+     "src/requests/help.py": "53a08c13553001fe2162fc5e4222e1c0eb6d56c646928bf1a3428cc80f85324b",
+     "src/requests/hooks.py": "1d1abdfddd3e4ef471790a942f37fd27fa9fadfa0309d2756b7b7196cb2f0be0",
+     "src/requests/models.py": "658c9aacdc4f081ef1066b6cba01d1997810a895345c67c78a69afbd941439ee",
+     "src/requests/packages.py": "b745f5941ad2e2dcd9d44b5f09841c87a7353ab669ba82443f70b480f178082d",
+     "src/requests/sessions.py": "6bf0af8477a7a4a780a86cec5cb4bc4d7ed49b9d6ad85ef620b8d2c81aa67a2d",
+     "src/requests/status_codes.py": "0e62d9b97da1d8e4615e6463e1282e7a316702928e0ff696016f074ae9beb419",
+     "src/requests/structures.py": "1e2ff1575ccc89a50add1d743152c4ad05e8702a9ac8109bc13462c92538b8b7",
+     "src/requests/utils.py": "e12262bf0a203fa60c7214a0e8f425f1a5ceaa0798d12953c1c219622b353423",
+     "tests/__init__.py": "b63927bded9e15eb17b06835b3fcfee04696fd114620e436ccac1fa652b2c2df",
+     "tests/certs/README.md": "6ee11f63f2cc13f6c02c6dbf8cb3b777e53e55b45571c4a3acd803e9469d3905",
+     "tests/certs/expired/Makefile": "8aba039a042b01a9dfc6bd60f774d7344c1c3dcebe5001e04640b961da80a10f",
+     "tests/certs/expired/README.md": "213230356d14df4dad57462ca86884dccee994eaf62258a3bf595c0d9fb0bf9a",
+     "tests/certs/expired/ca/Makefile": "1bde2c742752d2e23f304961cd94cf5f3df483fb3e30fc71766a6748f860108d",
+     "tests/certs/expired/ca/ca.cnf": "ca823cb01095e626cc7e1487d51f235d772795609ae293a099ea0cc39c62de8b",
+     "tests/certs/expired/ca/ca.crt": "7892c3dd9c1e7c750a7e259ffda224c0abf2eee623382ce8cfd6e076fee25581",
+     "tests/certs/expired/ca/ca.srl": "1a85bcbe1c49f3be97d2364ebe004531ea1555ec557a5c6d2d66bf1b4276bfc0",
+     "tests/certs/expired/server/Makefile": "1d30ef0db67a6f7f297ff76013d5a6369cd5e721ae8a17140ed01a939f955d1c",
+     "tests/certs/expired/server/cert.cnf": "9dc516878aef2092b80f8a204ee9a69d3ee0678e1482e8133714de34606e9005",
+     "tests/certs/expired/server/server.csr": "09c0bf0a3fcea04885450ab578e6f527537f3344db6206fff21a4bfb5eee4c21",
+     "tests/certs/mtls/Makefile": "abbc46d6d0d3c13864a2ee5aee39d24802f824ffe0d0950c5d211ea10cc479a5",
+     "tests/certs/mtls/README.md": "3dd8250d7ebaf6ee5967190c92702551b154610d7649f32a25b9bacaf465f4c4",
+     "tests/certs/mtls/client/Makefile": "a6b6dd19eeff9c1cd40dc3c0c2142f97a332f093cc4b9f2712de46c4e2bbd015",
+     "tests/certs/mtls/client/ca": "56e354b86d39c2cd05f5d59eff9d10c098721075a85892fc7ece023e7b3405b7",
+     "tests/certs/mtls/client/cert.cnf": "bb3333db5e59eed2020edcf5bfab341e74497cf77b69eb1d235fc307d23754cd",
+     "tests/certs/mtls/client/client.csr": "6f107cfc49d46f074ad2aace463abe917bd724d8c43eb4d6c0663c8f56b10097",
+     "tests/certs/valid/ca": "e781a2bf952740c5eb6b55bbd316d2a21f461cb2ed013192ea226b943fb73afa",
+     "tests/certs/valid/server/Makefile": "abb102186c63b322a97dd470bbf1793544503f1ceb6a98048cf344aad57daa86",
+     "tests/certs/valid/server/cert.cnf": "5c9ddc32f36257d0ceb979e8c46837be4f1e14fbc1c445308c3b78298596dd7f",
+     "tests/certs/valid/server/server.csr": "9d54bb9800659f9430c76bf9716df36b33e341683e1818d0319c3fba6c9864e8",
+     "tests/compat.py": "5aeb44ac81acb49f9f6d4bc43d40abb017cd9b4f96478c0544e03e623d5f583f",
+     "tests/conftest.py": "84789b47877c74965cd22df65ba91623558e60e006e2f79a3840082876f9e8b4",
+     "tests/test_adapters.py": "05d27c8f44d4082961796e8a63e6f75c69ef65db1f11c7540310301f4c5efd6f",
+     "tests/test_help.py": "6527243a09aca6928a760b98ecda44a073eeaf500fc1751054bc9a7d6ab7a3c0",
+     "tests/test_hooks.py": "6a28a7c74664037057758f5c642b46318c40ab66c55c5a3af377788ec2509329",
+     "tests/test_lowlevel.py": "89994be0dc8b8f641712c3f59dd2fc44222e4b98543133b45b6cb19c4efd8251",
+     "tests/test_packages.py": "28ef0b9f75e4d22b09fa5695619c12de050c9dd293797e887ce14aca2f287687",
+     "tests/test_requests.py": "ee61fa61189378e51c64518cef3c367e67824bda396c02a2d6224c6408376fe4",
+     "tests/test_structures.py": "72d5cee6962a066059a7f7ad4274655fd32e6f251e8e4d3425b463aff5fec402",
+     "tests/test_testserver.py": "8a696254834c770800d010e68689c5acd3c5d6f234ef33551160034636cf0a85",
+     "tests/test_utils.py": "bc687ecab752a58561dc2b8fb3247d967a17caceedaa9779944a2e0b6a23d8ea",
+     "tests/testserver/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "tests/testserver/server.py": "6796fd983618217cb812db36714505f3bcb8ca245c314c379f1f14f026e686de",
+     "tests/utils.py": "8a37e0749fe20102dfcfa9a85ca57e8ab0f32fbce07e08926cb1800f9b2b5305",
+     "tox.ini": "79e671e3652f7b652d30e871810bfd451e8fee6312ae49bf9335f3e5d72cfd83"
+    }
+   },
+   "zod": {
+    "commit": "ca42965df46b2f7e2747db29c40a26bcb32a51d5",
+    "admitted_sha256": {
+     "CHANGELOG.md": "2a85cfe41ccc9bfdeab4372334b26550a5f8d7db68c98540eb2dd474e9ebbd02",
+     "CODE_OF_CONDUCT.md": "514caf1da579113afc544a73e4c7838d0a17ae40e7f7832fdb16fb858ca11d44",
+     "CONTRIBUTING.md": "9c9bbef7303a736a03db424ddbd41e12d4d25daedb7001dad0ea6dc6aaa8dfb7",
+     "ERROR_HANDLING.md": "8d82dd66cd559f47c7e72d7ba485819a78971173cece679912f73a595cd74c33",
+     "FUNDING.yml": "914a96965e89d2051157fe6561d5eaca94b41f32f69d4603560c4c1634b356c7",
+     "LICENSE": "49f641c71bdfecaec4653547de3536f5706781d7a8549273972e1a2da6dca939",
+     "MIGRATION.md": "b5ff035b0cf9ca01a7d9d1c5948d1dcf72758f4b793f180262d3a2f432704222",
+     "README.md": "540fa1725101210bce9e48fd797841e7fd733711ca7b4cf22c0238b63bdccbc5",
+     "README_ZH.md": "4bdc210d35a200c1f305551c9157a381c0d77876f6f9ad60c11b11d92517e148",
+     "_redirects": "85335c38ee8f989bccb67b31f38a6ad7a2b164494e2e3eea3f1a2fc4c2ef60f7",
+     "configs/babel-jest.config.json": "25728a8a5546185b1ee965960ec40cf79670b2ad300df0beda15c47c40f21abc",
+     "configs/babel.config.js": "f7d32c0cf22a02f9e7683d7ae6e50b39bea3c7c81d8d2e220acf5ebb8c8e9b1e",
+     "configs/jest.config.json": "07b53c853f1c607f3ed3f44581642d01bddb0603ed57dac8546481a3a9fca8d0",
+     "configs/rollup.config.js": "4b9060ab7ba977de0c95df6db4b8d4d313ce1fe227eb2b872f1dcf8f7d154ca3",
+     "configs/swc-jest.config.json": "8b9bf0505424a2cd208d96c220f1f8e2b443b6984439653f5ea677cc5a26666a",
+     "configs/ts-jest.config.json": "07b53c853f1c607f3ed3f44581642d01bddb0603ed57dac8546481a3a9fca8d0",
+     "configs/tsconfig.base.json": "9ddd9b2b716dfaeba003bb86a68dac69caa076f1e39f6075c9e081c4ad012272",
+     "configs/tsconfig.cjs.json": "938328b8181e156f3db08542c05e2d74b742324726f70153b5d2cb11545ff503",
+     "configs/tsconfig.esm.json": "8f13aa878ec791fd8dd728f9b8eec2f2a212271886e861b83b10a2a133beea7e",
+     "configs/tsconfig.test.json": "aa88c25fbc13940f01f9e2e917872e19fd457498ee7129daa975e8045a6a19fd",
+     "configs/tsconfig.types.json": "7a01c71ba970e06310e6fbad824368a819dc079b8a468af1ba27601c95756f96",
+     "configs/vitest.config.ts": "54da5883d569f9721ebe9b3c7baf40e420036281c8ae785662124dabb18c2077",
+     "deno-build.mjs": "df4cf5832c0e68cf3a588abb2ad80164f2e21233fc6e0d64bd1b752a4dc1a914",
+     "deno/lib/README.md": "540fa1725101210bce9e48fd797841e7fd733711ca7b4cf22c0238b63bdccbc5",
+     "deno/lib/ZodError.ts": "8bbb3dca92c00841be763e2a90a82c9f76e5b402ae2f4b63129ec4d899d6590c",
+     "deno/lib/__tests__/Mocker.ts": "50e71629855a6b2ef2c84d90b834f4f947d4129f530ef8778d710c8f456f7564",
+     "deno/lib/__tests__/all-errors.test.ts": "c63be66b4e31892e4568b51c1709cd47141a19df52983d342b54d03915efd8ed",
+     "deno/lib/__tests__/anyunknown.test.ts": "05e4c437e905f729fbfdd04a53e309c2b2906cb48c0108d96defc4c9528d6f28",
+     "deno/lib/__tests__/array.test.ts": "27f29e4cba50f3dbde198a91fb2c643331ad1b25fc0df34ea8562c248c23b183",
+     "deno/lib/__tests__/async-parsing.test.ts": "9d9f08b48f5077cf529605b4472d4827fc4e4813fadc3a58334fd6ddb3dc1844",
+     "deno/lib/__tests__/async-refinements.test.ts": "a5ac5e4ed8499d3af69460749f1e589705b0291489ac471bfb5edadc2555eb88",
+     "deno/lib/__tests__/base.test.ts": "7bc3c703a567085cf0dd5ef918d6f55c5242311a26b42877056b78b3f8576b95",
+     "deno/lib/__tests__/bigint.test.ts": "e158001ca09b46a121c0e7fcee51052420993b0e23e38d5c60e5e4a065c0a53d",
+     "deno/lib/__tests__/branded.test.ts": "6855d5cb46d79244681c7c6382f62eba4c90587fc4175b7c864495714a3c4b9f",
+     "deno/lib/__tests__/catch.test.ts": "ece1482eaec387c34099cdc19f0a68684217e354e5a933519dc4672f5018b2e3",
+     "deno/lib/__tests__/coerce.test.ts": "bd5445e3dc9afa60b7c60944f85bf0391fca04e793c1199f0167f35302eeac3f",
+     "deno/lib/__tests__/complex.test.ts": "12fedd3a7827e02c28af95dc51137ae0e0df3f413c2c3db476eef8be374f3021",
+     "deno/lib/__tests__/crazySchema.ts": "08681ba155852beecd7851158eb9657f4441b8517340b878310016739eabe1ff",
+     "deno/lib/__tests__/custom.test.ts": "f2759284d8e6231f9c858a863ea49e9890fe7ec40786d95e976d83605ebfab5b",
+     "deno/lib/__tests__/date.test.ts": "0fe1996521741e48f2707c4989232ccfc3c7c9dcb31caf56dd050a31bfc9eb93",
+     "deno/lib/__tests__/deepmasking.test.ts": "aa34774b90ac963a866a2ad02f3d78f1205a99d84509c23adc23535331f8f7fb",
+     "deno/lib/__tests__/default.test.ts": "f1560aafdf69f4566c77be2aa5629cb0880ee6aa37189387ebcdef33e8c564df",
+     "deno/lib/__tests__/description.test.ts": "f244192e2a722a83d111b1158ced5afd1177065b21e69a71e07c08e295f33f13",
+     "deno/lib/__tests__/discriminated-unions.test.ts": "77f8d953913d5b1e70bdefb1a57c5d1ab681b3fab8006bd3d5aeba4c0068b9b5",
+     "deno/lib/__tests__/enum.test.ts": "24db3ec190e8c6cd159d371bdf9c116196689c4aa5a1b700414ea614528d2844",
+     "deno/lib/__tests__/error.test.ts": "4f1a069a94824ea540806e49014069c53c0f665f501f6854c1357c31e5bed696",
+     "deno/lib/__tests__/firstparty.test.ts": "2cdc5148d05eacb9907dd23186a14d4c259abc64fd1414d0d1e4d403c9a44089",
+     "deno/lib/__tests__/firstpartyschematypes.test.ts": "37882e899425cbb567a8571e6020f7497d7bb24d2559530b776048096492d476",
+     "deno/lib/__tests__/function.test.ts": "b6e2a1f696ffcca27cfe2adbc093976b17c4866c56f3b60c2fed9c5ebf8e9327",
+     "deno/lib/__tests__/generics.test.ts": "77208174d17640de76d42f07686011efed1ad61e8c96f603d5e88d8cac650328",
+     "deno/lib/__tests__/instanceof.test.ts": "b762d321bef6ebe663b58ebeacd70f7f3b1eb0ca25ff167ee5e8e14f0e708b1f",
+     "deno/lib/__tests__/intersection.test.ts": "82cdffe1c5cd6b370554fe91592f0b826293ab50774e8a2a1f37624e6298e95f",
+     "deno/lib/__tests__/literal.test.ts": "30ef28397a8cb05f692e861435c6da17df6f121b1ba229b54c66c1d113bf5f69",
+     "deno/lib/__tests__/map.test.ts": "608fe636a0128c560a0a81d8b4a64fb182001a25aab264c90ac2085cbca8f07f",
+     "deno/lib/__tests__/masking.test.ts": "3d1b337f54a9e108b06392ae2cea4182e87d19df4670202ed39389019ad40f4e",
+     "deno/lib/__tests__/mocker.test.ts": "9eae661bc3bff4124aaa71e97594811dc2772f9bbe76ae1757ea25d71de4e82b",
+     "deno/lib/__tests__/nan.test.ts": "b1c89bf0b9317cfb6c9ad252e86ecab2697e13945894101848c8cb157f3a5db9",
+     "deno/lib/__tests__/nativeEnum.test.ts": "b68f4fb8b788eb4ac909be7eed31e115c87ed1fb7e74be01a6bd7389a1722f3d",
+     "deno/lib/__tests__/nullable.test.ts": "4d1c435c5343682918bfba6ce5aa70bb5b6c595ed08edc39294a4cfd8154470d",
+     "deno/lib/__tests__/number.test.ts": "a4640feb03632ea7a4838d92d04faa89eeeb6e0b122f57b65b581a3a393e76bb",
+     "deno/lib/__tests__/object-augmentation.test.ts": "e0c53ff0308148aaf7149cb5fd37b7c3b61eb716fc85ee19d1631a6e94d9f8f4",
+     "deno/lib/__tests__/object.test.ts": "650f042ad1b4e00761dd203c303c4f4062aae1a21cffb6be8e9b292683053c26",
+     "deno/lib/__tests__/optional.test.ts": "0266084436ec58d081cf2d174556dbcfcf6abe90340832e2fb026c555f4fc3f1",
+     "deno/lib/__tests__/parseUtil.test.ts": "ea3a6d29d3e9414f6399dd2dace518673d5b3cd51453be44b2b4841318258aa8",
+     "deno/lib/__tests__/parser.test.ts": "b8d64e0e9b675d2f0d7ac430eb956898304ada6bbfe53bcb4530dde160e037af",
+     "deno/lib/__tests__/partials.test.ts": "0d83b2e263ad0127039cb6a413246bd3ba9b29f8c43910710c07bf7493a53b4f",
+     "deno/lib/__tests__/pickomit.test.ts": "2c45ed91c1110ee6f3f3672ba75c48841dd609775ad1282c3f930a76197ad4f8",
+     "deno/lib/__tests__/pipeline.test.ts": "42dba481cc45ba2079c8ae33e21577354bf8d781f231f9e8b33ef6b762b15f01",
+     "deno/lib/__tests__/preprocess.test.ts": "5e85b17b4f49e1c3fe00fe5df52434f1f63ab759dfe453550688d700ea33f56e",
+     "deno/lib/__tests__/primitive.test.ts": "278af73a0df64066faca1a7051b3a63a51b6d8c17ef0e54e654f717c99ca4f8a",
+     "deno/lib/__tests__/promise.test.ts": "ab97ff9bfd7cefa6e42d923dced3a9b5813a33d32250a6c553e1f9b335a5c96e",
+     "deno/lib/__tests__/readonly.test.ts": "9356fe2cc584aeb7a41241f7c9aba747792be0cc42defd34ac57fc2177f75c5e",
+     "deno/lib/__tests__/record.test.ts": "74fb878e37cab064e2deb9f92831c6b8c1ea68d0465fd18abf212d3e3c4fbb33",
+     "deno/lib/__tests__/recursive.test.ts": "6de9133faec71dffae12b65eed121bbf2de881d1e7c8f82ed91770b28b398d4d",
+     "deno/lib/__tests__/refine.test.ts": "03397abdea3ab03612d3b2de557eaa8d60ae493353147d0a68f56533098d41ea",
+     "deno/lib/__tests__/safeparse.test.ts": "11b6fd3c638c0c1a44dbec905915aa680b19f9e6a66815b1f1c5646e8f37985b",
+     "deno/lib/__tests__/set.test.ts": "02823c43f6d66cbc4d4eb32716344ec340bb2ad18a18437279e923fb23c68ccd",
+     "deno/lib/__tests__/string.test.ts": "433939bc6572d3df18f132774d1ee6811d371e5c917dbb8dc1eb5e07a11aa8af",
+     "deno/lib/__tests__/transformer.test.ts": "1d322a160e540de0bf9e3c763d2ca8467e9c9835ef5a20f67e8b1f4a8a359c4a",
+     "deno/lib/__tests__/tuple.test.ts": "cbb10e0d5a3ba1760663ce2663b45650c303e02005689517369870aa2e5f8940",
+     "deno/lib/__tests__/unions.test.ts": "9c2e01a2baae7e1869641d84c0b99c15e70a84f346508a2e77743427ef16a26d",
+     "deno/lib/__tests__/validations.test.ts": "b1fd9cd742ec4bc48f7b6a9654fc0364f2d29ce512ca77844e4fa1c43ae383e3",
+     "deno/lib/__tests__/void.test.ts": "ece5b80e676f78c77ce4b41b8262bc6198f8ed67a7ed89b3b9eae796e9330294",
+     "deno/lib/benchmarks/datetime.ts": "c5079effcde8cb45ed37a4e870688675750cacd792aee32ddf54cd971426a348",
+     "deno/lib/benchmarks/discriminatedUnion.ts": "3ab6eeabacb5b1c8f0c66d6c281c92e6a94f4f6b9aceee6370152838a8029087",
+     "deno/lib/benchmarks/index.ts": "4ea1150fbba103ee68b4d2162a976d418fb725dee3015ef97d41a8cdc7b93b93",
+     "deno/lib/benchmarks/ipv4.ts": "038f40b857d5a072846c0de9e1b6093b5ef8318641988324d1fb3dd2c0524edc",
+     "deno/lib/benchmarks/object.ts": "eaf8c2763adc124d802df501c40a6d864f7c6d5ad447bde1f5039bd949211fbb",
+     "deno/lib/benchmarks/primitives.ts": "fccfcf0b1f1a5894a97835a1c23d373d21b9bfa335409cdb1cf9e88d556d3b47",
+     "deno/lib/benchmarks/realworld.ts": "b455ad3597bff667f75c966de84170a7bd3944772970059fc36c94abf088d1ef",
+     "deno/lib/benchmarks/string.ts": "93d96cda7f3ab406c256aa3c19be5ff3ddfbb678acc17fdb1433b8582bf4ad31",
+     "deno/lib/benchmarks/union.ts": "e8a0f57d25c7607836f419678ec5363674cc64e024c6d5f903082853bb6cb999",
+     "deno/lib/errors.ts": "640dd2e88107d279f437aad81e549167e8959355b8efd0081c02873f0fa859ab",
+     "deno/lib/external.ts": "235cb1b157a39ba183c06401d9959886edd3229442ec8abedb6b6b4b7980b567",
+     "deno/lib/helpers/enumUtil.ts": "e81cb3894f32970d049d15d275dbe7a10d5fa19305928642f856f71be0893d99",
+     "deno/lib/helpers/errorUtil.ts": "1d8b63907208f3ae8971b8f569a31676d00ce3355d4ecd5189e0dfcba97a6f8a",
+     "deno/lib/helpers/parseUtil.ts": "2c5e28bb6b3daf8f3f52683e84f826ed5426c57316f661d6ffac2de948834f96",
+     "deno/lib/helpers/partialUtil.ts": "1d47a93bb4e45b44122e8059d1f48fa4f035ad9e87a2c930cb947fb85811d0fb",
+     "deno/lib/helpers/typeAliases.ts": "7907500e2bfe80451a3ebff5af8b41fc550fd605738ec85ec8a0bc1b2a1d7f54",
+     "deno/lib/helpers/util.ts": "69627acc8536a883a7e3664b6fc160e09566fe294c61b890e1acdd60e45c55a5",
+     "deno/lib/index.ts": "f96f6f1aa0222a5c4769b8ac48ac31aa1d1ee69fd6e44ad412246a691126e951",
+     "deno/lib/locales/en.ts": "f3327797dc88719885ec2e114b8d33d36b248432bcf3d55626aa5fffb543ba1e",
+     "deno/lib/mod.ts": "5515c51eb094e03ae9a63c94c18e4bbfaa9da7d2f8c426f4611c9e10eacd8ea1",
+     "deno/lib/types.ts": "704a614177e29dec8d7e151888cdb835bde9d8d370e36f87e360516d3ed5a55e",
+     "index.d.ts": "7d68ec0a35310372357b2eb43ace78b8a83c097dab5c773aba3899627909748b",
+     "index.html": "b2ec402b8a12b0aac74509e64f59f043dcdc767adf3dd0705dfd9d04747ca90b",
+     "jest.config.json": "d33197378bcbf355a219949b240c50d580d8ea94497047dd0a5bf893e8f4ed1d",
+     "logo.svg": "6ee3993e0d913a9ea8bf507f411c5da678e8d4fe65826f29047364cac4712725",
+     "package.json": "26a243ec7307f12e936def9a6985a5b60c4ef57c71e23bb500f180c1f156b4ad",
+     "playground.ts": "95cb7a48465e44bcdc2c4ebbb757bc31504fbd2ca2b7d24be2dccd15568121d3",
+     "robots.txt": "0443d7ae5cdba76df5120888b45efab70e99fa1bc557bdd2bd67e21070b6cbcd",
+     "src/ZodError.ts": "d4cf9af2bcadea26a4981c5f1fb3e44619f3a631d9035ec9e0023a362a96ae8b",
+     "src/__tests__/Mocker.ts": "50e71629855a6b2ef2c84d90b834f4f947d4129f530ef8778d710c8f456f7564",
+     "src/__tests__/all-errors.test.ts": "23954bfee216d614c44c03bee2fed1c4941ec7ed8b5a3d0bf5507d6108697124",
+     "src/__tests__/anyunknown.test.ts": "9500a35cc5345e32e16968326796732a86348aa0d4a4ca0a936229948131ffc0",
+     "src/__tests__/array.test.ts": "468aa0c2077fea02f5087f133d11deb98e34c513d4f51b4ab99e87ca2654ce44",
+     "src/__tests__/async-parsing.test.ts": "e25561a93ad0f046934bdcec12fd523d0c030197e336360d77e252572d0ab47d",
+     "src/__tests__/async-refinements.test.ts": "23d7dba2f7d3c98767597f915d3d7805e5c1f4b5b621a413851a1fe6a9075381",
+     "src/__tests__/base.test.ts": "7b95665c22435e8c22ed2a732d925c8d661e9b147577394d8fc76ed1c783d610",
+     "src/__tests__/bigint.test.ts": "12e7bae335b8c929f7315d2c3a600d21cb208f62295d61d66f351d4bc1587f49",
+     "src/__tests__/branded.test.ts": "1810437cf855323472c50d68571d98008e93ea8feb91aba05a9345073450ccf7",
+     "src/__tests__/catch.test.ts": "40e3e193dcfcf2314698dbcd2b6cd39ed4899a178fc3b56a1b44285403aeeb85",
+     "src/__tests__/coerce.test.ts": "f835d502695a7f4e880588c068d58c563046b5f2c458e9ee73fef22ae42675ec",
+     "src/__tests__/complex.test.ts": "fe478e75b59c06f0e0e579c2da6c373c10e66625f456afb751f0d8cee45581e6",
+     "src/__tests__/crazySchema.ts": "c6669dcf554bc68ab4547d0693011e897c90ee9ccbf9adfa08c46d3834a2e8f1",
+     "src/__tests__/custom.test.ts": "52513e3a92a4d42bed40e895b39aff8fb7360f72d61626a0929d7cf83b9b60b2",
+     "src/__tests__/date.test.ts": "79311e24370c448e0acc3d5cbca3b54456e35e8b32d27aa4918b06d2946d2758",
+     "src/__tests__/deepmasking.test.ts": "1ec5a966b6f55c9e7572e60fe6c4aa2c47bdec8b2aea8267d00b050fcd73f550",
+     "src/__tests__/default.test.ts": "3b2221fdb5b9d25c31e1f20bd7bb1801aa0f175aa9df07e9443a852d0389fecf",
+     "src/__tests__/description.test.ts": "5a7f0b27e9b1e781c511fe2f1550f7cb7719bad207ad739dd2a8cdc529b94fee",
+     "src/__tests__/discriminated-unions.test.ts": "3c99b95bdb2549597ff9bec407c552a85e6680f7f345a3badc78306884171069",
+     "src/__tests__/enum.test.ts": "c20fd25f8d4dd0b4ffc5cb65796a4744ac736b4824056174b89cd97150d33079",
+     "src/__tests__/error.test.ts": "d56316497e78ce9de4f572b62eb29781e5b066b78c07fb990e8f51c84efbb7dd",
+     "src/__tests__/firstparty.test.ts": "ccd56a4a1e51965fbb36db40975d2a5a75fd1c8e33385ed9ebb24631ff7c292e",
+     "src/__tests__/firstpartyschematypes.test.ts": "f45880fa4ce324d130002df9a1c67da460e7454cd2ff0d80d017297cea2f18f9",
+     "src/__tests__/function.test.ts": "eb2b6b31ffc459e716b1f55bdba1dc8a93ea24eed9b9eec873112a8500b9bf75",
+     "src/__tests__/generics.test.ts": "f8870bde3330a3c150f679e43c7976f043ed1abdbca9348bc7b4fee2c9a8b9a4",
+     "src/__tests__/instanceof.test.ts": "fb40b3f1a01bfcbf085bed20547b447c23a915fc519db65810f0bab49c57e58b",
+     "src/__tests__/intersection.test.ts": "878d2144e47bbfb744dc5539f6d8df6b267f1e321e9bb4521004a2a6a7298504",
+     "src/__tests__/language-server.source.ts": "c1cdc50a02ee58e617b3918abfbae5606b2a3ef02c4149a5ae04b7b21d7429b3",
+     "src/__tests__/language-server.test.ts": "cb159b641ee964ce40d8d4b65a051c8ab168093200a2ba222ddef09116108928",
+     "src/__tests__/literal.test.ts": "3ca3adf116252ce957733c703a81fa4f0abb33124726c4e2b5870603bc1cdf04",
+     "src/__tests__/map.test.ts": "1f69a16f330c624232b44b3abd42758118b4223fda59bc8917b71de991757837",
+     "src/__tests__/masking.test.ts": "3d920e426f2797653b1a634b96ad0bb3f7a99a9a7aef521417d89cdd0b09a46e",
+     "src/__tests__/mocker.test.ts": "5d0afced43d083148addb1b0fd095e6f74688a13f53b84ed48a30f324dcc12ee",
+     "src/__tests__/nan.test.ts": "8505cd09f45f38fff17f7a75e4611660a71278875747393181cb522221848ac9",
+     "src/__tests__/nativeEnum.test.ts": "122f33c1bebbd3beff98e06b83e5564dffcfaca4b17fd3625960ec3bfac38d60",
+     "src/__tests__/nullable.test.ts": "5013dbeb377f6aa2f1c663dd9b14df5b5348243d6ab23ff8b4da2ba2e8b3d542",
+     "src/__tests__/number.test.ts": "952e10610e1cbf4b7ad27436d3c9771c5461929642807326162c44967b6fb085",
+     "src/__tests__/object-augmentation.test.ts": "45277bbe18b38502c6442744429637df82f2dc35a13cf5183a33a553f01c92f8",
+     "src/__tests__/object-in-es5-env.test.ts": "7e7dda1156ec82a3788bbb0fe84ed3172bd9fd2cefb42e11e6180b346fe8e5d2",
+     "src/__tests__/object.test.ts": "728a17c11981efbd5f2bcec08298fa1cd7e1bcfcc9ff43838ee4b7298382c897",
+     "src/__tests__/optional.test.ts": "5543cc7b429ba89aab3432e12ad761f924dc6e2a6bedb09b418c0dd3277dab15",
+     "src/__tests__/parseUtil.test.ts": "7de78be748796d1fd0bd170070ce77507eca62012a250829d3a1a8ccab7377eb",
+     "src/__tests__/parser.test.ts": "05e7dc4a5ed794fa201bab4d4c29c3e9b91a9074dcd123ad5500f641f79b304c",
+     "src/__tests__/partials.test.ts": "f4c134980df70d7ebe06e38462891e6406840305696938e9de3fe2c8b67ea355",
+     "src/__tests__/pickomit.test.ts": "e0598deb8f176fccc477a8d722b39cab8df1e1f52988c32d699ca1646931a63d",
+     "src/__tests__/pipeline.test.ts": "547a96d9d004b67a33c6472a84dcc990610f5084d03331a7acce9b8704034c02",
+     "src/__tests__/preprocess.test.ts": "cec607e7d6f8a6f189a6b36431469df9e6fc29d3ca8ee7db16ab51b7eb7d5ccc",
+     "src/__tests__/primitive.test.ts": "14f67b1fd99db7c1b19f79d0a78a43218d27c963e5291f41eb78b6ca13ae8b81",
+     "src/__tests__/promise.test.ts": "fc03934d50d2335a8a79fdc25fa839dd80852960b1375626ac88c5e672a48606",
+     "src/__tests__/readonly.test.ts": "623d0aad30c7d07ee905719b0f120a567d15b5325d157229acb96fd4fb45b140",
+     "src/__tests__/record.test.ts": "bfec52e796aa407e8d0a2043e72d5227f8b1815eb787fefdff2d95114b0ecdf1",
+     "src/__tests__/recursive.test.ts": "3df4437c9e53a66d26403eac40cbf4618ea5346d31949aa69597954850f70176",
+     "src/__tests__/refine.test.ts": "f7c005d05fa2cbc3859b890e3469626b118a9443d643add99dcb1410c6741686",
+     "src/__tests__/safeparse.test.ts": "8fdd52ed6d635c6282079a1695352a7316f90bc369a9fbc9a17db3d237db1378",
+     "src/__tests__/set.test.ts": "cdf566d7caab41c9c457f0860bfca2d2e39a4da648bb5da1579fef03cc2cfb22",
+     "src/__tests__/string.test.ts": "e227abd35284cef08fce352924ccc794c374ba96e2302364e9818a9e436dcbb3",
+     "src/__tests__/transformer.test.ts": "566e54a829ceb5426e0d9f00c023dff4a7da747bdf4291fd157f680b0f57a1c3",
+     "src/__tests__/tuple.test.ts": "f22106e79a008985a51f498e8b648905f1074c90eebad7302830f5e9033d05c8",
+     "src/__tests__/unions.test.ts": "e314df8a8c46306a400055427c91b4587c194e7d05f38672a166e41ca6a22115",
+     "src/__tests__/validations.test.ts": "5a23faf0732229a7650665ab9d4b2b402e18c10a51374820bfb755dd1ee67f9f",
+     "src/__tests__/void.test.ts": "6c787b84eac20cbd522d468e9a28b3e5125a3baa80f04584e9f5d76529d80dbe",
+     "src/benchmarks/datetime.ts": "c5079effcde8cb45ed37a4e870688675750cacd792aee32ddf54cd971426a348",
+     "src/benchmarks/discriminatedUnion.ts": "09e59fcdf8676e755e510d7680ebfc24861bce02e6fda3fe8165dc94ff594b6e",
+     "src/benchmarks/index.ts": "51da411e9112e9c656f10fb13ae37236bce99eefae3ece4ca4a790da20437f0c",
+     "src/benchmarks/ipv4.ts": "038f40b857d5a072846c0de9e1b6093b5ef8318641988324d1fb3dd2c0524edc",
+     "src/benchmarks/object.ts": "6378bb3f1045dc086cd78a4230d701bd35262c360e18ea8b522cdc8f08cb16ba",
+     "src/benchmarks/primitives.ts": "615801c5f7ba21f8f500a5ac9d905b7bd6d6b710f0b664921149355d8a83e69e",
+     "src/benchmarks/realworld.ts": "a5e1d1273e246d803d13f7cac90d8379a389cb0e5ab4c554a5dc076ad11804a0",
+     "src/benchmarks/string.ts": "5f3124db5886cf11add592a834e038b7ed60b6c558bd3f7ca006bbdac183f3ee",
+     "src/benchmarks/union.ts": "0844bb55e997ccaded4fdff2e163689cdf028d2c53c968a5cf7c323d0b8e0ad4",
+     "src/errors.ts": "f366dac9a3ebac2ac413a3530d5ded8c9bfb6e83b4b2e3e6313e117245aad272",
+     "src/external.ts": "cea4c3ae3ca91b72af8aab1dc574702cfad1abfa814d07c37767bd0781b947ba",
+     "src/helpers/enumUtil.ts": "e81cb3894f32970d049d15d275dbe7a10d5fa19305928642f856f71be0893d99",
+     "src/helpers/errorUtil.ts": "1d8b63907208f3ae8971b8f569a31676d00ce3355d4ecd5189e0dfcba97a6f8a",
+     "src/helpers/parseUtil.ts": "ce2d5cfcdc5b7900793c8e8bbc40b167ac191209d79c899f391dae38dc5514b2",
+     "src/helpers/partialUtil.ts": "b71a25a30e85d895f7169658425365edc7114535703ec7f6c35f4a6948fda00f",
+     "src/helpers/typeAliases.ts": "7907500e2bfe80451a3ebff5af8b41fc550fd605738ec85ec8a0bc1b2a1d7f54",
+     "src/helpers/util.ts": "69627acc8536a883a7e3664b6fc160e09566fe294c61b890e1acdd60e45c55a5",
+     "src/index.ts": "4ff135a5ba6acfe8c5044d5ebfe2949c6250ff3e3ab547f0a432e8700cad7a20",
+     "src/locales/en.ts": "10c206d9e032e3dd2bb555570f539dc0a37aa2b00a32a3e806e4620b70da0486",
+     "src/types.ts": "74da67fd69bea24bc585be862b4fee99981c5bb5c43726a77e8423056c3b48cd",
+     "static/browserconfig.xml": "4fbd84fac0ee65f57d0e65dd57573955ed5fdd082e83a6dc5bdcb03ed144c7ba",
+     "static/moon.svg": "da0b39d16e05806935f8a0fd83ed335a3caa27d3b4a6ebaf087da8232b89766e",
+     "static/safari-pinned-tab.svg": "fa7ff6b1d5f3a7a092e72ba2aacddf05688edeabb8f3ee58d4f4a603e2aa9024",
+     "static/site.webmanifest": "a58be442c521346aa1ff00d984a871cd5305f154cafb54b21ec8097a9bb75b16",
+     "static/sun.svg": "0dc23c012ba398f41ead6a3158f1c2eefa5022c4630c2c8a9cdc4930c161b090",
+     "tsconfig.json": "80a837a4301db0ab6caec9d81a4bae8f3a339ec5af495dd8006989a0b44e5cb1",
+     "yarn.lock": "9e70951be2942466f771791fb8bfea4729078860778f4a59716632d9ac0f5401"
+    }
+   },
+   "fmt": {
+    "commit": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+    "admitted_sha256": {
+     "CMakeLists.txt": "83bd1eada84cb80a5525f80cfdcee2cea22a38a12ec4918af5e6bfd315d93b96",
+     "CONTRIBUTING.md": "667eabfdbf03bdfef8f43afcd787b0ca908c6edac9f76e53501a338c50b65463",
+     "ChangeLog.md": "9fb14fe3269408d16b70acd900c3e7d7628222f7ca33875d66b66ceb8021a9ac",
+     "LICENSE": "25b5db04aa6070c12ac518b91cbd0a59725c050ecb091456e6ebc3d3eeb369cf",
+     "README.md": "142ab5781dbbd256723471e57af814c167f9bc7f35bb4a84887a26cc26fc6bba",
+     "doc/ChangeLog-old.md": "8c01445eeb977e39a47b260d9665f50c6750291dbd7a1f4c621c255b740a9cf6",
+     "doc/api.md": "940d431abd07ab2e5f54d77afd032df0fbd3e1a0a179516b7c0fcd8477084d33",
+     "doc/fmt.css": "22233c604755fbaee22020adeb6bf185f0ee26ba85a761089016fd5dde2bc2bd",
+     "doc/fmt.js": "ddc095d5556a0e6a07335f5d1eaeefe429b8d1afb8279e6d5f93b6f580a36359",
+     "doc/get-started.md": "23ecf4a09f46f43cc84dd21fe952716c92d6b19247c22ffff09354db110ba9ba",
+     "doc/index.md": "b2dd5f73e2c1fe7a016679aeb95a9c9d456e5e7ff63e95ba5f32923d894e8478",
+     "doc/perf.svg": "dd280260ade5ad3a8a1eb2dbd44da387f04571faf57d89e65d3224531abf467e",
+     "doc/python-license.txt": "eb7128f1d72f986ca5f4883023120bf0519a0ea09500688274563c1b82638fa0",
+     "doc/syntax.md": "beb6930721907cbe63b3643e32d7a20b89f44393c563ba0ccc65b363560a4427",
+     "include/fmt/args.h": "6a4fe19bc08cb59e1b0b03b4e0f1cbbb7ba545b03ca97bd58df1be3f03f66c55",
+     "include/fmt/base.h": "0a5f29a922aabcc1c0b88eb41589e7e81cf976bfdf791ef5e059554a7735009a",
+     "include/fmt/chrono.h": "3c1a18acd2ff72411592966c03b9946672912e028ecb7e815a5fa3c7a20c8545",
+     "include/fmt/color.h": "b0d47fae81a489722d2069b123fd884451d9ec8d3fa396face8071445ab7e532",
+     "include/fmt/compile.h": "61be1b1d050f5cb65980fb02cf98a51b3f1199d21d1a79117a1cfb9cd1beea38",
+     "include/fmt/core.h": "0b5bab04745964219a01a097c9c9975309b198c938abe57a4dd185c8cd24ea12",
+     "include/fmt/format-inl.h": "088f3753f5c13ecb0306e84af93bcbc98073c44b250a78887805d3f0543bcdb8",
+     "include/fmt/format.h": "945a683160ce72943a561f92b1e2fab90d65bda469f8cfa7c7417c43cf6f1162",
+     "include/fmt/os.h": "59a1eedf9749738ac7115a68db27335acfaa06c9cfc3a82faddbfc7a0000d7c9",
+     "include/fmt/ostream.h": "bac842d4978332248cc178de216d656a8acb29a53b9d5bee7dd38c67fe06c715",
+     "include/fmt/printf.h": "e6ad20de507cb7b7aa01b935c21275199f3baa1e4075effb06cdaaa9085552e5",
+     "include/fmt/ranges.h": "572af94b2d6d241d1b172f902b8d71a2a1c2d21b817714ebb27aa9538a2097a0",
+     "include/fmt/std.h": "82d5eec0f58f95f7344a2721cf8831bbb683df8120a2f825d2dc8d20a33569bf",
+     "include/fmt/xchar.h": "311fe937070378b98fd2871b5a8bd45ed3dd5ba322fc664cea7d9862e64fedda",
+     "src/fmt.cc": "6593aea0ff7ee31dc3c3dafbf1f7ec64f196553c18562cd3d988412b525737a8",
+     "src/format.cc": "4353ca030a88614f525160c6f0116385d91e5d92511cd05c5a79ee8d22cfeb0b",
+     "src/os.cc": "aa8ddcb4ca04f536020881db031790af67e66ea0d6b05ebf4920f18e8e4c2645",
+     "support/Android.mk": "f9f88b63fc83bd616c9996d69a079ae4e1c829875d842f1c9a63e9afe7133fea",
+     "support/AndroidManifest.xml": "6b4333739bf8f5f9d8f98deb4373fbcf6d797e4a9392eda28fe920801ddce485",
+     "support/C++.sublime-syntax": "64fd163fecc1730bf9216b3ccb31c8684fd2574828b63881cbdefc6aa9578346",
+     "support/README": "ac0975783671da0e995534cce8cbcb99fb1aea9eb7e9800a36ebaa6c84722aae",
+     "support/Vagrantfile": "4c71830b35d08d745c598d4ae7ff98aaf3b961cecb71f70187b4bb7452711418",
+     "support/bazel/BUILD.bazel": "43302791bc56f9703dab5d940509b5de5283f00eed88752e139ebe1738a47330",
+     "support/bazel/MODULE.bazel": "8ba2d56080f5069cb22988a4de8ef76b9ed51085883d5c7a6b9911e83e5f19b6",
+     "support/bazel/README.md": "5604471875efea9a66ba3e1d3a284079a6b74d2cb38659d232b30e7808255daf",
+     "support/bazel/WORKSPACE.bazel": "c8fd87c4e3b9085ac88d963d037ba2299775187e9fc374ce8fa7706985073c5e",
+     "support/build.gradle": "b9b82f311f85d19b5d30aefc31e0facf33e3822d7ca18dd9d2f3929037cced7c",
+     "support/check-commits": "9ef9ed72aafef58e14acabf2876d3460277f4aad4cd71c3d38c0761ebd06000d",
+     "support/cmake/FindSetEnv.cmake": "eb73df3d87a30b64a2830433eeb24b1a827387405185239424c74acbbd8b9273",
+     "support/cmake/JoinPaths.cmake": "ec6d5f27c135c075dcd3a9e1f8c8b97ce88758399e480c2cc50464dbffd86d09",
+     "support/cmake/fmt-config.cmake.in": "406c24914bfb989581888f83114692dff419213efd5c1e5ac4b95133c38395c1",
+     "support/cmake/fmt.pc.in": "27edbf529fc22cac3ffd7c8fd1bd436e73fda146baf1530b6237fc5ee618667d",
+     "support/docopt.py": "63b6992f568d582808af851d75b83e1eb6672c2946e7d6039545b0dda9c714ce",
+     "support/manage.py": "59fdceec7063fc6a2ad583e7e77120afdacd43fe9518ace3f7069816660d4883",
+     "support/mkdocs": "ece965cbabc8acf188f49f7cfcf0f807e0dd60b57170d57228e0272d1e25c777",
+     "support/mkdocs.yml": "cbf6b23e0f0bae3ece2321f8fcef0f0e111b68f9606bdf4e1b3307113c77f6bf",
+     "support/printable.py": "334da43928cbfd17c6b1adc9cd0a98e744683de6f90aab52a376d08c4e9a1b45",
+     "support/python/mkdocstrings_handlers/cxx/__init__.py": "7116e901e0d4dd683d77fd7dffeaf9e151da36625c31f8b2a533a80cadc6085b",
+     "support/python/mkdocstrings_handlers/cxx/templates/README": "69c6c706306bdf1079a9badd586f59a540c7f0bc573d2e4fbf5b28e0e045c520",
+     "test/CMakeLists.txt": "70cf9309250da0947c3cef77ed28e53a3fb044755efd8cd588802d7f473108bd",
+     "test/add-subdirectory-test/CMakeLists.txt": "dae26d0c7208ce959195f9e2cb920cb116adc841c30ef1279bd2ff06d0e01d46",
+     "test/add-subdirectory-test/main.cc": "9a9d74ba6be05b44a326b8f0136a14c82493b7a816f8860e2a15f17cbcbf82f9",
+     "test/args-test.cc": "b1eeec0f001370736d28f5c1fc36290bd53f6bb055e87c57b05d796165a5376b",
+     "test/assert-test.cc": "54a52c39f4545de5f19f2e8b9e8ee60f5de954b89c8848ad20b8c9cec0968e9b",
+     "test/base-test.cc": "16e633bf36c09ac325e28c8abc7e2642383cc044a35fdfdebc87c4ecb09ae388",
+     "test/chrono-test.cc": "0afa6c67b25fdb2a7c48c7b10bfe1c9ae6d00e50e35960182a8bf5ecbb236e69",
+     "test/color-test.cc": "bdd54651d637172520e78e6bab11f21705236f18bb708c1659fbd6159c64c592",
+     "test/compile-error-test/CMakeLists.txt": "c4806e7419cd19b4e3d32932d18615334019f23187a6e01ff621793f56fc8bf2",
+     "test/compile-fp-test.cc": "a94a997aa655370e8cc361eec8c0d96d4c389ed830f973e26e750c8ac7d68f71",
+     "test/compile-test.cc": "c8501fa1c02b051f8c472002c22885085b2de893a35164ec54affd029a6e37b7",
+     "test/cuda-test/CMakeLists.txt": "9fc1613c37b61a6dc67056ad67868828924ec60a4429837ca8ef9d2ed6ab7813",
+     "test/cuda-test/cpp14.cc": "3f67c84aa53ecdc9b50e56eae28853e89d0287c9ee0132e674f328be195c4e00",
+     "test/cuda-test/cuda-cpp14.cu": "c47e43c9daee35e64a1b97812ffe88928ba0f2593a61e5422da85909fe439840",
+     "test/detect-stdfs.cc": "da2d46120d272d1c8705f1ca154dd238e3f81c4682c34a6d9a28af823f09dd78",
+     "test/enforce-checks-test.cc": "5310b97732dc115de6c8d3375f4de8950e2100679c5440120df5927f3c9b7c15",
+     "test/find-package-test/CMakeLists.txt": "adb399bad0355162ce33e020010cbc6ee7b665f57d775df7b51fdc537f5190cc",
+     "test/find-package-test/main.cc": "01b77d405b1a67d68e111d8812e3f8971ab6f7f0548e0962ef421658954b4b6f",
+     "test/format-impl-test.cc": "57508b7e7c15ddcb991e4d23695185987ff6d2e36e985b9272e82b748f7947ec",
+     "test/format-test.cc": "4c805369169d905786c166562d1a27d7dd6850969d2c0519de51762f4dc4a997",
+     "test/fuzzing/CMakeLists.txt": "633ccc354d61732b2687c2dbe8e82fbb4aa61a1831103a335829824749b39e79",
+     "test/fuzzing/README.md": "e28800fe7c7bba658114d2ca634a484bc6d5e50a54731f8e66d9ac145973ae7f",
+     "test/fuzzing/build.sh": "833ca87597232c2723143f651b794899d547d821a441c8f2799abda05b681e76",
+     "test/fuzzing/chrono-duration.cc": "aa4f1d0362795d1e96e6f05e175490f182819d0c462caf2c4bd74ec6bf446132",
+     "test/fuzzing/chrono-timepoint.cc": "0e22daba856f28d95f6e95661be6838cc260b22865626ca9947a4ed4f6baeb29",
+     "test/fuzzing/float.cc": "4b40de3fe8887f411b1051971c879a99dde92a84279a58db22c4622daafe0877",
+     "test/fuzzing/fuzzer-common.h": "294ff30f9e08df6d4f085e51f51b9e0e1d5f0e76cd8de4464cb5849cca31540c",
+     "test/fuzzing/main.cc": "874c3fbf9e9a640eb66ce9db33bbfc345adaeba5bfec18d23830b44192c3600e",
+     "test/fuzzing/named-arg.cc": "3b4dfad9d4da30cf71be0c7dfb3669e9b5ef23a61e842db833e4a015a696b3ee",
+     "test/fuzzing/one-arg.cc": "c7b496a1e20f6232bc0fb12f5e289fc4c812a7c4e42c1ab3b74ed9c18d122e45",
+     "test/fuzzing/two-args.cc": "cdb76f0e21ea260337fe9b6415c11106606e62f64066c9faefa8bc79a3b0b7ea",
+     "test/gtest-extra-test.cc": "b350df365e756332a1020895191e58a3d7329a73b27a106021cb7d4c10185cad",
+     "test/gtest-extra.cc": "50a4219c9a02fa9569d703023a7cae5e18e382e682a2958a0e2255c3a812139a",
+     "test/gtest-extra.h": "12706e0769014f05a98ae0d18a5e26b1a07924f1c15888cdc013958e86b22399",
+     "test/gtest/CMakeLists.txt": "41650710980e80d9f2dc2e7fede459b1b68cb672d3108199eaef07f140ba4ac8",
+     "test/gtest/gmock/gmock.h": "e3013e893b9baf7387280dc15bf639c539dd0d51333ed116eaa7caee4ae91e11",
+     "test/gtest/gtest/gtest-spi.h": "64a5e25912d710021de12cc1881bca9211a7f9a4b5982011f7679374e1a7242d",
+     "test/gtest/gtest/gtest.h": "52f950b4d285bf3934abdb06bb751cc9b623413242c848c997271864644895c3",
+     "test/header-only-test.cc": "37c2b85fceab1feeba1715258c531900a481194505b580be74e685178d05dcf5",
+     "test/mock-allocator.h": "3bb10dce4f7dc8ce2bf4957612be9d5104c93942a29f9a54c684144660b144a6",
+     "test/module-test.cc": "262992e981375f76b70d41f030a270c68e5a2b8e5e7ef84d78372324d62840e2",
+     "test/noexception-test.cc": "1ae2200277548cf6afba1d488a48c67a19632a1e80abc9caa7e02d13c73c7d30",
+     "test/os-test.cc": "e6a5b222d0950209260d813f92cae9440ffe7b0da44cb2e04874a88c369cc28d",
+     "test/ostream-test.cc": "87c856db05b9af421e01c54c7d32adb53a9c458ac912be327fc0b531e6db6558",
+     "test/perf-sanity.cc": "a9dec84454aa909bb6752db042a439c46d633b301016522cf1de129bc3290afc",
+     "test/posix-mock-test.cc": "af5c7ecd6758ca469f072e4c2d152805e6fe25a316d969920419a071a96584ff",
+     "test/posix-mock.h": "d6fb6f7df7afe219e7b01ca8e73683b98ee6e05962b386cbf051bff9a32ad1f8",
+     "test/printf-test.cc": "5435575996b7e7813f7bea2cd9a317e31773c93808062a1cf96eec97cc1672dc",
+     "test/ranges-odr-test.cc": "f78121c948131f9475124a9d8fcecde0b42794cc36bcd362ff89e2aaa6d1ac80",
+     "test/ranges-test.cc": "24ac06143f99e2e656c2ae45cb9a0916a32ad42ef932d0c328d80ba4216d553a",
+     "test/scan-test.cc": "ab5744962bbee9cea862500c78864e3e38f21c35307c8eec84ed2a4804d0bb6c",
+     "test/scan.h": "a9b6d1ba057bc128f05a3e63a879bfcece2d8de485ae11239e520b592359e8aa",
+     "test/static-export-test/CMakeLists.txt": "f4b5ca4bd427857f2ef3751069230cfb299fd3f5287ec7761fc563b2095b7fa5",
+     "test/static-export-test/library.cc": "aef322b4df933c97e28f8c017223e518c57115dc6006728a9a41ee343460ba5b",
+     "test/static-export-test/main.cc": "5dc41d2b8b3077104d375e6d5f77f63ee92c9d54dad2f0aedd0206c728c44ee5",
+     "test/std-test.cc": "33ed03e2483a71f607167cd7e0809284c8692fe8145768822ec142f930404ace",
+     "test/test-assert.h": "906c3416ac043803c303f887e37cb05e1063b8e1131a108f993fcbd48be265b8",
+     "test/test-main.cc": "1ffa03ed2474306e86fdee945453e6c084d7dd586b196d9103bbb9ad977268a6",
+     "test/unicode-test.cc": "20b8e00f0353d750de7e6884c47bc01fef05f4643611896180607444200105a2",
+     "test/util.cc": "3043c0e25fba4f9ed05122aacd56de7578e878f54c807755cd4b780ccc1e777e",
+     "test/util.h": "ecc41696a395665a12b3f88c98f68062f223ebc8967e3b2e516419304489793f",
+     "test/xchar-test.cc": "6010420140583f261df9efababe3bd2b4df61276b80e4f3d0b1e489c56e6ab8e"
+    }
+   },
+   "ripgrep": {
+    "commit": "4649aa9700619f94cf9c66876e9549d83420e16c",
+    "admitted_sha256": {
+     "CHANGELOG.md": "59f79462605f460d83a708898fc870fa72573dd5a1f7e633f4e312457a8e9244",
+     "COPYING": "dfe7d0a6134a17d3de7409762e08dc02133303912875cab40a74ba07a390f85a",
+     "Cargo.lock": "e27b3853217a6d3b60933f0668e48bc285302b41f82730eac62f15fe930ebb84",
+     "Cargo.toml": "5651b7a061d6549262eae84c90512630d7a6348fb3850bc6a6ebd32e1aee88c0",
+     "FAQ.md": "1312372feef8029879073294bf613060b0980b630f830c4763b549d29cebe7f4",
+     "GUIDE.md": "2ff96d78612fa939280fa9e17387d3f6bac8e489ee9d81ec22b3a5984f14a7b5",
+     "HomebrewFormula": "2af11692f808a0877529ecb1cdc92af226a8f39289e9fd485a57ca94f0134d31",
+     "LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "README.md": "fb8460bfcb2769da4cc3c6f4598cdc6ee366f236a564d0bc0a782219e17ece63",
+     "RELEASE-CHECKLIST.md": "4c5e456ce3794bb4861ceeff939fca967a337d47e8f0fdbc9edcb73ec6830d2a",
+     "UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "benchsuite/benchsuite": "db290d3017fb552ac7735d76d44b6550d7b77ebe53fcd052cdbe31ac429b36a7",
+     "benchsuite/runs/2016-09-17-ubuntu1604-ec2/README.SETUP": "cfc77e0b34fe590bd0ceb65e92509d92940ec8f8540b095ca2fe7f6e492df99a",
+     "benchsuite/runs/2016-09-17-ubuntu1604-ec2/raw.csv": "0cf6fff0ab0de6b496dc4e61ee079dad2b3b30059a4f33ec01d2689bc33ff406",
+     "benchsuite/runs/2016-09-17-ubuntu1604-ec2/summary": "4193a9f74947dafc17809b53a567dcc3521632e807f54dd6e94c191ad4423247",
+     "benchsuite/runs/2016-09-20-ubuntu1604-ec2/README.SETUP": "1190e89f6d2603acf706c63e172504b605733499c90ef935cc6cc4f07bfa4e60",
+     "benchsuite/runs/2016-09-20-ubuntu1604-ec2/raw.csv": "2d938789c70dad1b430b26b8225e55245b7e6f9bae15066590a1951175836d19",
+     "benchsuite/runs/2016-09-20-ubuntu1604-ec2/summary": "e10db2f8c8eb5f29c686f73a52bc33485d6239e23d6c131bd033d8e45b5a2686",
+     "benchsuite/runs/2016-09-22-archlinux-cheetah/raw.csv": "933381ba1a18c6d928d3c71e35e7a006b617fee134cb9ae1a9d29bc34886bf3f",
+     "benchsuite/runs/2016-09-22-archlinux-cheetah/summary": "23faa6c32a2cd7d3b72f4d4816fcfe5474760c0c1feb289afade36b52a37b2a5",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah-glibc-jemalloc/raw.csv": "f677d8e91c587e1d1048fe27964698dc6a312ebe80f9653bdb18a3035880ce39",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah-glibc-jemalloc/summary": "f9b97dd3cedd3fceb4ec96a34e6ff69a4d71f034ef39c4395d8a46ca3c8e12a5",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah-glibc-system/raw.csv": "7dfef06a37bec6e1c3d10672cea72f925046d9eeb28927c57f68f8ab066c9774",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah-glibc-system/summary": "accef9f16783f8fda6d3b892348052f835ec63567a3992fa70462b1cd69e757b",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah-musl-jemalloc/raw.csv": "65e133b1fd55c71e039d5cfcd24d950d7604721122a501703919cfe81914cc71",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah-musl-jemalloc/summary": "aaabc69add9b329e98d52e226ec14819a2a350292ba1cb8584ad6e47735672e9",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah-musl-system/raw.csv": "5790769a8ec77420660b4c664af5ba9689995d7fd3c7a5c7e2cfc91109197e40",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah-musl-system/summary": "b1be83d4731261cff61cc11767c7c82e6f791b8debeed35b2b2d8435c4c7fcdb",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah/raw.csv": "92a1243ae7a1cf4e4ec4934d5ccb0eede6be5babadfd8f4a1499b10dbda67fef",
+     "benchsuite/runs/2016-12-24-archlinux-cheetah/summary": "1c29325724cb3c2db1abdefbcb6b4ce7b880a3863a85ac255848e0d323421688",
+     "benchsuite/runs/2016-12-30-archlinux-cheetah/raw.csv": "faa209061090e40cb62e8b04e141eb4320e0a5c9146f213e71d10f146b0aa7e8",
+     "benchsuite/runs/2016-12-30-archlinux-cheetah/summary": "9dadec758d38d68448a19dfdfb9832599721cb786a48aef31b3ccda5c13b7772",
+     "benchsuite/runs/2018-01-08-archlinux-cheetah/README": "026b89cb2a0095681d7ca40e2ea2c922dd0af98a7d0371047a0251cfa064aa0b",
+     "benchsuite/runs/2018-01-08-archlinux-cheetah/raw.csv": "309738cfedacbace5967306c8f0e88917849f5b7e5def2666908642bf62c885e",
+     "benchsuite/runs/2018-01-08-archlinux-cheetah/summary": "45d7f6f1eb40cce20ba44bf5c8435ffa40b5ff95a88f6bcdefb9a66f5e239add",
+     "benchsuite/runs/2020-10-14-archlinux-frink/README.md": "7c4820cd59afca8e1b5849035cd2594e98f2a0ebf84abc0940884970abe45cec",
+     "benchsuite/runs/2020-10-14-archlinux-frink/raw.csv": "3a19a287d887e8513e8fcbe674bb77f41697fda5778deb8329a7ada7343a851b",
+     "benchsuite/runs/2020-10-14-archlinux-frink/summary": "5caf0dc6f74165140fd1315b108a3e12d13d8d997adcc4905217eea37ec24015",
+     "benchsuite/runs/2022-12-16-archlinux-duff/README.md": "1034a07769e5d172ac32dc4ba9dd73804feaf2ce35056385ba8fab351ba6ffaa",
+     "benchsuite/runs/2022-12-16-archlinux-duff/raw.csv": "fc3ef0ab9b7d0138dcba4436da44fca85bbb81955360b5606e965787d44e1584",
+     "benchsuite/runs/2022-12-16-archlinux-duff/summary": "44ef6233b5ed61cab10eaa139e11108be2862a65484127c6623ee96b88eb2aa7",
+     "build.rs": "851a554d185e037a2520f45eb581d155977d163c67ee209060467fc831b79285",
+     "ci/build-and-publish-m2": "64c59f190ba8bd39bb4979cab393db1dd769c2124bf79b5986f1626d1435cf7f",
+     "ci/sha256-releases": "c69b7138a40ce704fa4c62a21794743fa1863c272b24e01966e6075df491df18",
+     "ci/test-complete": "98e190fbf0d9e1e4428cf7ced075e261c11f09da1d9415e7293d251c47240c02",
+     "ci/ubuntu-install-packages": "c8c1cab66bd1cec0a68ff3777a2118a9a5015a31a9788f4c864f9aa3a6bdc992",
+     "ci/utils.sh": "7b045e65bbe9321ed7285b2cdf80e33b3aa0fa354297f86b3d122a541507fa24",
+     "crates/cli/Cargo.toml": "40bc0a7e3c09b236fb027473526c3b344e9855457711acd1fc22ce503064cfd2",
+     "crates/cli/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/cli/README.md": "f393a75d86dac4c9c1bacd38a9982da590fbda93e945ae3d72f3800f67d39c34",
+     "crates/cli/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/cli/src/decompress.rs": "eb2a2ef6c6647449d0f9a45b219a1a1f8a91473a1c86fa8a0e1d04f439db98ff",
+     "crates/cli/src/escape.rs": "54dbf0dffcb819631895add3dc76249909584cf27ddf50a200c751881bd3b130",
+     "crates/cli/src/hostname.rs": "9a23e9544aaa56877a66785037a23078782fdd47f6d56394825287b4bdc9bdff",
+     "crates/cli/src/human.rs": "d19a4e7e9d934f4d3b0257b94dd47838e8b5dadf377c0201d9506578035672a6",
+     "crates/cli/src/lib.rs": "92560008e85a213bb6ef3806a7b0f1d83b6dcb640769b59911e8b60aeb50c7a9",
+     "crates/cli/src/pattern.rs": "44490e7b70281b48ab0dc702a08896d71eb71e3fa7fdb3563f984d415ed68edb",
+     "crates/cli/src/process.rs": "fbf452d0debae864339613055b7080b6330a55357345c3766364f063a940b527",
+     "crates/cli/src/wtr.rs": "c6d7848cf2b36697a76066b6514c9d339ac427acc4fccfbb7f540416b12b8489",
+     "crates/core/README.md": "2900831fa9634fb482c6efc8a14ad136a5d13b51d63784f7109d239404ca0bb3",
+     "crates/core/flags/complete/bash.rs": "788e2a9cc65d724e7efe3d2aee56bbad0e20b4c035faa0b1b3e95d9bdc8f6466",
+     "crates/core/flags/complete/encodings.sh": "c6efbbfaf1150513408319b748018ee09aab82257caff0d903782b349bdb57dc",
+     "crates/core/flags/complete/fish.rs": "635332ff17204e260262e2c69fe979f9920017a57dd2b8d00f4b4664b80c40dd",
+     "crates/core/flags/complete/mod.rs": "e4d8a7effbb8032aeabbf33c6a80dded629073bbe40ddbf6f3f75fb10ecd6f39",
+     "crates/core/flags/complete/powershell.rs": "c9af885fc2a1433d58495136df6c10d8854540ddf1e6c6b0aa1ca5fac5392009",
+     "crates/core/flags/complete/rg.zsh": "261da2325fe2b7ae4560aebca3b0f0357b3e43680886f54c182ac162035099bd",
+     "crates/core/flags/complete/zsh.rs": "ba7a650dc7b0560665ea5013ec6af0f572025a245718aec7ee7d539ca408bf59",
+     "crates/core/flags/config.rs": "f5dd4463fe252ecb2f2f051e6b6def219eeee5125cb11ede4d8e80218cd0a2d2",
+     "crates/core/flags/defs.rs": "a2897b619bb26850a8e0f7a2ae1a6f46c8667eb2108354cfa8dd7234153d9c09",
+     "crates/core/flags/doc/help.rs": "02cff0b1bde22fc1943e2b231301e132e88c4a4bae5b82be8aa0f9e8be1de2b3",
+     "crates/core/flags/doc/man.rs": "4b936a78468b040050f6cd65ec4a100e2d9c56f472d6222606f8424e291756e1",
+     "crates/core/flags/doc/mod.rs": "91921f820c17cbe94f8b621994f3fea1948c4105f0036e97159f9cdc4bf9b8b8",
+     "crates/core/flags/doc/template.long.help": "36dfab48b15037b642479c069363b7f11a897b4e93ecb7c8f4cf473f8df9b036",
+     "crates/core/flags/doc/template.rg.1": "4da722551e236c1d1a8ce9b3dd6841b81f7db420499df7343dc6cf77884e384d",
+     "crates/core/flags/doc/template.short.help": "a87dd61f6773964fe85071ff14b914b455daca00d387ea1707795fc5d992ea4b",
+     "crates/core/flags/doc/version.rs": "d5b16638d1eb3491627ae00c214ca0845669ecc61bf3098de21aaebd74494d1b",
+     "crates/core/flags/hiargs.rs": "db259be608317f8c41d51337d1c074b8fe370ea1175d7f51dc5b6406e44888e0",
+     "crates/core/flags/lowargs.rs": "2cc0023c97e0db87961f3fc744d3d2fb26cd572aa116f00142b5015998b98c93",
+     "crates/core/flags/mod.rs": "c4e9c167815587eb4c96090d3c46f11207aca7175af2d2bcaa8ffacce774cfc0",
+     "crates/core/flags/parse.rs": "6a00eefd92ae1f115ec4eec712b75053635bfb7cac805582e34ed6a391330abe",
+     "crates/core/haystack.rs": "18c4e399fe63e14ab4eb5512bdbe624d73dac0556697d3de6bb0f0496038a660",
+     "crates/core/logger.rs": "40dfafe2544ec833e03825a536d353c43488626e5e1efefab4fb0b09b743cf25",
+     "crates/core/main.rs": "d2795413511cb6476d8a6a685b73a6f188bb6740c696b93c5e05dcaa972c6f6d",
+     "crates/core/messages.rs": "310b250d986a767cb4713893c5074533effaf5a2e5f2874f59d75d483ad25f31",
+     "crates/core/search.rs": "f1c30c8696b60daacb298ba42b9a42185749dfa52fbdce242978a321cb33aaa8",
+     "crates/globset/COPYING": "dfe7d0a6134a17d3de7409762e08dc02133303912875cab40a74ba07a390f85a",
+     "crates/globset/Cargo.toml": "851df2076b338ef09e22983e9e30a565911388c0ceb2a5664fb3f55a3d355953",
+     "crates/globset/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/globset/README.md": "f2094d0e31b437838a6838852684818db28d3664e862ad9a361bae5f483b4f32",
+     "crates/globset/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/globset/benches/bench.rs": "69a2f7509bee21c1ca2a79ae43a389d693350cd16377bb4968847319b87db849",
+     "crates/globset/src/fnv.rs": "620d81fecbe654f538173876b1b75890897ac04a222d660b933b1a20cadda09d",
+     "crates/globset/src/glob.rs": "2f59441ea26073b40c0d77cf0946b53dd54e100576f26862dad03633eb83106d",
+     "crates/globset/src/lib.rs": "f20adf8f6c2b1b8c2c9210bd9d3a2dd185c2d6235121427c06d3e3d307b330b7",
+     "crates/globset/src/pathutil.rs": "33c090fcdd03b51afa1ad34ef633984e0346d59b925de859e5cb0b09b308fef5",
+     "crates/globset/src/serde_impl.rs": "e80442e6e5cb9d052d58a9ad5f589e91dc795a058bd69c94d9f5cb76f1cb876f",
+     "crates/grep/COPYING": "dfe7d0a6134a17d3de7409762e08dc02133303912875cab40a74ba07a390f85a",
+     "crates/grep/Cargo.toml": "a1860200b8d8a02fb222e88bc18bb39df7b640c3e5df234e39914fda07f0c0aa",
+     "crates/grep/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/grep/README.md": "eda46ccb4397ea77b11d4bb48f63fcdfda05742032305514a5dc46e4226b61c2",
+     "crates/grep/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/grep/examples/simplegrep.rs": "49801d60b2ffa41549fc0c43ad9c417e8dd37a43736b1a10d376613edf93b4de",
+     "crates/grep/src/lib.rs": "d6a5b963c24ce95d59d5003e71c1bed7dc9a87a5f8171ecf29d2ee9902744223",
+     "crates/ignore/COPYING": "dfe7d0a6134a17d3de7409762e08dc02133303912875cab40a74ba07a390f85a",
+     "crates/ignore/Cargo.toml": "ef618f20f62d309ab5c2dd9b067e9ac2a98c9911a5759c6f1a203e0c29100abe",
+     "crates/ignore/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/ignore/README.md": "1c6e070dc9c8c068f5f823dc2fc31428b627a2b3922e978f175ccb387d5b5341",
+     "crates/ignore/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/ignore/examples/walk.rs": "cb786efa1c529f1d0a0c8b61159ad9a8131bf86cff13535342991cf6c5785e8b",
+     "crates/ignore/src/default_types.rs": "cbe8778849a83bd6f1606c37d8a0a8be0e024bed8b5a41b6e3f889c292c0611e",
+     "crates/ignore/src/dir.rs": "43a6217b2061028a1143a2124c009c30537275e925f6ad0edba348488f38dcfc",
+     "crates/ignore/src/gitignore.rs": "ad0c5fd0b5249218cb974698ea3efee0f7a216b66642ba08c1cef6dbd855be95",
+     "crates/ignore/src/lib.rs": "76bccd05f1f688847142b65ee75c4512d94223abbd08310378c142930f1b233e",
+     "crates/ignore/src/overrides.rs": "399d75a12f1dced0c0e5a66b3466324480ba65a00df477db85fe160d1fec5732",
+     "crates/ignore/src/pathutil.rs": "c11cb6df1ee00bf32983441a76194ec6627723a475019cf335dbb3efcc398c7d",
+     "crates/ignore/src/types.rs": "ba2109030d2d0d3c0ff016cdeb29b49c83397cbded164297a9cf54ccb7d0ad86",
+     "crates/ignore/src/walk.rs": "eeaa66974edfef5e12b3fb4fd3aea1895a076d475fdfda06509dd3eb800936cf",
+     "crates/ignore/tests/gitignore_matched_path_or_any_parents_tests.gitignore": "9babadd8c5febd1b5996385f31b0fab8af6cbea6dd9e1008c95e1c037feca3c8",
+     "crates/ignore/tests/gitignore_matched_path_or_any_parents_tests.rs": "20c5b610f4e784a51db6c7f9486656d0d4c7dd436bd0fd3032941aa70a17d047",
+     "crates/matcher/Cargo.toml": "e2e0d7203fc0d82a4c8854c7598c6842d9e88b896511c30d9e640212f2e8418e",
+     "crates/matcher/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/matcher/README.md": "eaeb5746dd4ed273ecddb8279807a0a4e33220673273c48d079d7a6d17a63570",
+     "crates/matcher/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/matcher/src/interpolate.rs": "eff76c0bd27314b6d2c2a9862c2dc7c822645f2af72d3be17a5d198f1c16883b",
+     "crates/matcher/src/lib.rs": "d382ff52154a5754114520b446d78da23675862894b47fb57dbb14adf805e245",
+     "crates/matcher/tests/test_matcher.rs": "dd6df30b0d8cb909235713488535f08246671b97b087a635d846430adfb04ffd",
+     "crates/matcher/tests/tests.rs": "220fde73a63a89b0ccabc31424a74872ddf5ec0a48e0aa99590a5d73dd4c264f",
+     "crates/matcher/tests/util.rs": "a332fb191cd262458f98b6afe0610d697ffd0837c7b643502270bde906aa0c9c",
+     "crates/pcre2/Cargo.toml": "dd4d1db17c7db7dea5b49e435e661f06792058c67fc62e567a857a9e4dfa29b1",
+     "crates/pcre2/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/pcre2/README.md": "0e2c81188f94b6ec22d557817cfcb3dd4b3e6ad5b204984f8e2adee89cf76b2c",
+     "crates/pcre2/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/pcre2/src/error.rs": "e700c0fa471717a4e95b70c47356afc34c3296a44bcc9c6b8f5b0654c6ad62de",
+     "crates/pcre2/src/lib.rs": "775ee2f1513f2a0845bdf64621b834f571f5f4b33c0e6710aa5b1fcbbbe8340a",
+     "crates/pcre2/src/matcher.rs": "2684862a124e6db01a8234521ca7c7716b948ca0b09dfde65e2a0287c128bc5d",
+     "crates/printer/Cargo.toml": "6d4478e6db3f8f30a5472bcf13630143552f091a47245a61a4af85a66d7d70fa",
+     "crates/printer/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/printer/README.md": "4b6c0670c26597444f88708ef568d1fdb846af04ba0da2d7b912ecc82e2db167",
+     "crates/printer/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/printer/src/color.rs": "031081e7801b96f1d098dea1a1e243677a0c3f52993b6536d4d1ddc422b973ce",
+     "crates/printer/src/counter.rs": "94afcaf42fe66fe0202df715d64c679ddf64e4dae9788c6930221f5ad6cf5730",
+     "crates/printer/src/hyperlink.rs": "916624aa317d557d59d529f2c3e6c1b778ced72769126b3a496ecab06ea54eda",
+     "crates/printer/src/hyperlink_aliases.rs": "8fcbb6ca571bfab303a96f1e503f860d9d69ad11a8057a92df3cb44bdd36f8d1",
+     "crates/printer/src/json.rs": "c17f1a29d746716ee9c6e4b5de19ed284ec0c44cf777a6ef8ff85f75097330a2",
+     "crates/printer/src/jsont.rs": "9ef1d89342d6193fd5c8f0e78d02868e4efdf7e1b16d9ecead3865ea5d9d5777",
+     "crates/printer/src/lib.rs": "144488de080455ae5785893d8ebd860457bc08600f252fb7c4f6321e5f06fb37",
+     "crates/printer/src/macros.rs": "60b721dab7ff14d9808acde9439011828d854118c3f6903b9a31bce3a273d205",
+     "crates/printer/src/path.rs": "1d64d4dff3c0dc89e56bc5c70e96915e085b23d74e0b10e69c9a655d04ea4f77",
+     "crates/printer/src/standard.rs": "44831114904a51bab0cd2cdea15d013b53ced692e10d6e2da6e99ed9e3af843e",
+     "crates/printer/src/stats.rs": "e3760c1a5cf842239311d5493a0e1553cdfeeb3dab6d06ad55d629132aacd632",
+     "crates/printer/src/summary.rs": "1318c89d493fa58a554fea7b3c0e27205a3f66a82a2f2755277243fb28601c1d",
+     "crates/printer/src/util.rs": "aef92dfe62d6bfabe4028c75531d5518216d6ba13007496fa798f38b8a21bf7b",
+     "crates/regex/Cargo.toml": "68106648b8f516e137e496907b37086518f3abb9f3aa4a564238522018935ef9",
+     "crates/regex/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/regex/README.md": "44228d4dbecd6b89a03fcc3cc27f70c231165514f89b928eb63ffea814d034f7",
+     "crates/regex/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/regex/src/ast.rs": "ba87c048e6f55d774c5bc4eff623004657c3fa2f9a74196a216fd08e0385bdf7",
+     "crates/regex/src/ban.rs": "f6b09840a6b46091b5f24f78e870aac6b51b2fb4cb6a564ce88cee0ae1d0c998",
+     "crates/regex/src/config.rs": "4ce80d544357625923f045fde14ebd8f77a27bae93b5f92d8c7bf8d033c1556a",
+     "crates/regex/src/error.rs": "0ab1b772ef05f00f173a46b830a87f7d57cd5cd360048621bbbde6c7b82eaceb",
+     "crates/regex/src/lib.rs": "be767e48a24f928c053d42016d71fc605964f07fffd5df3bc1dc823b2d08f04a",
+     "crates/regex/src/literal.rs": "72c1ccca81ca6aae9a82e755e0ee8404319ece8ab3f766321790f8cc2c4ba3b4",
+     "crates/regex/src/matcher.rs": "2d6e8ea8514eae30bdf8ecc3041f0f9ca54746ae33aa7ca6e3dfb72839d1c745",
+     "crates/regex/src/non_matching.rs": "ee02c449c0e93bae14ccce85daeafc154ad08efe0929075ee247feefddf675f0",
+     "crates/regex/src/strip.rs": "a14964e3013b164823fe46f9d298a8bb57fbcf158525736ad18b5080c412540d",
+     "crates/searcher/Cargo.toml": "325d35d7e5ed062fcc79ac13331e350db9372a5c23794088f4fe55e7b14c504b",
+     "crates/searcher/LICENSE-MIT": "970813655a1bf777d2ead189cef71ab73ab92ce04dc864027d61a45de03e6728",
+     "crates/searcher/README.md": "1c417ff746651992e7e755353c1e8e8f6be9e1f14d89b11ae223fe872ceeca37",
+     "crates/searcher/UNLICENSE": "640514163b17f977adc997cb16f51871122cfb0555ebad1a3f01e167b7ba8857",
+     "crates/searcher/examples/search-stdin.rs": "427c128f30e9be4013d06f8fa222dc263c9748077bb1f3a9cc1c39485f1cce28",
+     "crates/searcher/src/lib.rs": "1429551544af8ee241b463fc876187e6b211c59db006640d29cdac3e60b9c291",
+     "crates/searcher/src/line_buffer.rs": "e154c1311658881667dfbccbcd6c8119dbea7d6ccc28bb36d84e76b829941539",
+     "crates/searcher/src/lines.rs": "cb7426c19b5ad95ccc126bc687bee3c0a50ecc30c955145b5c736de1fa651414",
+     "crates/searcher/src/macros.rs": "d398567c1bc6345f05b4f68f54627d53bb9b33c7fb19dca31a56b8715daade20",
+     "crates/searcher/src/searcher/core.rs": "df446bb78110fbfd4d108cf3de70edfe4c41055d3afb6bce61ee739f88f5e269",
+     "crates/searcher/src/searcher/glue.rs": "cfaab2b57b58f0cce4ffb1c7378c939f76bcfb2788dd7ebf33b6a129a3b10e96",
+     "crates/searcher/src/searcher/mmap.rs": "2377fa0f82e74408746ddb6e8549f9b18cf9d5edbb0b5450fc81021e8c7f49f4",
+     "crates/searcher/src/searcher/mod.rs": "3ca70b828405e8caca45e2e1aac5289bc25e2d968ce060b37e8a54b2aa258d7d",
+     "crates/searcher/src/sink.rs": "118968a3b6ff1d201e9254ddac474b6f0506803b8970bb2512831888c508cb5d",
+     "crates/searcher/src/testutil.rs": "3e69ded48abc640fb284d52ea892326cdbef8725188f9488f3436c8d30bbf35e",
+     "pkg/brew/ripgrep-bin.rb": "82be89a6593ca377d2e13e575d904a03fc7dee1eb6bcc4fc7196714e8ee0c6c8",
+     "pkg/windows/Manifest.xml": "0a844c9a5dfdea9e0c2ffb90006e8c890cd958e98da7f3a53b4d7f4dc6a0b5aa",
+     "pkg/windows/README.md": "68f68d161c3eca7896a6cec8fa1144d5999d06e1a8182794d51dab9c910f7485",
+     "rustfmt.toml": "8a897336e53517b1ecfc2fef4535c40103ccbd3f1732fc13c0ea905727947c74",
+     "scripts/copy-examples": "9e8751c43b515563e7d330e6c1767eb1a52b0106cf3869373cf83ae5d8a19693",
+     "tests/binary.rs": "4db1079c1ea79015e39716375fa1a773e63ca2d7edce8bac2597299eace63aa9",
+     "tests/feature.rs": "e70e3d447c397505268ed1a2690006fc2640ebe329558f51cc1ea789da656847",
+     "tests/hay.rs": "fcf2df32bf5d30eec04f9f4f4db6bb3e900c77c45453f94b767378bec944ab8c",
+     "tests/json.rs": "423d3a308b3987f0dcba568b5d0fd42a51fe35e570522f10d2035cb416486cc0",
+     "tests/macros.rs": "170d3d5b279ffce60621fe42cdd0a76fef865e63edab5b4e6fe6954962fec6ac",
+     "tests/misc.rs": "46ebffec3b4404312f1f43ca6a097d1fcd5f2b18451bb3ee95a6fa342a4b95f3",
+     "tests/multiline.rs": "f3dfcd93799a4c6fc8856914fe0c8e28961cec0a79350d604075a616b2bfb458",
+     "tests/regression.rs": "11d7224c078eb417be7332edf891b354b4ac7231404e435fc89f334edccb61f9",
+     "tests/tests.rs": "72b56d199716beec7e156eba0cad5bf2c965c28d668d3fce28fb031c02ae3d2e",
+     "tests/util.rs": "a9b4b65aed76f3d688e90ee72299ab5bb00911913be372d25af7f1c830257e8e"
+    }
+   }
+  },
+  "tools": {
+   "findex": {
+    "version": "findex 0.2.0",
+    "sha256": "a8d8a3e2a393448d1baf8100af7641d6fce39a4375167742e4da569fb0d58030"
+   },
+   "baseline": {
+    "version": "findex 0.2.0",
+    "sha256": "1a5d7eaa1426019233d939ecc8291677076518420b1f13ab64eeab75f32dd617"
+   },
+   "codebase-memory": {
+    "version": "codebase-memory-mcp 0.10.8",
+    "sha256": "b4b403b1d7c4def3785f148b93f345ce8427858f4f5489ce28580c4387a336a6"
+   },
+   "graphify": {
+    "version": "graphify 0.9.61",
+    "sha256": "295f799adf8f88e32e8c0810c20a01d21c534a799572cced26d4d08e6f4dbcc3"
+   }
+  },
+  "graphs": {
+   "requests": "ec072d9b623fe4ace9013680da0b5007fe9f2b44ffc66e97c776d0fe5708b24e",
+   "zod": "d8eb8bb71140b2fd265efe7ec35b610cbff5d95ec529c4bd4ca0ff1ad0144a44",
+   "fmt": "ff5da9f0f52bf44c607801ce6d44926e13e02af5a9d3046ec67dfdf61688bf07",
+   "ripgrep": "91d309c9f2dcfcc2c72e4c9d070ddad89d9a82f3c9f12388cffe3d3e17b11702"
+  }
+ },
+ "queries_sha256": "a163f2d3924c43f091a4b0f56e16c5afb496731a83abdc322c05409b1c74af52",
+ "golden_sha256": "941a6118fca67d04aeb959710c9c9eb32c2985aba925ab1cdea8944535e85380",
+ "projects": {
+  "requests": "findex-bench-20261030-codex-live-luna-requests",
+  "zod": "findex-bench-20261030-codex-live-luna-zod",
+  "fmt": "findex-bench-20261030-codex-live-luna-fmt",
+  "ripgrep": "findex-bench-20261030-codex-live-luna-ripgrep"
+ },
+ "modes": [
+  "findex-baseline-json",
+  "findex-json",
+  "findex-compact",
+  "codebase-json",
+  "codebase-tree",
+  "graphify-mcp"
+ ],
+ "budget_tokens": 2000,
+ "limit": 10,
+ "tokenizer": "o200k_base",
+ "policy": "Exact symbols: normalized Findex lookup, anchored codebase regex; other queries: lexical/BM25. Graphify code-only native MCP depth=2. No tuning on these results.",
+ "live_query_ids": [
+  "fmt:parse_arg_id:exact",
+  "ripgrep:NoIgnoreFiles:exact"
+ ],
+ "authorization": "2026-10-30 user: subscription only (claude.ai Pro login), no paid API, cheapest subscription model (haiku). Claude only. At most six sessions; continuation of 20261030-claude-live-haiku after an environment fault (ACL), documented in its NOTE.md.",
+ "selection": "SHA256(live-luna-v1 + id) minimum per corpus among new-55 symbol_exact queries of fmt and ripgrep, excluding the 2026-10-27 tasks; no result-based selection"
+}

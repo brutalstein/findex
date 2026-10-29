@@ -1,9 +1,13 @@
 """Deterministic checks for the comparison's selection and native result adapters."""
+from pathlib import Path
+import subprocess
+import tempfile
 import unittest
 from retrieval import score
 
 from tool_comparison import cbm_hits, graphify_hits, select_queries, superiority
-from tool_comparison_live import answer_correct, codex_env, codex_subscription_error, usage_summary
+from tool_comparison_live import (answer_correct, codex_env, codex_subscription_error,
+                                  select_live_tasks, usage_summary)
 
 
 class ComparisonTests(unittest.TestCase):
@@ -36,6 +40,25 @@ class ComparisonTests(unittest.TestCase):
         self.assertTrue(answer_correct('{"path":"src/a.py","line":7}', q))
         self.assertFalse(answer_correct('{"path":"wrong.py","line":7}', q))
         self.assertFalse(answer_correct('{"path":"src/a.py","line":true}', q))
+        self.assertTrue(answer_correct('Found it: {"path":"src/a.py","line":7}\nDone.', q))
+        self.assertTrue(answer_correct('```json\n{"path":"src\\\\a.py","line":8}\n```', q))
+        self.assertFalse(answer_correct('[{"path":"src/a.py","line":7},{"path":"x.py","line":1}]', q))
+
+    def test_live_tasks_need_one_expected_and_one_declaration_in_the_corpus(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            corpora = Path(tmp)
+            repo = corpora / "c"
+            repo.mkdir()
+            (repo / "a.py").write_text("def only_here():\n    pass\n\ndef twice():\n    pass\n", encoding="utf-8")
+            (repo / "b.py").write_text("def twice():\n    pass\n", encoding="utf-8")
+            subprocess.run(["git", "init", "-q", str(repo)], check=True)
+            subprocess.run(["git", "add", "."], cwd=repo, check=True)
+            row = lambda name, expected, kind="symbol_exact": {
+                "id": f"c:{name}", "corpus": "c", "type": kind, "query": name, "expected": expected, "split": "heldout"}
+            rows = [row("only_here", [["a.py", 1]]), row("twice", [["a.py", 4]]),
+                    dict(row("only_here", [["a.py", 1]], "line_terms"), id="c:terms"), row("missing", [["a.py", 1]])]
+            chosen = select_live_tasks(rows, corpora, 4)
+            self.assertEqual([r["id"] for r in chosen], ["c:only_here"])
 
     def test_selection_is_balanced_reproducible_and_heldout_only(self):
         rows = [{"id": f"{c}:{i}", "corpus": c, "type": str(i % 3), "split": "heldout"}

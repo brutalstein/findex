@@ -54,7 +54,7 @@ The 60% hit@1 / 90% recall@10 targets remain unmet (current ~44.6% / ~80.8%).
 | Performance regressions | NOT MEASURED on HEAD |
 | Security concerns | None open; threat model documented |
 | Platform coverage | Windows x64 only (Linux/macOS unsupported) |
-| Live-agent evaluation status | INCONCLUSIVE (2026-10-30): Codex gpt-5.6-luna hit the ChatGPT usage limit on its first session; Claude Haiku (claude.ai Pro) ran 3 sessions, none usable for a tool comparison (see validation/results/20261030-claude-live-haiku*/NOTE.md) |
+| Live-agent evaluation status | PARTIAL (2026-10-30): harness repaired; Claude Haiku (claude.ai Pro) rounds R4/R5 on four single-definition tasks: Findex 4/4 correct in both, 78,951 then 54,853 tokens/session vs Graphify 80,991 / 74,736 and codebase-memory 3/4 at 96,272 / 89,419. Four tasks, one repetition; the R5 saving is the avoided tool-search turn. Codex gpt-5.6-luna still blocked by the ChatGPT usage limit. Codex bugfix pilot: Findex trails codebase-memory on tokens. Per-round charts: docs/PROGRESS.md |
 
 ## Immediate Next Actions
 

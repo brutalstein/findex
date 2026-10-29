@@ -24,6 +24,12 @@ MODES = ("findex-baseline-json", "findex-json", "findex-compact",
          "codebase-json", "codebase-tree", "graphify-mcp")
 
 
+def same_hits(baseline: list[dict], current: list[dict]) -> bool:
+    """Equal hit lists; bm25_score is compared at the three decimals the server now emits."""
+    rounded = lambda hits: [dict(h, bm25_score=round(h["bm25_score"], 3)) if "bm25_score" in h else h for h in hits]
+    return rounded(baseline) == rounded(current)
+
+
 def expand_hits(payload: dict) -> dict:
     if "columns" not in payload:
         return payload
@@ -168,7 +174,7 @@ def run(args) -> None:
                         "scores": score(query, [] if error else visible[:manifest["limit"]])})
                 if evidence["findex-json"] != evidence["findex-compact"]:
                     raise AssertionError(f"Lossless roundtrip failed: {query['id']}")
-                if evidence["findex-baseline-json"]["hits"] != evidence["findex-json"]["hits"]:
+                if not same_hits(evidence["findex-baseline-json"]["hits"], evidence["findex-json"]["hits"]):
                     raise AssertionError(f"Ranking/source changed: {query['id']}")
                 if evidence["codebase-json"] != evidence["codebase-tree"]:
                     raise AssertionError(f"Competitor parser mismatch: {query['id']}")
