@@ -200,8 +200,8 @@ cheaper.
 
 [Evidence](docs/EVIDENCE.md) · [Technical reference](docs/reference.md) ·
 [Architecture](docs/architecture.md) · [Security](SECURITY.md) ·
-[Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) ·
-[Roadmap](docs/roadmap.md)
+[Engineering status](docs/engineering/STATUS.md) · [Roadmap](docs/roadmap.md) ·
+[Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
 
 <sub>MIT licensed. Findex is an independent project and is not affiliated with
 Anthropic or OpenAI. It launches the official clients and never impersonates
