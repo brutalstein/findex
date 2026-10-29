@@ -84,12 +84,12 @@ Per-query rank detayları: `validation/bench/results/REPORT.md`
 
 ## 6. Son Durum
 
-Commit `b9c2618` GitHub `origin/main` branch'ine push edildi. Çalışma dizini temiz.
+Commit `b79c638` GitHub `origin/main` branch'ine push edildi. Çalışma dizini temiz.
 
 **findex'in rakipler karşısında kanıtlanabilir üstünlüğü:**
 
-✅ **Kanıtlanmış:** Sıfır token maliyeti (0 LLM çağrı), 192 test ile güvenli, cross-platform, sub-second ranking, hash-verified evidence, MIT lisansı, canlı MCP.
+✅ **Kanıtlanmış:** Sıfır token maliyeti (0 LLM çağrı), 192 test ile güvenli, cross-platform, sub-second ranking (0.196s), hash-verified evidence, MIT lisansı, canlı MCP, semantic staleness detection (refresh-semantic), 9 dil Tree-sitter, blast-radius analizi.
 
-❌ **Hâlâ gerekli:** Gerçek rakip binary'leriyle aynı veri setinde karşılaştırma, canlı Claude Code oturum testi (OAuth süresi doldu - interaktif giriş gerekli), semantik artımlı güncelleme.
+❌ **Hâlâ gerekli:** Gerçek rakip binary'leriyle aynı veri setinde karşılaştırma, canlı Claude Code oturum testi (OAuth süresi doldu - interaktif giriş gerekli).
 
-**Claude testi bloğu:** `claude auth status` = loggedIn true ama `findex claude` çalıştırılınca "OAuth session expired". `FINDEX_LIVE_MODEL_APPROVAL` env var ve interaktif `claude` login gerekiyor. Bu engeli aşmak için kullanıcıdan Claude oturumunun yenilenmesi gerekiyor.
+**Claude testi bloğu:** `claude auth status` = loggedIn true ama `findex claude` çalıştırılınca "OAuth session expired and could not be refreshed". `FINDEX_LIVE_MODEL_APPROVAL` env var ve interaktif `claude` login gerekiyor. Bu engeli aşmak için kullanıcıdan Claude oturumunun yenilenmesi gerekiyor.

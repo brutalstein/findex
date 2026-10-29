@@ -1,10 +1,1 @@
-feat(semantic): end-to-end stale-semantic-report with tests
-
-- Add findex_relations::stale_semantic_report(): detects files whose semantic
-  evidence is stale (source hash changed or no longer admitted by scanner)
-- Distinguishes "source-hash-changed" (content modified) from
-  "no-longer-admitted-by-scanner" (deleted/inaccessible/ignored)
-- Add 3 end-to-end tests: no stale after import, detects changed source,
-  detects deleted file
-- All 192 workspace tests pass, zero warnings
-- Live dogfooding: all 7 steps pass
+docs(comparison): update blocker status and latest commit reference
