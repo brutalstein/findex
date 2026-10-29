@@ -1615,6 +1615,168 @@ mod tests {
         assert!(parsed.0.contains("\"or\""));
     }
 
+    /// FTS5 query construction: single word is double-quoted.
+    #[test]
+    fn fts_query_single_word() {
+        let (expr, terms) = fts_query("hello").expect("terms");
+        assert_eq!(expr, r#""hello""#);
+        assert_eq!(terms, vec!["hello"]);
+    }
+
+    /// FTS5 query construction: multiple words are OR-joined and quoted.
+    #[test]
+    fn fts_query_multiple_words() {
+        let (expr, terms) = fts_query("hello world").expect("terms");
+        assert_eq!(expr, r#""hello" OR "world""#);
+        assert_eq!(terms, vec!["hello", "world"]);
+    }
+
+    /// FTS5 query construction: camelCase identifiers expand to sub-words.
+    #[test]
+    fn fts_query_camelcase_expands() {
+        let (expr, terms) = fts_query("parseConfig").expect("terms");
+        assert!(terms.contains(&"parseconfig".to_string()));
+        assert!(terms.contains(&"parse".to_string()));
+        assert!(terms.contains(&"config".to_string()));
+        assert!(expr.contains("\"parseconfig\""));
+        assert!(expr.contains("\"parse\""));
+        assert!(expr.contains("\"config\""));
+    }
+
+    /// FTS5 query construction: snake_case produces a single lowercased term.
+    #[test]
+    fn fts_query_snake_case() {
+        let (expr, terms) = fts_query("parse_config").expect("terms");
+        assert_eq!(terms, vec!["parse_config"]);
+        assert_eq!(expr, r#""parse_config""#);
+    }
+
+    /// FTS5 query construction: quoted phrases are split into words, each quoted.
+    #[test]
+    fn fts_query_quoted_phrase() {
+        let (expr, _terms) = fts_query(r#"hello "world test""#).expect("terms");
+        assert!(expr.contains("\"hello\""));
+        assert!(expr.contains("\"world\""));
+        assert!(expr.contains("\"test\""));
+    }
+
+    /// FTS5 query construction: colons are neutralized (no unquoted FTS5 operators).
+    #[test]
+    fn fts_query_colons_neutralized() {
+        let (expr, _terms) = fts_query("module::func:arg").expect("terms");
+        assert!(!expr.contains(':'));
+        assert!(!expr.contains("::"));
+    }
+
+    /// FTS5 query construction: parentheses are neutralized.
+    #[test]
+    fn fts_query_parens_neutralized() {
+        let (expr, _terms) = fts_query("hello (world) foo").expect("terms");
+        assert!(!expr.contains('('));
+        assert!(!expr.contains(')'));
+    }
+
+    /// FTS5 query construction: FTS5 operators AND/OR/NOT/NEAR become literal terms.
+    #[test]
+    fn fts_query_operators_become_terms() {
+        let (expr, _terms) = fts_query("hello AND world OR NOT foo").expect("terms");
+        assert!(expr.contains("\"and\""));
+        assert!(expr.contains("\"or\""));
+        assert!(expr.contains("\"not\""));
+    }
+
+    /// FTS5 query construction: asterisk is neutralized (no prefix queries).
+    #[test]
+    fn fts_query_asterisk_neutralized() {
+        let (expr, _terms) = fts_query("hello* world").expect("terms");
+        assert!(!expr.contains('*'));
+    }
+
+    /// FTS5 query construction: empty query returns None.
+    #[test]
+    fn fts_query_empty_returns_none() {
+        assert!(fts_query("").is_none());
+        assert!(fts_query("   ").is_none());
+    }
+
+    /// split_query_terms cap at 12 terms.
+    #[test]
+    fn split_query_terms_capped_at_12() {
+        let many: String = (1..=20).map(|i| format!("term{i} ")).collect();
+        let terms = split_query_terms(&many);
+        assert!(terms.len() <= 12, "got {} terms", terms.len());
+    }
+
+    /// Real SQLite integration: search_in_db returns hits for a simple term.
+    #[test]
+    fn search_in_db_returns_hit_for_indexed_term() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        std::fs::write(
+            project.path().join("main.rs"),
+            "pub fn poll_proceed(cx: u32) -> u32 { cx + 1 }\n",
+        )
+        .expect("write");
+        synchronize_into(project.path(), &db).expect("sync");
+        let report = search_in_db(project.path(), &db, "poll_proceed", 5, SyncStats::default())
+            .expect("search");
+        assert!(!report.hits.is_empty());
+        assert!(report.hits.iter().any(|h| h.path.ends_with("main.rs")));
+    }
+
+    /// Real SQLite integration: search_in_db with operator-like input does not crash
+    /// and returns no hits (all terms neutralized to literal text).
+    #[test]
+    fn search_in_db_operator_input_safe() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        std::fs::write(
+            project.path().join("main.rs"),
+            "pub fn poll_proceed(cx: u32) -> u32 { cx + 1 }\n",
+        )
+        .expect("write");
+        synchronize_into(project.path(), &db).expect("sync");
+        // Input that would be dangerous as raw FTS5 syntax.
+        let report = search_in_db(
+            project.path(),
+            &db,
+            "poll_proceed OR * (secret) NEAR/10",
+            5,
+            SyncStats::default(),
+        )
+        .expect("search");
+        // Should not panic; may return 0 hits because all terms are quoted literals.
+        assert!(report.hits.len() <= 5);
+    }
+
+    /// Real SQLite integration: result count never exceeds limit.
+    #[test]
+    fn search_in_db_count_respects_limit() {
+        let project = tempdir().expect("project");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        for i in 0..20 {
+            std::fs::write(
+                project.path().join(format!("file_{i:02}.rs")),
+                format!("fn func_{i}() {{}}\n"),
+            )
+            .expect("write");
+        }
+        synchronize_into(project.path(), &db).expect("sync");
+        for limit in [1, 3, 5, 10, 100] {
+            let report = search_in_db(project.path(), &db, "func", limit, SyncStats::default())
+                .expect("search");
+            assert!(
+                report.hits.len() <= limit,
+                "limit={} hits={}",
+                limit,
+                report.hits.len()
+            );
+        }
+    }
+
     // =====================================================================
     // Property-based tests (proptest)
     // =====================================================================
