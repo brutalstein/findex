@@ -9,17 +9,17 @@ the investigation.
 | Field | Value |
 |---|---|
 | Current branch | main |
-| Current commit SHA | 0490018 |
-| Working-tree status | Clean except deleted COMMIT_MSG.txt (artifact) and untracked validation/results/* run directories |
+| Current commit SHA | 5b75f94 |
+| Working-tree status | Clean except untracked validation/results/* run directories |
 | Last verified milestone | M10 (Portability and integration) — VERIFIED locally; CI_NOT_RUN on cross-platform matrix |
 | Current unfinished task | M1 — Critical ranking correctness audit (FTS5 BM25 math, result counts, FTS5 query syntax, sorting, feature quality, candidate recall) |
 | Current error or blocker | None blocking; CI cross-platform matrix not yet verified after push (FX-20261029-003); live model access blocked (FX-20261029-002) |
-| Most recent successful command | `cargo test --workspace --all-targets` → 211 pass; `cargo clippy --workspace --all-targets -- -D warnings` → clean; `cargo fmt --check` → clean; `cargo build --release -p findex` → passes |
+| Most recent successful command | `git push origin main` (5b75f94 pushed); `cargo test --workspace --all-targets` → 211 pass; `cargo clippy --workspace --all-targets -- -D warnings` → clean; `cargo fmt --check` → clean; `cargo build --release -p findex` → passes |
 | Most recent failed command | None in this session |
-| Exact next command | `git add docs/engineering/ README.md && git commit -m "docs(engineering): establish permanent audit trail and baseline" && git push origin main` |
-| Files currently being modified | docs/engineering/* (all eight documents), README.md (STATUS.md link) |
+| Exact next command | Inspect `crates/findex-index/src/lib.rs` ranking code and `crates/findex-core/src/lib.rs` rank model; reproduce FTS5 BM25 score behavior with real SQLite fixtures |
+| Files currently being modified | None (docs committed); next: ranking source files |
 | Tests that must be rerun | `cargo test --workspace --all-targets`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo fmt --all -- --check`, `cargo build --release -p findex` |
-| GitHub publication status | PENDING_PUSH (audit trail not yet pushed to GitHub) |
+| GitHub publication status | PUSHED (commit 5b75f94 on main, verified on remote) |
 | Known risks | Ranking accuracy below 60%/90% targets; CI not yet run on Linux/macOS; live model evaluation blocked |
 
 ## Evidence links

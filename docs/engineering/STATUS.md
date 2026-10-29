@@ -7,9 +7,9 @@
 | Last updated UTC | 2026-10-29T22:00:00Z |
 | Repository | https://github.com/brutalstein/findex.git |
 | Base commit | 501bbae (feat(eval): multi-model agent evaluation harness) |
-| Latest implementation commit | 0490018 (feat(cli): add integration tests for all CLI commands) |
-| Latest verified commit | 0490018 |
-| Latest GitHub-published commit | 0490018 |
+| Latest implementation commit | 5b75f94 (docs(engineering): establish permanent GitHub-visible audit trail and baseline) |
+| Latest verified commit | 5b75f94 |
+| Latest GitHub-published commit | 5b75f94 |
 | Branch | main |
 | Pull request | None (work published directly to main) |
 | CI | Last run on main: unknown (CI_NOT_RUN since last push verification) |
@@ -27,7 +27,7 @@ The 60% hit@1 / 90% recall@10 targets remain unmet (current ~44.6% / ~80.8%).
 
 | ID | Description | Status | Tests | Evidence link | Commit SHA | Remaining blocker |
 |---|---|---|---|---|---|---|
-| M0 | Baseline and GitHub audit system | VERIFIED | 211 pass | docs/engineering/STATUS.md | 0490018 | None |
+| M0 | Baseline and GitHub audit system | VERIFIED | 211 pass | docs/engineering/STATUS.md | 5b75f94 | None |
 | M1 | Critical ranking correctness | IN_PROGRESS | Rank/retrieval unit tests | validation/results/* | PENDING | FTS5 BM25 math not yet audited on HEAD |
 | M2 | Retrieval evaluation reliability | IN_PROGRESS | eval harness present | validation/harness/eval_agents.py | 501bbae | Baseline not re-verified on HEAD |
 | M3 | Ranking accuracy improvements | NOT_STARTED | — | — | — | Awaiting M1/M2 results |

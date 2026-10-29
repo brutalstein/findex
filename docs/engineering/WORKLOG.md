@@ -25,10 +25,10 @@ Format: `## [UTC timestamp] [Event ID] Short description`
 - Test outcomes: N/A
 - Benchmark impact: None
 - Evidence location: docs/engineering/
-- Commit SHA: PENDING_COMMIT
-- GitHub URL: PENDING_PUSH
+- Commit SHA: 5b75f94
+- GitHub URL: https://github.com/brutalstein/findex/commit/5b75f94
 - Remaining limitations: CI has not yet run on the cross-platform matrix after the last push.
-- Next action: Commit and push the audit trail to GitHub; then begin M1 ranking correctness audit.
+- Next action: Begin M1 ranking correctness audit (FTS5 BM25 math).
 
 ## [2026-10-29T21:00:00Z] [FX-20261029-002] (carried from prior session) CLI integration tests
 
