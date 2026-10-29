@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "findex": {
+      "command": "C:/Users/cenke/OneDrive/Desktop/findex/target/release/findex.exe",
+      "args": ["mcp", "--project", "C:/Users/cenke/OneDrive/Desktop/findex"],
+      "env": {}
+    }
+  }
+}

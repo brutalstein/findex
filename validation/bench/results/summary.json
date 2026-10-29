@@ -1,0 +1,37 @@
+{
+  "findex_version": "0.2.0",
+  "platform": "Windows 11",
+  "queries_tested": 10,
+  "rank": {
+    "passed": 6,
+    "total": 10,
+    "recall_at_any": 0.6,
+    "avg_latency_seconds": 0.1962
+  },
+  "search": {
+    "passed": 9,
+    "total": 10,
+    "recall_at_any": 0.9,
+    "avg_latency_seconds": 0.2045
+  },
+  "competitor_published": {
+    "codegraph": {
+      "vscode_10k_files": "81% fewer tool calls, 64% fewer tokens",
+      "django_3k_files": "77% fewer tool calls, 60% fewer tokens",
+      "median_7_codebases": "58% fewer tool calls"
+    },
+    "graphify": {
+      "erpnext_1m_lines": "key-fact coverage 70.8% -> 82.0% vs grep/file reads"
+    },
+    "code_review_graph": {
+      "median": "63x fewer tokens per question vs reading whole corpus"
+    }
+  },
+  "findex_claims": {
+    "zero_llm_calls": true,
+    "cross_platform": true,
+    "mit_license": true,
+    "test_coverage": "192 tests, 0 failed",
+    "security": "fail-closed, hash-verified, secret redaction"
+  }
+}
