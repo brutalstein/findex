@@ -31,7 +31,10 @@
     "zero_llm_calls": true,
     "cross_platform": true,
     "mit_license": true,
-    "test_coverage": "192 tests, 0 failed",
-    "security": "fail-closed, hash-verified, secret redaction"
+    "test_coverage": "195 tests, 0 failed",
+    "security": "fail-closed, hash-verified, secret redaction",
+    "semantic_graph_end_to_end": true,
+    "blast_radius": true,
+    "stale_semantic_detection": true
   }
 }

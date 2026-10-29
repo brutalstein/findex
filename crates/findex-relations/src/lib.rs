@@ -1268,4 +1268,40 @@ mod tests {
             "no-longer-admitted-by-scanner"
         );
     }
+
+    #[test]
+    fn blast_radius_and_stale_detection_end_to_end() {
+        let (workspace, snapshot) = fixture();
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("import");
+
+        // 1. Blast-radius works after import
+        let first_impact = impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("initial impact");
+        assert_eq!(first_impact.hits.len(), 1);
+        assert_eq!(first_impact.hits[0].path, "b.rs");
+
+        // 2. No stale evidence after fresh import
+        let before = stale_semantic_report(workspace.path()).expect("before");
+        assert_eq!(before.stale_files.len(), 0);
+
+        // 3. Modify a source file -> evidence becomes stale
+        fs::write(
+            workspace.path().join("a.rs"),
+            "fn target() {}\nfn new_fn() {}\n",
+        )
+        .expect("edit a.rs");
+        let after = stale_semantic_report(workspace.path()).expect("after");
+        assert_eq!(after.stale_files.len(), 1);
+        assert_eq!(after.stale_files[0].path, "a.rs");
+        assert_eq!(after.stale_files[0].reason, "source-hash-changed");
+
+        // 4. Restore original content and reimport LSP snapshot -> evidence refreshed
+        fs::write(workspace.path().join("a.rs"), "fn target() {}\n").expect("restore a.rs");
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("reimport");
+        let refreshed = stale_semantic_report(workspace.path()).expect("refreshed");
+        assert_eq!(refreshed.stale_files.len(), 0);
+
+        // 5. Blast-radius still works after reimport
+        let second_impact = impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("reimported impact");
+        assert_eq!(second_impact.hits.len(), 1);
+    }
 }

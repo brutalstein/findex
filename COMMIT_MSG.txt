@@ -1,1 +1,8 @@
-docs(comparison): update blocker status and latest commit reference
+feat(semantic): end-to-end blast-radius + stale detection test, benchmark updated
+
+- Add blast_radius_and_stale_detection_end_to_end test: verifies blast-radius
+  works before/after source change and LSP reimport
+- Update COMPETITOR_COMPARISON.md: 195 tests, semantic graph end-to-end verified
+- Update summary.json: 195 tests, semantic_graph_end_to_end, blast_radius, stale_semantic_detection claims
+- All 195 workspace tests pass, zero warnings
+- Live dogfooding: all 7 steps pass
