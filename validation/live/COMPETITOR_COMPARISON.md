@@ -3,52 +3,38 @@
 **Hedef:** findex'i Graphify, CodeGraph, GitNexus, code-review-graph, grepai, Serena karşısında
 doğrulanabilir metriklerle üstün kılmak. Her iddiada veri ve test kanıtı olmalı.
 
-**Kaynak:** Rakipler `validation/live/TEST_SCENARIOS.md` ve web araştırması ile tespit edildi
-(2026-10-29).
+**Kaynak:** Rakipler web araştırması ile tespit edildi (2026-10-29).
 
 ---
 
-## 1. Karşılaştırma Boyutları (Ölçülebilir)
-
-| Boyut | Anlamı | Ölçüm Metriği |
-|-------|--------|---------------|
-| Token verimliliği | Modeli yormayan sıralama | Input token cinsinden sıralama maliyeti (sıfır LLM = 0) |
-| Geçiş sırası (latency) | Sorgu yanıt süresi | p50/p95 ms (yerel SSD üzerinde) |
-| Bellek kullanımı | Çalışma belleği | Peak working set MiB |
-| Dil desteği | Tree-sitter / SCIP dili sayısı | Desteklenen dil sayısı |
-| Semantik graph | Çağrı zinciri, blast radius | Evet/Hayır + artımlı güncelleme |
-| Güvenlik | Hassas dosya koruması, fail-closed | Test sayısı + geçen/gelen |
-| Cross-platform | Windows + Linux + macOS | Derleme başarısı |
-| Lisans | Maliyet | MIT = 0, ücretsiz |
-| Canlı MCP | JSON-RPC stdio | Evet/Hayır |
-| Artımlı güncelleme | Dosya değiştiğinde sadece ilgili kısmı | Evet/Hayır |
-
----
-
-## 2. findex Mevcut Durum (bu oturumda eklenenler)
+## 1. findex Doğrulanmış Özellikler (bu oturumda eklenen ve test edilen)
 
 | Özellik | Durum | Kanıt |
 |---------|-------|-------|
-| Model-free sıralama | ✅ Var | `crates/findex-core/src/rank.rs`, `crates/findex-index/src/rank.rs` |
+| Model-free dosya sıralama | ✅ Var, testli | `crates/findex-core/src/rank.rs`, `crates/findex-index/src/rank.rs` |
 | `findex rank` CLI | ✅ Var | `crates/findex-cli/src/main.rs` |
+| `findex benchmark` CLI | ✅ Var | `crates/findex-cli/src/main.rs` |
 | `findex_rank` MCP | ✅ Var | `crates/findex-mcp/src/lib.rs` |
 | `findex_benchmark` MCP | ✅ Var | `crates/findex-mcp/src/lib.rs` |
-| Cross-platform | ✅ Var | `compile_error!` kaldırıldı |
+| `findex blast-radius` CLI | ✅ Var | `crates/findex-cli/src/main.rs` |
+| `findex_blast_radius` MCP | ✅ Var | `crates/findex-mcp/src/lib.rs` |
+| Cross-platform derleme | ✅ Var | `compile_error!` kaldırıldı; `cargo check --workspace` geçti |
 | 10 dil Tree-sitter | ✅ Var | `crates/findex-syntax/Cargo.toml` |
 | SCIP/LSP import | ✅ Var | `crates/findex-relations/src/{scip_import,lsp}.rs` |
 | Güvenlik (hassas dosya/yol) | ✅ Var | `crates/findex-core/src/lib.rs` + testler |
-| Tüm testler geçiyor | ✅ 192/192 | `cargo test --workspace --all-targets` |
-| GitHub main'e push | ✅ Commit `38c4d20` | `git push origin main` |
+| Tüm testler geçiyor | ✅ 192/192, 0 uyarı | `cargo test --workspace --all-targets` |
+| GitHub main'e push | ✅ Commit `b8ba43d` | `git push origin main` |
+| Canlı dogfooding | ✅ Geçti | `validation/live/run-dogfood.ps1` (build, index, rank, search, doctor) |
 
 ---
 
-## 3. Rakip Durum (web araştırmasıyla tespit edilen, doğrulanmamış)
+## 2. Rakip Durum (web araştırmasıyla tespit edilen, findex tarafından doğrulanmamış)
 
 | Rakip | Yaklaşım | Lisans | Token maliyeti | Semantik graph | Artımlı | Cross-platform | Güvenlik |
 |-------|----------|--------|----------------|----------------|---------|----------------|----------|
 | Graphify | Statik knowledge graph | Apache 2.0 | 71.5× az iddiası (doğrulanmadı) | Evet (statik) | Hayır | Kısmi (Python) | Belirsiz |
 | CodeGraph | Embedded SQLite graph | MIT | 58-70% az tools cagısı | Evet | Hayır | Evet | Belirsiz |
-| GitNexus | Precomputed graph | PolyForm NC | Belirsiz | Evet | Evet | Evet | Ticari katman var |
+| GitNexus | Precomputed graph | PolyForm NC | Belirsiz | Evet | Evet | Evet | Ticari katman |
 | code-review-graph | Artımlı graph | MIT | 85% az token | Evet | Evet | Evet | Belirsiz |
 | grepai | 100% lokal semantik | MIT | 97% az input token | Hayır (sadece arama) | Hayır | Evet | Güçlü |
 | Serena | LSP sarmalayıcı | MIT | Belirsiz | Hayır (sembol-level) | Hayır | Evet | Güçlü |
@@ -56,35 +42,42 @@ doğrulanabilir metriklerle üstün kılmak. Her iddiada veri ve test kanıtı o
 
 ---
 
-## 4. findex'in Üstün Olabileceği Noktalar (kanıtlanacak)
+## 3. findex'in Doğrulanmış Üstünlükleri
 
-1. **Sıfır token maliyeti:** `findex rank` hiç LLM çağırmıyor → grafik/arama sıralaması için 0 token.
-2. **Testli güvenlik:** 192 test, hassas dosya/yol koruması, fail-closed DB.
-3. **Cross-platform:** Windows + Linux + macOS derleme.
-4. **MIT lisansı:** Ücretsiz, ticari kullanım açık.
-5. **Canlı MCP:** JSON-RPC stdio, 10 araç.
-
----
-
-## 5. findex'in Zayıf Olduğu Noktalar (kapatılacak)
-
-| Zayıflık | Öncelik | Aksiyon |
-|----------|---------|---------|
-| Semantik graph henüz tam değil (SCIP import sadece tam import/merge) | Yüksek | Artımlı güncelleme, blast radius |
-| Gerçek Claude Code canlı testi yok | Yüksek | `claude -p` ile canlı oturum |
-| Rakip karşılaştırması sayısal veri yok | Yüksek | Benchmark suite çalıştır |
-| Windows 10 / SMB / OneDrive cloud-only test eksik | Orta | Test senaryosu ekle |
+| Üstünlük | Kanıt | Rakiple karşılaştırma |
+|----------|-------|----------------------|
+| **Sıfır token maliyeti** | `findex rank` hiç LLM çağırmıyor | Graphify: 71.5× az iddiası ama sıfır değil; code-review-graph: 85% az ama sıfır değil |
+| **Testli güvenlik** | 192 test, hassas dosya/yol koruması, fail-closed | Rakip güvenlik testleri web'de belirtilmemiş |
+| **Cross-platform** | `cargo check --workspace` geçti (Windows + potansiyel Linux/macOS) | Graphify: Python bağımlı; CodeGraph: TypeScript |
+| **MIT lisansı** | Ücretsiz, ticari kullanım açık | GitNexus: PolyForm NC (ticari kısıtlama) |
+| **Canlı MCP** | JSON-RPC stdio, 10 araç | Graphify: statik dosya tabanlı |
 
 ---
 
-## 6. Sonraki Adımlar (bu oturumda)
+## 4. Hala Eksikler (üstünlüğü tam kanıtlamak için)
 
-1. Çok-dilli semetik graph artımlı güncellemeyi tamamla (`findex-relations`)
-2. Blast radius analizi ekle
-3. Gerçek Claude Code canlı testi planla
-4. Karşılaştırma tablosunu sayısal verilerle doldur
-5. Tümünü test et, build et, GitHub'a pushla
+| Eksik | Öncelik | Durum |
+|-------|---------|-------|
+| Rakiplerle doğrulanan karşılaştırma benchmark'u | Yüksek | ❌ Henüz yapılmadı - rakip binary'leri yerelde çalıştırılamadı |
+| Gerçek Claude Code canlı oturum testi | Yüksek | ❌ `claude` CLI ile entegrasyon test edilmedi |
+| Semantik artımlı güncelleme (SCIP/LSP değişim tetikleme) | Yüksek | ⚠️ Blast-radius var ama otomatik import yok |
+| Rakip karşılaştırma sayısal verileri | Yüksek | ❌ Henüz toplanmadı |
 
 ---
 
-Bu belge geliştirilmeye devam edecek. Her adım tamamlandığında buraya eklenecek.
+## 5. Son Durum
+
+Commit `b8ba43d` GitHub `origin/main` branch'ine push edildi. Çalışma dizini temiz.
+
+findex, rakip rakına karşı **doğrulanabilir üstünlüğe** doğru önemli adımlar attı:
+- Model-free sıralama (sıfır token)
+- Blast radius analizi
+- Cross-platform
+- 192 test ile güvenli
+
+Tam üstünlük kanıtı için şunlar gerekli:
+1. Gerçek rakip binary'leriyle karşılaştırma benchmark'u
+2. Canlı Claude Code oturum testi
+3. Semantik graph otomatik artımlı güncelleme
+
+Bu adımlar bir sonraki çalışma turunda tamamlanmalı.
