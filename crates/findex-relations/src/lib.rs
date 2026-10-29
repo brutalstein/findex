@@ -825,7 +825,7 @@ pub struct StaleSemanticReport {
 /// Scan all files with semantic evidence and return those whose evidence is
 /// stale (source changed or no longer admitted). Does not modify the database.
 pub fn stale_semantic_report(project: &Path) -> Result<StaleSemanticReport> {
-    let _indexed = prepare(project)?;
+    let indexed = prepare(project)?;
     let conn = open(project)?;
     let mut rows: Vec<(String, String)> = Vec::new();
     {
@@ -838,17 +838,36 @@ pub fn stale_semantic_report(project: &Path) -> Result<StaleSemanticReport> {
     }
     let mut stale: Vec<StaleSemanticFile> = Vec::new();
     for (path, digest) in &rows {
-        if !currently_admitted(&conn, path, digest) {
+        let readable = verify_path(project, path, digest);
+        if !readable {
+            // Cannot read the file or its hash no longer matches the stored digest:
+            // either deleted/inaccessible, or content changed since import.
+            // Distinguish by checking if the file exists at all.
+            let exists = project_file(project, Path::new(path))
+                .and_then(|(_, full)| {
+                    fs::symlink_metadata(&full)
+                        .map(|m| m.file_type().is_file())
+                        .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)
+                })
+                .unwrap_or(false);
+            if exists {
+                stale.push(StaleSemanticFile {
+                    path: path.clone(),
+                    reason: "source-hash-changed",
+                });
+            } else {
+                stale.push(StaleSemanticFile {
+                    path: path.clone(),
+                    reason: "no-longer-admitted-by-scanner",
+                });
+            }
+            continue;
+        }
+        // File is readable and hash matches; check it is still admitted by the scanner.
+        if !currently_admitted(&indexed, path, digest) {
             stale.push(StaleSemanticFile {
                 path: path.clone(),
                 reason: "no-longer-admitted-by-scanner",
-            });
-            continue;
-        }
-        if !verify_path(project, path, digest) {
-            stale.push(StaleSemanticFile {
-                path: path.clone(),
-                reason: "source-hash-changed",
             });
         }
     }
@@ -1207,6 +1226,46 @@ mod tests {
                 .hits
                 .len(),
             1
+        );
+    }
+
+    #[test]
+    fn stale_semantic_report_shows_none_stale_after_import() {
+        let (workspace, snapshot) = fixture();
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("import");
+        let report = stale_semantic_report(workspace.path()).expect("report");
+        assert_eq!(report.stale_files.len(), 0);
+        assert_eq!(report.total_semantic_files, 2);
+    }
+
+    #[test]
+    fn stale_semantic_report_detects_changed_source() {
+        let (workspace, snapshot) = fixture();
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("import");
+        // Change the source of a.rs so its hash no longer matches evidence_files
+        fs::write(
+            workspace.path().join("a.rs"),
+            "fn target() {}\nfn new_fn() {}\n",
+        )
+        .expect("edit a.rs");
+        let report = stale_semantic_report(workspace.path()).expect("report");
+        assert_eq!(report.stale_files.len(), 1);
+        assert_eq!(report.stale_files[0].path, "a.rs");
+        assert_eq!(report.stale_files[0].reason, "source-hash-changed");
+    }
+
+    #[test]
+    fn stale_semantic_report_detects_no_longer_admitted() {
+        let (workspace, snapshot) = fixture();
+        import_lsp_snapshot(workspace.path(), &snapshot).expect("import");
+        // Delete a.rs so it's no longer admitted by the scanner
+        fs::remove_file(workspace.path().join("a.rs")).expect("delete a.rs");
+        let report = stale_semantic_report(workspace.path()).expect("report");
+        assert_eq!(report.stale_files.len(), 1);
+        assert_eq!(report.stale_files[0].path, "a.rs");
+        assert_eq!(
+            report.stale_files[0].reason,
+            "no-longer-admitted-by-scanner"
         );
     }
 }
