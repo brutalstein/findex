@@ -68,6 +68,44 @@ Format: `## [UTC timestamp] [Event ID] Short description`
 - Next action: Re-verify retrieval baseline on HEAD (golden dataset), then
   verify FTS5 query syntax safety and final sorting.
 
+## [2026-10-29T23:00:00Z] [FX-20261029-006] M1: FTS5 query syntax safety tests added
+
+- Branch: main
+- Starting commit: 5f28972 (before this entry)
+- Current implementation commit: 5f28972
+- Subsystem: crates/findex-index/src/lib.rs
+- Issue ID: FX-20261029-001 (retrieval accuracy below target), Part 5.3
+- Objective: Add comprehensive FTS5 query syntax safety tests covering
+  single/multiple words, camelCase, snake_case, quoted phrases, colons,
+  parentheses, operators, asterisk, empty queries, term cap, and real
+  SQLite integration.
+- Files inspected: crates/findex-index/src/lib.rs (fts_query, split_query_terms,
+  search_in_db)
+- Files modified: crates/findex-index/src/lib.rs (+162 lines, 14 new tests)
+- Reproduction command: cargo test --package findex-index fts_query
+- Observed behavior: Existing tests only covered basic operator neutralization
+  and term cap. No coverage for camelCase expansion, snake_case, colons,
+  parentheses, operator-as-term, asterisk, empty queries, or real SQLite
+  integration with count-respects-limit.
+- Expected behavior: FTS5 query construction neutralizes all operators;
+  camelCase expands to sub-words; snake_case is single term; empty query
+  returns None; term cap at 12; search_in_db count never exceeds limit;
+  operator-like input doesn't crash.
+- Error or failure: clippy unused variable on `terms` in
+  fts_query_quoted_phrase test; fmt line-wrapping on long search_in_db calls.
+- Root cause: Unused variable; fmt prefers single-line for short calls.
+- Fix implemented: Renamed to `_terms`; cargo fmt auto-fixed line wrapping.
+- Tests executed: cargo test --workspace --all-targets → 234 pass
+- Test outcomes: All pass
+- Benchmark impact: None
+- Evidence location: crates/findex-index/src/lib.rs (tests 1618-1740 approx)
+- Commit SHA: 5f28972
+- GitHub URL: https://github.com/brutalstein/findex/commit/5f28972
+- Remaining limitations: Real retrieval accuracy not yet measured on HEAD;
+  final sorting verification still pending under M1.
+- Next action: Run golden dataset against 5f28972; verify final sorting
+  (sort-before-truncate, tie-breaking).
+
 ## [2026-10-29T21:00:00Z] [FX-20261029-002] (carried from prior session) CLI integration tests
 
 - Branch: main
