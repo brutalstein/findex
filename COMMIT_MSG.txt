@@ -1,18 +1,18 @@
-fix(ranking): re-order results by final combined score, fix FTS5 query construction
+fix(ranking): hash-verified call sites, true recency, larger candidate window
 
-- rank_in_db now re-sorts candidates by the final combined score from
-  rank_file(), so structural signals (definition, call-site, file type,
-  size penalty) actually affect result ordering instead of being ignored.
-- terms_to_fts_query now quotes each term and joins with OR, matching the
-  fts_query() approach in lib.rs: user-supplied punctuation, quotes and
-  FTS operators are treated as literal text, not query syntax.
-- Removed unnecessary .abs() on BM25 score (FTS5 BM25 is non-negative).
-- Increased candidate window from limit*4 to limit*8 (clamped 32-1024)
-  so structural signals can reorder beyond what BM25 alone surfaces.
-- Added file_recency_and_size() helper computing real size-based penalty
-  from live file metadata instead of neutral defaults.
-- Added regression tests: FTS5 quoting/escaping, size penalty, re-sorting
-  by definition signal, deterministic tie-breaking, empty query handling.
+- file_calls_names now reads source through hash_verified_source():
+  call-site evidence is dropped if on-disk content no longer matches
+  the indexed digest (fail closed, no stale signals)
+- Recency is now computed from actual file mtimes relative to the
+  newest file in the candidate batch (30-day decay window)
+- Size penalty extracted as standalone file_size_penalty() helper
+- Candidate window increased from limit*4 to limit*8 (clamped 32-1024)
+- Bm25Candidate now carries the indexed hash for verification
+- FTS5 query terms are individually quoted and OR-joined (literal text,
+  not query operators)
+- Removed unnecessary .abs() on BM25 score
+- Added regression tests for size penalty, re-sorting, deterministic
+  tie-breaking, empty query, FTS5 quoting/escaping/operator neutralization
 
 198 tests pass, clippy -D warnings clean, cargo fmt clean, release build
 and dogfooding pass.

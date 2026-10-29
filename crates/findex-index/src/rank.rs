@@ -7,12 +7,13 @@
 use crate::{connect, synchronize, Result, SyncStats};
 use findex_core::{
     rank::{file_type_for, rank_file, RankParams, RankWeights},
-    storage_dir,
+    storage_dir, MAX_SOURCE_BYTES,
 };
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
 use std::collections::HashSet;
 use std::path::Path;
+use std::time::SystemTime;
 
 /// Output of a ranked search.
 #[derive(Debug, Serialize)]
@@ -73,17 +74,41 @@ pub fn rank_in_db(
     let candidate_window = (limit * 8).clamp(32, 1024);
     let candidates = bm25_candidates(&conn, query, candidate_window)?;
 
+    // Collect mtimes for all candidates so recency can be computed relative
+    // to the most recently modified file in this batch.
+    let mut mtimes: Vec<Option<SystemTime>> = Vec::with_capacity(candidates.len());
+    for cand in &candidates {
+        let abs = project.join(Path::new(&cand.path));
+        mtimes.push(
+            std::fs::symlink_metadata(&abs)
+                .ok()
+                .and_then(|m| m.modified().ok()),
+        );
+    }
+    let newest_mtime = mtimes.iter().flatten().max();
+
     // Enrich each candidate with definition / call-site signals.
     let mut hits = Vec::new();
-    for cand in &candidates {
+    for (cand, mtime) in candidates.iter().zip(mtimes.iter()) {
         let path = Path::new(&cand.path);
         let defined = file_defines_names(&conn, path, &terms)?;
-        let called = file_calls_names(project, path, &terms)?;
+        let called = file_calls_names(project, path, Some(&cand.hash), &terms)?;
 
         let ft = file_type_for(path);
-        // Compute recency and size penalty from the live file metadata
-        // (hash-verified), so these signals are real rather than neutral.
-        let (recency, size_penalty) = file_recency_and_size(project, path);
+        let recency = newest_mtime
+            .map(|newest| {
+                mtime
+                    .map(|mt| {
+                        let age = newest.duration_since(mt).unwrap_or_default();
+                        // Recency decays over a 30-day window: 1.0 = modified now,
+                        // approaching 0.0 as age approaches 30 days.
+                        let days = age.as_secs_f64() / 86_400.0;
+                        (1.0 - days / 30.0).clamp(0.0, 1.0)
+                    })
+                    .unwrap_or(0.0)
+            })
+            .unwrap_or(0.5);
+        let size_penalty = file_size_penalty(project, path);
         let ranked = rank_file(&RankParams {
             path: cand.path.clone(),
             bm25_score: cand.bm25_score,
@@ -132,6 +157,7 @@ pub fn rank_in_db(
 struct Bm25Candidate {
     path: String,
     bm25_score: f64,
+    hash: String,
     excerpt: Option<String>,
 }
 
@@ -139,7 +165,7 @@ struct Bm25Candidate {
 fn bm25_candidates(conn: &Connection, query: &str, limit: usize) -> Result<Vec<Bm25Candidate>> {
     let fts_query = terms_to_fts_query(query);
     let mut stmt = conn.prepare_cached(
-        "SELECT files.path, docs.rank
+        "SELECT files.path, docs.rank, files.hash
          FROM docs JOIN files ON files.id = docs.rowid
          WHERE docs MATCH ?1 ORDER BY docs.rank ASC LIMIT ?2",
     )?;
@@ -147,6 +173,7 @@ fn bm25_candidates(conn: &Connection, query: &str, limit: usize) -> Result<Vec<B
         Ok(Bm25Candidate {
             path: row.get(0)?,
             bm25_score: row.get::<_, f64>(1)?,
+            hash: row.get(2)?,
             excerpt: None,
         })
     })?;
@@ -207,13 +234,17 @@ fn file_defines_names(conn: &Connection, path: &Path, terms: &[String]) -> Resul
 }
 
 /// Check which query terms are syntactically called in the given file.
-/// Uses a lexical heuristic on the on-disk source.
-fn file_calls_names(project: &Path, path: &Path, terms: &[String]) -> Result<Vec<String>> {
-    let _key = findex_core::normalized_relative_key(path)?;
-    let abs = project.join(path);
-    let source = match std::fs::read_to_string(&abs) {
-        Ok(s) => s,
-        Err(_) => return Ok(Vec::new()),
+/// Reads the file through a hash-verified path so call-site evidence is
+/// never stale: if the on-disk content no longer matches the indexed
+/// digest, the call-site signal is conservatively dropped.
+fn file_calls_names(
+    project: &Path,
+    path: &Path,
+    indexed_hash: Option<&str>,
+    terms: &[String],
+) -> Result<Vec<String>> {
+    let Some(source) = hash_verified_source(project, path, indexed_hash) else {
+        return Ok(Vec::new());
     };
     let term_set: HashSet<&str> = terms.iter().map(|t| t.as_str()).collect();
     let mut found = Vec::new();
@@ -231,25 +262,54 @@ fn file_calls_names(project: &Path, path: &Path, terms: &[String]) -> Result<Vec
     Ok(found)
 }
 
-/// Return (recency, size_penalty) for a candidate file, computed from its
-/// live metadata and content. Both values are 0..1 where 1 is best.
-fn file_recency_and_size(project: &Path, relative: &Path) -> (f64, f64) {
+/// Read a file's source text only if it still hash-matches the indexed digest.
+/// Returns None when the file is missing, inaccessible, oversized, binary,
+/// escapes the workspace, or its content hash has changed — fail closed.
+fn hash_verified_source(
+    project: &Path,
+    relative: &Path,
+    indexed_hash: Option<&str>,
+) -> Option<String> {
+    let abs = project.join(relative);
+    let metadata = std::fs::symlink_metadata(&abs).ok()?;
+    if !metadata.file_type().is_file()
+        || metadata.len() > MAX_SOURCE_BYTES
+        || findex_core::is_cloud_only(&metadata)
+    {
+        return None;
+    }
+    let resolved = abs.canonicalize().ok()?;
+    let actual = resolved.strip_prefix(project).ok()?;
+    if is_disallowed_project_path(actual) {
+        return None;
+    }
+    let bytes = std::fs::read(&abs).ok()?;
+    if let Some(expected) = indexed_hash {
+        if blake3::hash(&bytes).to_hex().as_str() != expected {
+            return None;
+        }
+    }
+    String::from_utf8(bytes).ok()
+}
+
+/// Size penalty: 1.0 up to 4 KiB, decaying toward 0.5 at 256 KiB.
+fn file_size_penalty(project: &Path, relative: &Path) -> f64 {
     let abs = project.join(relative);
     let metadata = match std::fs::symlink_metadata(&abs) {
         Ok(m) => m,
-        Err(_) => return (0.5, 1.0),
+        Err(_) => return 1.0,
     };
     let len = metadata.len();
-    // Size penalty: 1.0 up to 4 KiB, decaying toward 0.5 at 256 KiB.
-    let size_penalty = if len <= 4096 {
+    if len <= 4096 {
         1.0
     } else {
         (1.0 - ((len as f64 - 4096.0) / (256_000.0 - 4096.0)).clamp(0.0, 1.0) * 0.5).clamp(0.5, 1.0)
-    };
-    // Recency: conservative mid value without a batch reference so it does
-    // not dominate scoring until true cross-candidate mtime comparison is added.
-    let recency = 0.5;
-    (recency, size_penalty)
+    }
+}
+
+/// Wrapper around [`findex_core::is_disallowed_project_path`].
+fn is_disallowed_project_path(path: &Path) -> bool {
+    findex_core::is_disallowed_project_path(path)
 }
 
 #[cfg(test)]
@@ -299,21 +359,19 @@ mod tests {
 
     /// Size penalty: small files get 1.0, large files decay toward 0.5.
     #[test]
-    fn file_recency_and_size_small_file_full_penalty() {
+    fn file_size_penalty_small_file_full_penalty() {
         let project = tempdir().expect("project");
         let abs = project.path().join("small.rs");
         std::fs::write(&abs, "fn x() {}\n").expect("write");
-        let (recency, size_penalty) = file_recency_and_size(project.path(), Path::new("small.rs"));
-        assert_eq!(recency, 0.5);
+        let size_penalty = file_size_penalty(project.path(), Path::new("small.rs"));
         assert_eq!(size_penalty, 1.0);
     }
 
     #[test]
-    fn file_recency_and_size_nonexistent_file_defaults() {
+    fn file_size_penalty_nonexistent_file_defaults() {
         let project = tempdir().expect("project");
-        let (recency, size_penalty) =
-            file_recency_and_size(project.path(), Path::new("missing.rs"));
-        assert_eq!((recency, size_penalty), (0.5, 1.0));
+        let size_penalty = file_size_penalty(project.path(), Path::new("missing.rs"));
+        assert_eq!(size_penalty, 1.0);
     }
 
     /// rank_in_db re-sorts candidates by final combined score, so a file
@@ -361,13 +419,27 @@ mod tests {
         synchronize_into(project.path(), &db).expect("sync");
         let report =
             rank_in_db(project.path(), &db, "alpha", 5, SyncStats::default()).expect("rank");
-        // Same score for both; tie-break by path ascending
-        if report.hits.len() >= 2 {
-            assert!(report.hits[0].path <= report.hits[1].path);
-        }
         // Scores must be non-increasing
         for pair in report.hits.windows(2) {
-            assert!(pair[0].score >= pair[1].score - 1e-9);
+            assert!(
+                pair[0].score >= pair[1].score - 1e-9,
+                "scores must be non-increasing: {:?} vs {:?}",
+                pair[0],
+                pair[1]
+            );
+        }
+        // When scores are equal (within epsilon), tie-break by path ascending
+        if report.hits.len() >= 2 {
+            for pair in report.hits.windows(2) {
+                if (pair[0].score - pair[1].score).abs() < 1e-9 {
+                    assert!(
+                        pair[0].path <= pair[1].path,
+                        "equal scores must tie-break by path: {:?} vs {:?}",
+                        pair[0],
+                        pair[1]
+                    );
+                }
+            }
         }
     }
 
