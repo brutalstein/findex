@@ -58,10 +58,20 @@ pub fn normalized_relative_key(relative: &Path) -> io::Result<String> {
 
 /// Per-user local index directory; explicitly avoid putting Findex data in source trees.
 pub fn storage_dir(project: &Path) -> io::Result<PathBuf> {
-    let base = env::var_os("LOCALAPPDATA")
-        .map(PathBuf::from)
-        .filter(|p| p.is_absolute())
-        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "LOCALAPPDATA is not set"))?;
+    let base = if cfg!(windows) {
+        env::var_os("LOCALAPPDATA")
+            .map(PathBuf::from)
+            .filter(|p| p.is_absolute())
+            .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "LOCALAPPDATA is not set"))?
+    } else {
+        env::var_os("XDG_CACHE_HOME")
+            .map(PathBuf::from)
+            .filter(|p| p.is_absolute())
+            .or_else(|| env::var_os("HOME").map(|home| PathBuf::from(home).join(".cache")))
+            .ok_or_else(|| {
+                io::Error::new(io::ErrorKind::NotFound, "XDG_CACHE_HOME or HOME is not set")
+            })?
+    };
     let digest = blake3::hash(project.to_string_lossy().as_bytes()).to_hex();
     Ok(base.join("Findex").join("indexes").join(digest.as_str()))
 }
