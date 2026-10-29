@@ -1,6 +1,18 @@
-ci(workflow): add GitHub Actions CI for main branch
+fix(ranking): re-order results by final combined score, fix FTS5 query construction
 
-- Add .github/workflows/ci.yml: clippy with -D warnings, all tests,
-  release build, cargo fmt --check, working-tree-clean verification
-- Runs on push and pull_request to main
-- Cargo registry cache for faster runs
+- rank_in_db now re-sorts candidates by the final combined score from
+  rank_file(), so structural signals (definition, call-site, file type,
+  size penalty) actually affect result ordering instead of being ignored.
+- terms_to_fts_query now quotes each term and joins with OR, matching the
+  fts_query() approach in lib.rs: user-supplied punctuation, quotes and
+  FTS operators are treated as literal text, not query syntax.
+- Removed unnecessary .abs() on BM25 score (FTS5 BM25 is non-negative).
+- Increased candidate window from limit*4 to limit*8 (clamped 32-1024)
+  so structural signals can reorder beyond what BM25 alone surfaces.
+- Added file_recency_and_size() helper computing real size-based penalty
+  from live file metadata instead of neutral defaults.
+- Added regression tests: FTS5 quoting/escaping, size penalty, re-sorting
+  by definition signal, deterministic tie-breaking, empty query handling.
+
+198 tests pass, clippy -D warnings clean, cargo fmt clean, release build
+and dogfooding pass.
