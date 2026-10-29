@@ -400,7 +400,8 @@ where
                         "type":"object",
                         "properties":{
                             "task":{"type":"string","minLength":1,"maxLength":MAX_TASK_BYTES,"description":"The question or task, e.g. who calls `poll_proceed`, or where is the redirect auth header stripped. Put code names in backticks."},
-                            "budget_tokens":{"type":"integer","minimum":200,"maximum":8000,"default":2000}
+                            "budget_tokens":{"type":"integer","minimum":200,"maximum":8000,"default":2000},
+                            "format":{"type":"string","enum":["text","json"],"default":"text","description":"text: compact one-line-per-site agent output; json: structured evidence with path, line span, evidence kind, relevance score, source digest and completeness status."}
                         },
                         "required":["task"],
                         "additionalProperties":false
@@ -501,6 +502,13 @@ where
                     .pointer("/params/arguments/budget_tokens")
                     .and_then(Value::as_u64)
                     .unwrap_or(2000);
+                let format = match request
+                    .pointer("/params/arguments/format")
+                    .and_then(Value::as_str)
+                {
+                    Some("json") => "json",
+                    _ => "text",
+                };
                 if task.trim().is_empty()
                     || task.len() > MAX_TASK_BYTES
                     || !(200..=8000).contains(&budget)
@@ -512,10 +520,17 @@ where
                     )
                 } else {
                     match context(project, task, budget as usize) {
-                        Ok(report) => success(
-                            id,
-                            json!({"content":[{"type":"text","text":report.render()}],"isError":false}),
-                        ),
+                        Ok(report) => {
+                            let payload = if format == "json" {
+                                report.render_json()
+                            } else {
+                                report.render()
+                            };
+                            success(
+                                id,
+                                json!({"content":[{"type":"text","text":payload}],"isError":false}),
+                            )
+                        }
                         Err(_err) => unavailable(id, "context"),
                     }
                 }
@@ -1020,7 +1035,7 @@ mod tests {
         for tool in response["result"]["tools"].as_array().expect("tools") {
             let supports = matches!(
                 tool["name"].as_str(),
-                Some("findex_search" | "findex_find_symbol")
+                Some("findex_search" | "findex_find_symbol" | "findex_context")
             );
             assert_eq!(
                 tool["inputSchema"]["properties"].get("format").is_some(),
@@ -1180,6 +1195,8 @@ mod tests {
                         enclosing: Some("main".into()),
                         in_test: false,
                         text: "run();".into(),
+                        digest: None,
+                        relevance_score: 0.8,
                     }],
                     missing: Vec::new(),
                     truncated: false,

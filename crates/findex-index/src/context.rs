@@ -12,6 +12,7 @@ use crate::{
 use findex_core::storage_dir;
 use rusqlite::{params, Connection};
 use serde::Serialize;
+use serde_json::json;
 use std::collections::BTreeSet;
 use std::path::Path;
 
@@ -42,6 +43,10 @@ pub struct Evidence {
     pub enclosing: Option<String>,
     pub in_test: bool,
     pub text: String,
+    /// BLAKE3 digest of the source file when read; absent if unverified.
+    pub digest: Option<String>,
+    /// Approximate relevance contribution (0..1, higher = more relevant).
+    pub relevance_score: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -1026,6 +1031,8 @@ fn definitions(
             line: start,
             end_line: end,
             text: body,
+            digest: Some(row.hash.clone()),
+            relevance_score: 1.0,
         });
     }
     Ok(found)
@@ -1093,6 +1100,8 @@ fn files_named(
                     end_line: end,
                     enclosing: None,
                     text: redacted(0..end.min(lines.len())),
+                    digest: None,
+                    relevance_score: 0.5,
                 });
                 continue;
             }
@@ -1106,6 +1115,8 @@ fn files_named(
                     line: start,
                     end_line: row.end_line.max(start),
                     text: redacted(start - 1..start),
+                    digest: Some(row.hash.clone()),
+                    relevance_score: 1.0,
                 });
             }
         }
@@ -1280,6 +1291,12 @@ fn sites_of(
                 enclosing,
                 in_test,
                 text: excerpt_of(line),
+                digest: None,
+                relevance_score: match kind {
+                    "call" | "reference" | "import" => 0.8,
+                    "match" => 0.7,
+                    _ => 0.5,
+                },
             });
         }
     }
@@ -1694,6 +1711,11 @@ fn concept(
             end_line: last,
             enclosing,
             text: snippet,
+            digest: Some(hash.clone()),
+            relevance_score: match hit.match_kind {
+                "definition" => 1.0,
+                _ => 0.7,
+            },
         });
     }
     if candidates.is_empty() {
@@ -1802,7 +1824,7 @@ impl ContextReport {
         }
         let count = |kind: &str| self.evidence.iter().filter(|e| e.kind == kind).count();
         out.push_str(&format!(
-            "shown: {} definitions, {} calls, {} possible calls, {} references, {} imports, {} matches, {} prose mentions, {} file heads; ~{}/{} tokens; {}\n",
+            "shown: {} definitions, {} calls, {} possible calls, {} references, {} imports, {} matches, {} prose mentions, {} file heads; ~{}/{} estimated tokens (characters/4, not model-tokenized); {}\n",
             count("definition"),
             count("call"),
             count("possible call"),
@@ -1820,6 +1842,54 @@ impl ContextReport {
             },
         ));
         out
+    }
+
+    /// Structured JSON output for agents: each evidence item includes path,
+    /// symbol span, evidence category, relevance score, source digest and
+    /// completeness status.
+    #[must_use]
+    pub fn render_json(&self) -> String {
+        let evidence: Vec<serde_json::Value> = self
+            .evidence
+            .iter()
+            .map(|e| {
+                json!({
+                    "kind": e.kind,
+                    "path": e.path,
+                    "line": e.line,
+                    "end_line": e.end_line,
+                    "enclosing": e.enclosing,
+                    "in_test": e.in_test,
+                    "text": e.text,
+                    "digest": e.digest,
+                    "relevance_score": e.relevance_score,
+                })
+            })
+            .collect();
+        let result = serde_json::json!({
+            "intent": self.intent,
+            "scope": self.scope,
+            "identifiers": self.identifiers,
+            "evidence": evidence,
+            "missing": self.missing,
+            "truncated": self.truncated,
+            "budget_tokens": self.budget_tokens,
+            "used_tokens_estimate": self.used_tokens,
+            "stale_results_discarded": self.stale_results_discarded,
+            "coverage": self.coverage,
+            "shown": {
+                "definitions": self.evidence.iter().filter(|e| e.kind == "definition").count(),
+                "calls": self.evidence.iter().filter(|e| e.kind == "call").count(),
+                "possible_calls": self.evidence.iter().filter(|e| e.kind == "possible call").count(),
+                "references": self.evidence.iter().filter(|e| e.kind == "reference").count(),
+                "imports": self.evidence.iter().filter(|e| e.kind == "import").count(),
+                "matches": self.evidence.iter().filter(|e| e.kind == "match").count(),
+                "mentions": self.evidence.iter().filter(|e| e.kind == "mention").count(),
+                "file_heads": self.evidence.iter().filter(|e| e.kind == "file").count(),
+            },
+            "complete": !self.truncated,
+        });
+        serde_json::to_string_pretty(&result).unwrap_or_default()
     }
 }
 
