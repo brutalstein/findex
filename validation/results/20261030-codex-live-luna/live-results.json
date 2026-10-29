@@ -1,0 +1,19 @@
+{
+  "sessions": [
+    {
+      "key": "codex:fmt:parse_arg_id:exact:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "fmt:parse_arg_id:exact",
+      "status": "invalid",
+      "valid": false,
+      "correct": false,
+      "exit_code": 1,
+      "usage": {},
+      "mcp_calls": 0,
+      "final": ""
+    }
+  ],
+  "started": 1,
+  "stopped": "codex: failed, missing usage or unsuccessful supplied-server MCP call; no retries or fallback"
+}

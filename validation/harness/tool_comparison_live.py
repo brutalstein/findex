@@ -135,6 +135,8 @@ def main() -> None:
     parser.add_argument("--graphify-python", type=Path, required=True)
     parser.add_argument("--max-sessions", type=int, default=12)
     parser.add_argument("--client", choices=["both", "codex", "claude"], default="both")
+    parser.add_argument("--codex-model", help="override the model from config.toml; drops service_tier")
+    parser.add_argument("--codex-effort", help="override model_reasoning_effort from config.toml")
     args = parser.parse_args()
     args.out = args.out.resolve()
     if not args.enable_live_model_tests or os.environ.get(APPROVAL_ENV) != APPROVAL:
@@ -179,6 +181,10 @@ def main() -> None:
     home = Path(os.environ.get("CODEX_HOME", str(Path.home() / ".codex")))
     config = tomllib.loads((home / "config.toml").read_text(encoding="utf-8"))
     profile = {k: config[k] for k in ("model", "model_reasoning_effort", "service_tier") if k in config}
+    if args.codex_model or args.codex_effort:
+        profile.pop("service_tier", None)
+        profile.update({k: v for k, v in (("model", args.codex_model),
+                                          ("model_reasoning_effort", args.codex_effort)) if v})
     registered_cbm = config.get("mcp_servers", {}).get("codebase-memory", {})
     cbm_environment = {k: v for k, v in registered_cbm.get("env", {}).items()
                        if k in ("CBM_RUNTIME_DIR", "CBM_CACHE_DIR")}
