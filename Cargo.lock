@@ -173,6 +173,7 @@ dependencies = [
  "findex-relations",
  "findex-syntax",
  "serde_json",
+ "tempfile",
 ]
 
 [[package]]
