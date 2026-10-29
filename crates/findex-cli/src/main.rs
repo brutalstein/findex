@@ -185,7 +185,10 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             for (i, hit) in report.hits.iter().enumerate() {
                 println!(
                     "  #{}: {}  score={:.3}  {}",
-                    i + 1, hit.path, hit.score, hit.reason
+                    i + 1,
+                    hit.path,
+                    hit.score,
+                    hit.reason
                 );
             }
         }
@@ -203,7 +206,9 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             let found = findex_relations::blast_radius(&project, Path::new(&relative), depth, 32)?;
             println!(
                 "Blast radius for {} (depth {}): {} impacted files",
-                found.changed_file, depth, found.hits.len()
+                found.changed_file,
+                depth,
+                found.hits.len()
             );
             for hit in &found.hits {
                 println!(
@@ -505,9 +510,13 @@ fn print_help() {
     println!("  findex index                    Reconcile project lexical index");
     println!("  findex overview                 Bounded, source-verified project inventory");
     println!("  findex search <terms...>        Search matching code and line evidence");
-    println!("  findex rank <terms...>          Rank files by BM25 + definition + call-site (no LLM)");
+    println!(
+        "  findex rank <terms...>          Rank files by BM25 + definition + call-site (no LLM)"
+    );
     println!("  findex benchmark <terms...>     Rank with benchmark summary line");
-    println!("  findex blast-radius <file> [depth]  Blast radius from a changed file (semantic graph)");
+    println!(
+        "  findex blast-radius <file> [depth]  Blast radius from a changed file (semantic graph)"
+    );
     println!("  findex context <task> [--budget N] [--json]  Definitions, call sites or tests for a task");
     println!("  findex symbols <relative-file>  Parse definitions with Tree-sitter");
     println!("  findex find-symbol <exact-name>  Search persistent project definitions");

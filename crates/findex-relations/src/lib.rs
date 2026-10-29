@@ -834,7 +834,8 @@ pub fn stale_semantic_report(project: &Path) -> Result<StaleSemanticReport> {
     let mut rows: Vec<(String, String)> = Vec::new();
     {
         let mut stmt = conn.prepare("SELECT path,digest FROM evidence_files")?;
-        let mapped = stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?;
+        let mapped =
+            stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?;
         for r in mapped {
             let (path, digest) = r?;
             rows.push((path, digest));
@@ -1279,7 +1280,8 @@ mod tests {
         import_lsp_snapshot(workspace.path(), &snapshot).expect("import");
 
         // 1. Blast-radius works after import
-        let first_impact = impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("initial impact");
+        let first_impact =
+            impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("initial impact");
         assert_eq!(first_impact.hits.len(), 1);
         assert_eq!(first_impact.hits[0].path, "b.rs");
 
@@ -1305,7 +1307,8 @@ mod tests {
         assert_eq!(refreshed.stale_files.len(), 0);
 
         // 5. Blast-radius still works after reimport
-        let second_impact = impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("reimported impact");
+        let second_impact =
+            impact(workspace.path(), Path::new("a.rs"), 1, 8).expect("reimported impact");
         assert_eq!(second_impact.hits.len(), 1);
     }
 }

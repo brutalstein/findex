@@ -6,7 +6,7 @@
 
 use crate::{connect, synchronize, Result, SyncStats};
 use findex_core::{
-    rank::{rank_file, file_type_for, RankParams, RankWeights},
+    rank::{file_type_for, rank_file, RankParams, RankWeights},
     storage_dir,
 };
 use rusqlite::{params, Connection, OptionalExtension};
@@ -37,11 +37,7 @@ pub struct RankedHit {
 }
 
 /// Rank files for a query using BM25 + structural signals, no LLM.
-pub fn rank(
-    project: &Path,
-    query: &str,
-    limit: usize,
-) -> Result<RankReport> {
+pub fn rank(project: &Path, query: &str, limit: usize) -> Result<RankReport> {
     let sync = synchronize(project)?;
     let directory = storage_dir(project)?;
     let db = directory.join("index.sqlite3");
@@ -89,7 +85,7 @@ pub fn rank_in_db(
             called_names: called,
             query_terms: terms.clone(),
             file_type: ft,
-            recency: 0.5, // recency: neutral default
+            recency: 0.5,      // recency: neutral default
             size_penalty: 1.0, // size_penalty: neutral default
             weights: RankWeights::default(),
         });
@@ -124,11 +120,7 @@ struct Bm25Candidate {
 }
 
 /// Run BM25 FTS5 search and return candidates with scores.
-fn bm25_candidates(
-    conn: &Connection,
-    query: &str,
-    limit: usize,
-) -> Result<Vec<Bm25Candidate>> {
+fn bm25_candidates(conn: &Connection, query: &str, limit: usize) -> Result<Vec<Bm25Candidate>> {
     let fts_query = terms_to_fts_query(query);
     let mut stmt = conn.prepare_cached(
         "SELECT files.path, docs.rank
@@ -156,11 +148,7 @@ fn terms_to_fts_query(query: &str) -> String {
 }
 
 /// Check which query terms are defined in the given file's symbol table.
-fn file_defines_names(
-    conn: &Connection,
-    path: &Path,
-    terms: &[String],
-) -> Result<Vec<String>> {
+fn file_defines_names(conn: &Connection, path: &Path, terms: &[String]) -> Result<Vec<String>> {
     let key = findex_core::normalized_relative_key(path)?;
     let term_set: HashSet<&str> = terms.iter().map(|t| t.as_str()).collect();
     let mut found = Vec::new();
@@ -168,14 +156,17 @@ fn file_defines_names(
         if !term_set.contains(term.as_str()) {
             continue;
         }
-        let count: i64 = conn.query_row(
-            "SELECT COUNT(*) FROM symbols s
+        let count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM symbols s
              JOIN symbol_state st ON st.path = s.path AND st.extractor_revision = 3
              JOIN files f ON f.path = s.path AND f.hash = st.hash
              WHERE s.path = ?1 AND lower(replace(s.name, '_', '')) = ?2",
-            params![key, term],
-            |row| row.get(0),
-        ).optional()?.unwrap_or(0);
+                params![key, term],
+                |row| row.get(0),
+            )
+            .optional()?
+            .unwrap_or(0);
         if count > 0 {
             found.push(term.clone());
         }
@@ -185,11 +176,7 @@ fn file_defines_names(
 
 /// Check which query terms are syntactically called in the given file.
 /// Uses a lexical heuristic on the on-disk source.
-fn file_calls_names(
-    project: &Path,
-    path: &Path,
-    terms: &[String],
-) -> Result<Vec<String>> {
+fn file_calls_names(project: &Path, path: &Path, terms: &[String]) -> Result<Vec<String>> {
     let _key = findex_core::normalized_relative_key(path)?;
     let abs = project.join(path);
     let source = match std::fs::read_to_string(&abs) {

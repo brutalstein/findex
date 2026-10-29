@@ -150,7 +150,13 @@ pub fn rank_file(params: &RankParams) -> RankedFile {
         + params.weights.file_type * file_type_score
         + params.weights.size_penalty * params.size_penalty;
 
-    let reason = build_reason(bm25_norm, definition, call_site, file_type_score, params.recency);
+    let reason = build_reason(
+        bm25_norm,
+        definition,
+        call_site,
+        file_type_score,
+        params.recency,
+    );
 
     RankedFile {
         path: params.path.clone(),
@@ -167,7 +173,13 @@ pub fn rank_file(params: &RankParams) -> RankedFile {
     }
 }
 
-fn build_reason(bm25: f64, definition: f64, call_site: f64, file_type: f64, recency: f64) -> String {
+fn build_reason(
+    bm25: f64,
+    definition: f64,
+    call_site: f64,
+    file_type: f64,
+    recency: f64,
+) -> String {
     let mut parts = Vec::new();
     if definition > 0.0 {
         parts.push("defines queried name");
@@ -206,8 +218,8 @@ pub fn file_type_for(path: &Path) -> FileType {
         return FileType::Test;
     }
     match ext {
-        "rs" | "py" | "ts" | "tsx" | "js" | "jsx" | "cpp" | "cc" | "cxx" | "h" | "hpp"
-        | "c" | "go" | "java" | "cs" => FileType::Source,
+        "rs" | "py" | "ts" | "tsx" | "js" | "jsx" | "cpp" | "cc" | "cxx" | "h" | "hpp" | "c"
+        | "go" | "java" | "cs" => FileType::Source,
         "md" | "mdx" | "rst" | "txt" | "adoc" => FileType::Doc,
         "toml" | "json" | "yaml" | "yml" | "ini" | "cfg" | "lock" => FileType::Config,
         _ => FileType::Other,
@@ -243,7 +255,10 @@ mod tests {
             size_penalty: 1.0,
             weights,
         });
-        assert!(a.score > b.score, "definition should outrank lexical-only: {a:?} vs {b:?}");
+        assert!(
+            a.score > b.score,
+            "definition should outrank lexical-only: {a:?} vs {b:?}"
+        );
     }
 
     #[test]
@@ -271,7 +286,10 @@ mod tests {
             size_penalty: 1.0,
             weights,
         });
-        assert!(a.score > b.score, "call site should boost rank: {a:?} vs {b:?}");
+        assert!(
+            a.score > b.score,
+            "call site should boost rank: {a:?} vs {b:?}"
+        );
     }
 
     #[test]
@@ -299,7 +317,10 @@ mod tests {
             size_penalty: 1.0,
             weights,
         });
-        assert!(a.score > b.score, "source should outrank config: {a:?} vs {b:?}");
+        assert!(
+            a.score > b.score,
+            "source should outrank config: {a:?} vs {b:?}"
+        );
     }
 
     #[test]

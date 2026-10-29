@@ -685,11 +685,7 @@ where
                     .unwrap_or(8)
                     .clamp(1, 32) as usize;
                 if query.is_empty() || query.len() > 500 {
-                    error(
-                        id,
-                        -32602,
-                        "query must be 1-500 bytes and limit 1-32",
-                    )
+                    error(id, -32602, "query must be 1-500 bytes and limit 1-32")
                 } else {
                     match findex_index::rank(project, query, limit) {
                         Ok(report) => success(
@@ -712,11 +708,7 @@ where
                     .unwrap_or(8)
                     .clamp(1, 32) as usize;
                 if query.is_empty() || query.len() > 500 {
-                    error(
-                        id,
-                        -32602,
-                        "query must be 1-500 bytes and limit 1-32",
-                    )
+                    error(id, -32602, "query must be 1-500 bytes and limit 1-32")
                 } else {
                     match findex_index::rank(project, query, limit) {
                         Ok(report) => success(
