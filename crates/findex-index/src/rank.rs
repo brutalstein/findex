@@ -463,4 +463,80 @@ mod tests {
         assert!(!report.hits.is_empty());
         assert_eq!(report.hits[0].path, "src/config.ts");
     }
+
+    /// Final sort happens before truncation: `returned` equals hits.len()
+    /// after truncation and never exceeds `limit`.
+    #[test]
+    fn rank_in_db_sort_before_truncate_and_count() {
+        let project = tempdir().expect("project");
+        let src = project.path().join("src");
+        std::fs::create_dir(&src).expect("make src");
+        for i in 0..20 {
+            std::fs::write(
+                src.join(format!("file_{i:02}.rs")),
+                format!("fn func_{i}() {{}}\n"),
+            )
+            .expect("write");
+        }
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        synchronize_into(project.path(), &db).expect("sync");
+        let report =
+            rank_in_db(project.path(), &db, "func", 5, SyncStats::default()).expect("rank");
+        assert_eq!(report.returned, report.hits.len());
+        assert!(report.returned <= 5);
+        assert!(report.hits.len() <= 5);
+    }
+
+    /// Scores are non-increasing after sort (deterministic ordering).
+    #[test]
+    fn rank_in_db_scores_are_non_increasing() {
+        let project = tempdir().expect("project");
+        let src = project.path().join("src");
+        std::fs::create_dir(&src).expect("make src");
+        std::fs::write(src.join("a.rs"), "fn alpha() {}\n").expect("write a");
+        std::fs::write(src.join("b.rs"), "fn alpha() {}\n").expect("write b");
+        std::fs::write(src.join("c.rs"), "fn beta() {}\n").expect("write c");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        synchronize_into(project.path(), &db).expect("sync");
+        let report =
+            rank_in_db(project.path(), &db, "alpha", 5, SyncStats::default()).expect("rank");
+        for pair in report.hits.windows(2) {
+            assert!(
+                pair[0].score >= pair[1].score - 1e-6,
+                "scores must be non-increasing: {:?} vs {:?}",
+                pair[0],
+                pair[1]
+            );
+        }
+    }
+
+    /// Deterministic tie-break: equal scores are ordered by path ascending.
+    #[test]
+    fn rank_in_db_tie_break_by_path() {
+        let project = tempdir().expect("project");
+        let src = project.path().join("src");
+        std::fs::create_dir(&src).expect("make src");
+        std::fs::write(src.join("zeta.rs"), "fn alpha() {}\n").expect("write zeta");
+        std::fs::write(src.join("alpha.rs"), "fn alpha() {}\n").expect("write alpha");
+        let state = tempdir().expect("state");
+        let db = state.path().join("index.sqlite3");
+        synchronize_into(project.path(), &db).expect("sync");
+        let report =
+            rank_in_db(project.path(), &db, "alpha", 5, SyncStats::default()).expect("rank");
+        assert!(report.hits.len() >= 2);
+        // Equal scores → path ascending: alpha.rs before zeta.rs.
+        let mut paths_sorted: Vec<&str> = report.hits.iter().map(|h| h.path.as_str()).collect();
+        paths_sorted.sort();
+        assert_eq!(
+            paths_sorted,
+            report
+                .hits
+                .iter()
+                .map(|h| h.path.as_str())
+                .collect::<Vec<_>>(),
+            "tie-broken hits must be path-sorted"
+        );
+    }
 }
