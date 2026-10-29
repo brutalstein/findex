@@ -188,6 +188,20 @@ pub fn redact_secrets(text: &str) -> std::borrow::Cow<'_, str> {
                 r#"(?i)(\b(?:password|passwd|pwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|private[_-]?key)\b["']?\s*[:=]\s*["'])[^"'\s]{6,}(["'])"#,
                 "${1}[REDACTED:assignment]${2}",
             ),
+            // Azure Storage / Service Bus / Cosmos connection strings.
+            (
+                r"(?i)(?:DefaultEndpointsProtocol|EndpointSuffix|SharedAccessKey|AccountKey)\s*=\s*[^;\s]{8,}",
+                "[REDACTED:azure-connection-string]",
+            ),
+            // GCP service account / API key indicators.
+            (r#"["](?:type|project_id|private_key_id|private_key|client_email)["]\s*:\s*["][^"]{8,}["]"#,
+             "[REDACTED:gcp-credential]"),
+            (r"\bAIza[0-9A-Za-z_-]{35}\b", "[REDACTED:gcp-api-key]"),
+            // Datadog, Stripe, SendGrid, Slack webhooks.
+            (r"\bdd-[0-9a-f]{32}\b", "[REDACTED:datadog-key]"),
+            (r"\bsk_(?:live|test)_[0-9a-zA-Z]{24,}\b", "[REDACTED:stripe-key]"),
+            (r"\bSG\.[0-9A-Za-z\-_]{22,}\.[0-9A-Za-z\-_]{22,}", "[REDACTED:sendgrid-key]"),
+            (r"https?://hooks\.slack\.com/services/T[A-Z0-9_]{8,}/B[A-Z0-9_]{8,}/[A-Za-z0-9]{24,}", "[REDACTED:slack-webhook]"),
         ]
         .into_iter()
         .filter_map(|(pattern, replacement)| Regex::new(pattern).ok().map(|r| (r, replacement)))

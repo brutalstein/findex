@@ -1774,6 +1774,43 @@ fn render_header(report: &ContextReport) -> String {
     )
 }
 
+/// Escape markdown-sensitive characters in source text shown as evidence so
+/// repository data cannot break code fences or inject rendering hints.
+/// Backticks at line start are escaped; runs of 3+ backticks anywhere are
+/// broken with a zero-width space.
+fn escape_evidence_line(line: &str) -> String {
+    let mut out = String::with_capacity(line.len());
+    let mut backtick_run = 0usize;
+    for ch in line.chars() {
+        if ch == '`' {
+            backtick_run += 1;
+            if backtick_run >= 3 {
+                out.push('`');
+                out.push('\u{200B}'); // zero-width space breaks fence runs
+                backtick_run = 1;
+            } else {
+                out.push(ch);
+            }
+        } else {
+            backtick_run = 0;
+            out.push(ch);
+        }
+    }
+    // A line starting with backticks, `>`, `-`, `*`, or digits+`.` could be
+    // interpreted as markdown by a downstream renderer; prefix with a space.
+    let trimmed = out.trim_start();
+    let leading = &out[..out.len() - trimmed.len()];
+    let needs_prefix = matches!(
+        trimmed.chars().next(),
+        Some('`' | '>' | '-' | '*' | '+' | '.' | '|')
+    ) || trimmed.chars().next().is_some_and(|c| c.is_ascii_digit());
+    if needs_prefix {
+        format!(" {}{}", leading, trimmed)
+    } else {
+        out
+    }
+}
+
 fn render_evidence(evidence: &Evidence) -> String {
     let span = if evidence.end_line > evidence.line {
         format!("{}-{}", evidence.line, evidence.end_line)
@@ -1791,14 +1828,16 @@ fn render_evidence(evidence: &Evidence) -> String {
         ""
     };
     // Multi-line source is indented so file text can never pose as a report line.
+    // Code fences and leading markdown-indicating characters are escaped so
+    // source text cannot break out of a code block or inject rendering hints.
     let text = if evidence.text.contains('\n') {
         evidence
             .text
             .lines()
-            .map(|line| format!("\n  {line}"))
+            .map(|line| format!("\n  {}", escape_evidence_line(line)))
             .collect::<String>()
     } else {
-        format!(" {}", evidence.text)
+        format!(" {}", escape_evidence_line(&evidence.text))
     };
     format!(
         "{}{test} {}:{span}{enclosing}{text}\n",
