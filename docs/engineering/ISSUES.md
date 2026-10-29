@@ -10,24 +10,36 @@ BLOCKED, WONT_FIX, REGRESSED.
 ## FX-20261029-001 — Retrieval accuracy below target
 
 - Priority: P1
-- Status: CONFIRMED
+- Status: IN_PROGRESS
 - First observed: 2026-10-29 (historical measurement on commit 501bbae baseline)
-- Last verified: 2026-10-29 (docs/roadmap.md context locality checkpoint)
-- Affected commit: 0490018 (HEAD)
-- Affected module: crates/findex-index (ranking), crates/findex-core (rank model)
+- Last verified: 2026-10-29 (commit 3dfc311)
+- Affected commit: 3dfc311 (HEAD)
+- Affected module: crates/findex-core/src/rank.rs, crates/findex-index/src/rank.rs
 - Symptom: hit@1 ~44.6% on 65 reused historical issues; gold recall@10 ~80.8%.
 - Reproduction steps: Run validation retrieval harness against golden dataset; compare hit@1/recall@10.
 - Expected behavior: hit@1 >= 60%, recall@10 >= 90% (roadmap acceptance criteria).
 - Actual behavior: hit@1 ~44.6%, recall@10 ~80.8%; targets unmet.
-- Root cause: Not yet isolated; candidate causes include BM25 transform, candidate generation window, feature weighting.
-- Impact: Findex does not meet self-declared accuracy targets; engineering task completion may suffer.
-- Proposed fix: Audit FTS5 BM25 math (Part 5.1), verify result counts (Part 5.2), FTS5 query syntax (Part 5.3), final sorting (Part 5.4), feature ablation (Part 5.5), candidate recall (Part 5.6).
-- Regression test: Golden dataset run before/after each ranking change.
-- Resolution: OPEN
-- Verification: None yet
-- Relevant commits: 501bbae (baseline measurement), 0490018 (HEAD)
-- GitHub links: docs/engineering/STATUS.md (milestone M1)
-- Remaining risks: Ranking changes may regress individual queries even if aggregate improves.
+- Root cause (partial, confirmed):
+  1. `bm25_score.max(0.0)` in crates/findex-core/src/rank.rs:114 clamped all
+     negative FTS5 BM25 scores to 0, collapsing distinct lexical relevance into
+     identical bm25_norm = 1.0 (confirmed via reproduction test).
+  2. `returned = hits.len()` set before `hits.truncate(limit)` in
+     crates/findex-index/src/rank.rs:145, overstating result count
+     (confirmed via code inspection).
+- Impact: BM25 signal lost for all lexical matches; result count contract
+  violated for MCP/CLI consumers.
+- Proposed fix: Normalize BM25 as (-score)/(1+(-score)) preserving ordering;
+  report count after truncation. Both fixed in commit 3dfc311.
+- Regression test: `bm25_negative_scores_produce_distinct_norms` in
+  crates/findex-core/src/rank.rs; updated `zero_query_terms_yields_low_score`.
+- Resolution: PARTIAL (bugs fixed; accuracy not yet re-measured on HEAD)
+- Verification: 220 tests pass; clippy -D warnings clean; fmt clean; release
+  build passes. Accuracy re-measurement pending (FX-BM-005).
+- Relevant commits: 3dfc311 (fix), 501bbae (baseline measurement)
+- GitHub links: https://github.com/brutalstein/findex/commit/3dfc311
+- Remaining risks: Ranking changes may regress individual queries; need
+  before/after retrieval measurements on golden dataset; candidate generation
+  recall not yet audited (Part 5.6).
 
 ## FX-20261029-002 — Live model evaluation blocked
 

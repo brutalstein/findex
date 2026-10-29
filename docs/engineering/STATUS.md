@@ -7,9 +7,9 @@
 | Last updated UTC | 2026-10-29T22:00:00Z |
 | Repository | https://github.com/brutalstein/findex.git |
 | Base commit | 501bbae (feat(eval): multi-model agent evaluation harness) |
-| Latest implementation commit | 5b75f94 (docs(engineering): establish permanent GitHub-visible audit trail and baseline) |
-| Latest verified commit | 5b75f94 |
-| Latest GitHub-published commit | 5b75f94 |
+| Latest implementation commit | 3dfc311 (fix(rank): preserve FTS5 BM25 score ordering and report accurate result count) |
+| Latest verified commit | 3dfc311 |
+| Latest GitHub-published commit | 3dfc311 |
 | Branch | main |
 | Pull request | None (work published directly to main) |
 | CI | Last run on main: unknown (CI_NOT_RUN since last push verification) |

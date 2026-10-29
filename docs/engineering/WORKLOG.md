@@ -30,6 +30,44 @@ Format: `## [UTC timestamp] [Event ID] Short description`
 - Remaining limitations: CI has not yet run on the cross-platform matrix after the last push.
 - Next action: Begin M1 ranking correctness audit (FTS5 BM25 math).
 
+## [2026-10-29T22:30:00Z] [FX-20261029-005] M1: BM25 score collapse + result count bugs fixed
+
+- Branch: main
+- Starting commit: e4d40f9
+- Current implementation commit: 3dfc311
+- Subsystem: crates/findex-core/src/rank.rs, crates/findex-index/src/rank.rs
+- Issue ID: FX-20261029-001 (retrieval accuracy below target)
+- Objective: Fix confirmed ranking correctness defects identified in M1 audit.
+- Files inspected: crates/findex-core/src/rank.rs (rank_file BM25 normalization),
+  crates/findex-index/src/rank.rs (rank_in_db result count)
+- Files modified: crates/findex-core/src/rank.rs, crates/findex-index/src/rank.rs
+- Reproduction command: cargo test --package findex-core rank::tests::bm25_negative_scores_produce_distinct_norms
+- Observed behavior: FTS5 BM25 returns negative values (more negative = better).
+  `bm25_score.max(0.0)` clamped all negatives to 0, collapsing distinct lexical
+  relevance into identical bm25_norm = 1.0. `returned = hits.len()` was set
+  before `hits.truncate(limit)`, overstating result count.
+- Expected behavior: BM25 score ordering preserved; returned count reflects
+  hits after truncation.
+- Error or failure: Two tests initially failed after fix (bm25_negative test
+  asserted old buggy behavior; zero_query test expected norm 1.0 for score 0.0).
+- Root cause: Incorrect sign handling on FTS5 negative BM25 scores; count
+  reported before truncation.
+- Fix implemented:
+  1. BM25 normalized as `(-score).max(0.0) / (1.0 + (-score).max(0.0))`,
+     preserving ordering (more negative → higher norm).
+  2. `hits.truncate(limit)` before `let returned = hits.len()`.
+- Tests executed: cargo test --workspace --all-targets → 220 pass
+- Test outcomes: All pass
+- Benchmark impact: None yet (accuracy re-measurement pending)
+- Evidence location: crates/findex-core/src/rank.rs, crates/findex-index/src/rank.rs
+- Commit SHA: 3dfc311
+- GitHub URL: https://github.com/brutalstein/findex/commit/3dfc311
+- Remaining limitations: Accuracy not yet re-measured on HEAD; candidate
+  generation recall not yet audited; FTS5 query syntax and final sorting
+  still to verify under M1.
+- Next action: Re-verify retrieval baseline on HEAD (golden dataset), then
+  verify FTS5 query syntax safety and final sorting.
+
 ## [2026-10-29T21:00:00Z] [FX-20261029-002] (carried from prior session) CLI integration tests
 
 - Branch: main
