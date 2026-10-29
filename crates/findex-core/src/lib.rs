@@ -199,6 +199,10 @@ pub fn redact_secrets(text: &str) -> std::borrow::Cow<'_, str> {
     current
 }
 
+pub mod rank;
+
+pub use rank::{file_type_for, rank_file, FileType, RankedFile, RankSignals, RankWeights};
+
 #[cfg(test)]
 #[allow(clippy::expect_used)]
 mod tests {

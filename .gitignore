@@ -20,3 +20,7 @@ __pycache__/
 
 # Local Graphify graph of this repository (derived, regenerated on demand)
 graphify-out/
+
+# Tool directories (DSH / Serena) - not part of the project
+.dsh/
+.serena/

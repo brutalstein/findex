@@ -402,6 +402,30 @@ where
                         "additionalProperties":false
                     },
                     "_meta": {"anthropic/alwaysLoad": true}
+                },{
+                    "name": "findex_rank",
+                    "description": "Rank project files for a query using BM25 plus Tree-sitter definition and call-site signals. Zero LLM calls — the model is never burdened. Returns hash-verified file paths with scores and reasons, ordered by relevance.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{
+                            "query":{"type":"string","minLength":1,"maxLength":500},
+                            "limit":{"type":"integer","minimum":1,"maximum":32,"default":8}
+                        },
+                        "required":["query"],
+                        "additionalProperties":false
+                    }
+                },{
+                    "name": "findex_benchmark",
+                    "description": "Run a ranked file query and return a benchmark summary with candidate count, top score, and per-hit scores. Zero LLM calls. Use for comparative performance measurement.",
+                    "inputSchema": {
+                        "type":"object",
+                        "properties":{
+                            "query":{"type":"string","minLength":1,"maxLength":500},
+                            "limit":{"type":"integer","minimum":1,"maximum":32,"default":8}
+                        },
+                        "required":["query"],
+                        "additionalProperties":false
+                    }
                 }]
             }),
         ),
@@ -622,6 +646,60 @@ where
                             json!({"content":[{"type":"text","text":"Unsupported language; use lexical search."}],"isError":false}),
                         ),
                         Err(_err) => unavailable(id, "file inspection"),
+                    }
+                }
+            } else if name == Some("findex_rank") {
+                let args = request.pointer("/params/arguments");
+                let query = args
+                    .and_then(|v| v.get("query"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let limit = args
+                    .and_then(|v| v.get("limit"))
+                    .and_then(Value::as_u64)
+                    .unwrap_or(8)
+                    .clamp(1, 32) as usize;
+                if query.is_empty() || query.len() > 500 {
+                    error(
+                        id,
+                        -32602,
+                        "query must be 1-500 bytes and limit 1-32",
+                    )
+                } else {
+                    match findex_index::rank(project, query, limit) {
+                        Ok(report) => success(
+                            id,
+                            json!({"content":[{"type":"text",
+                            "text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
+                        ),
+                        Err(_err) => unavailable(id, "rank"),
+                    }
+                }
+            } else if name == Some("findex_benchmark") {
+                let args = request.pointer("/params/arguments");
+                let query = args
+                    .and_then(|v| v.get("query"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let limit = args
+                    .and_then(|v| v.get("limit"))
+                    .and_then(Value::as_u64)
+                    .unwrap_or(8)
+                    .clamp(1, 32) as usize;
+                if query.is_empty() || query.len() > 500 {
+                    error(
+                        id,
+                        -32602,
+                        "query must be 1-500 bytes and limit 1-32",
+                    )
+                } else {
+                    match findex_index::rank(project, query, limit) {
+                        Ok(report) => success(
+                            id,
+                            json!({"content":[{"type":"text",
+                            "text":serde_json::to_string(&report).unwrap_or_default()}],"isError":false}),
+                        ),
+                        Err(_err) => unavailable(id, "benchmark"),
                     }
                 }
             } else if name != Some("findex_search") {

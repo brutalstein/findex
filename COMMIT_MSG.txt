@@ -1,0 +1,12 @@
+feat(rank): model-free file ranking, cross-platform support, benchmark tool
+
+- Remove Windows-only compile_error, enable cross-platform builds
+- Add findex-core rank.rs: BM25 + Tree-sitter definition/call-site scoring (zero LLM calls)
+- Add findex-index rank module: BM25 candidates enriched with structural signals
+- Add findex-cli 'rank' and 'benchmark' commands
+- Add findex-mcp 'findex_rank' and 'findex_benchmark' tools
+- Add serde to findex-core dependencies
+- Add FINARCH.md architecture document
+- Add validation/live test scenarios and dogfooding script
+- All 192 workspace tests pass
+- Live dogfooding: build, index, rank, search, doctor all OK

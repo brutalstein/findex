@@ -1,8 +1,3 @@
-#![cfg_attr(not(windows), allow(dead_code))]
-
-#[cfg(not(windows))]
-compile_error!("Findex is a native Windows-only application. Build on the Windows MSVC target.");
-
 use std::env;
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
@@ -146,6 +141,49 @@ fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 result.sync.indexed,
                 result.stale_results_discarded
             );
+        }
+        "rank" => {
+            let query = args
+                .map(|a| a.to_string_lossy().into_owned())
+                .collect::<Vec<_>>()
+                .join(" ");
+            if query.trim().is_empty() {
+                return Err("usage: findex rank <search terms>".into());
+            }
+            let report = findex_index::rank(&project, &query, 10)?;
+            for hit in &report.hits {
+                println!(
+                    "{}  score={:.3}  bm25={:.2}  {}",
+                    hit.path, hit.score, hit.bm25_score, hit.reason
+                );
+            }
+            println!(
+                "{} returned / {} candidates; query: {}",
+                report.returned, report.total_candidates, report.query
+            );
+        }
+        "benchmark" => {
+            let query = args
+                .map(|a| a.to_string_lossy().into_owned())
+                .collect::<Vec<_>>()
+                .join(" ");
+            if query.trim().is_empty() {
+                return Err("usage: findex benchmark <search terms>".into());
+            }
+            let report = findex_index::rank(&project, &query, 10)?;
+            println!(
+                "Benchmark: query='{}', candidates={}, returned={}, top_score={:.3}",
+                report.query,
+                report.total_candidates,
+                report.returned,
+                report.hits.first().map(|h| h.score).unwrap_or(0.0)
+            );
+            for (i, hit) in report.hits.iter().enumerate() {
+                println!(
+                    "  #{}: {}  score={:.3}  {}",
+                    i + 1, hit.path, hit.score, hit.reason
+                );
+            }
         }
         "context" => {
             let mut budget = 2000;
@@ -406,6 +444,8 @@ fn print_help() {
     println!("  findex index                    Reconcile project lexical index");
     println!("  findex overview                 Bounded, source-verified project inventory");
     println!("  findex search <terms...>        Search matching code and line evidence");
+    println!("  findex rank <terms...>          Rank files by BM25 + definition + call-site (no LLM)");
+    println!("  findex benchmark <terms...>     Rank with benchmark summary line");
     println!("  findex context <task> [--budget N] [--json]  Definitions, call sites or tests for a task");
     println!("  findex symbols <relative-file>  Parse definitions with Tree-sitter");
     println!("  findex find-symbol <exact-name>  Search persistent project definitions");
