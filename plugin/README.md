@@ -49,7 +49,7 @@ Codex session to load an updated plugin. The installer makes no model calls.
 
 ## Native tools
 
-All eight tools are available as ordinary MCP tools:
+All twelve tools are available as ordinary MCP tools:
 - `findex_context` — small task-focused source excerpts, always discoverable.
 - `findex_search` — lexical FTS5 code/file finding.
 - `findex_find_symbol` — exact definitions.
@@ -58,6 +58,10 @@ All eight tools are available as ordinary MCP tools:
 - `findex_graph_symbol` — source-verified typed observations by exact opaque symbol identity.
 - `findex_capabilities` — optional, zero-scan capability and safety-limit contract to help Claude decide when to fall back.
 - `findex_overview` — on-demand, bounded project file inventory and hash-verified manifest/entry-point candidates; not an inferred architecture.
+- `findex_rank` — model-free BM25 plus definition/call-site file ranking, with scores and reasons.
+- `findex_blast_radius` — files that could be affected by a change; needs imported SCIP/LSP evidence.
+- `findex_refresh_semantic` — lists files whose imported semantic evidence is stale.
+- `findex_benchmark` — ranked-query summary for measurement; not for navigation.
 
 The skill descriptions load cheaply; instruction bodies load only when relevant:
 - `/findex:navigate`: task-focused code location and verified edits.

@@ -1,51 +1,457 @@
-name: CI
+name: CI / Windows Native
 
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
-    branches: [main]
+  workflow_dispatch:
 
-env:
-  CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
-    name: Test and Clippy (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+  windows:
+    name: Format, Clippy, Tests, Release Build
+    runs-on: windows-latest
+    timeout-minutes: 30
+    outputs:
+      signed: ${{ steps.signing.outputs.configured }}
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6, Node.js 24
+      - name: Rust stable with toolchain components
+        shell: pwsh
+        run: |
+          rustup default stable
+          rustup component add rustfmt clippy
+      - name: Verify locked dependency resolution
+        shell: pwsh
+        run: |
+          if (-not (Test-Path Cargo.lock)) { throw "Cargo.lock must be committed" }
+          cargo metadata --locked --format-version 1 | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw "Cargo.lock drift detected" }
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Lint all targets
+        run: cargo clippy --locked --workspace --all-targets -- -D warnings
+      - name: Unit and integration tests
+        run: cargo test --locked --workspace --all-targets
+      - name: Graph adversarial regression focus
+        shell: pwsh
+        run: |
+          cargo test --locked -p findex-relations --all-targets -- --test-threads=1
+          if ($LASTEXITCODE -ne 0) { throw "Graph security regression suite failed" }
+      - name: Build optimized native CLI
+        run: cargo build --locked --release -p findex
+      - name: Offline validation never starts a live model client
+        shell: pwsh
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}\target
+        run: |
+          python -m pip install --quiet psutil==7.0.0
+          python -m unittest discover -s validation/harness -p 'test_*.py'
+          if ($LASTEXITCODE -ne 0) { throw "Offline validation regression" }
+      - name: Validate Claude Code native plugin and offline MCP package
+        shell: pwsh
+        run: |
+          python validation/harness/plugin_check.py --plugin plugin --marketplace .claude-plugin/marketplace.json --binary target/release/findex.exe --out plugin-validation.json
+          if ($LASTEXITCODE -ne 0) { throw "Findex Claude plugin offline validation failed" }
+          $claude = Get-Command claude.exe -CommandType Application -ErrorAction SilentlyContinue
+          if ($null -ne $claude) {
+            & $claude.Source plugin validate ./plugin --strict
+            if ($LASTEXITCODE -ne 0) { throw "Official Claude Code plugin validation failed" }
+          } else {
+            Write-Host "Official Claude Code plugin validator unavailable on CI runner; the native plugin contract was checked offline."
+          }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
         with:
-          components: clippy, rustfmt
-
-      - name: Cache Cargo registry
-        uses: actions/cache@v4
+          name: findex-claude-plugin-validation
+          path: plugin-validation.json
+          if-no-files-found: error
+      - name: Sensitive path privacy gate (offline, real Windows executable)
+        shell: pwsh
+        run: |
+          python validation/harness/sensitive_paths.py target/release/findex.exe --output sensitive-paths.json
+          if ($LASTEXITCODE -ne 0) { throw "Sensitive-path scan boundary failed" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 pinned
         with:
+          name: findex-sensitive-paths-offline
+          path: sensitive-paths.json
+          if-no-files-found: error
+      - name: Offline hardening regression (corrupt cache and MCP privacy)
+        shell: pwsh
+        run: |
+          python validation/harness/hardening_offline.py target/release/findex.exe --output hardening-offline.json
+          if ($LASTEXITCODE -ne 0) { throw "Hardening regression failed" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6 pinned
+        with:
+          name: findex-hardening-offline-evidence
+          path: hardening-offline.json
+          if-no-files-found: error
+      - name: Cloud-only placeholders are never downloaded; SMB path and watcher
+        shell: pwsh
+        run: |
+          python validation/harness/cloud_placeholders.py target/release/findex.exe --output cloud-placeholders.json
+          if ($LASTEXITCODE -ne 0) { throw "Cloud Files placeholder regression" }
+          python validation/harness/network_volume.py target/release/findex.exe --output network-volume.json
+          if ($LASTEXITCODE -ne 0) { throw "SMB network path regression" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: findex-cloud-and-network-evidence
           path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            cloud-placeholders.json
+            network-volume.json
+          if-no-files-found: error
+      - name: Offline first-contact project overview and MCP test
+        shell: pwsh
+        run: |
+          python validation/harness/project_overview_smoke.py target/release/findex.exe --output project-overview-smoke.json
+          if ($LASTEXITCODE -ne 0) { throw "Project overview smoke failed" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: findex-project-overview-evidence
+          path: project-overview-smoke.json
+          if-no-files-found: error
+      - name: Verify native executable and CLI
+        shell: pwsh
+        run: |
+          .\target\release\findex.exe --version
+          .\target\release\findex.exe help
+          .\target\release\findex.exe doctor
+      - name: Offline Section 5 index durability and FTS5 integrity
+        shell: pwsh
+        run: |
+          python validation/harness/section5_stress.py target/release/findex.exe --files 1200 --out section5-stress.json
+          if ($LASTEXITCODE -ne 0) { throw "1.2k-file index durability verification failed" }
+          python validation/harness/section5_stress.py target/release/findex.exe --files 10000 --out section5-stress-10k.json
+          if ($LASTEXITCODE -ne 0) { throw "10k-file index durability verification failed" }
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: section5-windows-index-stress
+          path: |
+            section5-stress.json
+            section5-stress-10k.json
+          if-no-files-found: error
+      - name: MCP protocol and lexical search smoke
+        shell: pwsh
+        run: |
+          $messages = @(
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}'
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+          ) -join "`n"
+          $responses = $messages | .\target\release\findex.exe mcp
+          if ($LASTEXITCODE -ne 0) { throw "MCP server exited unsuccessfully" }
+          $parsed = @($responses | ForEach-Object { $_ | ConvertFrom-Json })
+          if ($parsed.Count -ne 2) { throw "Expected exactly two MCP responses" }
+          if ($parsed[0].result.serverInfo.name -ne 'findex') { throw "MCP init mismatch" }
+          if ($parsed[1].result.tools[0].name -ne 'findex_search') { throw "MCP tools/list mismatch" }
+          .\target\release\findex.exe index
+          .\target\release\findex.exe search findex_search
+          if ($LASTEXITCODE -ne 0) { throw "Lexical search failed" }
+      - name: Assert warmed MCP search avoids full workspace reconciliation
+        shell: pwsh
+        run: |
+          $messages = @(
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}'
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"findex_search","arguments":{"query":"findex_search","limit":3}}}'
+            '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"findex_search","arguments":{"query":"findex_search","limit":3}}}'
+          ) -join "`n"
+          $responses = $messages | .\\target\\release\\findex.exe mcp
+          if ($LASTEXITCODE -ne 0) { throw "MCP search process failed" }
+          $parsed = @($responses | ForEach-Object { $_ | ConvertFrom-Json })
+          $initialCall = @($parsed | Where-Object { $_.id -eq 2 })
+          $warmCall = @($parsed | Where-Object { $_.id -eq 3 })
+          if ($initialCall.Count -ne 1 -or $warmCall.Count -ne 1) {
+            throw "Expected exactly two MCP search responses"
+          }
+          $first = $initialCall[0].result.content[0].text | ConvertFrom-Json
+          $second = $warmCall[0].result.content[0].text | ConvertFrom-Json
+          if ($first.hits.Count -eq 0 -or $second.hits.Count -eq 0) {
+            throw "Expected real lexical search hits"
+          }
+          if ($second.retrieval -ne "sqlite-fts5-bm25-native-watch") {
+            throw "Watcher-backed MCP path not selected"
+          }
+          if ($second.sync.examined -ne 0) {
+            throw "Warm query unexpectedly walked workspace ($($second.sync.examined) files)"
+          }
+      - name: Verify four-language native symbol extraction
+        shell: pwsh
+        run: |
+          $result = .\\target\\release\\findex.exe symbols crates\\findex-watch\\src\\lib.rs
+          if ($LASTEXITCODE -ne 0) { throw "Native syntax inspection failed" }
+          if (-not ($result -match "WatchedIndex")) { throw "Expected Rust definition missing" }
+      - name: Verify persistent exact-name symbol lookup
+        shell: pwsh
+        run: |
+          $result = .\\target\\release\\findex.exe find-symbol WatchedIndex
+          if ($LASTEXITCODE -ne 0) { throw "Symbol index lookup failed" }
+          if (-not ($result -match 'findex-watch')) { throw "Symbol index lookup missing expected source span" }
+          $second = .\\target\\release\\findex.exe find-symbol WatchedIndex
+          if ($LASTEXITCODE -ne 0 -or -not ($second -match 'WatchedIndex')) { throw "Cached symbol lookup failed" }
+      - name: Verify warmed MCP persistent symbol lookup avoids full scan
+        shell: pwsh
+        run: |
+          $messages = @(
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}'
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"findex_find_symbol","arguments":{"name":"WatchedIndex","limit":3}}}'
+            '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"findex_find_symbol","arguments":{"name":"WatchedIndex","limit":3}}}'
+            '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"findex_symbols","arguments":{"path":"crates/findex-watch/src/lib.rs"}}}'
+          ) -join "`n"
+          $responses = $messages | .\\target\\release\\findex.exe mcp
+          if ($LASTEXITCODE -ne 0) { throw "MCP process failed" }
+          $parsed = @($responses | ForEach-Object { $_ | ConvertFrom-Json })
+          $firstCall = @($parsed | Where-Object { $_.id -eq 2 })
+          $secondCall = @($parsed | Where-Object { $_.id -eq 3 })
+          $inspectCall = @($parsed | Where-Object { $_.id -eq 4 })
+          if ($firstCall.Count -ne 1 -or $secondCall.Count -ne 1 -or $inspectCall.Count -ne 1) {
+            throw "Expected symbol lookup and AST inspection responses"
+          }
+          $first = $firstCall[0].result.content[0].text | ConvertFrom-Json
+          $second = $secondCall[0].result.content[0].text | ConvertFrom-Json
+          $inspection = $inspectCall[0].result.content[0].text | ConvertFrom-Json
+          if ($first.hits.Count -lt 1 -or $second.hits.Count -lt 1) {
+            throw "Persistent symbol search returned no verified evidence"
+          }
+          if ($second.retrieval -ne 'sqlite-symbol-exact-hash-native-watch' -or $second.sync.examined -ne 0) {
+            throw "Warm exact symbol lookup unexpectedly performed a full project scan"
+          }
+          if ($inspectCall[0].result.isError -or $inspection.symbols.Count -lt 1) {
+            throw "Shared MCP watcher-backed AST inspection failed"
+          }
+      - name: End-to-end reference graph and MCP impact smoke
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force ci-impact-fixture | Out-Null
+          Set-Content ci-impact-fixture/definition.rs 'fn semantic_marker() {}'
+          Set-Content ci-impact-fixture/reference.rs 'fn user() { semantic_marker(); }'
+          $capture = '{"definition":{"path":"ci-impact-fixture/definition.rs","line":0,"character":3},"references":[{"path":"ci-impact-fixture/reference.rs","line":0,"character":12}]}'
+          Set-Content -Path ci-impact-fixture/captured.json -Value $capture
+          .\\target\\release\\findex.exe graph-import-lsp ci-impact-fixture/captured.json
+          if ($LASTEXITCODE -ne 0) { throw "LSP snapshot ingestion failed" }
+          $affected = .\\target\\release\\findex.exe impact ci-impact-fixture/definition.rs
+          if ($LASTEXITCODE -ne 0 -or -not ($affected -match 'ci-impact-fixture/reference.rs')) {
+            throw "Verified semantic impact edge missing"
+          }
+          $call = '{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"findex_impact","arguments":{"path":"ci-impact-fixture/definition.rs","depth":1}}}'
+          $reply = $call | .\\target\\release\\findex.exe mcp | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $reply.result.isError) {
+            throw "MCP graph impact failed"
+          }
+          $result = $reply.result.content[0].text | ConvertFrom-Json
+          if ($result.hits.Count -ne 1 -or $result.hits[0].path -ne 'ci-impact-fixture/reference.rs') {
+            throw "MCP impact emitted unexpected evidence"
+          }
+          $symbol = 'lsp:ci-impact-fixture/definition.rs:0:3'
+          $evidence = .\\target\\release\\findex.exe graph-symbol $symbol | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $evidence.sites.Count -ne 2) {
+            throw "Typed graph CLI did not preserve definition and reference sites"
+          }
+          if ((@($evidence.sites | Where-Object { $_.kind -eq 'definition' })).Count -ne 1) {
+            throw "Missing proven definition kind"
+          }
+          $tool = '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"findex_graph_symbol","arguments":{"symbol":"lsp:ci-impact-fixture/definition.rs:0:3","limit":16}}}'
+          $reply = $tool | .\\target\\release\\findex.exe mcp | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $reply.result.isError) {
+            throw "Typed graph MCP lookup failed"
+          }
+          $typed = $reply.result.content[0].text | ConvertFrom-Json
+          if ($typed.sites.Count -ne 2 -or $typed.interpretation -notmatch 'NOT') {
+            throw "Typed graph MCP response missing explicit non-call guarantee"
+          }
+          Remove-Item -Recurse -Force ci-impact-fixture
+      - name: Detect an Authenticode signing certificate
+        id: signing
+        shell: pwsh
+        env:
+          PFX: ${{ secrets.SIGNING_CERT_PFX_BASE64 }}
+        run: |
+          $configured = if ($env:PFX) { 'true' } else { 'false' }
+          "configured=$configured" >> $env:GITHUB_OUTPUT
+          Write-Output "Authenticode certificate configured: $configured"
+      - name: Authenticode-sign and verify the executable
+        if: steps.signing.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          PFX: ${{ secrets.SIGNING_CERT_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.SIGNING_CERT_PASSWORD }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP 'signing.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX))
+          try {
+            $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+              Sort-Object FullName -Descending | Select-Object -First 1
+            if ($null -eq $signtool) { throw 'signtool.exe not found' }
+            & $signtool.FullName sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $pfx /p $env:PFX_PASSWORD target\release\findex.exe
+            if ($LASTEXITCODE -ne 0) { throw 'signtool sign failed' }
+            & $signtool.FullName verify /pa target\release\findex.exe
+            if ($LASTEXITCODE -ne 0) { throw 'Authenticode verification failed' }
+          } finally {
+            Remove-Item $pfx -Force -ErrorAction SilentlyContinue
+          }
+      - name: Package Findex and bundled Claude plugin
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist\findex | Out-Null
+          Copy-Item target\release\findex.exe dist\findex\findex.exe
+          Copy-Item -Recurse plugin dist\findex\plugin
+          Copy-Item README.md, CHANGELOG.md, SECURITY.md, LICENSE, Cargo.lock dist\findex\
+          Copy-Item -Recurse docs dist\findex\docs
+          # Independently installable Claude plugin ZIP: bundled trusted native
+          # executable, no PATH dependency and no runtime downloads.
+          Copy-Item -Recurse plugin dist\findex-plugin
+          New-Item -ItemType Directory -Force -Path dist\findex-plugin\bin | Out-Null
+          Copy-Item target\release\findex.exe dist\findex-plugin\bin\findex.exe
+          Compress-Archive -Path dist\findex-plugin -DestinationPath dist\findex-claude-plugin.zip
+          $pluginHash = (Get-FileHash -Algorithm SHA256 dist\findex-claude-plugin.zip).Hash.ToLowerInvariant()
+          "$pluginHash  findex-claude-plugin.zip" | Set-Content -Encoding utf8 dist\findex-claude-plugin.sha256
+          python validation/harness/sbom.py dist\findex\sbom.cdx.json
+          if ($LASTEXITCODE -ne 0) { throw 'SBOM generation failed' }
+          "git-commit=$env:GITHUB_SHA" | Set-Content dist\findex\BUILD-INFO.txt
+          "rustc=$(rustc --version)" | Add-Content dist\findex\BUILD-INFO.txt
+          "cargo=$(cargo --version)" | Add-Content dist\findex\BUILD-INFO.txt
+          $authenticode = if ('${{ steps.signing.outputs.configured }}' -eq 'true') { 'signed' } else { 'unsigned' }
+          "authenticode=$authenticode" | Add-Content dist\findex\BUILD-INFO.txt
+          Copy-Item dist\findex\sbom.cdx.json dist\sbom.cdx.json
+          Compress-Archive -Path dist\findex -DestinationPath dist\findex-windows-x64.zip
+          $hash = (Get-FileHash -Algorithm SHA256 dist\findex-windows-x64.zip).Hash.ToLowerInvariant()
+          "$hash  findex-windows-x64.zip" | Set-Content -Encoding utf8 dist\findex-windows-x64.sha256
+          Write-Output "Findex ZIP SHA256: $hash"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, Node.js 24
+        with:
+          name: findex-windows-x64
+          path: |
+            dist/findex-windows-x64.zip
+            dist/findex-windows-x64.sha256
+            dist/sbom.cdx.json
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6, pinned
+        with:
+          name: findex-claude-plugin-windows-x64
+          path: |
+            dist/findex-claude-plugin.zip
+            dist/findex-claude-plugin.sha256
+          if-no-files-found: error
+          retention-days: 14
+      # Pull requests (including forks) get no id-token; attest pushes to main and manual runs.
+      - name: Attest build provenance of the release ZIP
+        if: github.event_name != 'pull_request'
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/findex-windows-x64.zip
 
-      - name: Run clippy (deny warnings)
-        run: cargo clippy --workspace --all-targets -- -D warnings
+  supply-chain:
+    name: RustSec advisory audit
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6, Node.js 24
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --version 0.22.2 --locked
+      - name: Audit Cargo.lock against the RustSec database
+        run: cargo audit --deny warnings
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --version 0.20.2 --locked
+      - name: License, banned-crate and source policy (deny.toml)
+        run: cargo deny --locked check licenses bans sources
 
-      - name: Run all tests
-        run: cargo test --workspace --all-targets
+  windows-server-2022:
+    name: Tests and Windows I/O harnesses on Windows Server 2022
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6, Node.js 24
+      - name: Unit and integration tests
+        run: cargo test --locked --workspace --all-targets
+      - name: Cloud-only placeholders, SMB path and hardening on the release binary
+        shell: pwsh
+        run: |
+          cargo build --locked --release -p findex
+          if ($LASTEXITCODE -ne 0) { throw "release build failed" }
+          python -m pip install --quiet psutil==7.0.0
+          foreach ($harness in 'cloud_placeholders', 'network_volume', 'hardening_offline') {
+            python "validation/harness/$harness.py" target/release/findex.exe
+            if ($LASTEXITCODE -ne 0) { throw "$harness failed on Windows Server 2022" }
+          }
 
-      - name: Build release binary
-        run: cargo build --release
+  msrv:
+    name: Windows Rust 1.85 minimum toolchain
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6, Node.js 24
+      - name: Install declared minimum Rust version
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.85.0 --profile minimal
+          cargo +1.85.0 --version
+          rustc +1.85.0 --version
+      - name: Compile all workspace targets at MSRV
+        run: cargo +1.85.0 check --locked --workspace --all-targets
+      - name: Run all regression tests on declared MSRV
+        run: cargo +1.85.0 test --locked --workspace --all-targets
 
-      - name: Check formatting
-        run: cargo fmt --check
-
-      - name: Verify working tree clean
-        run: git diff --quiet || (echo "Working tree is not clean. Run cargo fmt --check and commit changes." && exit 1)
+  release:
+    name: Publish GitHub Release (version tags only)
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, supply-chain, msrv, windows-server-2022]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6, Node.js 24
+      - name: Tag must equal the workspace version
+        run: |
+          version=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
+      - name: Download the tested artifacts of this run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" -n findex-windows-x64 -n findex-claude-plugin-windows-x64 -D downloaded
+          mkdir assets
+          find downloaded -type f -exec mv {} assets/ \;
+          ls -l assets
+      - name: Release notes from CHANGELOG.md
+        env:
+          SIGNED: ${{ needs.windows.outputs.signed }}
+        run: |
+          awk -v head="## [$VERSION]" 'index($0, head) == 1 {p = 1; next} /^## \[/ {p = 0} p' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "CHANGELOG.md has no section for $VERSION"; exit 1; }
+          {
+            echo
+            echo "### Verify the download"
+            echo
+            echo '```'
+            echo "sha256sum -c findex-windows-x64.sha256"
+            echo "gh attestation verify findex-windows-x64.zip --repo $GITHUB_REPOSITORY"
+            echo '```'
+            echo
+            if [ "$SIGNED" = "true" ]; then
+              echo "findex.exe is Authenticode-signed."
+            else
+              echo "findex.exe is **not** Authenticode-signed. Verify the SHA-256 file and the build-provenance attestation."
+            fi
+          } >> notes.md
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prerelease=""
+          case "$VERSION" in 0.*|*-*) prerelease="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" assets/* --verify-tag --title "Findex $VERSION" --notes-file notes.md $prerelease

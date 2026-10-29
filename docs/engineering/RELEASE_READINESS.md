@@ -30,8 +30,6 @@ is used when no data is available; never estimated.
 | Index recovery | secure_delete on SQLite/FTS5 | PASS | schema 4 | edd41bf |
 | MCP compatibility | JSON-RPC stdio; fail-closed; hash-verified evidence | PASS | crates/findex-mcp/src/lib.rs | PENDING |
 | Platform validation | Windows native | PASS | CI + local tests | 0490018 |
-| Platform validation | Linux | NOT_RUN | CI matrix added, not yet executed | f3bdd2d |
-| Platform validation | macOS | NOT_RUN | CI matrix added, not yet executed | f3bdd2d |
 | Documentation | README, SECURITY, FINARCH, architecture, roadmap accurate | PARTIAL | Some docs updated (D1-D4 fixed); engineering audit trail new | 0490018 |
 | Documentation | Engineering audit trail (this directory) | PASS | 8 documents created | 0490018 |
 | Artifact verification | Release ZIP with SHA-256, SBOM, build provenance | NOT READY | No public release published | — |
@@ -49,5 +47,4 @@ not measured (FX-BM-005/006/007); no public release artifact.
 
 - Accuracy targets unmet on historical baseline; not re-verified on HEAD.
 - Live agent evaluation blocked (no authorized model access).
-- Linux/macOS support claimed in CI matrix but not yet CI-validated.
 - Binaries not Authenticode-signed (SECURITY.md known limitation).

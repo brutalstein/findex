@@ -81,3 +81,22 @@ findex-index test modules.
 **Reversal conditions:** None anticipated; test-only allowance.
 
 **Commit:** 0490018
+
+## FX-DEC-20261030-001 — Windows-only support; Linux/macOS CI removed
+
+**Problem:** FX-DEC-20261029-001 added Linux and macOS jobs. Both failed on
+every push (`symbols::tests::file_inspection_obeys_ignore_admission_and_detects_stale_edits`),
+and the same change replaced the 457-line Windows pipeline (release, signing
+hook, `cargo deny`, RustSec, Server 2022, MSRV, harnesses, attestation, SBOM)
+with a 51-line generic job.
+
+**Decision:** Findex supports Windows x64 only, as stated in AGENTS.md. This
+triggers the reversal condition of FX-DEC-20261029-001: the Windows pipeline is
+restored from `fdf2b25`, Linux and macOS jobs are removed, and Unix is
+unsupported. The release job runs on `ubuntu-latest` only to publish the
+already-built Windows artifacts; it does not run Findex.
+
+**Consequences:** The Unix fallback in `storage_dir()` is not exercised and is
+not a support claim.
+
+**Commit:** this change

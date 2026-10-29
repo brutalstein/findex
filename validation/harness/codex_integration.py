@@ -115,7 +115,7 @@ def main() -> None:
             log.parent.mkdir(parents=True, exist_ok=True)
             log.write_text("".join(errors), encoding="utf-8")
     write_json(args.out, report)
-    print("PASS: native Codex loaded the plugin, discovered 8 tools, and retrieved fixture source; zero model calls")
+    print("PASS: native Codex loaded the plugin, discovered 12 tools, and retrieved fixture source; zero model calls")
 
 
 if __name__ == "__main__":
