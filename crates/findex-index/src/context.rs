@@ -69,6 +69,10 @@ pub struct ContextReport {
     /// Exhaustiveness of each identifier's site scan; rendered only when the
     /// report is not truncated, so an agent knows a text search adds nothing.
     pub coverage: Vec<String>,
+    /// Concept tasks: the best-ranked files in rank order. Packing groups evidence
+    /// by kind, so the snippets alone do not show which file ranked first.
+    #[serde(skip)]
+    pub ranked: Vec<String>,
 }
 
 /// Standalone entry point: reconcile the project, then answer.
@@ -101,6 +105,7 @@ pub fn context_in_db(
         stale_results_discarded: 0,
         sync,
         coverage: Vec::new(),
+        ranked: Vec::new(),
     };
     let root = project.canonicalize()?;
     let conn = connect(database)?;
@@ -1774,6 +1779,11 @@ fn concept(
     }
     // Agents act on source; keep the lexical rank within source and prose.
     candidates.sort_by_key(|e| !is_code_path(&e.path));
+    for e in candidates.iter() {
+        if report.ranked.len() < 5 && !report.ranked.contains(&e.path) {
+            report.ranked.push(e.path.clone());
+        }
+    }
     Ok(())
 }
 
@@ -1899,6 +1909,12 @@ impl ContextReport {
     #[must_use]
     pub fn render(&self) -> String {
         let mut out = render_header(self);
+        if !self.ranked.is_empty() {
+            out.push_str(&format!(
+                "ranked files, most likely first: {}\n",
+                self.ranked.join(", ")
+            ));
+        }
         for evidence in &self.evidence {
             out.push_str(&render_evidence(evidence));
         }
@@ -2989,6 +3005,26 @@ void render_duration() {}
         ]);
         let report = ask(&root, &db, "parse header", 1200);
         assert_eq!(report.evidence[0].path, "src/loader.py", "{report:?}");
+    }
+
+    #[test]
+    fn concept_output_names_the_ranked_files_first() {
+        let (root, _state, db) = project(&[
+            (
+                "src/loader.py",
+                "def parse_header(raw):\n    return raw\n",
+            ),
+            (
+                "src/notes.py",
+                "# parse header\n# parse header again\n# parse header once more\ndef run():\n    return 1\n",
+            ),
+        ]);
+        let text = ask(&root, &db, "parse header", 1200).render();
+        let line = text
+            .lines()
+            .find(|l| l.starts_with("ranked files"))
+            .expect(&text);
+        assert!(line.ends_with(": src/loader.py, src/notes.py"), "{text}");
     }
 
     #[test]

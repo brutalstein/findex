@@ -79,6 +79,8 @@ LANES = {
 for _lane, _title, _sub in (
         ("navigation_claude", "Live navigation, Claude Code",
          "Claude Haiku via subscription; tokens include cache reads; success counts invalid sessions as failures"),
+        ("localization_claude", "Live issue localization, Claude Code",
+         "Claude Haiku via subscription names the files to change from an issue title; hit@1 counts invalid sessions as failures"),
         ("navigation_codex", "Live navigation, Codex",
          "Codex via ChatGPT subscription; success counts invalid sessions as failures"),
         ("bugfix_codex", "Live bugfix, Codex",

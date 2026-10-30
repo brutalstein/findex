@@ -123,3 +123,23 @@ PR #27 (`feat/section3-adaptive-context`) conflicts with main in `context.rs` an
 predates the Windows-only pipeline. Neither was deleted or closed here.
 
 **Commit:** this change
+
+## FX-DEC-20261030-003 — Concept output names the ranked files
+
+**Problem:** The first live localization study (FX-BM-015) showed Findex losing sessions it should
+win: offline `findex context` ranks the gold file first on seven of the eight issues, yet three live
+Haiku sessions ran out of turns and one answered other files. The text output grouped snippets by
+kind (definitions first), so the rank order was invisible, and doc-comment snippets of the top file
+often looked unrelated to the issue.
+
+**Decision:** Concept output opens with `ranked files, most likely first: a, b, c, d, e` (five
+files, rank order, tests behind source as in the ranking). It is rendered text only; `--json` and the
+MCP structured output are unchanged, so offline localization numbers do not move. The line is
+counted in the token budget.
+
+**Evidence:** FX-BM-016. Same eight issues, Findex only: 4/8 to 6/8 correct, 5/8 to 7/8 valid,
+mean turns 13.1 to 5.0, tokens per session 420,352 to 143,014. The change was designed after reading
+those failures, so the re-run is a regression check, not an independent test; rivals were not
+re-run. Two losses remain (ripgrep-2122: the model overrode the ranking; zod-2184: gold ranks 16th).
+
+**Commit:** this change

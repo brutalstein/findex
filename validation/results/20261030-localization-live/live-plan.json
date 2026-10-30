@@ -1,0 +1,21 @@
+{
+  "tasks": [
+    "fmt-2116",
+    "fmt-3688",
+    "requests-1070",
+    "requests-3844",
+    "ripgrep-2694",
+    "ripgrep-2122",
+    "zod-2184",
+    "zod-1046"
+  ],
+  "arms": [
+    "findex",
+    "graphify",
+    "codebase-memory",
+    "none"
+  ],
+  "max_sessions": 32,
+  "claude_model": "haiku",
+  "max_turns": 20
+}

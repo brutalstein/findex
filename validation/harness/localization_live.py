@@ -70,7 +70,10 @@ def main() -> None:
     parser.add_argument("--graphify-python", type=Path, required=True)
     parser.add_argument("--per-corpus", type=int, default=2)
     parser.add_argument("--max-sessions", type=int, default=CAP)
+    parser.add_argument("--arms", nargs="+", choices=ARMS, default=list(ARMS), help="run a subset, e.g. a Findex-only re-run")
     args = parser.parse_args()
+    arms = tuple(args.arms)
+    args.out = args.out.resolve()  # the client runs with the task checkout as cwd
     if not args.enable_live_model_tests or os.environ.get(APPROVAL_ENV) != APPROVAL:
         raise SystemExit("NOT_RUN: explicit live flag and subscription approval required")
     if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
@@ -80,7 +83,7 @@ def main() -> None:
     args.out.mkdir(parents=True, exist_ok=True)
     rows = [json.loads(line) for line in (VALIDATION / "golden/issue_localization.jsonl").open(encoding="utf-8")]
     tasks = select_tasks(rows, args.per_corpus)
-    if len(tasks) * len(ARMS) > args.max_sessions:
+    if len(tasks) * len(arms) > args.max_sessions:
         raise SystemExit("BLOCKED: planned sessions exceed the cap")
     saved = args.out / "live-results.json"
     results = load_results(saved)
@@ -99,12 +102,13 @@ def main() -> None:
     cbm_env = {k: v for k, v in registered.get("env", {}).items() if k in ("CBM_RUNTIME_DIR", "CBM_CACHE_DIR")}
     findex_bin = REPO / "target/release/findex.exe"
     findex_state = Path(os.environ.get("FINDEX_LIVE_FINDEX_STATE") or REPO / "target/live-state")
-    write_json(args.out / "live-plan.json", {"tasks": [t["id"] for t in tasks], "arms": list(ARMS),
-                                             "max_sessions": args.max_sessions, "claude_model": "haiku"})
+    write_json(args.out / "live-plan.json", {"tasks": [t["id"] for t in tasks], "arms": list(arms),
+                                             "max_sessions": args.max_sessions, "claude_model": "haiku", "max_turns": 20})
     scratch = (WORK / "localization-live" / args.out.name).resolve()
     raw = args.out / "raw"
+    idle_failures = 0
     for task in tasks:
-        if all(any(s["key"] == f"{task['id']}:{arm}" for s in results["sessions"]) for arm in ARMS):
+        if all(any(s["key"] == f"{task['id']}:{arm}" for s in results["sessions"]) for arm in arms):
             continue
         history, tree, graph_out = HISTORY / task["corpus"], scratch / task["id"] / "tree", scratch / task["id"] / "graphify"
         if tree.exists():
@@ -122,23 +126,25 @@ def main() -> None:
                                  capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
         if indexed.returncode:
             raise SystemExit(f"BLOCKED: findex index failed for {task['id']}: {indexed.stderr.strip()[:200]}")
-        invoke([str(args.graphify), "extract", str(tree), "--code-only", "--max-workers", "2",
-                "--out", str(graph_out)], REPO)
+        if "graphify" in arms:
+            invoke([str(args.graphify), "extract", str(tree), "--code-only", "--max-workers", "2",
+                    "--out", str(graph_out)], REPO)
         project = re.sub(r"[^a-zA-Z0-9_-]", "-", f"loc-live-{args.out.name}-{task['id']}")
-        cbm = McpProcess(args.cbm, tree, dict(os.environ, **cbm_env), server_args=[])
-        try:
-            _, text, _, error = cbm.call_tool("index_repository", {
-                "repo_path": str(tree), "name": project, "mode": "full", "persistence": False})
-        finally:
-            cbm.close()
-        if error:
-            raise SystemExit(f"BLOCKED: codebase-memory index failed for {task['id']}: {text[:200]}")
+        if "codebase-memory" in arms:
+            cbm = McpProcess(args.cbm, tree, dict(os.environ, **cbm_env), server_args=[])
+            try:
+                _, text, _, error = cbm.call_tool("index_repository", {
+                    "repo_path": str(tree), "name": project, "mode": "full", "persistence": False})
+            finally:
+                cbm.close()
+            if error:
+                raise SystemExit(f"BLOCKED: codebase-memory index failed for {task['id']}: {text[:200]}")
         servers = {
             "findex": {"command": str(findex_bin), "args": ["mcp"], "env": findex_env},
             "graphify": {"command": str(args.graphify_python),
                          "args": ["-m", "graphify.serve", str(graph_out / "graphify-out/graph.json")]},
             "codebase-memory": {"command": str(args.cbm), "args": [], "env": cbm_env}}
-        for arm in ARMS:
+        for arm in arms:
             key = f"{task['id']}:{arm}"
             if any(s["key"] == key for s in results["sessions"]):
                 continue
@@ -159,7 +165,7 @@ def main() -> None:
             mcp.write_text(json.dumps({"mcpServers": {arm: servers[arm]} if arm != "none" else {}}), encoding="utf-8")
             record = {"key": key, "client": "claude", "tool": arm, "task": task["id"]}
             with trial_attempt(saved, results, record, args.max_sessions, halt_on_invalid=False, hard_cap=CAP):
-                session = run_claude(tree, prompt, model="haiku", max_turns=10, budget_usd=1,
+                session = run_claude(tree, prompt, model="haiku", max_turns=20, budget_usd=1,
                                      allowed_tools=["Read", "Grep", "Glob"] + (
                                          ["ToolSearch"] + [f"mcp__{arm}__{t}" for t in TOOL_NAMES[arm]] if arm != "none" else []),
                                      disallowed_tools=["Bash", "Edit", "Write", "Agent", "Skill", "WebSearch", "WebFetch"],
@@ -175,8 +181,16 @@ def main() -> None:
                 scored.update(score(files, task["gold_files"]), files=files, gold=task["gold_files"])
                 scored["hit1"], scored["hit3"] = scored["valid"] and scored["hit1"], scored["valid"] and scored["hit3"]
                 scored["correct"] = scored["hit1"]
+                if not scored["valid"]:
+                    scored["stderr_tail"] = session["stderr_tail"][-300:]
                 record.update(scored)
             print(f"{key}: hit1={record['hit1']} hit3={record['hit3']} valid={record['valid']}", flush=True)
+            # A client that fails before any model call (bad config, sign-in) would burn the whole cap.
+            unused = not record.get("valid") and not record.get("usage", {}).get("input_tokens")
+            idle_failures = idle_failures + 1 if unused else 0
+            if idle_failures >= 3 and not results.get("stopped"):
+                results["stopped"] = "three consecutive sessions failed before any model call; fix the setup"
+                write_json(saved, results)
             if results.get("stopped"):
                 break
         if results.get("stopped"):
@@ -185,6 +199,7 @@ def main() -> None:
     for arm in ARMS:
         rows_ = [s for s in results["sessions"] if s["tool"] == arm]
         summary[arm] = {"sessions": len(rows_), "valid": sum(s["valid"] for s in rows_),
+                        "correct": sum(bool(s.get("correct")) for s in rows_),
                         "hit1": sum(bool(s.get("hit1")) for s in rows_), "hit3": sum(bool(s.get("hit3")) for s in rows_),
                         "total_tokens": sum(s.get("usage", {}).get("input_tokens", 0) + s.get("usage", {}).get("output_tokens", 0)
                                             for s in rows_)}
