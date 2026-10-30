@@ -67,6 +67,19 @@ def findex_rank(log: CommandLog, exe: Path, repo: Path, state: Path, argv: list[
     return paths, len(proc.stdout.encode("utf-8")), elapsed
 
 
+def freeze_binary(source: Path) -> tuple[Path, str]:
+    """Run a content-addressed copy, so the measured executable is the recorded one."""
+    source = source.resolve(strict=True)
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    frozen = WORK / "bin" / "localization" / digest / "findex.exe"
+    frozen.parent.mkdir(parents=True, exist_ok=True)
+    if not frozen.exists():
+        shutil.copy2(source, frozen)
+    if hashlib.sha256(frozen.read_bytes()).hexdigest() != digest:
+        raise ValueError("Frozen runtime mismatch")
+    return frozen, digest
+
+
 def split(task: dict) -> str:
     """Fixed before any result was seen: odd issue numbers may be inspected
     while developing (dev); even ones are reported only in aggregate (test)."""
@@ -110,16 +123,7 @@ def main() -> int:
                args.baseline_context or findex_binary("main"), "findex-context": findex_binary("current")}
     identities = {}
     for name, source in list(systems.items()):
-        source = source.resolve(strict=True)
-        digest = hashlib.sha256(source.read_bytes()).hexdigest()
-        frozen = WORK / "bin" / "localization" / digest / "findex.exe"
-        frozen.parent.mkdir(parents=True, exist_ok=True)
-        if not frozen.exists():
-            shutil.copy2(source, frozen)
-        if hashlib.sha256(frozen.read_bytes()).hexdigest() != digest:
-            raise ValueError("Frozen runtime mismatch")
-        systems[name] = frozen
-        identities[name] = digest
+        systems[name], identities[name] = freeze_binary(source)
     write_json(out / "manifest.json", {"binary_sha256": identities,
         "golden_sha256": hashlib.sha256(args.dataset.read_bytes()).hexdigest(),
         "task_ids": [t["id"] for t in tasks], "split": args.split,

@@ -1,0 +1,939 @@
+{
+  "status": "EXECUTED",
+  "split": "dev",
+  "window": 128,
+  "tasks": 37,
+  "causes": {
+    "ok@1": 21,
+    "ok@10": 12,
+    "in-window-misordered": 4
+  },
+  "per_task": [
+    {
+      "id": "requests-5223",
+      "query": "Running requests in parallel from a zip archive can create race condition when unpacking the cacerts.pem file",
+      "terms": [
+        "running",
+        "requests",
+        "parallel",
+        "zip",
+        "archive",
+        "create",
+        "race",
+        "condition",
+        "unpacking",
+        "cacerts",
+        "pem"
+      ],
+      "matches": 55,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "requests/utils.py"
+      ],
+      "top3": [
+        "requests/utils.py",
+        "requests/sessions.py",
+        "requests/cookies.py"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "requests-1019",
+      "query": "AttributeError: 'HTTPAdapter' object has no attribute 'verify'",
+      "terms": [
+        "attributeerror",
+        "httpadapter",
+        "object",
+        "has",
+        "no",
+        "attribute",
+        "verify"
+      ],
+      "matches": 43,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "requests/adapters.py"
+      ],
+      "top3": [
+        "requests/adapters.py",
+        "requests/packages/urllib3/packages/six.py",
+        "requests/models.py"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "requests-1015",
+      "query": "Consider iter_json",
+      "terms": [
+        "consider",
+        "iter",
+        "json"
+      ],
+      "matches": 23,
+      "raw_rank": 2,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "requests/models.py"
+      ],
+      "top3": [
+        "requests/models.py",
+        "requests/utils.py",
+        "requests/cookies.py"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "requests-971",
+      "query": "Real logging",
+      "terms": [
+        "real",
+        "logging"
+      ],
+      "matches": 11,
+      "raw_rank": 11,
+      "in_window": true,
+      "final_rank": 4,
+      "gold": [
+        "requests/__init__.py",
+        "requests/defaults.py",
+        "requests/models.py"
+      ],
+      "top3": [
+        "requests/utils.py",
+        "requests/auth.py",
+        "requests/sessions.py"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "requests-711",
+      "query": "Parse Link headers (rfc5988)",
+      "terms": [
+        "parse",
+        "link",
+        "headers",
+        "rfc5988"
+      ],
+      "matches": 39,
+      "raw_rank": 15,
+      "in_window": true,
+      "final_rank": 3,
+      "gold": [
+        "requests/models.py"
+      ],
+      "top3": [
+        "requests/utils.py",
+        "requests/auth.py",
+        "requests/models.py"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "requests-575",
+      "query": "Redirect of multipart-encoded post",
+      "terms": [
+        "redirect",
+        "multipart",
+        "encoded",
+        "post"
+      ],
+      "matches": 28,
+      "raw_rank": 5,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "requests/models.py"
+      ],
+      "top3": [
+        "requests/models.py",
+        "requests/api.py",
+        "requests/packages/urllib3/request.py"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "requests-593",
+      "query": "response.json",
+      "terms": [
+        "response",
+        "json"
+      ],
+      "matches": 29,
+      "raw_rank": 11,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "requests/models.py"
+      ],
+      "top3": [
+        "requests/models.py",
+        "requests/packages/urllib3/response.py",
+        "requests/cookies.py"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "requests-407",
+      "query": "Cannot upload binary data using auth",
+      "terms": [
+        "cannot",
+        "upload",
+        "binary",
+        "data",
+        "using",
+        "auth"
+      ],
+      "matches": 36,
+      "raw_rank": 17,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "requests/auth.py"
+      ],
+      "top3": [
+        "requests/auth.py",
+        "requests/models.py",
+        "requests/sessions.py"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-2767",
+      "query": "ignore: WalkBuilder::build_parallel() example does not compile",
+      "terms": [
+        "ignore",
+        "walkbuilder",
+        "build",
+        "parallel",
+        "example",
+        "not",
+        "compile"
+      ],
+      "matches": 158,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "crates/ignore/src/walk.rs"
+      ],
+      "top3": [
+        "crates/ignore/src/walk.rs",
+        "crates/core/flags/hiargs.rs"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-2659",
+      "query": "fish completions invalid arguments",
+      "terms": [
+        "fish",
+        "completions",
+        "invalid",
+        "arguments"
+      ],
+      "matches": 57,
+      "raw_rank": 5,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "crates/core/flags/complete/fish.rs"
+      ],
+      "top3": [
+        "crates/core/flags/complete/fish.rs",
+        "crates/core/flags/lowargs.rs",
+        "crates/core/flags/defs.rs"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-1635",
+      "query": "document the difference between -tmd and -g*.md",
+      "terms": [
+        "document",
+        "difference",
+        "between",
+        "tmd",
+        "md"
+      ],
+      "matches": 67,
+      "raw_rank": 58,
+      "in_window": true,
+      "final_rank": 9,
+      "gold": [
+        "crates/core/flags/defs.rs"
+      ],
+      "top3": [
+        "crates/core/flags/lowargs.rs",
+        "crates/printer/src/standard.rs",
+        "crates/core/flags/hiargs.rs"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "ripgrep-1709",
+      "query": "Blank lines to delineate different files should not be emitted when using -NI flags",
+      "terms": [
+        "blank",
+        "lines",
+        "delineate",
+        "different",
+        "should",
+        "not",
+        "emitted",
+        "using",
+        "ni",
+        "flags"
+      ],
+      "matches": 151,
+      "raw_rank": 5,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "crates/core/flags/defs.rs"
+      ],
+      "top3": [
+        "crates/core/flags/defs.rs",
+        "crates/printer/src/standard.rs",
+        "crates/core/flags/hiargs.rs"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-2337",
+      "query": "the `--stats` flag should note that it is unconditionally enabled when `--json` is used",
+      "terms": [
+        "stats",
+        "flag",
+        "should",
+        "note",
+        "unconditionally",
+        "enabled",
+        "json"
+      ],
+      "matches": 104,
+      "raw_rank": 3,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "crates/core/flags/defs.rs"
+      ],
+      "top3": [
+        "crates/printer/src/json.rs",
+        "crates/core/flags/defs.rs",
+        "crates/core/flags/hiargs.rs"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "ripgrep-2505",
+      "query": "should --vimgrep run in single threaded mode by default?",
+      "terms": [
+        "should",
+        "vimgrep",
+        "run",
+        "single",
+        "threaded",
+        "mode",
+        "default"
+      ],
+      "matches": 139,
+      "raw_rank": 3,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "crates/core/flags/defs.rs"
+      ],
+      "top3": [
+        "crates/core/flags/defs.rs",
+        "crates/core/flags/hiargs.rs",
+        "crates/core/main.rs"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-2645",
+      "query": "Append `--pcre2-version` info to `--version`",
+      "terms": [
+        "append",
+        "pcre2",
+        "version",
+        "info",
+        "version"
+      ],
+      "matches": 68,
+      "raw_rank": 15,
+      "in_window": true,
+      "final_rank": 3,
+      "gold": [
+        "crates/core/flags/mod.rs",
+        "crates/core/main.rs"
+      ],
+      "top3": [
+        "crates/core/flags/defs.rs",
+        "crates/core/flags/doc/version.rs",
+        "crates/core/main.rs"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "ripgrep-2479",
+      "query": "Ripgrep ignores files found in the parent directories `.ignore` file",
+      "terms": [
+        "ripgrep",
+        "ignores",
+        "found",
+        "parent",
+        "directories",
+        "ignore"
+      ],
+      "matches": 142,
+      "raw_rank": 8,
+      "in_window": true,
+      "final_rank": null,
+      "gold": [
+        "crates/core/flags/defs.rs"
+      ],
+      "top3": [
+        "crates/ignore/src/dir.rs",
+        "crates/ignore/src/walk.rs"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "ripgrep-2643",
+      "query": "Allow -d as shorthand for --max-depth",
+      "terms": [
+        "allow",
+        "shorthand",
+        "max",
+        "depth"
+      ],
+      "matches": 39,
+      "raw_rank": 7,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "crates/core/flags/defs.rs"
+      ],
+      "top3": [
+        "crates/ignore/src/walk.rs",
+        "crates/core/flags/defs.rs",
+        "crates/ignore/src/lib.rs"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "ripgrep-1823",
+      "query": "reduce memory usage of parallel directory traversal by using two different stacks",
+      "terms": [
+        "reduce",
+        "memory",
+        "parallel",
+        "directory",
+        "traversal",
+        "using",
+        "two",
+        "different",
+        "stacks"
+      ],
+      "matches": 73,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "crates/ignore/src/walk.rs"
+      ],
+      "top3": [
+        "crates/ignore/src/walk.rs",
+        "crates/core/args.rs",
+        "crates/core/app.rs"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-1757",
+      "query": "Only some ignores applied when searching a sub-directory",
+      "terms": [
+        "only",
+        "some",
+        "ignores",
+        "applied",
+        "searching",
+        "sub",
+        "directory"
+      ],
+      "matches": 96,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "crates/ignore/src/dir.rs"
+      ],
+      "top3": [
+        "crates/ignore/src/walk.rs",
+        "crates/ignore/src/dir.rs",
+        "crates/core/app.rs"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "zod-3437",
+      "query": "JSDoc hints are lost after using `.extend`",
+      "terms": [
+        "jsdoc",
+        "hints",
+        "lost",
+        "after",
+        "using",
+        "extend"
+      ],
+      "matches": 23,
+      "raw_rank": 18,
+      "in_window": true,
+      "final_rank": null,
+      "gold": [
+        "deno/lib/helpers/util.ts",
+        "src/helpers/util.ts"
+      ],
+      "top3": [
+        "deno/lib/types.ts",
+        "src/types.ts",
+        "deno/lib/__tests__/crazySchema.ts"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "zod-2127",
+      "query": "DeepPartial Array length validation",
+      "terms": [
+        "deeppartial",
+        "array",
+        "length",
+        "validation"
+      ],
+      "matches": 79,
+      "raw_rank": 12,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "deno/lib/types.ts",
+        "playground.ts",
+        "src/types.ts"
+      ],
+      "top3": [
+        "src/types.ts",
+        "deno/lib/types.ts",
+        "src/helpers/partialUtil.ts"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-4049",
+      "query": "can't print volatile void* ",
+      "terms": [
+        "print",
+        "volatile",
+        "void"
+      ],
+      "matches": 66,
+      "raw_rank": 6,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/base.h"
+      ],
+      "top3": [
+        "include/fmt/base.h",
+        "include/fmt/format.h",
+        "include/fmt/format-inl.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-4053",
+      "query": "trunk doesn't work with `std::generator`",
+      "terms": [
+        "trunk",
+        "doesn",
+        "work",
+        "std",
+        "generator"
+      ],
+      "matches": 81,
+      "raw_rank": 31,
+      "in_window": true,
+      "final_rank": 11,
+      "gold": [
+        "include/fmt/ranges.h"
+      ],
+      "top3": [
+        "include/fmt/std.h",
+        "include/fmt/format-inl.h",
+        "include/fmt/base.h"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "fmt-3813",
+      "query": "join does not use ADL on begin/end of its ranges",
+      "terms": [
+        "join",
+        "not",
+        "adl",
+        "begin",
+        "end",
+        "ranges"
+      ],
+      "matches": 102,
+      "raw_rank": 2,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/ranges.h"
+      ],
+      "top3": [
+        "include/fmt/ranges.h",
+        "include/fmt/base.h",
+        "include/fmt/xchar.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-3643",
+      "query": "%j doesn't seem to work with a duration object",
+      "terms": [
+        "doesn",
+        "seem",
+        "work",
+        "duration",
+        "object"
+      ],
+      "matches": 57,
+      "raw_rank": 9,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/chrono.h"
+      ],
+      "top3": [
+        "include/fmt/chrono.h",
+        "include/fmt/os.h",
+        "include/fmt/core.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-3725",
+      "query": "Date overflow with std::chrono::time_point",
+      "terms": [
+        "date",
+        "overflow",
+        "std",
+        "chrono",
+        "time",
+        "point"
+      ],
+      "matches": 104,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/chrono.h"
+      ],
+      "top3": [
+        "include/fmt/chrono.h",
+        "include/fmt/format.h",
+        "include/fmt/core.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-3631",
+      "query": "Windows API systems without UTF-16 APIs",
+      "terms": [
+        "windows",
+        "api",
+        "systems",
+        "without",
+        "utf",
+        "16",
+        "apis"
+      ],
+      "matches": 68,
+      "raw_rank": 50,
+      "in_window": true,
+      "final_rank": 8,
+      "gold": [
+        "include/fmt/format-inl.h"
+      ],
+      "top3": [
+        "include/fmt/format.h",
+        "include/fmt/os.h",
+        "include/fmt/chrono.h"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "fmt-3541",
+      "query": "clang-tidy reports uninitialized fields in format_string_checker",
+      "terms": [
+        "clang",
+        "tidy",
+        "reports",
+        "uninitialized",
+        "fields",
+        "format",
+        "string",
+        "checker"
+      ],
+      "matches": 95,
+      "raw_rank": 2,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/core.h"
+      ],
+      "top3": [
+        "include/fmt/core.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-3105",
+      "query": "Compile-time error when mixing named argument with automatic indexing",
+      "terms": [
+        "compile",
+        "time",
+        "error",
+        "mixing",
+        "named",
+        "argument",
+        "automatic",
+        "indexing"
+      ],
+      "matches": 80,
+      "raw_rank": 2,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "include/fmt/core.h"
+      ],
+      "top3": [
+        "include/fmt/compile.h",
+        "include/fmt/core.h",
+        "include/fmt/format.h"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "fmt-2817",
+      "query": "fmt::print for ostreams does no compile time checking",
+      "terms": [
+        "fmt",
+        "print",
+        "ostreams",
+        "no",
+        "compile",
+        "time",
+        "checking"
+      ],
+      "matches": 120,
+      "raw_rank": 56,
+      "in_window": true,
+      "final_rank": 6,
+      "gold": [
+        "include/fmt/ostream.h"
+      ],
+      "top3": [
+        "include/fmt/color.h",
+        "include/fmt/compile.h",
+        "include/fmt/core.h"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "fmt-2681",
+      "query": "UTF8 doesn't work with text styles",
+      "terms": [
+        "utf8",
+        "doesn",
+        "work",
+        "text",
+        "styles"
+      ],
+      "matches": 95,
+      "raw_rank": 56,
+      "in_window": true,
+      "final_rank": 13,
+      "gold": [
+        "include/fmt/color.h"
+      ],
+      "top3": [
+        "include/fmt/os.h",
+        "include/fmt/core.h",
+        "include/fmt/format.h"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "fmt-2695",
+      "query": "Undefined symbol _ZN3fmt2v86detail13error_handler8on_errorEPKc",
+      "terms": [
+        "undefined",
+        "symbol",
+        "zn3fmt2v86detail13error",
+        "handler8on",
+        "errorepkc"
+      ],
+      "matches": 10,
+      "raw_rank": 9,
+      "in_window": true,
+      "final_rank": 4,
+      "gold": [
+        "include/fmt/core.h"
+      ],
+      "top3": [
+        "include/fmt/xchar.h",
+        "include/fmt/chrono.h",
+        "doc/_static/bootstrap.min.js"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "fmt-2639",
+      "query": "xchar.h clashes with MSVC's format implementation (ambiguous make_wformat_args)",
+      "terms": [
+        "xchar",
+        "clashes",
+        "msvc",
+        "format",
+        "implementation",
+        "ambiguous",
+        "make",
+        "wformat",
+        "args"
+      ],
+      "matches": 111,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/xchar.h"
+      ],
+      "top3": [
+        "include/fmt/xchar.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-2401",
+      "query": "[MSVC][permissive-] ranges.h(395,41): error C2672: 'get': no matching overloaded function found",
+      "terms": [
+        "msvc",
+        "permissive",
+        "ranges",
+        "395",
+        "41",
+        "error",
+        "c2672",
+        "no",
+        "matching",
+        "overloaded",
+        "found"
+      ],
+      "matches": 81,
+      "raw_rank": 12,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/ranges.h"
+      ],
+      "top3": [
+        "include/fmt/ranges.h",
+        "include/fmt/core.h",
+        "include/fmt/format.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-2185",
+      "query": "(void)fwrite triggers -Wunused-result again",
+      "terms": [
+        "void",
+        "fwrite",
+        "triggers",
+        "wunused",
+        "result",
+        "again"
+      ],
+      "matches": 56,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/format-inl.h"
+      ],
+      "top3": [
+        "include/fmt/format-inl.h",
+        "include/fmt/format.h",
+        "include/fmt/printf.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-1819",
+      "query": "Feature Request: Print std::chrono::time_point",
+      "terms": [
+        "feature",
+        "request",
+        "print",
+        "std",
+        "chrono",
+        "time",
+        "point"
+      ],
+      "matches": 82,
+      "raw_rank": 2,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/chrono.h"
+      ],
+      "top3": [
+        "include/fmt/chrono.h",
+        "include/fmt/core.h",
+        "include/fmt/format.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-1747",
+      "query": "-Wsign-conversion warning with Clang10 on Windows",
+      "terms": [
+        "wsign",
+        "conversion",
+        "warning",
+        "clang10",
+        "windows"
+      ],
+      "matches": 52,
+      "raw_rank": 43,
+      "in_window": true,
+      "final_rank": 6,
+      "gold": [
+        "include/fmt/format.h"
+      ],
+      "top3": [
+        "include/fmt/os.h",
+        "include/fmt/chrono.h",
+        "include/fmt/core.h"
+      ],
+      "cause": "ok@10"
+    }
+  ]
+}
