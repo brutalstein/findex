@@ -19,6 +19,8 @@ These local repairs are verified on the candidate binary recorded in
 | FX-20261030-003 | P1 | VERIFIED | Semantic lookup hid stale/truncated evidence and lost live sites behind stale prefixes. Native paired oracle fails before and passes after; identity/position regressions pass |
 | FX-20261030-004 | P2 | VERIFIED | Excluded build storms filled the watcher queue before filtering. 16,384-event regression preserves the source edit; rescan/error/Git/overflow controls pass |
 | FX-20261030-005 | P3 | VERIFIED | Hardening fixtures inherited the parent Git root with workspace-local TEMP. Explicit fixture Git roots restore all eight native hardening checks |
+| FX-20261030-006 | P1 | VERIFIED | A problem report containing an identifier (`MissingSchema error raised when ...`) was answered by the identifier lookup alone: definitions only, empty `ranked`, gold file absent in 4 of 65 dev tasks. Rust regressions (report vs bare lookup vs "where defined") fail before and pass after; paired runs on 120 tasks in FX-BM-020 |
+| FX-20261030-007 | P1 | CONFIRMED | Localization targets unmet on a fresh holdout: hit@1 0.345 (target 0.60), gold recall@10 0.761 (target 0.90; the exposed 65 reach exactly 0.900). The exposed 65 overstated generalization by about 20 points. Title-only lexical signals tested on dev (coverage, proximity, weights) do not separate hub files from the small file that holds the fix; candidate recall is not the limit |
 
 ## FX-20261029-001 — Retrieval accuracy below target
 

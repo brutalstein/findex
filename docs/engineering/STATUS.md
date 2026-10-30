@@ -1,16 +1,15 @@
 # Findex Engineering Status
 
-## Current checkpoint — 2026-10-30 continuation
+## Current checkpoint — 2026-10-30 fresh holdout and report routing
 
-Base `28842c5` (merged as PR #40), plus the retrieval-integrity repairs on branch `fix/retrieval-integrity`. Native Windows
-fmt/Clippy/all-target Rust tests (**249 passed**), release build and **63**
-offline Python tests pass. Six real compiler-backed semantic cases, 115
-unchanged native navigation controls and eight hardening checks pass.
-Native synthetic scaling from 200 to 100,000 files and 100,001-file transactional
-rollback/recovery also pass on this binary; arbitrary workspace sizes are unproven.
-The 65-task paired localization run retains **58.46% hit@1 / 86.92% recall@10**;
-explicit JSON ranking changes one first-gold rank from 3 to 4, slightly lowering
-MRR. Targets remain unmet; no new model-session or release claim.
+Base `2559464` (PR #41 merged), plus branch `feat/fresh-holdout-v2`: a 55-issue localization holdout frozen
+before scoring, a candidate-recall diagnostic, and one routing change (a problem report around an
+identifier also searches its words). Native Windows: fmt, Clippy, release and 250 of 251 Rust tests pass
+(the `findex-core` ACL test fails on this machine only); 63 offline Python tests pass.
+**Targets unmet on fresh data:** hit@1 34.5% (target 60%), gold recall@10 76.1% (target 90%); the
+exposed 65 give 58.5% / 90.0% and overstate generalization by about 20 points. Candidate recall is not the limit
+(0 of 65 dev gold files outside the 128-candidate window); ordering is, and title-only lexical weights tested on
+dev did not move it. Compiler-backed context adapter and bounded dirty-path scheduling remain open.
 
 See [current repairs, evidence and next gates](RETRIEVAL_INTEGRITY_20261030.md)
 and [the authoritative handoff](HANDOFF.md). The older state below is historical

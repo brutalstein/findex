@@ -75,6 +75,11 @@ LANES = {
                      "panels": [("hit1", "Gold file ranked first (hit@1)", 1, ".3f", 0.60),
                                 ("recall10", "Gold recall in top 10", 1, ".3f", 0.90),
                                 ("mrr", "Mean reciprocal rank", 1, ".3f", None)]},
+    "localization_fresh": {"title": "Issue localization, fresh holdout", "extract": localization,
+                           "sub": "55 issue titles frozen before any system was scored; 8,000-token rendered budget",
+                           "panels": [("hit1", "Gold file ranked first (hit@1)", 1, ".3f", 0.60),
+                                      ("recall10", "Gold recall in top 10", 1, ".3f", 0.90),
+                                      ("mrr", "Mean reciprocal rank", 1, ".3f", None)]},
 }
 for _lane, _title, _sub in (
         ("navigation_claude", "Live navigation, Claude Code",

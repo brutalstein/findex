@@ -1,7 +1,9 @@
 # Report-routing candidate vs previous binary, exposed v1 (65 tasks) — 2026-10-30
 
 Same two binaries as `../20261030-localization-v2-hybrid`. v1 has been examined in many earlier rounds; it
-is a regression check, not a fresh holdout.
+is a regression check, not a fresh holdout. Budget is the harness default of 8,000 tokens, not the 1,200 of
+earlier rounds (the previous binary's hit@1 0.5846 and recall@10 0.8692 are identical at both budgets; MRR is
+0.6958 here against 0.6962 at 1,200), so this run is not plotted on the 1,200-token progress lane.
 
 | all 65 | previous | candidate |
 |---|---:|---:|
