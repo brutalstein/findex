@@ -37,6 +37,9 @@ are close to exhausted: candidate recall is not the limit, ordering is. On the s
 offline file-ranking proxy gives hit@1 0.345 for Findex against 0.164 for git grep, 0.127 for codebase-memory and
 0.036 for Graphify.
 [Protocol and per-run evidence](docs/engineering/BENCHMARKS.md) (FX-BM-019/020).
+Against published LLM-driven localizers (Top-1 0.61 to 0.79 on SWE-bench Lite, Python only, full issue text,
+a model in the loop) this model-free, title-only ranking trails on hit@1 and is closer at depth 3; the
+inputs differ, so treat it as indicative. See [the comparison](docs/engineering/LITERATURE_COMPARISON.md).
 
 **Previously packaged 0.2.0 preview:** Claude and Codex plugin integration,
 extracted packages, Cloud Files, loopback SMB and 100k-file synthetic scaling

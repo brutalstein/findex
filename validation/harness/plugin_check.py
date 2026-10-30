@@ -15,6 +15,8 @@ import shutil
 import subprocess
 import tempfile
 
+from pe_imports import require_system_only
+
 
 EXPECTED_TOOLS = {
     "findex_context", "findex_search", "findex_find_symbol",
@@ -97,6 +99,7 @@ def main() -> None:
     args = parser.parse_args()
     plugin = args.plugin.resolve(strict=True)
     runtime = args.binary.resolve(strict=True)
+    require_system_only(runtime)
     report = validate_files(plugin, args.marketplace.resolve(strict=True))
     with tempfile.TemporaryDirectory(prefix="findex-plugin-test-") as tmp:
         workspace = Path(tmp) / "Project with spaces"

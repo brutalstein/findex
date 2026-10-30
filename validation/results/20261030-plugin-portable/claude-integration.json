@@ -1,0 +1,417 @@
+{
+  "checks": [
+    {
+      "name": "findex --version",
+      "status": "PASS",
+      "detail": "findex 0.2.0",
+      "evidence": null
+    },
+    {
+      "name": "plugin absent: doctor reports missing plugin",
+      "status": "PASS",
+      "detail": "['Plugin beside executable: missing (Claude runs without Findex tools)', 'Native Claude CLI (claude.exe): found']",
+      "evidence": null
+    },
+    {
+      "name": "plugin present beside exe: doctor detects plugin and native claude.exe",
+      "status": "PASS",
+      "detail": "['Plugin beside executable: present', 'Native Claude CLI (claude.exe): found']",
+      "evidence": null
+    },
+    {
+      "name": "claude: findex MCP server connected",
+      "status": "PASS",
+      "detail": "[{'name': 'findex', 'status': 'connected', 'source': 'dynamic'}]",
+      "evidence": null
+    },
+    {
+      "name": "claude: findex tools discovered",
+      "status": "PASS",
+      "detail": "['mcp__findex__findex_benchmark', 'mcp__findex__findex_blast_radius', 'mcp__findex__findex_capabilities', 'mcp__findex__findex_context', 'mcp__findex__findex_find_symbol', 'mcp__findex__findex_graph_symbol', 'mcp__findex__findex_impact', 'mcp__findex__findex_overview', 'mcp__findex__findex_rank', 'mcp__findex__findex_refresh_semantic', 'mcp__findex__findex_search', 'mcp__findex__findex_symbols']",
+      "evidence": null
+    },
+    {
+      "name": "claude: protocol negotiation observed",
+      "status": "PASS",
+      "detail": "{'initialize_requested': ['2025-11-25'], 'initialize_answered': ['2025-11-25'], 'modern_meta_requests': 0, 'client': {'name': 'claude-code', 'title': 'Claude Code', 'version': '2.1.281', 'description': \"Anthropic's agentic coding tool\", 'websiteUrl': 'https://claude.com/claude-code'}}",
+      "evidence": null
+    },
+    {
+      "name": "claude: genuine tools/call reached findex",
+      "status": "PASS",
+      "detail": "['findex_find_symbol']",
+      "evidence": null
+    },
+    {
+      "name": "claude: correct answer from Findex evidence",
+      "status": "PASS",
+      "detail": "crates/findex-watch/src/lib.rs:91",
+      "evidence": null
+    },
+    {
+      "name": "claude: session exit code 0",
+      "status": "PASS",
+      "detail": "",
+      "evidence": null
+    },
+    {
+      "name": "claude --plugin-dir: plugin MCP tools discovered",
+      "status": "PASS",
+      "detail": "['mcp__plugin_findex_findex__findex_benchmark', 'mcp__plugin_findex_findex__findex_blast_radius', 'mcp__plugin_findex_findex__findex_capabilities', 'mcp__plugin_findex_findex__findex_context', 'mcp__plugin_findex_findex__findex_find_symbol', 'mcp__plugin_findex_findex__findex_graph_symbol', 'mcp__plugin_findex_findex__findex_impact', 'mcp__plugin_findex_findex__findex_overview', 'mcp__plugin_findex_findex__findex_rank', 'mcp__plugin_findex_findex__findex_refresh_semantic', 'mcp__plugin_findex_findex__findex_search', 'mcp__plugin_findex_findex__findex_symbols']",
+      "evidence": null
+    },
+    {
+      "name": "claude --plugin-dir: tool invoked and answer correct",
+      "status": "PASS",
+      "detail": "{'calls': ['ToolSearch', 'mcp__plugin_findex_findex__findex_find_symbol'], 'answer': 'crates/findex-watch/src/lib.rs:91'}",
+      "evidence": null
+    },
+    {
+      "name": "findex claude launcher: forwards args, loads plugin, answer correct",
+      "status": "PASS",
+      "detail": "{'exit': 0, 'calls': ['ToolSearch', 'mcp__plugin_findex_findex__findex_find_symbol'], 'answer': 'crates/findex-watch/src/lib.rs:91', 'stderr': ''}",
+      "evidence": null
+    }
+  ],
+  "sessions": {
+    "mcp_config": {
+      "limit_hit": false,
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_s": 12.56,
+      "result_subtype": "success",
+      "is_error": false,
+      "num_turns": 4,
+      "duration_api_ms": 9321,
+      "input_tokens": 36,
+      "output_tokens": 508,
+      "cache_creation_input_tokens": 34288,
+      "cache_read_input_tokens": 101186,
+      "total_cost_usd_estimate": 0.0812706,
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 36,
+          "outputTokens": 508,
+          "cacheReadInputTokens": 101186,
+          "cacheCreationInputTokens": 34288,
+          "webSearchRequests": 0,
+          "costUSD": 0.0812706,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "thinkingTokens": 211,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "tool_calls": [
+        "ToolSearch",
+        "mcp__findex__findex_find_symbol",
+        "Grep"
+      ],
+      "tool_call_count": 3,
+      "mcp_call_count": 1,
+      "files_read": 0,
+      "tool_result_bytes": 270,
+      "first_evidence_tool_call": null,
+      "findex_inputs": [
+        {
+          "tool": "mcp__findex__findex_find_symbol",
+          "input": "{\"name\": \"WatchedIndex\"}"
+        }
+      ],
+      "toolsearch_calls": 1,
+      "builtin_search_calls": 1,
+      "read_calls": 0,
+      "init_mcp_servers": [
+        {
+          "name": "findex",
+          "status": "connected",
+          "source": "dynamic"
+        }
+      ],
+      "init_model": "claude-haiku-4-5-20251001",
+      "init_tools_findex": [
+        "mcp__findex__findex_benchmark",
+        "mcp__findex__findex_blast_radius",
+        "mcp__findex__findex_capabilities",
+        "mcp__findex__findex_context",
+        "mcp__findex__findex_find_symbol",
+        "mcp__findex__findex_graph_symbol",
+        "mcp__findex__findex_impact",
+        "mcp__findex__findex_overview",
+        "mcp__findex__findex_rank",
+        "mcp__findex__findex_refresh_semantic",
+        "mcp__findex__findex_search",
+        "mcp__findex__findex_symbols"
+      ],
+      "init_plugins": [
+        {
+          "name": "agents-md",
+          "path": "builtin",
+          "source": "agents-md@builtin"
+        },
+        {
+          "name": "telemetry",
+          "path": "builtin",
+          "source": "telemetry@builtin"
+        }
+      ],
+      "claude_code_version": "2.1.281",
+      "final_text": "crates/findex-watch/src/lib.rs:91"
+    },
+    "plugin_dir": {
+      "limit_hit": false,
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_s": 11.44,
+      "result_subtype": "success",
+      "is_error": false,
+      "num_turns": 3,
+      "duration_api_ms": 6403,
+      "input_tokens": 28,
+      "output_tokens": 405,
+      "cache_creation_input_tokens": 40477,
+      "cache_read_input_tokens": 74503,
+      "total_cost_usd_estimate": 0.0904573,
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 28,
+          "outputTokens": 405,
+          "cacheReadInputTokens": 74503,
+          "cacheCreationInputTokens": 40477,
+          "webSearchRequests": 0,
+          "costUSD": 0.0904573,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "thinkingTokens": 220,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "tool_calls": [
+        "ToolSearch",
+        "mcp__plugin_findex_findex__findex_find_symbol"
+      ],
+      "tool_call_count": 2,
+      "mcp_call_count": 1,
+      "files_read": 0,
+      "tool_result_bytes": 771,
+      "first_evidence_tool_call": null,
+      "findex_inputs": [
+        {
+          "tool": "mcp__plugin_findex_findex__findex_find_symbol",
+          "input": "{\"name\": \"WatchedIndex\"}"
+        }
+      ],
+      "toolsearch_calls": 1,
+      "builtin_search_calls": 0,
+      "read_calls": 0,
+      "init_mcp_servers": [
+        {
+          "name": "plugin:findex:findex",
+          "status": "connected",
+          "source": "plugin"
+        },
+        {
+          "name": "claude.ai Claude Docs",
+          "status": "connected",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai Webull",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai viewmax",
+          "status": "pending",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai trade",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai eromify",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai OpenArt",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai higgsfield",
+          "status": "pending",
+          "source": "claudeai"
+        }
+      ],
+      "init_model": "claude-haiku-4-5-20251001",
+      "init_tools_findex": [
+        "mcp__plugin_findex_findex__findex_benchmark",
+        "mcp__plugin_findex_findex__findex_blast_radius",
+        "mcp__plugin_findex_findex__findex_capabilities",
+        "mcp__plugin_findex_findex__findex_context",
+        "mcp__plugin_findex_findex__findex_find_symbol",
+        "mcp__plugin_findex_findex__findex_graph_symbol",
+        "mcp__plugin_findex_findex__findex_impact",
+        "mcp__plugin_findex_findex__findex_overview",
+        "mcp__plugin_findex_findex__findex_rank",
+        "mcp__plugin_findex_findex__findex_refresh_semantic",
+        "mcp__plugin_findex_findex__findex_search",
+        "mcp__plugin_findex_findex__findex_symbols"
+      ],
+      "init_plugins": [
+        {
+          "name": "findex",
+          "path": "%FINDEX_VALIDATION_HOME%\\claude\\integration-claude-portable-live\\dist\\plugin",
+          "source": "findex@inline",
+          "version": "0.2.0"
+        },
+        {
+          "name": "agents-md",
+          "path": "builtin",
+          "source": "agents-md@builtin"
+        },
+        {
+          "name": "telemetry",
+          "path": "builtin",
+          "source": "telemetry@builtin"
+        }
+      ],
+      "claude_code_version": "2.1.281",
+      "final_text": "crates/findex-watch/src/lib.rs:91"
+    },
+    "launcher": {
+      "limit_hit": false,
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_s": 12.5,
+      "result_subtype": "success",
+      "is_error": false,
+      "num_turns": 3,
+      "duration_api_ms": 7313,
+      "input_tokens": 28,
+      "output_tokens": 477,
+      "cache_creation_input_tokens": 15547,
+      "cache_read_input_tokens": 99545,
+      "total_cost_usd_estimate": 0.0434615,
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 28,
+          "outputTokens": 477,
+          "cacheReadInputTokens": 99545,
+          "cacheCreationInputTokens": 15547,
+          "webSearchRequests": 0,
+          "costUSD": 0.0434615,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "thinkingTokens": 292,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "tool_calls": [
+        "ToolSearch",
+        "mcp__plugin_findex_findex__findex_find_symbol"
+      ],
+      "tool_call_count": 2,
+      "mcp_call_count": 1,
+      "files_read": 0,
+      "tool_result_bytes": 771,
+      "first_evidence_tool_call": null,
+      "findex_inputs": [
+        {
+          "tool": "mcp__plugin_findex_findex__findex_find_symbol",
+          "input": "{\"name\": \"WatchedIndex\"}"
+        }
+      ],
+      "toolsearch_calls": 1,
+      "builtin_search_calls": 0,
+      "read_calls": 0,
+      "init_mcp_servers": [
+        {
+          "name": "plugin:findex:findex",
+          "status": "connected",
+          "source": "plugin"
+        },
+        {
+          "name": "claude.ai Claude Docs",
+          "status": "connected",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai Webull",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai viewmax",
+          "status": "pending",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai trade",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai eromify",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai OpenArt",
+          "status": "needs-auth",
+          "source": "claudeai"
+        },
+        {
+          "name": "claude.ai higgsfield",
+          "status": "pending",
+          "source": "claudeai"
+        }
+      ],
+      "init_model": "claude-haiku-4-5-20251001",
+      "init_tools_findex": [
+        "mcp__plugin_findex_findex__findex_benchmark",
+        "mcp__plugin_findex_findex__findex_blast_radius",
+        "mcp__plugin_findex_findex__findex_capabilities",
+        "mcp__plugin_findex_findex__findex_context",
+        "mcp__plugin_findex_findex__findex_find_symbol",
+        "mcp__plugin_findex_findex__findex_graph_symbol",
+        "mcp__plugin_findex_findex__findex_impact",
+        "mcp__plugin_findex_findex__findex_overview",
+        "mcp__plugin_findex_findex__findex_rank",
+        "mcp__plugin_findex_findex__findex_refresh_semantic",
+        "mcp__plugin_findex_findex__findex_search",
+        "mcp__plugin_findex_findex__findex_symbols"
+      ],
+      "init_plugins": [
+        {
+          "name": "findex",
+          "path": "%FINDEX_VALIDATION_HOME%\\claude\\integration-claude-portable-live\\dist\\plugin",
+          "source": "findex@inline",
+          "version": "0.2.0"
+        },
+        {
+          "name": "agents-md",
+          "path": "builtin",
+          "source": "agents-md@builtin"
+        },
+        {
+          "name": "telemetry",
+          "path": "builtin",
+          "source": "telemetry@builtin"
+        }
+      ],
+      "claude_code_version": "2.1.281",
+      "final_text": "crates/findex-watch/src/lib.rs:91"
+    }
+  },
+  "note": "trace proxy stores protocol metadata only; no tool payloads"
+}

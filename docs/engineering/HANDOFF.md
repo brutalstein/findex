@@ -8,7 +8,7 @@ the investigation.
 
 | Field | Value |
 |---|---|
-| Current branch | feat/fresh-holdout-v2 (PR #41 merged into main as 2559464) |
+| Current branch | fix/portable-plugin-runtime (PR #42 merged into main as fec6773) |
 | Current commit SHA | 2559464 (main) plus the fresh-holdout, report-routing (d4718e9) and evidence commits on this branch |
 | Working-tree status | Fresh holdout, report routing, evidence and docs committed on the branch; eight untracked `validation/results/20261029T...` directories from other sessions preserved |
 | Last verified checkpoint | Local Windows gates for the report-routing change (fmt, Clippy, 250 of 251 Rust tests, 63 Python tests, release); no milestone completion claim |
@@ -29,6 +29,8 @@ the investigation.
 - Benchmarks: docs/engineering/BENCHMARKS.md
 - Decisions: docs/engineering/DECISIONS.md
 - Status: docs/engineering/STATUS.md
+- Literature comparison: docs/engineering/LITERATURE_COMPARISON.md
+- Plugin portability (FX-20261030-008): validation/results/20261030-plugin-portable
 - Release readiness: docs/engineering/RELEASE_READINESS.md
 - Validation: validation/
 - CI: .github/workflows/ci.yml
