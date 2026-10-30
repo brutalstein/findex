@@ -34,10 +34,12 @@ def main() -> None:
     parser.add_argument("--codex-home", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
-    with tempfile.TemporaryDirectory(prefix="findex-codex-") as tmp:
+    # The MCP server can outlive the Codex client by a moment and still hold the project directory.
+    with tempfile.TemporaryDirectory(prefix="findex-codex-", ignore_cleanup_errors=True) as tmp:
         root = Path(tmp)
         repo = root / "Project with spaces"
         repo.mkdir()
+        (repo / ".git").mkdir()  # the fixture is its own project root, never a parent checkout
         (repo / "fixture.rs").write_text("pub fn codex_plugin_fixture() {}\n", encoding="utf-8")
         env = dict(os.environ, CODEX_HOME=str(args.codex_home.resolve()), LOCALAPPDATA=str(root / "state"))
         messages: queue.Queue = queue.Queue()

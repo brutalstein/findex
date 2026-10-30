@@ -28,6 +28,8 @@ For a local source checkout:
 $env:FINDEX_BIN = "C:\Tools\Findex\findex.exe"
 claude --plugin-dir "C:\Path\To\findex\plugin"
 ```
+Build the runtime with the MSVC toolchain (`rustup default stable-x86_64-pc-windows-msvc`, then `cargo build --release -p findex`); `.cargo/config.toml` links the C runtime statically. A gnullvm build imports `libunwind.dll`, which a machine without that toolchain lacks, and the launcher then exits with 0xC0000135. `plugin_check.py` rejects such a binary.
+
 Do not set `FINDEX_BIN` to a binary from an untrusted code repository. The launcher refuses an implicitly discovered `findex.exe` inside the project working directory.
 
 ### Install in Codex

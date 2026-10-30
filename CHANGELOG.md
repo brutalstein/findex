@@ -24,6 +24,11 @@ First release candidate. No earlier version was published.
   and hits are unchanged; the 17-digit tail cost about six model tokens per hit
   (mean raw tokens per query on the 115 frozen lookups: 263.8 to 243.0).
 
+- Reject a plugin runtime that imports a DLL missing from System32. A gnullvm
+  build imports `libunwind.dll`, so the launcher failed with 0xC0000135 on any
+  machine without that toolchain; the MSVC static-CRT build does not. The Codex
+  check fixture is now its own project root and tolerates a late-exiting MCP server.
+
 - Natural-language (concept) ranking demotes vendored copies (×0.5) and
   docs/examples/support scripts (×0.7) on the BM25 score, so project source
   outranks them on comparable matches. Issue localization (65 tasks): hit@1
