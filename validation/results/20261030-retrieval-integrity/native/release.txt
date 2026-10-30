@@ -1,0 +1,6 @@
+   Compiling findex-index v0.2.0 (%REPO%\crates\findex-index)
+   Compiling findex-watch v0.2.0 (%REPO%\crates\findex-watch)
+   Compiling findex-relations v0.2.0 (%REPO%\crates\findex-relations)
+   Compiling findex-mcp v0.2.0 (%REPO%\crates\findex-mcp)
+   Compiling findex v0.2.0 (%REPO%\crates\findex-cli)
+    Finished `release` profile [optimized] target(s) in 14.12s

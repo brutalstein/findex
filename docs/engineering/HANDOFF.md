@@ -8,19 +8,19 @@ the investigation.
 
 | Field | Value |
 |---|---|
-| Current branch | main |
-| Current commit SHA | 351a3da |
-| Working-tree status | Clean except untracked validation/results/* run directories |
-| Last verified milestone | M10 (Portability and integration) — VERIFIED locally; CI_NOT_RUN on cross-platform matrix |
-| Current unfinished task | M1 — Critical ranking correctness audit: BM25 score collapse FIXED (3dfc311); result count FIXED (3dfc311); FTS5 query syntax TESTED (5f28972); final sorting TESTED (351a3da). Remaining: re-verify retrieval baseline on HEAD, feature quality audit, candidate recall audit. |
-| Current error or blocker | None blocking; CI cross-platform matrix not yet verified after push (FX-20261029-003); live model access blocked (FX-20261029-002) |
-| Most recent successful command | `git push origin main` (351a3da pushed); `cargo test --workspace --all-targets` → 237 pass; `cargo clippy --workspace --all-targets -- -D warnings` → clean; `cargo fmt --check` → clean; `cargo build --release -p findex` → passes |
-| Most recent failed command | None in this session |
-| Exact next command | Run golden dataset retrieval against commit 351a3da to measure before/after accuracy (FX-BM-005); audit candidate generation recall (Part 5.6) |
-| Files currently being modified | None (committed); next: validation harness for accuracy re-measurement, candidate recall audit |
-| Tests that must be rerun | `cargo test --workspace --all-targets`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo fmt --all -- --check`, `cargo build --release -p findex` |
-| GitHub publication status | PUSHED (commit 351a3da on main, verified on remote) |
-| Known risks | Ranking accuracy below 60%/90% targets (accuracy not yet re-measured on HEAD); CI not yet run on Linux/macOS; live model evaluation blocked |
+| Current branch | fix/retrieval-integrity (PR #40 merged into main as 083c0d3) |
+| Current commit SHA | 083c0d3 (main) plus the retrieval-integrity commit on this branch |
+| Working-tree status | Retrieval/semantic/watcher fixes, regression tests, harness and checkpoint docs; previous untracked validation runs preserved |
+| Last verified checkpoint | Local Windows retrieval-integrity gates; no new milestone completion or CI claim |
+| Current work | Existing ranking exported consistently to JSON; semantic stale/truncated diagnostics and stale-prefix refill fixed; excluded watcher events filtered before queue admission; hardening fixture project roots isolated |
+| Current error or blocker | No source-gate blocker. Initial TEMP/cache permission failures and broad inherited test-state ACL were resolved with isolated workspace fixtures and private test-state ACLs |
+| Most recent successful command | Native fmt, Clippy, all-target Rust tests (249 pass), release build; 63 offline Python tests; six compiler-backed CLI/MCP cases; 115 unchanged navigation controls; eight native hardening checks; 200–100k scaling and 100001-file transactional rollback/recovery PASS |
+| Most recent failed command | Initial hardening fixture selected parent Git root (839 files instead of one); fixed by explicit fixture Git roots; rerun passed |
+| Exact next action | Read RETRIEVAL_INTEGRITY_20261030.md and its evidence before continuing; next product gate is candidate-recall decomposition on a fresh frozen issue set |
+| Files currently being modified | context JSON, semantic-site loader/tests, watcher admission/tests, localization/hardening harness and engineering records |
+| Tests that must be rerun after further source changes | Native fmt, Clippy, workspace all-target tests and release; semantic fixtures and relevant frozen controls must identify the new binary |
+| GitHub publication status | PR #40 merged; the retrieval-integrity repairs are committed on `fix/retrieval-integrity` and submitted as a separate PR; no release |
+| Known risks | 65 exposed tasks: hit@1 58.46%, recall@10 86.92%, below 60%/90%; JSON ranking correction moves fmt-2695 from gold rank 3 to 4; bugfix evidence is only a two-task, four-start Codex pilot of old vs new Findex (retrieval-delivery); standalone semantic queries/new-path events still reconcile whole project |
 
 ## Evidence links
 
@@ -33,12 +33,16 @@ the investigation.
 - Validation: validation/
 - CI: .github/workflows/ci.yml
 - Pull request: none yet
+- Current assessment: docs/engineering/RETRIEVAL_INTEGRITY_20261030.md
+- Current native evidence: validation/results/20261030-retrieval-integrity/
 
 ## Next three engineering priorities
 
-1. Re-verify retrieval baseline on HEAD (Part 6.1): run golden dataset
-   against commit 351a3da to measure before/after accuracy (FX-BM-005).
-2. Audit candidate generation recall (Part 5.6): measure recall@k independent
-   of final ranking; verify candidate window doesn't exclude correct files.
-3. Feature quality ablation (Part 5.5): evaluate each ranking feature
-   independently; confirm no constant/placeholder values.
+1. Audit candidate generation recall independently of ranking and snippet
+   packing, with a new frozen issue set rather than tuning the reused 65 tasks.
+2. Evaluate a compiler-backed context adapter above the index/relations crates;
+   measure precision, recall and confident coverage; retain ambiguity and
+   inspect alias traversal bounds/provenance.
+3. Profile dirty-path scheduling and snapshot generations before partitioning.
+   Keep new files, ignore changes, branch switches and event loss conservative;
+   require fresh native scale/rollback evidence for each changed binary.

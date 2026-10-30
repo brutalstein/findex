@@ -45,7 +45,9 @@ class CodexInstallerTests(unittest.TestCase):
             try:
                 upgraded = install()
                 self.assertEqual(upgraded.returncode, 0, upgraded.stderr)
-                bound = Path(json.loads(config.read_text(encoding="utf-8-sig"))["mcpServers"]["findex"]["command"])
+                bound = Path(json.loads(config.read_text(encoding="utf-8"))["mcpServers"]["findex"]["command"])
+                catalog = appdata / "Findex/codex-plugin-marketplace/.agents/plugins/marketplace.json"
+                self.assertEqual(json.loads(catalog.read_text(encoding="utf-8"))["name"], "findex-local")
                 digest = hashlib.sha256(binary.read_bytes()).hexdigest()
                 self.assertEqual(bound.parent.name, digest)
                 self.assertEqual(hashlib.sha256(bound.read_bytes()).hexdigest(), digest)

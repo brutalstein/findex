@@ -38,6 +38,7 @@ def main() -> None:
         root = Path(temp)
         project = root / "isolated source with spaces"
         project.mkdir()
+        (project / ".git").mkdir()
         source = project / "app.rs"
         source.write_text("pub fn safe_marker() -> u32 { 17 }\n", encoding="utf-8")
         env = os.environ.copy()
@@ -105,6 +106,7 @@ def main() -> None:
 
         other = root / "other project"
         other.mkdir()
+        (other / ".git").mkdir()
         other_source = other / "other.rs"
         other_source.write_text("pub fn other_marker() {}\n", encoding="utf-8")
         other_indexed = execute(exe, other, env, "index")

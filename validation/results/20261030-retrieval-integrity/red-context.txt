@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
+     Running unittests src\lib.rs (target\debug\deps\findex_index-a7aa2c650c0941dd.exe)
+
+running 1 test
+test context::tests::concept_json_preserves_the_explicit_file_ranking ... FAILED
+
+failures:
+
+---- context::tests::concept_json_preserves_the_explicit_file_ranking stdout ----
+
+thread 'context::tests::concept_json_preserves_the_explicit_file_ranking' (26568) panicked at crates\findex-index\src\context.rs:3038:9:
+assertion `left == right` failed
+  left: Null
+ right: Array [String("src/loader.py"), String("src/notes.py")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    context::tests::concept_json_preserves_the_explicit_file_ranking
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 117 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `-p findex-index --lib`

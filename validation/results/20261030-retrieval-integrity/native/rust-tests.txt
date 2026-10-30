@@ -1,0 +1,316 @@
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 9 tests
+test help_prints_usage ... ok
+test unknown_command_errors ... ok
+test version_prints_version ... ok
+test status_prints_project_info ... ok
+test context_json_output ... ok
+test index_creates_database ... ok
+test find_symbol_returns_definition ... ok
+test context_returns_evidence ... ok
+test search_returns_hits ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s
+
+
+running 11 tests
+test rank::tests::call_site_boosts_rank ... ok
+test rank::tests::bm25_negative_scores_produce_distinct_norms ... ok
+test rank::tests::zero_query_terms_yields_low_score ... ok
+test rank::tests::definition_match_outranks_lexical_only ... ok
+test rank::tests::source_outranks_config ... ok
+test tests::rejects_sensitive_project_paths_but_not_ordinary_source ... ok
+test tests::repeated_windows_separators_share_a_single_index_key ... ok
+test tests::sensitive_filename_rules ... ok
+test tests::project_root_accepts_worktree_gitfile ... ok
+test tests::redaction_masks_known_credential_shapes_and_keeps_code ... ok
+test tests::index_directory_is_not_readable_by_other_local_accounts ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
+
+
+running 118 tests
+test context::tests::command_flags_are_not_definition_targets ... ok
+test context::tests::defect_queries_broaden_named_targets_but_explicit_definition_requests_do_not ... ok
+test context::tests::concept_output_names_the_ranked_files_first ... ok
+test context::tests::concept_ranking_prefers_project_source_over_vendored_copies ... ok
+test context::tests::concept_snippet_prefers_nearby_terms_over_isolated_mentions ... ok
+test context::tests::module_file_fallback_is_case_sensitive ... ok
+test context::tests::router_accuracy_on_held_out_tasks ... ok
+test context::tests::new_identifier_components_find_related_existing_code ... ok
+test context::tests::router_accuracy_on_held_out_v2_tasks ... ok
+test context::tests::definition_task_returns_the_body_within_budget ... ok
+test context::tests::edited_files_are_not_cited_from_stale_index_rows ... ok
+test context::tests::router_accuracy_on_labeled_tasks ... ok
+test context::tests::definitions_hidden_from_tree_sitter_are_found_lexically ... ok
+test context::tests::qualified_java_context_preserves_uncertain_receiver_calls ... ok
+test context::tests::concept_filename_terms_outweigh_incidental_body_mentions ... ok
+test context::tests::nested_block_comments_follow_the_language ... ok
+test context::tests::callers_task_lists_call_sites_with_enclosing_functions ... ok
+test context::tests::vendored_and_auxiliary_paths_are_recognised_by_directory_only ... ok
+test context::tests::parameter_annotations_outweigh_owner_mentions_and_unknown_receivers ... ok
+test overview::tests::test_file_conventions_of_common_languages_are_recognised ... ok
+test context::tests::module_file_owns_a_macro_hidden_definition ... ok
+test context::tests::concept_ranking_prefers_project_source_over_docs_and_support_scripts ... ok
+test context::tests::code_lines_starting_with_hash_or_star_are_shown_and_only_comments_omitted ... ok
+test context::tests::acronyms_are_words_and_prose_mentions_are_not_references ... ok
+test rank::tests::file_size_penalty_nonexistent_file_defaults ... ok
+test context::tests::external_crate_paths_never_reach_project_definitions ... ok
+test rank::tests::file_size_penalty_small_file_full_penalty ... ok
+test context::tests::language_specific_strings_and_operators_never_hide_code ... ok
+test context::tests::concept_task_ranks_test_code_after_source ... ok
+test rank::tests::terms_to_fts_query_empty_for_whitespace ... ok
+test rank::tests::terms_to_fts_query_escapes_quotes ... ok
+test rank::tests::terms_to_fts_query_limits_to_12_terms ... ok
+test rank::tests::terms_to_fts_query_neutralizes_operators ... ok
+test rank::tests::terms_to_fts_query_quotes_and_ors_terms ... ok
+test context::tests::concept_json_preserves_the_explicit_file_ranking ... ok
+test context::tests::generic_paths_reach_a_method ... ok
+test context::tests::concept_task_ignores_question_words ... ok
+test context::tests::qualified_target_excludes_other_owners_and_reports_it ... ok
+test context::tests::repository_text_cannot_forge_report_lines ... ok
+test context::tests::concept_ranking_prefers_the_file_that_defines_the_named_symbol ... ok
+test context::tests::concept_task_lists_source_before_prose ... ok
+test context::tests::receiver_names_decide_method_calls_and_unknown_ones_are_possible ... ok
+test source_reads::tests::batches_keep_order_errors_and_memory_bounds_across_reuse ... ok
+test context::tests::every_context_report_declares_source_and_relationship_scope ... ok
+test context::tests::missing_definition_references_do_not_block_task_word_retrieval ... ok
+test context::tests::rust_free_function_callers_exclude_method_syntax ... ok
+test context::tests::string_literal_names_are_no_call_evidence ... ok
+test context::tests::shared_names_are_disclosed_as_ambiguous ... ok
+test context::tests::test_sites_are_marked_as_tests ... ok
+test context::tests::self_calls_resolve_to_the_enclosing_impl ... ok
+test tests::bm25_score_is_serialized_to_three_decimals_without_changing_the_value ... ok
+test rank::tests::rank_in_db_empty_query ... ok
+test context::tests::unresolved_alias_paths_are_retained_without_receiver_certainty ... ok
+test tests::corrupt_index_database_is_preserved_and_fails_closed ... ok
+test context::tests::file_task_lists_definitions_of_the_named_file ... ok
+test context::tests::budget_bounds_the_rendered_evidence ... ok
+test rank::tests::rank_in_db_camelcase_query_matches_subword_definition ... ok
+test overview::tests::multilingual_first_contact_map_is_bounded_and_source_verified ... ok
+test context::tests::unknown_identifier_is_reported_missing_not_guessed ... ok
+test tests::fts_query_asterisk_neutralized ... ok
+test tests::fts_query_camelcase_expands ... ok
+test tests::fts_query_colons_neutralized ... ok
+test tests::fts_query_empty_returns_none ... ok
+test tests::fts_query_multiple_words ... ok
+test tests::fts_query_operators_become_terms ... ok
+test tests::fts_query_parens_neutralized ... ok
+test tests::fts_query_quoted_phrase ... ok
+test tests::fts_query_single_word ... ok
+test tests::fts_query_snake_case ... ok
+test symbols::tests::caches_definitions_and_reuses_identical_source ... ok
+test rank::tests::rank_in_db_reorders_by_definition_signal ... ok
+test tests::length_adjustment_relaxes_bm25_length_normalisation_for_large_files ... ok
+test context::tests::concept_ranking_prefers_discriminative_source_evidence_over_generic_word_count ... ok
+test tests::neutralizes_fts_operators ... ok
+test symbols::tests::file_inspection_obeys_ignore_admission_and_detects_stale_edits ... ok
+test refresh::tests::refresh_removes_access_denied_text_from_database_and_wal ... ok
+test context::tests::unmatched_identifier_falls_back_to_the_task_words ... ok
+test symbols::tests::never_indexes_ignored_or_secret_named_files ... ok
+test rank::tests::rank_in_db_tie_break_by_path ... ok
+test rank::tests::rank_in_db_results_are_sorted_and_deterministic ... ok
+test rank::tests::rank_in_db_scores_are_non_increasing ... ok
+test tests::newer_index_schema_is_refused_and_left_intact ... ok
+test refresh::tests::binary_edit_revokes_previous_index_entry ... ok
+test tests::split_query_terms_capped_at_12 ... ok
+test symbols::tests::migrates_existing_lexical_index_without_changing_file_hash ... ok
+test context::tests::complete_reports_state_exhaustive_coverage_and_omitted_comments ... ok
+test tests::access_denied_file_is_removed_with_its_text ... ok
+test refresh::tests::locked_file_keeps_its_index_entry ... ok
+test rank::tests::rank_in_db_sort_before_truncate_and_count ... ok
+test tests::camel_case_identifiers_match_split_query_words ... ok
+test context::tests::rendered_report_stays_within_budget ... ok
+test symbols::tests::refresh_and_delete_invalidate_definitions ... ok
+test tests::definition_outranks_usages_and_points_at_definition_line ... ok
+test refresh::tests::unsafe_paths_abort_without_modifying_the_index ... ok
+test tests::advertises_when_bounded_candidate_window_is_truncated ... ok
+test tests::prefers_files_and_excerpts_covering_more_query_terms ... ok
+test tests::search_in_db_operator_input_safe ... ok
+test tests::search_in_db_returns_hit_for_indexed_term ... ok
+test tests::excerpts_redact_common_secret_shapes ... ok
+test tests::legacy_lexical_schema_is_migrated_and_reindexed ... ok
+test tests::excludes_secrets_and_binary_files ... ok
+test tests::same_line_co_occurrence_breaks_file_coverage_ties ... ok
+test refresh::tests::edits_and_deletions_do_not_require_a_full_walk ... ok
+test tests::removed_file_text_is_not_left_in_index_bytes ... ok
+test refresh::tests::unknown_paths_do_not_bypass_exclusions ... ok
+test tests::unchanged_reconcile_does_not_wait_for_another_writer ... ok
+test tests::removed_file_text_is_not_left_in_wal_while_another_connection_is_open ... ok
+test tests::word_query_finds_snake_case_definition_before_comment_mentions ... ok
+test tests::token_only_matches_cite_the_line_holding_the_tokens ... ok
+test tests::index_integrity_detects_missing_fts_rows_without_repairing_them ... ok
+test tests::old_sensitive_cached_rows_never_escape_and_refresh_removes_them ... ok
+test tests::finds_code_and_handles_edits_and_removal ... ok
+test symbols::tests::new_languages_backfill_unchanged_sources_and_refresh_stale_definitions ... ok
+test tests::lexical_rows_are_keyed_by_file_id_through_edits_refreshes_and_removals ... ok
+test tests::excerpts_redact_before_truncating_quoted_assignments ... ok
+test symbols::tests::symbol_search_reports_unexamined_candidates_without_exceeding_verification_cap ... ok
+test tests::search_in_db_count_respects_limit ... ok
+test tests::bounded_body_query_matches_direct_rank_path_and_source_reference ... ok
+
+test result: ok. 118 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.52s
+
+
+running 10 tests
+test differently_cased_project_paths_share_one_index_location ... ok
+test invalid_utf8_oversized_and_binary_files_are_skipped_not_indexed ... ok
+test alternate_windows_path_forms_cannot_reach_unadmitted_files ... ok
+test hidden_and_build_directories_are_excluded ... ok
+test unicode_file_names_are_indexed_with_normalized_keys ... ok
+test paths_longer_than_max_path_are_indexed ... ok
+test ntfs_junction_to_outside_directory_is_not_followed ... ok
+test exclusively_locked_file_is_kept_but_never_served_unverified ... ok
+test concurrent_reconciliations_of_one_database_both_succeed ... ok
+test short_8dot3_names_cannot_reach_excluded_or_unindexed_files ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+
+
+running 23 tests
+test tests::bounded_transport_preserves_consecutive_json_rpc_frames ... ok
+test tests::notifications_produce_no_response ... ok
+test tests::compact_idle_sync_has_an_exact_default_expansion ... ok
+test tests::disallows_unrecognized_tool_and_unbounded_limits ... ok
+test tests::graph_symbol_rejects_mixed_or_incomplete_positions_before_accessing_files ... ok
+test tests::invalid_result_formats_never_reach_the_backend ... ok
+test tests::compact_hits_preserve_evidence_flags_and_diagnostics ... ok
+test tests::instructions_mark_returned_source_as_untrusted_data ... ok
+test tests::requests_without_method_or_non_object_messages_are_invalid ... ok
+test tests::instructions_define_optional_retrieval_and_safe_fallback ... ok
+test tests::legacy_initialize_with_unknown_version_offers_latest_legacy_version ... ok
+test tests::symbol_lookup_uses_injected_backend_instead_of_full_scan ... ok
+test tests::unsupported_modern_version_returns_typed_error ... ok
+test tests::context_tool_renders_compact_evidence_from_injected_backend ... ok
+test tests::capabilities_report_explicit_limits_without_accessing_repository ... ok
+test tests::tool_execution_errors_never_expose_paths_or_provider_secrets ... ok
+test tests::engine_errors_never_reach_tool_results ... ok
+test tests::compact_format_is_advertised_only_by_supported_tools ... ok
+test tests::initialization_and_tool_discovery ... ok
+test tests::only_the_task_context_tool_loads_upfront_in_claude_code ... ok
+test tests::modern_clients_discover_supported_versions_without_initialize ... ok
+test tests::oversized_frame_is_rejected_without_terminating_the_server ... ok
+test tests::oversized_frame_is_discarded_in_bounded_chunks ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 29 tests
+test tests::future_relation_schema_is_rejected_without_mutation ... ok
+test scip_import::tests::oversized_payload_and_missing_documents_are_rejected ... ok
+test scip_import::tests::scip_definition_and_reference_role_are_not_interchanged ... ok
+test tests::definition_alias_no_match_returns_empty_for_unknown_alias ... ok
+test scip_import::tests::native_scip_binary_produces_reference_impact ... ok
+test tests::rejects_ignored_and_traversal_sources_before_persisting ... ok
+test scip_import::tests::scip_typed_ranges_override_packed_ranges_and_reject_invalid_offsets ... ok
+test scip_import::tests::malformed_scip_ranges_are_rejected_without_replacing_snapshot ... ok
+test tests::lsp_duplicate_references_are_deduplicated_in_snapshot ... ok
+test tests::stale_semantic_report_shows_none_stale_after_import ... ok
+test tests::invalid_import_does_not_replace_valid_snapshot ... ok
+test tests::stale_semantic_report_detects_changed_source ... ok
+test tests::stale_semantic_report_detects_no_longer_admitted ... ok
+test tests::reimport_replaces_old_reference_snapshot_atomically ... ok
+test tests::lsp_batch_imports_multiple_symbols_without_reconciling_per_symbol ... ok
+test tests::definition_alias_resolution_finds_target_symbol ... ok
+test tests::definition_alias_transitive_chain_resolves_to_endpoint ... ok
+test tests::changed_ignore_rules_invalidate_previously_imported_paths ... ok
+test tests::result_limit_does_not_bypass_source_verification ... ok
+test tests::changed_imported_file_does_not_revalidate_unrelated_stale_edges ... ok
+test tests::legacy_relation_schema_upgrades_preserving_reference_impact ... ok
+test tests::lsp_snapshot_generates_direct_file_impact_and_detects_stale_sources ... ok
+test scip_import::tests::multilang_typed_roles_are_precise_and_same_named_symbols_stay_distinct ... ok
+test tests::version_two_positions_remain_available_but_need_reimport_for_unicode_resolution ... ok
+test tests::import_rejects_sensitive_or_unindexed_paths_without_replacing_snapshot ... ok
+test tests::separately_imported_lsp_symbols_coexist_and_update_independently ... ok
+test tests::blast_radius_and_stale_detection_end_to_end ... ok
+test tests::malformed_lsp_positions_and_unknown_fields_keep_previous_snapshot ... ok
+test tests::concurrent_first_opens_of_a_new_database_all_succeed ... ok
+
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.67s
+
+
+running 11 tests
+test semantic_site_limit_is_reported_by_identity_and_position ... ok
+test token_ranges_take_precedence_over_enclosing_module_ranges ... ok
+test an_import_alias_resolves_to_the_original_identity ... ok
+test compiler_ranges_may_end_at_the_empty_line_after_a_final_newline ... ok
+test utf16_unicode_positions_map_to_utf8_and_lsp_points_stay_exact ... ok
+test overlapping_symbols_are_ambiguous_and_no_snapshot_is_explicit ... ok
+test same_spelling_overloads_resolve_to_different_definition_sites ... ok
+test stale_semantic_sites_are_counted_without_hiding_live_sites ... ok
+test multiline_ranges_exclude_their_end_and_current_ignore_rules_win ... ok
+test position_selects_one_identity_without_merging_other_symbols ... ok
+test scip_utf8_utf16_utf32_ranges_and_unspecified_unicode_are_distinct ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+
+running 27 tests
+test rust_receivers::tests::method_token_line_and_generic_annotations_are_preserved ... ok
+test tests::rust_definitions_and_line_ranges ... ok
+test tests::cpp_header_is_supported_for_definition_lookup ... ok
+test tests::unsupported_extension_and_size_limit ... ok
+test rust_receivers::tests::generic_parameters_and_destructuring_are_not_concrete_receiver_types ... ok
+test tests::parser_reports_syntax_errors_without_claiming_type_resolution ... ok
+test tests::python_class_and_method ... ok
+test rust_receivers::tests::no_type_is_invented_from_receiver_names_field_chains_or_strings ... ok
+test tests::javascript_arrow_function_is_a_named_definition_not_a_constant ... ok
+test rust_receivers::tests::loop_match_and_conditional_bindings_mask_outer_annotations ... ok
+test tests::python_methods_are_distinguished_from_module_functions ... ok
+test tests::cpp_namespaces_enums_and_declared_methods_are_indexed ... ok
+test tests::typescript_interface_and_function ... ok
+test tests::typescript_class_fields_with_arrow_functions_are_methods ... ok
+test tests::cpp_class_and_free_function ... ok
+test tests::cpp_forward_declarations_and_elaborated_types_are_not_definitions ... ok
+test tests::javascript_jsx_parses_without_syntax_errors ... ok
+test tests::java_records_annotations_constructors_and_methods ... ok
+test tests::go_types_receivers_and_interface_signatures ... ok
+test tests::rust_macros_constants_impls_and_trait_signatures_are_indexed ... ok
+test tests::c_definitions_skip_forward_declarations_and_function_pointer_variables ... ok
+test tests::csharp_records_properties_delegates_and_expression_methods ... ok
+test tests::new_grammars_do_not_index_declarations_in_comments_or_strings ... ok
+test rust_receivers::tests::annotations_respect_function_block_closure_and_initializer_scope ... ok
+test tests::file_access_rejects_traversal_and_secrets ... ok
+test tests::new_grammars_keep_large_definition_sets_bounded ... ok
+test rust_receivers::tests::invalid_oversized_and_over_budget_sources_refuse_receiver_certainty ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 11 tests
+test tests::read_access_does_not_trigger_index_writes ... ok
+test tests::event_loss_ignore_rule_and_outside_path_are_conservative ... ok
+test tests::ignored_build_churn_does_not_force_full_scan ... ok
+test tests::changed_file_is_targeted_but_new_file_forces_reconciliation ... ok
+test tests::queue_keeps_uncertain_events_and_signals_real_overflow ... ok
+test tests::build_event_storm_preserves_queue_space_for_a_source_edit ... ok
+test tests::persistent_symbol_lookup_skips_warm_full_reconciliation ... ok
+test tests::disconnected_symbol_watcher_switches_to_scanning ... ok
+test tests::late_watcher_disconnection_falls_back_to_verified_full_scan ... ok
+test tests::watcher_detects_changes_without_trusting_unverified_snippets ... ok
+test tests::injected_change_updates_symbol_names_and_respects_admission ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running unittests src\main.rs (target\debug\deps\findex-ff84b1dc4716283d.exe)
+     Running tests\cli_integration.rs (target\debug\deps\cli_integration-82c042faca0a4f60.exe)
+     Running unittests src\lib.rs (target\debug\deps\findex_core-c46bb6f594b6614f.exe)
+     Running unittests src\lib.rs (target\debug\deps\findex_index-d8440f2abe2eef52.exe)
+     Running tests\windows_fs.rs (target\debug\deps\windows_fs-6423cd8493d54585.exe)
+     Running unittests src\lib.rs (target\debug\deps\findex_mcp-3b87c09c56a8ff2b.exe)
+     Running unittests src\lib.rs (target\debug\deps\findex_relations-111a6d3496d5b909.exe)
+     Running tests\semantic_position.rs (target\debug\deps\semantic_position-7bb8f3f6201627c1.exe)
+     Running unittests src\lib.rs (target\debug\deps\findex_syntax-3bbf6d55beea7782.exe)
+     Running unittests examples\syntax_throughput.rs (target\debug\examples\syntax_throughput-a37ef5aeb7fdc11f.exe)
+     Running unittests src\lib.rs (target\debug\deps\findex_watch-ba8b3b2f2e22a6e4.exe)

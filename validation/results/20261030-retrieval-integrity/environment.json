@@ -1,0 +1,23 @@
+{
+  "utc": "20261030T132827Z",
+  "git_sha": "28842c5c17702a16d206f9c45db7f989839b8494",
+  "git_dirty": true,
+  "git_branch": "feat/symbol-field-live-lane",
+  "os": "Windows-11-10.0.26200-SP0",
+  "windows_build": "10.0.26200",
+  "machine": "AMD64",
+  "logical_processors": 32,
+  "physical_cores": 16,
+  "ram_bytes": 33521238016,
+  "python": "3.14.6",
+  "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+  "rustc_host": "x86_64-pc-windows-gnullvm",
+  "cargo": "cargo 1.96.1 (356927216 2026-06-26)",
+  "git": "git version 2.51.2.windows.1",
+  "claude_code": "not queried",
+  "cpu_model": "AMD Ryzen 9 8945HX with Radeon Graphics",
+  "storage": [
+    "SSD NVMe CT1000P310SSD8"
+  ],
+  "ci_run_url": ""
+}

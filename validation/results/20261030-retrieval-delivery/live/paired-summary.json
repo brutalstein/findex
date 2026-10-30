@@ -1,0 +1,23 @@
+{
+  "arms": {
+    "baseline": {
+      "starts": 2,
+      "valid": 1,
+      "correct": 1,
+      "usage_complete": false,
+      "total_tokens": 518177,
+      "seconds": 67.843
+    },
+    "candidate": {
+      "starts": 2,
+      "valid": 2,
+      "correct": 2,
+      "usage_complete": true,
+      "total_tokens": 928901,
+      "seconds": 96.174
+    }
+  },
+  "actual_starts": 4,
+  "stopped": "codex: failed, missing usage or unsuccessful supplied-server MCP call; no retries or fallback",
+  "limits": "Two reused tasks, one repetition. Incomplete usage prevents whole-study token comparison."
+}

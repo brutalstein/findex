@@ -1,0 +1,3 @@
+{"utc": "20261030T132832Z", "argv": ["cargo", "fmt", "--all", "--", "--check"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.5321, "timed_out": false}
+{"utc": "20261030T132838Z", "argv": ["cargo", "clippy", "--workspace", "--all-targets", "--", "-D", "warnings"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 5.2318, "timed_out": false}
+{"utc": "20261030T132847Z", "argv": ["cargo", "test", "--workspace", "--all-targets"], "cwd": "%REPO%", "exit_code": 101, "duration_s": 9.5915, "timed_out": false}

@@ -7,6 +7,19 @@ performance/reliability/maintainability; P3 = lower impact or documentation.
 Statuses: SUSPECTED, CONFIRMED, IN_PROGRESS, FIXED_UNVERIFIED, VERIFIED,
 BLOCKED, WONT_FIX, REGRESSED.
 
+## 2026-10-30 retrieval-integrity continuation
+
+These local repairs are verified on the candidate binary recorded in
+[the checkpoint](RETRIEVAL_INTEGRITY_20261030.md); they are committed on
+`fix/retrieval-integrity`. Older entries below retain their historical state.
+
+| ID | Priority | Status | Defect and verification |
+|---|---|---|---|
+| FX-20261030-002 | P2 | VERIFIED | Context JSON discarded the existing ranked-file list. Rust/Python regressions pass; 65-task result and its one rank loss are recorded |
+| FX-20261030-003 | P1 | VERIFIED | Semantic lookup hid stale/truncated evidence and lost live sites behind stale prefixes. Native paired oracle fails before and passes after; identity/position regressions pass |
+| FX-20261030-004 | P2 | VERIFIED | Excluded build storms filled the watcher queue before filtering. 16,384-event regression preserves the source edit; rescan/error/Git/overflow controls pass |
+| FX-20261030-005 | P3 | VERIFIED | Hardening fixtures inherited the parent Git root with workspace-local TEMP. Explicit fixture Git roots restore all eight native hardening checks |
+
 ## FX-20261029-001 — Retrieval accuracy below target
 
 - Priority: P1

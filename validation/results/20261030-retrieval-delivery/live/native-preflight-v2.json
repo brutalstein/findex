@@ -1,0 +1,94 @@
+{
+  "checks": [
+    {
+      "key": "requests-5223:baseline",
+      "status": "PASS",
+      "model": "gpt-5.6-sol",
+      "tools": [
+        "findex_search",
+        "findex_find_symbol",
+        "findex_symbols",
+        "findex_impact",
+        "findex_context",
+        "findex_graph_symbol"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    },
+    {
+      "key": "requests-5223:candidate",
+      "status": "PASS",
+      "model": "gpt-5.6-sol",
+      "tools": [
+        "findex_search",
+        "findex_symbols",
+        "findex_find_symbol",
+        "findex_graph_symbol",
+        "findex_context",
+        "findex_impact"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    },
+    {
+      "key": "ripgrep-2659:candidate",
+      "status": "PASS",
+      "model": "gpt-5.6-sol",
+      "tools": [
+        "findex_find_symbol",
+        "findex_search",
+        "findex_graph_symbol",
+        "findex_context",
+        "findex_symbols",
+        "findex_impact"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    },
+    {
+      "key": "ripgrep-2659:baseline",
+      "status": "PASS",
+      "model": "gpt-5.6-sol",
+      "tools": [
+        "findex_symbols",
+        "findex_search",
+        "findex_impact",
+        "findex_find_symbol",
+        "findex_context",
+        "findex_graph_symbol"
+      ],
+      "effective_sandbox": {
+        "type": "workspaceWrite",
+        "writableRoots": [],
+        "networkAccess": false,
+        "excludeTmpdirEnvVar": false,
+        "excludeSlashTmp": false
+      },
+      "write_exec_boundary": "PASS",
+      "baseline_repro_executable": "NATIVE_HOST_GRADER"
+    }
+  ],
+  "model_sessions": 0,
+  "codex_sha256": "3097c909fb6d5cd63510d44aceb1d42df9f6e85722a3e447e477def1ecf60e16"
+}

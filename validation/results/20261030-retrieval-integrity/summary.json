@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "native_gates": "native/gates.json",
+  "rust_passed": 249,
+  "python_passed": 63,
+  "navigation_unchanged": 115,
+  "compiler_cases": 6,
+  "self_hosted_budget_checks": 12,
+  "hardening_checks": 8,
+  "scale_sizes": [
+    200,
+    2000,
+    10000,
+    100000
+  ],
+  "cap_rollback_recovery": "PASS",
+  "semantic_stale_prefix": "Native baseline fails, candidate passes; semantic-refill/results.json",
+  "localization": "Hit@1 and recall@10 unchanged; one rank3 to4 change, slightly lower MRR; see localization/localization.json",
+  "independent_review": "No actionable introduced findings; changed code and immediate callers only.",
+  "unverified": [
+    "New live-model bugfix improvement",
+    "60%/90% localization targets",
+    "Arbitrary project sizes/languages",
+    "Release packaging/signing",
+    "Hosted CI"
+  ]
+}

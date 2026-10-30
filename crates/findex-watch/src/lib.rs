@@ -24,6 +24,44 @@ const MAX_QUEUED_EVENTS: usize = 2048;
 const MAX_BATCH_PATHS: usize = 1024;
 const RECONCILE_INTERVAL: Duration = Duration::from_secs(120);
 
+fn enqueue_event(
+    root: &Path,
+    sender: &mpsc::SyncSender<notify::Result<Event>>,
+    overflow: &AtomicBool,
+    event: notify::Result<Event>,
+) {
+    // Excluded build storms must not consume the bounded queue or signal loss.
+    if event
+        .as_ref()
+        .is_ok_and(|event| excluded_event(root, event))
+    {
+        return;
+    }
+    match sender.try_send(event) {
+        Ok(()) => {}
+        Err(TrySendError::Full(_)) | Err(TrySendError::Disconnected(_)) => {
+            overflow.store(true, Ordering::Release);
+        }
+    }
+}
+
+fn excluded_event(root: &Path, event: &Event) -> bool {
+    !event.need_rescan()
+        && !event.paths.is_empty()
+        && event.paths.iter().all(|path| {
+            let Ok(relative) = path.strip_prefix(root) else {
+                return false;
+            };
+            relative
+                .components()
+                .all(|c| matches!(c, Component::Normal(_)))
+                && relative.components().any(|component| {
+                    let name = component.as_os_str();
+                    !name.eq_ignore_ascii_case(".git") && is_excluded_scan_entry(name)
+                })
+        })
+}
+
 /// On watcher failure, transparently revert to the correctness-first scanner.
 pub enum SearchBackend {
     Watched(Box<WatchedIndex>),
@@ -123,12 +161,10 @@ impl WatchedIndex {
         let (tx, changes) = mpsc::sync_channel(MAX_QUEUED_EVENTS);
         let overflow = Arc::new(AtomicBool::new(false));
         let dropped = Arc::clone(&overflow);
+        let event_root = project.clone();
         // Never block a filesystem watcher callback on the indexing thread.
-        let mut watcher = notify::recommended_watcher(move |event| match tx.try_send(event) {
-            Ok(()) => {}
-            Err(TrySendError::Full(_)) | Err(TrySendError::Disconnected(_)) => {
-                dropped.store(true, Ordering::Release);
-            }
+        let mut watcher = notify::recommended_watcher(move |event| {
+            enqueue_event(&event_root, &tx, &dropped, event);
         })?;
         // Install the watcher *before* reconciliation so concurrent writes are
         // queued and inspected before the next search.
@@ -229,20 +265,7 @@ fn classify_event(root: &Path, event: &Event, changed: &mut BTreeSet<PathBuf>, f
     // Their create/rename/delete storms must not force O(repository) scans.
     // The .git directory is deliberately *not* ignored: Git state changes
     // require reconciliation even though the scanner never indexes .git.
-    if !event.paths.is_empty()
-        && event.paths.iter().all(|path| {
-            let Ok(relative) = path.strip_prefix(root) else {
-                return false;
-            };
-            relative.components().any(|component| {
-                if let Component::Normal(name) = component {
-                    !name.eq_ignore_ascii_case(".git") && is_excluded_scan_entry(name)
-                } else {
-                    false
-                }
-            })
-        })
-    {
+    if excluded_event(root, event) {
         return;
     }
     match event.kind {
@@ -440,6 +463,72 @@ mod tests {
         let mut full = false;
         classify_event(root, &git_event, &mut changed, &mut full);
         assert!(full);
+    }
+
+    #[test]
+    fn build_event_storm_preserves_queue_space_for_a_source_edit() {
+        let root = Path::new(r"C:\source");
+        let (sender, receiver) = mpsc::sync_channel(2);
+        let overflow = AtomicBool::new(false);
+        for folder in ["target", "node_modules", ".venv", "dist"] {
+            for number in 0..4096 {
+                let event = Event::new(EventKind::Create(CreateKind::File))
+                    .add_path(root.join(folder).join(format!("{number}.bin")));
+                enqueue_event(root, &sender, &overflow, Ok(event));
+            }
+        }
+        enqueue_event(
+            root,
+            &sender,
+            &overflow,
+            Ok(
+                Event::new(EventKind::Modify(ModifyKind::Data(DataChange::Any)))
+                    .add_path(root.join("src/app.rs")),
+            ),
+        );
+        assert!(
+            !overflow.load(Ordering::Acquire),
+            "excluded events filled the queue"
+        );
+        let event = receiver
+            .try_recv()
+            .expect("source event")
+            .expect("valid event");
+        assert_eq!(event.paths, vec![root.join("src/app.rs")]);
+        assert!(receiver.try_recv().is_err());
+    }
+
+    #[test]
+    fn queue_keeps_uncertain_events_and_signals_real_overflow() {
+        let root = Path::new(r"C:\source");
+        let (sender, receiver) = mpsc::sync_channel(8);
+        let overflow = AtomicBool::new(false);
+        let events = [
+            Event::new(EventKind::Any)
+                .add_path(root.join("target/generated.rs"))
+                .set_flag(Flag::Rescan),
+            Event::new(EventKind::Any).add_path(root.join(".git/HEAD")),
+            Event::new(EventKind::Any)
+                .add_path(root.join("target/a.rs"))
+                .add_path(root.join("src/a.rs")),
+            Event::new(EventKind::Any).add_path(PathBuf::from(r"C:\outside\target\a.rs")),
+            Event::new(EventKind::Any),
+        ];
+        for event in events {
+            enqueue_event(root, &sender, &overflow, Ok(event));
+        }
+        enqueue_event(
+            root,
+            &sender,
+            &overflow,
+            Err(notify::Error::generic("watch failed")),
+        );
+        assert_eq!(receiver.try_iter().count(), 6);
+        assert!(!overflow.load(Ordering::Acquire));
+        for _ in 0..9 {
+            enqueue_event(root, &sender, &overflow, Ok(Event::new(EventKind::Any)));
+        }
+        assert!(overflow.load(Ordering::Acquire));
     }
 
     #[test]

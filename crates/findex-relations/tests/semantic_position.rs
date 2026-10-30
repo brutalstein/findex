@@ -1,5 +1,5 @@
 #![allow(clippy::expect_used)]
-use findex_relations::{import_lsp_snapshot, import_scip_bytes, symbol_at};
+use findex_relations::{import_lsp_snapshot, import_scip_bytes, symbol_at, symbol_evidence};
 use protobuf::Message;
 use scip::types::{Document, Index, Occurrence, SymbolRole};
 use std::fs;
@@ -17,6 +17,55 @@ fn occurrence(symbol: &str, line: i32, start: i32, end: i32, definition: bool) -
         },
         ..Default::default()
     }
+}
+
+#[test]
+fn semantic_site_limit_is_reported_by_identity_and_position() {
+    let root = tempdir().expect("root");
+    fs::write(
+        root.path().join("main.rs"),
+        "fn parse() {}\nfn run() { parse(); }\n",
+    )
+    .expect("source");
+    let index = Index {
+        documents: vec![Document {
+            relative_path: "main.rs".into(),
+            language: "rust".into(),
+            position_encoding: protobuf::EnumOrUnknown::from_i32(1),
+            occurrences: vec![
+                occurrence("parse", 0, 3, 8, true),
+                occurrence("parse", 1, 11, 16, false),
+            ],
+            ..Default::default()
+        }],
+        ..Default::default()
+    };
+    import_scip_bytes(root.path(), &index.write_to_bytes().expect("encode")).expect("import");
+    let report = symbol_evidence(root.path(), "parse", 1).expect("identity");
+    assert_eq!(report.sites.len(), 1);
+    assert!(report.truncated, "a second site was omitted");
+    let position = symbol_at(root.path(), Path::new("main.rs"), 1, 4, 1).expect("position");
+    assert_eq!(position.resolution, "resolved");
+    assert!(position.truncated);
+    assert!(position.evidence.expect("sites").truncated);
+}
+
+#[test]
+fn stale_semantic_sites_are_counted_without_hiding_live_sites() {
+    let root = tempdir().expect("root");
+    fs::write(root.path().join("a.rs"), "fn parse() {}\n").expect("definition");
+    fs::write(root.path().join("b.rs"), "fn run() { parse(); }\n").expect("reference");
+    let snapshot = r#"{"definition":{"path":"a.rs","line":0,"character":3},"references":[{"path":"b.rs","line":0,"character":11}]}"#;
+    import_lsp_snapshot(root.path(), snapshot).expect("import");
+    let before = symbol_at(root.path(), Path::new("a.rs"), 1, 3, 8).expect("identity");
+    let identity = before.symbols[0].clone();
+    fs::write(root.path().join("b.rs"), "fn changed() {}\n").expect("edit");
+    let report = symbol_evidence(root.path(), &identity, 8).expect("query");
+    assert_eq!(report.sites.len(), 1);
+    assert_eq!(report.sites[0].path, "a.rs");
+    assert_eq!(report.stale_evidence_discarded, 1);
+    let position = symbol_at(root.path(), Path::new("a.rs"), 1, 3, 8).expect("position");
+    assert_eq!(position.stale_evidence_discarded, 1);
 }
 
 #[test]

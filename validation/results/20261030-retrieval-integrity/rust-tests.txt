@@ -1,0 +1,59 @@
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 9 tests
+test help_prints_usage ... ok
+test unknown_command_errors ... ok
+test version_prints_version ... ok
+test status_prints_project_info ... ok
+test index_creates_database ... ok
+test context_returns_evidence ... ok
+test find_symbol_returns_definition ... ok
+test context_json_output ... ok
+test search_returns_hits ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.69s
+
+
+running 11 tests
+test tests::repeated_windows_separators_share_a_single_index_key ... ok
+test tests::sensitive_filename_rules ... ok
+test tests::rejects_sensitive_project_paths_but_not_ordinary_source ... ok
+test rank::tests::zero_query_terms_yields_low_score ... ok
+test rank::tests::source_outranks_config ... ok
+test rank::tests::call_site_boosts_rank ... ok
+test rank::tests::definition_match_outranks_lexical_only ... ok
+test rank::tests::bm25_negative_scores_produce_distinct_norms ... ok
+test tests::project_root_accepts_worktree_gitfile ... ok
+test tests::redaction_masks_known_credential_shapes_and_keeps_code ... ok
+test tests::index_directory_is_not_readable_by_other_local_accounts ... FAILED
+
+failures:
+
+---- tests::index_directory_is_not_readable_by_other_local_accounts stdout ----
+
+thread 'tests::index_directory_is_not_readable_by_other_local_accounts' (8940) panicked at crates\findex-core\src\lib.rs:296:9:
+assertion `left == right` failed
+  left: ["S-1-1-0", "S-1-5-32-545"]
+ right: ["S-1-1-0"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::index_directory_is_not_readable_by_other_local_accounts
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.72s
+
+   Compiling findex-index v0.2.0 (%REPO%\crates\findex-index)
+   Compiling findex-watch v0.2.0 (%REPO%\crates\findex-watch)
+   Compiling findex-relations v0.2.0 (%REPO%\crates\findex-relations)
+   Compiling findex-mcp v0.2.0 (%REPO%\crates\findex-mcp)
+   Compiling findex v0.2.0 (%REPO%\crates\findex-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.13s
+     Running unittests src\main.rs (target\debug\deps\findex-ff84b1dc4716283d.exe)
+     Running tests\cli_integration.rs (target\debug\deps\cli_integration-82c042faca0a4f60.exe)
+     Running unittests src\lib.rs (target\debug\deps\findex_core-c46bb6f594b6614f.exe)
+error: test failed, to rerun pass `-p findex-core --lib`
