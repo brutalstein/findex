@@ -100,6 +100,14 @@
         "localization_claude": "validation/results/20261030-localization-live-ranked/live-localization-summary.json"
       },
       "note": "Concept output now opens with a `ranked files, most likely first` line. Findex-only re-run on the same 8 issues: 6/8 correct (was 4/8), 7/8 valid (was 5/8), 143k tokens per session (was 420k). The change was designed after seeing the R10 failures on these issues, so this is not an independent test; rivals were not re-run."
+    },
+    {
+      "id": "R12",
+      "date": "2026-10-30",
+      "lanes": {
+        "navigation_codex": "validation/results/20261030-codex-live-r12/live-usage-summary.json"
+      },
+      "note": "Codex subscription reopened after the usage limit that blocked the earlier luna pilot. Four fresh single-definition tasks (ripgrep x2, fmt, requests), gpt-5.6-luna at low effort, three tools, one repetition. Findex 4/4 correct; Graphify 3/4; codebase-memory 3/4 valid and correct 3/4."
     }
   ]
 }
