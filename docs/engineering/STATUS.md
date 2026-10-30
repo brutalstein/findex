@@ -21,7 +21,7 @@ Correctness stabilization in progress. All 211 workspace tests pass, clippy
 `-D warnings` clean, cargo fmt clean, release build passes on Windows.
 Windows-only CI restored (Linux/macOS removed, FX-DEC-20261030-001). Property-based tests added to
 `findex-core` and `findex-index`. CLI integration tests added to `findex-cli`.
-The 60% hit@1 / 90% recall@10 targets remain unmet (current ~44.6% / ~80.8%).
+The 60% hit@1 / 90% recall@10 targets remain unmet (current ~53.8% / ~86.9% after path weights and BM25 length relaxation, FX-BM-012/013).
 
 ## Milestone Status Table
 
@@ -50,7 +50,7 @@ The 60% hit@1 / 90% recall@10 targets remain unmet (current ~44.6% / ~80.8%).
 | Resolved issues | 12 (per COMPLETE_REPOSITORY_AUDIT.md findings A1-A12, D1-D4) |
 | Latest test outcomes | 211 pass, 0 fail (workspace, all-targets) |
 | Last benchmark run | Historical (2026-10-27/28 runs under validation/results/) |
-| Retrieval quality vs baseline | hit@1 ~44.6% (baseline 40.0%), recall@10 ~80.8% (baseline 79.2%); targets 60%/90% unmet |
+| Retrieval quality vs baseline | hit@1 ~53.8% (baseline 40.0%), recall@10 ~86.9% (baseline 79.2%); targets 60%/90% unmet |
 | Performance regressions | NOT MEASURED on HEAD |
 | Security concerns | None open; threat model documented |
 | Platform coverage | Windows x64 only (Linux/macOS unsupported) |

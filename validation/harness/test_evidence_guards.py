@@ -62,6 +62,27 @@ class EvidenceGuardsTests(unittest.TestCase):
         self.assertEqual(record["mcp_calls"], 1)
         self.assertEqual(record["mcp_errors"], 1)
 
+    def test_string_message_events_do_not_break_scoring(self):
+        query = {"id": "q", "expected": [["a.rs", 1]]}
+        use = {"type": "assistant", "message": {"content": [{"type": "tool_use", "id": "a", "name": "mcp__findex__findex_search"}]}}
+        res = {"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "a", "content": "x", "is_error": False}]}}
+        done = {"type": "result", "is_error": False, "result": '{"path":"a.rs","line":1}', "usage": {"input_tokens": 10, "output_tokens": 3}}
+        session = {"events": [{"type": "system", "subtype": "api_retry", "message": "retrying"}, use, res, done],
+                   "exit_code": 0, "timed_out": False, "wall_s": 0}
+        self.assertTrue(live.claude_record(session, "findex", query)["correct"])
+
+    def test_unexpected_harness_error_records_and_stops_instead_of_staying_pending(self):
+        with tempfile.TemporaryDirectory() as folder:
+            saved = Path(folder) / "live-results.json"
+            results = {"sessions": [], "started": 0}
+            record = {"key": "k", "client": "claude"}
+            with live.trial_attempt(saved, results, record, 12):
+                raise AttributeError("parser bug")
+            self.assertEqual(record["status"], "invalid")
+            self.assertIn("parser bug", record["error"])
+            self.assertIn("harness error", results["stopped"])
+            self.assertEqual(json.loads(saved.read_text(encoding="utf-8"))["sessions"][0]["status"], "invalid")
+
     def test_codex_does_not_count_completed_error_results(self):
         query = {"id": "q", "expected": [["a.rs", 1]]}
         events = [{"type": "item.completed", "item": {"type": "mcp_tool_call", "server": "findex", "status": "completed",

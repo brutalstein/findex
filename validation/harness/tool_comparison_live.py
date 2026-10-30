@@ -71,7 +71,8 @@ def claude_record(session: dict, tool: str, query: dict) -> dict:
     summary = summarize_session(session)
     calls, successful, failed = set(), set(), set()
     for event in session["events"]:
-        blocks = (event.get("message") or {}).get("content") or []
+        message = event.get("message")
+        blocks = message.get("content") if isinstance(message, dict) else None
         for block in blocks if isinstance(blocks, list) else []:
             if block.get("type") == "tool_use" and str(block.get("name", "")).startswith(f"mcp__{tool}__"):
                 calls.add(block.get("id"))
@@ -92,9 +93,10 @@ def claude_record(session: dict, tool: str, query: dict) -> dict:
             "correct": valid and answer_correct(summary["final_text"], query)}
 
 
-def select_live_tasks(rows: list[dict], corpora: Path, count: int) -> list[dict]:
+def select_live_tasks(rows: list[dict], corpora: Path, count: int, skip: int = 0) -> list[dict]:
     """Deterministic live tasks: exact-symbol rows with one expected location and
-    exactly one declaration of that name in the frozen corpus, round-robin by corpus."""
+    exactly one declaration of that name in the frozen corpus, round-robin by corpus.
+    `skip` leaves out the first tasks so a later round can use fresh ones."""
     declaration = (r"(^|[^[:alnum:]_])(def|class|fn|struct|enum|trait|interface|type|function|const|let|var)"
                    r"[[:space:]]+{}([^[:alnum:]_]|$)")
     pools: dict[str, list[dict]] = {}
@@ -107,11 +109,11 @@ def select_live_tasks(rows: list[dict], corpora: Path, count: int) -> list[dict]
         if len(found) == 1 and found[0].split(":", 1)[0] == row["expected"][0][0]:
             pools.setdefault(row["corpus"], []).append(row)
     chosen = []
-    while len(chosen) < count and any(pools.values()):
+    while len(chosen) < count + skip and any(pools.values()):
         for corpus in sorted(pools):
-            if pools[corpus] and len(chosen) < count:
+            if pools[corpus] and len(chosen) < count + skip:
                 chosen.append(pools[corpus].pop(0))
-    return chosen
+    return chosen[skip:]
 
 
 def load_results(saved: Path) -> dict:
@@ -152,8 +154,11 @@ def trial_attempt(saved: Path, results: dict, record: dict, cap: int, halt_on_in
         yield record
     except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
         record.update(valid=False, correct=False, error=str(exc))
+    except Exception as exc:  # harness bug: never leave the trial pending or spend more sessions
+        record.update(valid=False, correct=False, error=repr(exc))
+        results["stopped"] = f"harness error, study stopped: {exc!r}"
     record["status"] = "complete" if record["valid"] else "invalid"
-    if not record["valid"] and (halt_on_invalid or record.get("fatal")):
+    if not record["valid"] and not results.get("stopped") and (halt_on_invalid or record.get("fatal")):
         results["stopped"] = f"{record['client']}: failed, missing usage or unsuccessful supplied-server MCP call; no retries or fallback"
     write_json(saved, results)
 
@@ -168,6 +173,7 @@ def main() -> None:
     parser.add_argument("--max-sessions", type=int, default=12)
     parser.add_argument("--tasks", type=int, default=0,
                         help="pick this many single-definition tasks by rule instead of the manifest's live_query_ids")
+    parser.add_argument("--skip-tasks", type=int, default=0, help="skip the first N rule-selected tasks (fresh tasks per round)")
     parser.add_argument("--client", choices=["both", "codex", "claude"], default="both")
     parser.add_argument("--codex-model", help="override the model from config.toml; drops service_tier")
     parser.add_argument("--codex-effort", help="override model_reasoning_effort from config.toml")
@@ -183,7 +189,7 @@ def main() -> None:
     results = load_results(saved)
     manifest = json.loads((args.out / "manifest.json").read_text(encoding="utf-8"))
     if args.tasks:
-        tasks = select_live_tasks(manifest["queries"], REPO / "target/tool-comparison/corpora", args.tasks)
+        tasks = select_live_tasks(manifest["queries"], REPO / "target/tool-comparison/corpora", args.tasks, args.skip_tasks)
     else:
         tasks = [next(q for q in manifest["queries"] if q["id"] == key) for key in manifest["live_query_ids"]] if "live_query_ids" in manifest else [
             next(q for q in manifest["queries"] if q["corpus"] == corpus and q["type"] == "symbol_exact")

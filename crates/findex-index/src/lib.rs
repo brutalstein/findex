@@ -861,18 +861,40 @@ fn search_ranked_in_db(
                 match_kind: "lexical",
             },
             indexed_hash,
+            body.len(),
         ));
     }
+    let mean_length =
+        candidates.iter().map(|c| c.3 as f64).sum::<f64>() / candidates.len().max(1) as f64;
     // File coverage first, then same-line co-occurrence (proximity), then BM25.
     candidates.sort_by(|left, right| {
         if concept {
             let role = |path: &str| (!context::is_code_path(path), context::is_test_path(path));
+            // BM25 is negative: a factor below 1 makes a hit less relevant.
+            let weight = |path: &str| {
+                if context::is_vendored_path(path) {
+                    0.5
+                } else if context::is_auxiliary_path(path) {
+                    0.7
+                } else {
+                    1.0
+                }
+            };
+            let score = |bm25: f64, filename_matches: usize, path: &str, length: usize| {
+                // Filename matches are an additional field, not substring hits.
+                bm25 * (1.0 + 2.0 * filename_matches as f64)
+                    * weight(path)
+                    * length_adjustment(length as f64, mean_length)
+            };
             return role(&left.1.path)
                 .cmp(&role(&right.1.path))
-                // Filename matches are an additional field, not substring hits.
                 .then_with(|| {
-                    (left.1.bm25_score * (1.0 + 2.0 * left.0 .2 as f64))
-                        .total_cmp(&(right.1.bm25_score * (1.0 + 2.0 * right.0 .2 as f64)))
+                    score(left.1.bm25_score, left.0 .2, &left.1.path, left.3).total_cmp(&score(
+                        right.1.bm25_score,
+                        right.0 .2,
+                        &right.1.path,
+                        right.3,
+                    ))
                 })
                 .then_with(|| left.1.path.cmp(&right.1.path));
         }
@@ -884,7 +906,7 @@ fn search_ranked_in_db(
     });
     // Verify only what is returned: hashing every ranked candidate costs one
     // file read per candidate. A stale candidate is skipped, never returned.
-    for (_, hit, indexed_hash) in candidates {
+    for (_, hit, indexed_hash, _) in candidates {
         if report.hits.len() == count {
             report.truncated = true;
             break;
@@ -898,6 +920,17 @@ fn search_ranked_in_db(
         report.hits.push(hit);
     }
     Ok(report)
+}
+
+/// FTS5 fixes BM25's length normalisation at b = 0.75, which punishes the large,
+/// central files that fixes usually touch. Rescale a score toward b = 0.3
+/// (single-occurrence approximation, k1 = 1.2). 0.3 is a round value picked
+/// before measuring, not a literature value: no published sweep of b for
+/// source-file retrieval was found; the evidence is the localization harness.
+fn length_adjustment(length: f64, mean: f64) -> f64 {
+    let ratio = if mean > 0.0 { length / mean } else { 1.0 };
+    let norm = |b: f64| 1.2 * (1.0 - b + b * ratio);
+    (1.0 + norm(0.75)) / (1.0 + norm(0.3))
 }
 
 /// Literal match, or the phrase FTS matched: `to_regex` is the tokens `to regex`.
@@ -971,6 +1004,16 @@ mod tests {
     use super::*;
     use proptest::prelude::*;
     use tempfile::tempdir;
+
+    #[test]
+    fn length_adjustment_relaxes_bm25_length_normalisation_for_large_files() {
+        assert!((length_adjustment(100.0, 100.0) - 1.0).abs() < 1e-9);
+        let long = length_adjustment(1000.0, 100.0);
+        let short = length_adjustment(10.0, 100.0);
+        assert!(long > 1.5 && long < 2.6, "{long}");
+        assert!(short < 1.0 && short > 0.6, "{short}");
+        assert!(length_adjustment(400.0, 100.0) < length_adjustment(800.0, 100.0));
+    }
 
     #[test]
     fn bm25_score_is_serialized_to_three_decimals_without_changing_the_value() {

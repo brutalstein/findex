@@ -202,8 +202,9 @@ def summarize_session(session: dict, markers: tuple[str, ...] = ()) -> dict:
     tool_calls, mcp_calls, files_read, tool_result_bytes = [], 0, set(), 0
     call_index, first_evidence, findex_inputs = {}, None, []
     for event in session["events"]:
-        message = event.get("message") or {}
-        for block in message.get("content") or [] if isinstance(message.get("content"), list) else []:
+        message = event.get("message")
+        content = message.get("content") if isinstance(message, dict) else None
+        for block in content if isinstance(content, list) else []:
             if block.get("type") == "tool_use":
                 tool_calls.append(block.get("name"))
                 call_index[block.get("id")] = len(tool_calls)

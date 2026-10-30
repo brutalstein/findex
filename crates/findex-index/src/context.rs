@@ -1648,6 +1648,55 @@ pub(crate) fn is_test_path(path: &str) -> bool {
             .any(|marker| name.contains(marker))
 }
 
+fn directories(path: &str) -> impl Iterator<Item = String> + '_ {
+    path.rsplit_once('/')
+        .map_or("", |(directory, _)| directory)
+        .split('/')
+        .map(str::to_lowercase)
+}
+
+/// Third-party code copied into the tree. A nested `packages` directory is a
+/// bundled copy (`requests/packages`); a top-level one is a monorepo layout.
+pub(crate) fn is_vendored_path(path: &str) -> bool {
+    directories(path).enumerate().any(|(depth, part)| {
+        matches!(
+            part.as_str(),
+            "vendor"
+                | "vendored"
+                | "_vendor"
+                | "third_party"
+                | "third-party"
+                | "thirdparty"
+                | "extern"
+                | "external"
+                | "deps"
+                | "node_modules"
+                | "site-packages"
+        ) || (depth > 0 && part == "packages")
+    })
+}
+
+/// Documentation, examples and build helpers: rarely where a source fix lands.
+pub(crate) fn is_auxiliary_path(path: &str) -> bool {
+    directories(path).any(|part| {
+        matches!(
+            part.as_str(),
+            "doc"
+                | "docs"
+                | "documentation"
+                | "support"
+                | "example"
+                | "examples"
+                | "sample"
+                | "samples"
+                | "benchmark"
+                | "benchmarks"
+                | "bench"
+                | "scripts"
+        )
+    })
+}
+
 /// Natural-language task: lexical retrieval over the content words only,
 /// each hit shown inside its enclosing definition with two lines of context.
 fn concept(
@@ -2881,6 +2930,62 @@ void render_duration() {}
         ]);
         let report = ask(&root, &db, "fish completions invalid arguments", 1200);
         assert_eq!(report.evidence[0].path, "src/fish.rs", "{report:?}");
+    }
+
+    #[test]
+    fn vendored_and_auxiliary_paths_are_recognised_by_directory_only() {
+        for path in [
+            "lib/third_party/x.py",
+            "app/node_modules/x/index.js",
+            "requests/packages/urllib3/response.py",
+            "pip/_vendor/six.py",
+        ] {
+            assert!(is_vendored_path(path), "{path}");
+        }
+        for path in [
+            "packages/web/src/index.ts",
+            "src/vendor.rs",
+            "src/packages.py",
+        ] {
+            assert!(!is_vendored_path(path), "{path}");
+        }
+        for path in [
+            "doc/conf.py",
+            "support/build.py",
+            "crates/core/docs/x.rs",
+            "examples/a.rs",
+        ] {
+            assert!(is_auxiliary_path(path), "{path}");
+        }
+        for path in ["src/docs.rs", "src/scripts.py", "crates/core/main.rs"] {
+            assert!(!is_auxiliary_path(path), "{path}");
+        }
+    }
+
+    #[test]
+    fn concept_ranking_prefers_project_source_over_vendored_copies() {
+        let (root, _state, db) = project(&[
+            ("src/models.py", "# parse link headers\ndef parse():\n    return 1\n"),
+            (
+                "src/third_party/parser.py",
+                "# parse link headers\ndef split():\n    # parse link headers again\n    return 1\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "parse link headers", 1200);
+        assert_eq!(report.evidence[0].path, "src/models.py", "{report:?}");
+    }
+
+    #[test]
+    fn concept_ranking_prefers_project_source_over_docs_and_support_scripts() {
+        let (root, _state, db) = project(&[
+            ("src/engine.py", "# render chart legend\ndef draw():\n    return 1\n"),
+            (
+                "doc/build.py",
+                "# render chart legend\ndef split():\n    # render chart legend again\n    return 1\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "render chart legend", 1200);
+        assert_eq!(report.evidence[0].path, "src/engine.py", "{report:?}");
     }
 
     #[test]
