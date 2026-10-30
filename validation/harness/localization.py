@@ -89,6 +89,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=None)
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--dataset", type=Path, default=VALIDATION / "golden" / "issue_localization.jsonl")
     parser.add_argument("--split", choices=("dev", "test"), default=None,
                         help="evaluate one split only (development work must use dev)")
     parser.add_argument("--baseline-context", type=Path,
@@ -102,7 +103,7 @@ def main() -> int:
     if (out / "manifest.json").exists() or (out / "localization.json").exists():
         raise ValueError("Preserve attempted measurements; select a new output directory")
     log = CommandLog(out)
-    tasks = [json.loads(line) for line in (VALIDATION / "golden" / "issue_localization.jsonl").open(encoding="utf-8")]
+    tasks = [json.loads(line) for line in args.dataset.open(encoding="utf-8")]
     tasks = [t for t in tasks if args.split in (None, split(t))]
     tasks = tasks[: args.limit] if args.limit else tasks
     systems = {"findex-baseline-context" if args.baseline_context else "findex-main":
@@ -120,7 +121,7 @@ def main() -> int:
         systems[name] = frozen
         identities[name] = digest
     write_json(out / "manifest.json", {"binary_sha256": identities,
-        "golden_sha256": hashlib.sha256((VALIDATION / "golden/issue_localization.jsonl").read_bytes()).hexdigest(),
+        "golden_sha256": hashlib.sha256(args.dataset.read_bytes()).hexdigest(),
         "task_ids": [t["id"] for t in tasks], "split": args.split,
         "budget_tokens": args.budget_tokens, "policy": "Historical frozen issue-title tasks; dev inspected, test aggregate only; no model/API calls"})
     scratch = (WORK / "localization" / out.name).resolve()
@@ -165,7 +166,7 @@ def main() -> int:
                       "by_corpus": {c: metrics([r[name] for r in per_task if r["corpus"] == c])
                                     for c in sorted({r["corpus"] for r in per_task})}}
                for name in systems_all}
-    write_json(out / "localization.json", {"status": "EXECUTED", "dataset": "validation/golden/issue_localization.jsonl",
+    write_json(out / "localization.json", {"status": "EXECUTED", "dataset": args.dataset.resolve().relative_to(VALIDATION.parent).as_posix(),
                                            "tasks": len(per_task), "systems": summary, "per_task": per_task,
                                            "note": "query = GitHub issue title; gold = non-test source files changed by the closing commit; evaluated at its parent"})
     return 0

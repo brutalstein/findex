@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from pathlib import Path
 import subprocess
 import sys
 
@@ -57,7 +58,13 @@ def issue_title(slug: str, number: str) -> str | None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--per-repo", type=int, default=25)
+    parser.add_argument("--out", type=Path, default=VALIDATION / "golden" / "issue_localization.jsonl")
+    parser.add_argument("--exclude", type=Path,
+                        help="tasks already used; their issues are skipped, so the mined set is fresh and disjoint")
+    parser.add_argument("--include-merges", action="store_true",
+                        help="also accept merge commits (the PR's changes against its first parent)")
     args = parser.parse_args()
+    skip ={json.loads(line)["id"] for line in args.exclude.read_text(encoding="utf-8").splitlines() if line} if args.exclude else set()
     rows = []
     for corpus, slug in REPOS.items():
         repo, tag = history(corpus)
@@ -69,7 +76,7 @@ def main() -> int:
                 continue
             commit, parents, subject, body = parts
             match = CLOSES.search(subject + "\n" + body)
-            if not match or len(parents.split()) != 1:
+            if not match or (len(parents.split()) != 1 and not args.include_merges) or f"{corpus}-{match.group(1)}" in skip:
                 continue
             changed = [p for p in git(repo, "diff", "--name-only", f"{commit}^", commit).splitlines()
                        if SOURCE.search(p) and not TESTS.search(p)]
@@ -86,7 +93,7 @@ def main() -> int:
                          "query": title, "fix_commit": commit, "base_commit": parents.split()[0], "gold_files": gold})
             taken += 1
             print(f"[issues] {corpus} #{match.group(1)} {title[:70]}", file=sys.stderr)
-    out = VALIDATION / "golden" / "issue_localization.jsonl"
+    out = args.out
     out.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8", newline="\n")
     print(f"{len(rows)} tasks -> {out}", file=sys.stderr)
     return 0
