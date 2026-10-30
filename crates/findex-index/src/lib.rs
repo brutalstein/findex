@@ -923,8 +923,10 @@ fn search_ranked_in_db(
 }
 
 /// FTS5 fixes BM25's length normalisation at b = 0.75, which punishes the large,
-/// central files that fixes usually touch. Rescale a score toward b = 0.3, the
-/// usual setting for code (single-occurrence approximation, k1 = 1.2).
+/// central files that fixes usually touch. Rescale a score toward b = 0.3
+/// (single-occurrence approximation, k1 = 1.2). 0.3 is a round value picked
+/// before measuring, not a literature value: no published sweep of b for
+/// source-file retrieval was found; the evidence is the localization harness.
 fn length_adjustment(length: f64, mean: f64) -> f64 {
     let ratio = if mean > 0.0 { length / mean } else { 1.0 };
     let norm = |b: f64| 1.2 * (1.0 - b + b * ratio);
