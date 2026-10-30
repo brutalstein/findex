@@ -20,7 +20,7 @@ the investigation.
 | Files currently being modified | context JSON, semantic-site loader/tests, watcher admission/tests, localization/hardening harness and engineering records |
 | Tests that must be rerun after further source changes | Native fmt, Clippy, workspace all-target tests and release; semantic fixtures and relevant frozen controls must identify the new binary |
 | GitHub publication status | PR #40 merged; the retrieval-integrity repairs are committed on `fix/retrieval-integrity` and submitted as a separate PR; no release |
-| Known risks | 65 exposed tasks: hit@1 58.46%, recall@10 86.92%, below 60%/90%; JSON ranking correction moves fmt-2695 from gold rank 3 to 4; no new model-session bugfix evidence; standalone semantic queries/new-path events still reconcile whole project |
+| Known risks | 65 exposed tasks: hit@1 58.46%, recall@10 86.92%, below 60%/90%; JSON ranking correction moves fmt-2695 from gold rank 3 to 4; bugfix evidence is only a two-task, four-start Codex pilot of old vs new Findex (retrieval-delivery); standalone semantic queries/new-path events still reconcile whole project |
 
 ## Evidence links
 

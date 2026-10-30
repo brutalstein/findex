@@ -231,6 +231,7 @@ Format: `## [UTC timestamp] [Event ID] Short description`
 - Initial permission/ACL/fixture-root failures are retained, not counted as
   successful runs. Only a new test-state directory's ACL was narrowed.
 - Independent bounded review found no introduced actionable defect. Graphify
-  refreshed with AST extraction only. No new model sessions or publication.
+  refreshed with AST extraction only. A later Codex install and four-start paired bugfix
+  pilot is recorded in validation/results/20261030-retrieval-delivery/NOTE.md.
 - Evidence and next gates: RETRIEVAL_INTEGRITY_20261030.md and
   validation/results/20261030-retrieval-integrity/.

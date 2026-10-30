@@ -18,8 +18,9 @@ query returned tool instructions rather than the implementation; narrowing to
 an exact definition located `search_ranked_in_db`. This is a real usability
 observation, not a new retrieval-quality benchmark. The candidate was also
 queried over its own working source through a fresh native MCP process.
-No new live benchmark session, paid API, credential access or plugin installation
-was needed. The named `codex-max` skill is unavailable at the installed skill
+The measurements below needed no new live benchmark session, paid API or credential
+access; the later Codex plugin install and four-start paired bugfix pilot are recorded in
+`validation/results/20261030-retrieval-delivery/NOTE.md`. The named `codex-max` skill is unavailable at the installed skill
 locations checked; local source instructions and bounded workflows were used.
 
 ## Changes and engineering choices
