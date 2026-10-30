@@ -52,6 +52,22 @@
         "navigation_claude": "validation/results/20261030-claude-live-r5/live-usage-summary.json"
       },
       "note": "BM25 scores serialized to three decimals (about 8% fewer Findex tokens per query, same hits). Harness hint now points Findex sessions at the upfront findex_context tool, so they skip the tool-search turn. Same four tasks as R4."
+    },
+    {
+      "id": "R6",
+      "date": "2026-10-30",
+      "lanes": {
+        "navigation_claude": "validation/results/20261030-claude-live-r6/live-usage-summary.json"
+      },
+      "note": "No Findex change since R5. Four fresh tasks (ripgrep, fmt, two requests) to check that the R5 result holds beyond the tasks the hint was written against; the rivals had more invalid sessions."
+    },
+    {
+      "id": "R7",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization": "validation/results/20261030-localization-weights/localization.json"
+      },
+      "note": "Concept ranking demotes vendored copies (factor 0.5) and docs, examples and support scripts (0.7) on the BM25 score. Five tasks moved up, none down."
     }
   ]
 }

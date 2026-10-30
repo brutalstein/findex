@@ -867,12 +867,26 @@ fn search_ranked_in_db(
     candidates.sort_by(|left, right| {
         if concept {
             let role = |path: &str| (!context::is_code_path(path), context::is_test_path(path));
+            // BM25 is negative: a factor below 1 makes a hit less relevant.
+            let weight = |path: &str| {
+                if context::is_vendored_path(path) {
+                    0.5
+                } else if context::is_auxiliary_path(path) {
+                    0.7
+                } else {
+                    1.0
+                }
+            };
             return role(&left.1.path)
                 .cmp(&role(&right.1.path))
                 // Filename matches are an additional field, not substring hits.
                 .then_with(|| {
-                    (left.1.bm25_score * (1.0 + 2.0 * left.0 .2 as f64))
-                        .total_cmp(&(right.1.bm25_score * (1.0 + 2.0 * right.0 .2 as f64)))
+                    (left.1.bm25_score * (1.0 + 2.0 * left.0 .2 as f64) * weight(&left.1.path))
+                        .total_cmp(
+                            &(right.1.bm25_score
+                                * (1.0 + 2.0 * right.0 .2 as f64)
+                                * weight(&right.1.path)),
+                        )
                 })
                 .then_with(|| left.1.path.cmp(&right.1.path));
         }

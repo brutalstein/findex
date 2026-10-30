@@ -49,16 +49,17 @@ class ComparisonTests(unittest.TestCase):
             corpora = Path(tmp)
             repo = corpora / "c"
             repo.mkdir()
-            (repo / "a.py").write_text("def only_here():\n    pass\n\ndef twice():\n    pass\n", encoding="utf-8")
+            (repo / "a.py").write_text("def only_here():\n    pass\n\ndef twice():\n    pass\n\ndef other():\n    pass\n", encoding="utf-8")
             (repo / "b.py").write_text("def twice():\n    pass\n", encoding="utf-8")
             subprocess.run(["git", "init", "-q", str(repo)], check=True)
             subprocess.run(["git", "add", "."], cwd=repo, check=True)
             row = lambda name, expected, kind="symbol_exact": {
                 "id": f"c:{name}", "corpus": "c", "type": kind, "query": name, "expected": expected, "split": "heldout"}
-            rows = [row("only_here", [["a.py", 1]]), row("twice", [["a.py", 4]]),
+            rows = [row("only_here", [["a.py", 1]]), row("twice", [["a.py", 4]]), row("other", [["a.py", 7]]),
                     dict(row("only_here", [["a.py", 1]], "line_terms"), id="c:terms"), row("missing", [["a.py", 1]])]
             chosen = select_live_tasks(rows, corpora, 4)
-            self.assertEqual([r["id"] for r in chosen], ["c:only_here"])
+            self.assertEqual([r["id"] for r in chosen], ["c:only_here", "c:other"])
+            self.assertEqual([r["id"] for r in select_live_tasks(rows, corpora, 1, skip=1)], ["c:other"])
 
     def test_selection_is_balanced_reproducible_and_heldout_only(self):
         rows = [{"id": f"{c}:{i}", "corpus": c, "type": str(i % 3), "split": "heldout"}
