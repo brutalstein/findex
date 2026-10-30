@@ -69,6 +69,12 @@ preserved.
   [exposed](../../validation/results/20261030-localization-v1-hybrid) and
   [dev experiments](../../validation/results/20261030-recall-dev-experiments).
 
+- **FX-BM-021, 2026-10-30 rivals on the fresh holdout (offline, no model calls):** same 55 frozen issue
+  titles, file-ranking proxy. hit@1 / gold recall@10: Findex 0.345 / 0.761, git grep words 0.164 / 0.606,
+  codebase-memory 0.127 / 0.461, Graphify 0.036 / 0.461. Findex leads on every metric of this proxy; it is
+  not a verdict on graph questions the rivals target. See
+  [rivals](../../validation/results/20261030-localization-v2-rivals).
+
 - FX-BM-001/002 are historical reported measurements from commit 501bbae; they
   have not been re-verified on HEAD (0490018). See ISSUE FX-20261029-001.
 - FX-BM-005/006/007 are placeholders for HEAD benchmarks; no profiling or

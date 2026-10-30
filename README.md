@@ -33,7 +33,9 @@ was scored (requests, ripgrep, fmt), Findex puts a gold file first in **34.5%** 
 top three in **72.7%**, and finds **76.1%** of gold files in its top ten. The 65 older
 issues used while tuning score 58.5% and 90.0%, so they overstate how the ranking generalizes by
 about 20 points. The 60% / 90% targets are **not met** on fresh data. Title-only lexical signals
-are close to exhausted: candidate recall is not the limit, ordering is.
+are close to exhausted: candidate recall is not the limit, ordering is. On the same fresh issues, the
+offline file-ranking proxy gives hit@1 0.345 for Findex against 0.164 for git grep, 0.127 for codebase-memory and
+0.036 for Graphify.
 [Protocol and per-run evidence](docs/engineering/BENCHMARKS.md) (FX-BM-019/020).
 
 **Previously packaged 0.2.0 preview:** Claude and Codex plugin integration,
