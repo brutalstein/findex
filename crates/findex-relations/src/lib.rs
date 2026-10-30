@@ -583,6 +583,7 @@ fn load_symbol_sites(
     max: usize,
     indexed: &Connection,
     project: &Path,
+    report: &mut SymbolEvidenceReport,
 ) -> Result<Vec<SymbolSite>> {
     let mut stmt = conn.prepare(
         "SELECT s.path, s.line, s.column, s.language, s.kind,
@@ -593,7 +594,7 @@ fn load_symbol_sites(
          WHERE s.symbol=?1
          ORDER BY s.path, s.line, s.column, s.kind LIMIT ?2",
     )?;
-    let entries = stmt.query_map(params![symbol, (max + 1) as i64], |r| {
+    let entries = stmt.query_map(params![symbol, (MAX_TYPED_RESULTS + 1) as i64], |r| {
         Ok((
             r.get::<_, String>(0)?,
             r.get::<_, i64>(1)?,
@@ -608,13 +609,15 @@ fn load_symbol_sites(
         ))
     })?;
     let mut sites = Vec::new();
-    for row in entries {
+    for (scanned, row) in entries.enumerate() {
         let (path, line, column, language, kind, digest, provider, end_line, end_column, encoding) =
             row?;
-        if sites.len() >= max {
+        if sites.len() >= max || scanned >= MAX_TYPED_RESULTS {
+            report.truncated = true;
             break;
         }
         if !currently_admitted(indexed, &path, &digest) || !verify_path(project, &path, &digest) {
+            report.stale_evidence_discarded += 1;
             continue;
         }
         sites.push(SymbolSite {
@@ -694,11 +697,11 @@ fn symbol_evidence_in_db(
 
     // Try direct lookup first; if no sites found, follow definition_alias links
     // (e.g. `use foo::bar as baz` → query "baz" resolves to "bar").
-    let mut sites = load_symbol_sites(conn, symbol, max, indexed, project)?;
+    let mut sites = load_symbol_sites(conn, symbol, max, indexed, project, &mut report)?;
     if sites.is_empty() {
         let alias_targets = resolve_aliases(conn, symbol)?;
         for target in &alias_targets {
-            let candidate = load_symbol_sites(conn, target, max, indexed, project)?;
+            let candidate = load_symbol_sites(conn, target, max, indexed, project, &mut report)?;
             if !candidate.is_empty() {
                 resolved_symbol = target.clone();
                 sites = candidate;

@@ -1,0 +1,40 @@
+{
+  "binary_sha256": "6528a1423f14231ea6a340f97cbd0d53f1378e12edc6e1c8cc0a7c5c35271b68",
+  "analyzer_sha256": "929c4c31dc2227c34122620adede835cdd130b3ee2c829d992d3b5176926b3a4",
+  "source_sha256": "f715cb8e03560a1c1d0ad9eb87b9f65c36e48d2159e5d04270b368d5d69714ad",
+  "cases": [
+    [
+      "disk alias",
+      3,
+      "flush"
+    ],
+    [
+      "shadowed socket",
+      4,
+      "flush"
+    ],
+    [
+      "outer disk",
+      3,
+      "flush"
+    ],
+    [
+      "trait declaration",
+      15,
+      "flush"
+    ],
+    [
+      "function alias",
+      20,
+      "alias"
+    ],
+    [
+      "local closure",
+      24,
+      "alias"
+    ]
+  ],
+  "model_calls": 0,
+  "paid_api_calls": 0,
+  "limits": "Six authored regression cases; compiler-produced SCIP, not a broad accuracy or competitor study"
+}

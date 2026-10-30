@@ -39,6 +39,18 @@ preserved.
 
 ## Notes
 
+- **FX-BM-018, 2026-10-30 retrieval-integrity continuation (base 28842c5,
+  branch fix/retrieval-integrity):** paired 65-task localization at 1,200 tokens retains
+  58.46% hit@1 / 86.92% gold recall@10. Explicit JSON rank propagation moves
+  fmt-2695 gold rank 3 to 4 (MRR 0.696150 to 0.694868); no ranking weights
+  changed. 115 native MCP navigation hit lists remain identical. Real
+  rust-analyzer SCIP: 6/6 CLI/MCP cases. Native stale-prefix semantic oracle:
+  frozen binary fails, candidate passes. Windows source gates: 249 Rust / 63
+  Python tests, fmt, Clippy and release pass. Baseline is the session-start
+  executable, not an independently rebuilt source baseline. See
+  [binary identities, measurements and limits](RETRIEVAL_INTEGRITY_20261030.md)
+  and [raw evidence](../../validation/results/20261030-retrieval-integrity).
+
 - FX-BM-001/002 are historical reported measurements from commit 501bbae; they
   have not been re-verified on HEAD (0490018). See ISSUE FX-20261029-001.
 - FX-BM-005/006/007 are placeholders for HEAD benchmarks; no profiling or

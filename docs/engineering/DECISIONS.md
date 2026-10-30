@@ -133,9 +133,10 @@ kind (definitions first), so the rank order was invisible, and doc-comment snipp
 often looked unrelated to the issue.
 
 **Decision:** Concept output opens with `ranked files, most likely first: a, b, c, d, e` (five
-files, rank order, tests behind source as in the ranking). It is rendered text only; `--json` and the
-MCP structured output are unchanged, so offline localization numbers do not move. The line is
-counted in the token budget.
+files, rank order, tests behind source as in the ranking). The line is counted in the token budget. The
+JSON report exports the same list as `ranked` (added afterwards: the offline evaluator had been
+rebuilding order from budget-packed snippets; 65-task hit@1 and recall@10 unchanged, `fmt-2695`
+gold rank 3 to 4, see RETRIEVAL_INTEGRITY_20261030.md).
 
 **Evidence:** FX-BM-016. Same eight issues, Findex only: 4/8 to 6/8 correct, 5/8 to 7/8 valid,
 mean turns 13.1 to 5.0, tokens per session 420,352 to 143,014. The change was designed after reading

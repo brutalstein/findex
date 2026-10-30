@@ -214,3 +214,23 @@ Format: `## [UTC timestamp] [Event ID] Short description`
   audit still pending under M1.
 - Next action: Run golden dataset against 351a3da to measure before/after
   accuracy (FX-BM-005).
+
+## 2026-10-30 — retrieval-integrity continuation from 28842c5
+
+- Recovered the actual R12 state; the earlier handoff's 351a3da baseline was
+  stale. Used Graphify and Findex context/search/symbol tools for investigation.
+- Reproduced and repaired context JSON rank loss, silent semantic
+  stale/truncated results, stale-prefix false negatives and pre-filter watcher
+  queue overflow. Isolated hardening fixtures from the parent Git root.
+- Native Windows fmt, Clippy, 249 Rust tests, release and 63 Python tests pass;
+  six real compiler-produced SCIP cases, 115 unchanged MCP navigation controls,
+  12 self-hosted context/budget checks and eight hardening checks pass.
+- Frozen 65-task localization: hit@1 58.46%, gold recall@10 86.92%, unchanged;
+  fmt-2695 first gold rank 3 to 4 reflects explicit JSON rank propagation and
+  slightly decreases MRR. No ranking weights were tuned.
+- Initial permission/ACL/fixture-root failures are retained, not counted as
+  successful runs. Only a new test-state directory's ACL was narrowed.
+- Independent bounded review found no introduced actionable defect. Graphify
+  refreshed with AST extraction only. No new model sessions or publication.
+- Evidence and next gates: RETRIEVAL_INTEGRITY_20261030.md and
+  validation/results/20261030-retrieval-integrity/.

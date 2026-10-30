@@ -1,0 +1,30 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+     Running tests\semantic_position.rs (target\debug\deps\semantic_position-7bb8f3f6201627c1.exe)
+
+running 2 tests
+test semantic_site_limit_is_reported_by_identity_and_position ... FAILED
+test stale_semantic_sites_are_counted_without_hiding_live_sites ... FAILED
+
+failures:
+
+---- semantic_site_limit_is_reported_by_identity_and_position stdout ----
+
+thread 'semantic_site_limit_is_reported_by_identity_and_position' (31252) panicked at crates\findex-relations\tests\semantic_position.rs:40:5:
+a second site was omitted
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- stale_semantic_sites_are_counted_without_hiding_live_sites stdout ----
+
+thread 'stale_semantic_sites_are_counted_without_hiding_live_sites' (27088) panicked at crates\findex-relations\tests\semantic_position.rs:60:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+
+
+failures:
+    semantic_site_limit_is_reported_by_identity_and_position
+    stale_semantic_sites_are_counted_without_hiding_live_sites
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.14s
+
+error: test failed, to rerun pass `-p findex-relations --test semantic_position`

@@ -1,6 +1,22 @@
 # Findex Engineering Status
 
-## Current State
+## Current checkpoint — 2026-10-30 continuation
+
+Base `28842c5` (merged as PR #40), plus the retrieval-integrity repairs on branch `fix/retrieval-integrity`. Native Windows
+fmt/Clippy/all-target Rust tests (**249 passed**), release build and **63**
+offline Python tests pass. Six real compiler-backed semantic cases, 115
+unchanged native navigation controls and eight hardening checks pass.
+Native synthetic scaling from 200 to 100,000 files and 100,001-file transactional
+rollback/recovery also pass on this binary; arbitrary workspace sizes are unproven.
+The 65-task paired localization run retains **58.46% hit@1 / 86.92% recall@10**;
+explicit JSON ranking changes one first-gold rank from 3 to 4, slightly lowering
+MRR. Targets remain unmet; no new model-session or release claim.
+
+See [current repairs, evidence and next gates](RETRIEVAL_INTEGRITY_20261030.md)
+and [the authoritative handoff](HANDOFF.md). The older state below is historical
+and is superseded where it conflicts with this checkpoint.
+
+## Prior state (historical)
 
 | Field | Value |
 |---|---|

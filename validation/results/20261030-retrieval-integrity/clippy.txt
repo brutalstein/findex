@@ -1,0 +1,6 @@
+    Checking findex-index v0.2.0 (%REPO%\crates\findex-index)
+    Checking findex-relations v0.2.0 (%REPO%\crates\findex-relations)
+    Checking findex-watch v0.2.0 (%REPO%\crates\findex-watch)
+    Checking findex-mcp v0.2.0 (%REPO%\crates\findex-mcp)
+    Checking findex v0.2.0 (%REPO%\crates\findex-cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.88s

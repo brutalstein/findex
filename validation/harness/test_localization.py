@@ -28,3 +28,12 @@ class LocalizationTests(unittest.TestCase):
     def test_valid_empty_and_ordered_distinct_paths(self):
         self.assertEqual(self.query(0, '{"evidence": []}')[0], [])
         self.assertEqual(self.query(0, '{"evidence": [{"path":"b.rs"},{"path":"a.rs"},{"path":"b.rs"}]}')[0], ["b.rs", "a.rs"])
+
+    def test_explicit_ranking_precedes_packed_evidence_order(self):
+        self.assertEqual(self.query(0, '{"ranked":["a.rs","b.rs"],"evidence":[{"path":"b.rs"},{"path":"c.rs"}]}')[0],
+                         ["a.rs", "b.rs", "c.rs"])
+
+    def test_invalid_explicit_ranking_is_not_scored(self):
+        for ranked in ('"a.rs"', '[1]', '[""]'):
+            with self.subTest(ranked=ranked), self.assertRaises(RuntimeError):
+                self.query(0, '{"ranked":' + ranked + ',"evidence":[]}')

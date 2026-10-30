@@ -47,14 +47,16 @@ Get-ChildItem -LiteralPath $source -Force |
 $config = @{mcpServers = @{findex = @{
     type = 'stdio'; command = $boundRuntime; args = @('mcp')
 }}}
-$config | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $installed '.mcp.codex.json') -Encoding UTF8
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+[IO.File]::WriteAllText((Join-Path $installed '.mcp.codex.json'), ($config | ConvertTo-Json -Depth 6), $utf8)
 $catalogDir = Join-Path $marketplace '.agents\plugins'
 New-Item -ItemType Directory -Force -Path $catalogDir | Out-Null
-@{name = 'findex-local'; plugins = @(@{
+$catalog = @{name = 'findex-local'; plugins = @(@{
     name = 'findex'; source = @{source = 'local'; path = './plugin'}
     policy = @{installation = 'AVAILABLE'; authentication = 'ON_INSTALL'}
     category = 'Developer Tools'
-})} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $catalogDir 'marketplace.json') -Encoding UTF8
+})}
+[IO.File]::WriteAllText((Join-Path $catalogDir 'marketplace.json'), ($catalog | ConvertTo-Json -Depth 6), $utf8)
 & $Codex plugin marketplace add $marketplace --json
 if ($LASTEXITCODE -ne 0) { throw 'Codex marketplace registration failed.' }
 & $Codex plugin add 'findex@findex-local' --json

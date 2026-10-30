@@ -1,0 +1,27 @@
+{
+  "base_commit": "28842c5",
+  "source_state": "uncommitted working tree",
+  "binary_sha256": {
+    "baseline": "6caac63726ca6e0f0ce3906ad91a9fc3d2e5a2f80056aa3a12a199eaeee59f47",
+    "candidate": "6528a1423f14231ea6a340f97cbd0d53f1378e12edc6e1c8cc0a7c5c35271b68"
+  },
+  "source_sha256": {
+    "crates/findex-index/src/context.rs": "f40dee5a3b495f65e07a898c651586bebdd1691c2b1b4265e798c5b8cb88ea8b",
+    "crates/findex-relations/src/lib.rs": "c68370559e7fddf2990e1a44c6a0bf5725430312c3ce9a47d61958908bc75c34",
+    "crates/findex-relations/tests/semantic_position.rs": "45d2399c1ef79d61626c2cbcf97e0187b1137367ae992082d2183a8a44b9a82e",
+    "crates/findex-watch/src/lib.rs": "b20fa208c46e14c970e46093a91ab3b3f2a8960fbc8794e1435ecdfb7a73467a",
+    "validation/harness/localization.py": "64063b00de28489048638a92f1b88fe71c65742255ea849e3376009595934401",
+    "validation/harness/test_localization.py": "874b6d8cfb0640887e3baefae32d08e7361457a9522d7bb8800120bbd12078eb",
+    "validation/harness/hardening_offline.py": "a4f227dba312e8dc10b6db118c606245b30af234c3f4cb701939ed18a9b13501"
+  },
+  "model_sessions": 0,
+  "paid_api_calls": 0,
+  "runner_snapshots": "Executed from target/retrieval-integrity; snapshots retained for audit. Restore there to reproduce root resolution; choose fresh output directories before rerun.",
+  "baseline_provenance": "Executable present at session start, frozen before building; no independent baseline source rebuild.",
+  "environment_notes": [
+    "TEMP and LOCALAPPDATA isolated inside workspace due initial access denied.",
+    "Only dedicated private-state fixture ACL narrowed; user cache and security test unchanged.",
+    "Initial hardening fixture inherited parent Git root; explicit fixture roots repaired it.",
+    "Concurrent deterministic workloads; no comparative speedup claim."
+  ]
+}

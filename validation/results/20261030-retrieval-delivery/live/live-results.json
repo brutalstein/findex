@@ -1,0 +1,159 @@
+{
+  "sessions": [
+    {
+      "key": "requests-5223:baseline",
+      "client": "codex",
+      "task": "requests-5223",
+      "tool": "findex",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "seconds": 60.919,
+      "diagnostics": {
+        "seconds": 60.831,
+        "timed_out": false,
+        "events": 29,
+        "malformed_lines": 0,
+        "last_phase": "turn_completed",
+        "pending_tools": [],
+        "completed_mcp_calls": 2,
+        "failed_mcp_calls": 0,
+        "usage_complete": true
+      },
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 513524,
+        "cached_input_tokens": 469376,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 4653,
+        "reasoning_output_tokens": 2873
+      },
+      "mcp_calls": 2,
+      "attempted_mcp_calls": 2,
+      "infrastructure_failure": null,
+      "final": "Updated [requests/utils.py](%REPO%/target/retrieval-delivery-live/requests-5223/baseline/project/requests/utils.py:259).\n\nThe extractor now retries only when `ZipFile.extract` raises `EEXIST`, allowing the concurrent directory-creation race while preserving member bytes. Missing-member and non-archive behavior remains unchanged.\n\nVerification: `git diff --check` passed. Per campaign instructions, no tests, compilation, or `repro.py` were run; behavioral tests are left to the native Windows host grader.",
+      "changed_files": [
+        "requests/utils.py"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 0.389,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    },
+    {
+      "key": "requests-5223:candidate",
+      "client": "codex",
+      "task": "requests-5223",
+      "tool": "findex",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "seconds": 54.77,
+      "diagnostics": {
+        "seconds": 54.71,
+        "timed_out": false,
+        "events": 25,
+        "malformed_lines": 0,
+        "last_phase": "turn_completed",
+        "pending_tools": [],
+        "completed_mcp_calls": 2,
+        "failed_mcp_calls": 0,
+        "usage_complete": true
+      },
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 439922,
+        "cached_input_tokens": 397696,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 5390,
+        "reasoning_output_tokens": 3791
+      },
+      "mcp_calls": 2,
+      "attempted_mcp_calls": 2,
+      "infrastructure_failure": null,
+      "final": "Updated [requests/utils.py](%REPO%/target/retrieval-delivery-live/requests-5223/candidate/project/requests/utils.py:258).\n\nThe extraction now tolerates concurrent parent-directory creation while still using `ZipFile.extract`, preserving file bytes and existing missing-member/non-archive behavior.\n\nVerification: `git diff --check` passed. Per campaign instructions, no runtime tests, compilation, or `repro.py` were run; those are left to the native Windows host grader.",
+      "changed_files": [
+        "requests/utils.py"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 0.359,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    },
+    {
+      "key": "ripgrep-2659:candidate",
+      "client": "codex",
+      "task": "ripgrep-2659",
+      "tool": "findex",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "seconds": 41.404,
+      "diagnostics": {
+        "seconds": 41.396,
+        "timed_out": false,
+        "events": 27,
+        "malformed_lines": 0,
+        "last_phase": "turn_completed",
+        "pending_tools": [],
+        "completed_mcp_calls": 1,
+        "failed_mcp_calls": 0,
+        "usage_complete": true
+      },
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 480706,
+        "cached_input_tokens": 441600,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 2883,
+        "reasoning_output_tokens": 1239
+      },
+      "mcp_calls": 1,
+      "attempted_mcp_calls": 1,
+      "infrastructure_failure": null,
+      "final": "Fixed [fish.rs](%REPO%/target/retrieval-delivery-live/ripgrep-2659/candidate/project/crates/core/flags/complete/fish.rs:41):\n\n- Negated options now use fish `-l 'option'` syntax.\n- Their short alias remains explicitly empty.\n- Other completions are unchanged.\n\nVerification: `git diff --check` passed. As requested, no compilation or `repro.py` run; functional tests are left to the native Windows host grader.",
+      "changed_files": [
+        "crates/core/flags/complete/fish.rs"
+      ],
+      "fixture_intact": true,
+      "source_only": true,
+      "regression_exit": 0,
+      "grader_seconds": 2.141,
+      "grader_execution": "independent-native-windows-host",
+      "scope": "Unchanged real-issue reproduction; not the full upstream test suite"
+    },
+    {
+      "key": "ripgrep-2659:baseline",
+      "client": "codex",
+      "task": "ripgrep-2659",
+      "tool": "findex",
+      "status": "invalid",
+      "valid": false,
+      "correct": false,
+      "seconds": 6.924,
+      "diagnostics": {
+        "seconds": 6.91,
+        "timed_out": false,
+        "events": 5,
+        "malformed_lines": 0,
+        "last_phase": "turn_failed",
+        "pending_tools": [],
+        "completed_mcp_calls": 0,
+        "failed_mcp_calls": 0,
+        "usage_complete": false
+      },
+      "exit_code": 1,
+      "usage": {},
+      "mcp_calls": 0,
+      "attempted_mcp_calls": 0,
+      "infrastructure_failure": null,
+      "final": "I\u2019ll first use the supplied findex context to locate the completion generator, then inspect the exact source, make the smallest source-only patch, and avoid both compilation and `repro.py`. I\u2019m also applying the required Graphify and Ponytail guidance: graph-backed navigation first, minimal surgical change throughout."
+    }
+  ],
+  "started": 4,
+  "stopped": "codex: failed, missing usage or unsuccessful supplied-server MCP call; no retries or fallback"
+}

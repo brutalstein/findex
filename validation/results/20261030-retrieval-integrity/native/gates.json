@@ -1,0 +1,27 @@
+[
+  {
+    "gate": "fmt",
+    "exit_code": 0,
+    "status": "PASS"
+  },
+  {
+    "gate": "clippy",
+    "exit_code": 0,
+    "status": "PASS"
+  },
+  {
+    "gate": "rust-tests",
+    "exit_code": 0,
+    "status": "PASS"
+  },
+  {
+    "gate": "release",
+    "exit_code": 0,
+    "status": "PASS"
+  },
+  {
+    "gate": "python-tests",
+    "exit_code": 0,
+    "status": "PASS"
+  }
+]

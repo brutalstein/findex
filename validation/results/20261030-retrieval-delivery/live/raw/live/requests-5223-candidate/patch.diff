@@ -1,0 +1,17 @@
+diff --git a/requests/utils.py b/requests/utils.py
+index db67938..06e4e4f 100644
+--- a/requests/utils.py
++++ b/requests/utils.py
+@@ -258,6 +258,12 @@ def extract_zipped_paths(path):
+     tmp = tempfile.gettempdir()
+     extracted_path = os.path.join(tmp, *member.split('/'))
+     if not os.path.exists(extracted_path):
++        extracted_dir = os.path.dirname(extracted_path)
++        try:
++            os.makedirs(extracted_dir)
++        except OSError:
++            if not os.path.isdir(extracted_dir):
++                raise
+         extracted_path = zip_file.extract(member, path=tmp)
+ 
+     return extracted_path

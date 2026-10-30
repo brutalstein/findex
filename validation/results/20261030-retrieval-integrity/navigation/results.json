@@ -1,0 +1,466 @@
+{
+  "status": "PASS",
+  "controls": 115,
+  "rows": [
+    {
+      "id": "requests:HTTPProxyAuth:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:HTTPProxyAuth:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:JSONDecodeError:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:JSONDecodeError:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:NoLenBoomFile:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:NoLenBoomFile:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:TLSServer:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:TLSServer:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:__bool__:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:check_header_validity:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:check_header_validity:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:default_hooks:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:default_hooks:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:handler:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:iteritems:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:proxy_bypass_registry:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:proxy_bypass_registry:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:rebuild_proxies:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:rebuild_proxies:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:sha256_utf8:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:sha256_utf8:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:super_len:exact",
+      "same_hits": true
+    },
+    {
+      "id": "requests:super_len:words",
+      "same_hits": true
+    },
+    {
+      "id": "requests:line:4",
+      "same_hits": true
+    },
+    {
+      "id": "requests:line:5",
+      "same_hits": true
+    },
+    {
+      "id": "requests:line:14",
+      "same_hits": true
+    },
+    {
+      "id": "requests:line:18",
+      "same_hits": true
+    },
+    {
+      "id": "zod:CatchallOutput:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:CatchallOutput:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:UnknownKeysParam:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:UnknownKeysParam:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:Values:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodDefaultDef:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodDefaultDef:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodDiscriminatedUnionOption:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodDiscriminatedUnionOption:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodIssueBase:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodIssueBase:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodNumber:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodNumber:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodNumberDef:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodNumberDef:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodUnknownDef:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:ZodUnknownDef:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:finalizeSet:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:finalizeSet:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:nativeEnumTest:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:nativeEnumTest:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:recordWithLiteralKeys:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:recordWithLiteralKeys:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:recursiveZodFormattedError:exact",
+      "same_hits": true
+    },
+    {
+      "id": "zod:recursiveZodFormattedError:words",
+      "same_hits": true
+    },
+    {
+      "id": "zod:line:0",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:KeyMatcher:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:KeyMatcher:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:MakePredicateFormatterFromMatcher:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:MakePredicateFormatterFromMatcher:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:concat:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:context:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:has_flip:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:has_flip:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:is_contiguous:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:is_contiguous:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:is_set:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:is_set:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:parse_arg_id:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:parse_arg_id:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:parse_tail:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:parse_tail:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:report_truncation:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:report_truncation:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:utf8_system_category:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:utf8_system_category:words",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:year:exact",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:line:1",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:line:2",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:line:6",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:line:9",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:line:13",
+      "same_hits": true
+    },
+    {
+      "id": "fmt:line:16",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:GitignoreBuilder:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:GitignoreBuilder:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:GlobSetBuilder:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:GlobSetBuilder:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:NoIgnoreFiles:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:NoIgnoreFiles:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:NoIgnoreMessages:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:NoIgnoreMessages:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:PathSeparator:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:PathSeparator:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:Token:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:basic:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:context_code1:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:context_code1:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:from_ast_impl:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:from_ast_impl:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:from_sink_context:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:from_sink_context:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:glob_deserialize_error:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:glob_deserialize_error:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:has_uppercase_literal:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:has_uppercase_literal:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:max_jit_stack_size:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:max_jit_stack_size:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:new_regex_set:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:new_regex_set:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:parse_backslash:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:parse_backslash:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:to_regex:exact",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:to_regex:words",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:line:1",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:line:10",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:line:12",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:line:15",
+      "same_hits": true
+    },
+    {
+      "id": "ripgrep:line:16",
+      "same_hits": true
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{"utc": "20261030T132913Z", "argv": ["cargo", "fmt", "--all", "--", "--check"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.4776, "timed_out": false}
+{"utc": "20261030T132914Z", "argv": ["cargo", "clippy", "--workspace", "--all-targets", "--", "-D", "warnings"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 0.7654, "timed_out": false}
+{"utc": "20261030T132925Z", "argv": ["cargo", "test", "--workspace", "--all-targets"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 11.9185, "timed_out": false}
+{"utc": "20261030T132940Z", "argv": ["cargo", "build", "--release", "-p", "findex"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 14.3244, "timed_out": false}
+{"utc": "20261030T133018Z", "argv": ["%USERPROFILE%\\miniconda3\\python.exe", "-m", "unittest", "discover", "-s", "validation/harness", "-p", "test_*.py"], "cwd": "%REPO%", "exit_code": 0, "duration_s": 38.5705, "timed_out": false}

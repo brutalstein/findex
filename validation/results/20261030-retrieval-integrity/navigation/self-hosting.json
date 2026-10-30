@@ -1,0 +1,102 @@
+{
+  "status": "PASS",
+  "queries": [
+    {
+      "task": "Where is `enqueue_event` defined?",
+      "budget": 200,
+      "chars": 478,
+      "seconds": 0.17157939999924565,
+      "has_source": false,
+      "text": "intent: definition `enqueue_event`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\nshown: 0 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~124/200 estimated tokens (characters/4, not model-tokenized); TRUNCATED: raise budget or narrow the task\n"
+    },
+    {
+      "task": "Where is `enqueue_event` defined?",
+      "budget": 500,
+      "chars": 1134,
+      "seconds": 0.1277420999995229,
+      "has_source": true,
+      "text": "intent: definition `enqueue_event`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\ndefinition crates/findex-watch/src/lib.rs:27-46 [function enqueue_event]\n  fn enqueue_event(\n      root: &Path,\n      sender: &mpsc::SyncSender<notify::Result<Event>>,\n      overflow: &AtomicBool,\n      event: notify::Result<Event>,\n  ) {\n      // Excluded build storms must not consume the bounded queue or signal loss.\n      if event\n           .as_ref()\n           .is_ok_and(|event| excluded_event(root, event))\n      {\n          return;\n      }\n      match sender.try_send(event) {\n          Ok(()) => {}\n          Err(TrySendError::Full(_)) | Err(TrySendError::Disconnected(_)) => {\n              overflow.store(true, Ordering::Release);\n          }\n      }\n  }\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~291/500 estimated tokens (characters/4, not model-tokenized); complete for the indexed files\n"
+    },
+    {
+      "task": "Where is `enqueue_event` defined?",
+      "budget": 1200,
+      "chars": 1135,
+      "seconds": 0.03879430000051798,
+      "has_source": true,
+      "text": "intent: definition `enqueue_event`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\ndefinition crates/findex-watch/src/lib.rs:27-46 [function enqueue_event]\n  fn enqueue_event(\n      root: &Path,\n      sender: &mpsc::SyncSender<notify::Result<Event>>,\n      overflow: &AtomicBool,\n      event: notify::Result<Event>,\n  ) {\n      // Excluded build storms must not consume the bounded queue or signal loss.\n      if event\n           .as_ref()\n           .is_ok_and(|event| excluded_event(root, event))\n      {\n          return;\n      }\n      match sender.try_send(event) {\n          Ok(()) => {}\n          Err(TrySendError::Full(_)) | Err(TrySendError::Disconnected(_)) => {\n              overflow.store(true, Ordering::Release);\n          }\n      }\n  }\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~292/1200 estimated tokens (characters/4, not model-tokenized); complete for the indexed files\n"
+    },
+    {
+      "task": "Where is `enqueue_event` defined?",
+      "budget": 2000,
+      "chars": 1135,
+      "seconds": 0.027803900000435533,
+      "has_source": true,
+      "text": "intent: definition `enqueue_event`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\ndefinition crates/findex-watch/src/lib.rs:27-46 [function enqueue_event]\n  fn enqueue_event(\n      root: &Path,\n      sender: &mpsc::SyncSender<notify::Result<Event>>,\n      overflow: &AtomicBool,\n      event: notify::Result<Event>,\n  ) {\n      // Excluded build storms must not consume the bounded queue or signal loss.\n      if event\n           .as_ref()\n           .is_ok_and(|event| excluded_event(root, event))\n      {\n          return;\n      }\n      match sender.try_send(event) {\n          Ok(()) => {}\n          Err(TrySendError::Full(_)) | Err(TrySendError::Disconnected(_)) => {\n              overflow.store(true, Ordering::Release);\n          }\n      }\n  }\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~292/2000 estimated tokens (characters/4, not model-tokenized); complete for the indexed files\n"
+    },
+    {
+      "task": "Where is `load_symbol_sites` defined?",
+      "budget": 200,
+      "chars": 482,
+      "seconds": 0.02826920000006794,
+      "has_source": false,
+      "text": "intent: definition `load_symbol_sites`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\nshown: 0 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~125/200 estimated tokens (characters/4, not model-tokenized); TRUNCATED: raise budget or narrow the task\n"
+    },
+    {
+      "task": "Where is `load_symbol_sites` defined?",
+      "budget": 500,
+      "chars": 482,
+      "seconds": 0.028052900001057424,
+      "has_source": false,
+      "text": "intent: definition `load_symbol_sites`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\nshown: 0 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~125/500 estimated tokens (characters/4, not model-tokenized); TRUNCATED: raise budget or narrow the task\n"
+    },
+    {
+      "task": "Where is `load_symbol_sites` defined?",
+      "budget": 1200,
+      "chars": 2178,
+      "seconds": 0.027816300000267802,
+      "has_source": true,
+      "text": "intent: definition `load_symbol_sites`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\ndefinition crates/findex-relations/src/lib.rs:580-641 [function load_symbol_sites]\n  fn load_symbol_sites(\n      conn: &Connection,\n      symbol: &str,\n      max: usize,\n      indexed: &Connection,\n      project: &Path,\n      report: &mut SymbolEvidenceReport,\n  ) -> Result<Vec<SymbolSite>> {\n      let mut stmt = conn.prepare(\n          \"SELECT s.path, s.line, s.column, s.language, s.kind,\n                  e.digest, COALESCE(p.source, 'unattributed'), s.end_line, s.end_column, s.position_encoding\n           FROM semantic_sites s\n           JOIN evidence_files e ON e.path=s.path\n           LEFT JOIN symbol_provenance p ON p.symbol=s.symbol\n           WHERE s.symbol=?1\n           ORDER BY s.path, s.line, s.column, s.kind LIMIT ?2\",\n      )?;\n      let entries = stmt.query_map(params![symbol, (MAX_TYPED_RESULTS + 1) as i64], |r| {\n          Ok((\n              r.get::<_, String>(0)?,\n              r.get::<_, i64>(1)?,\n              r.get::<_, i64>(2)?,\n              r.get::<_, String>(3)?,\n              r.get::<_, String>(4)?,\n              r.get::<_, String>(5)?,\n              r.get::<_, String>(6)?,\n              r.get::<_, Option<i64>>(7)?,\n              r.get::<_, Option<i64>>(8)?,\n              r.get::<_, i32>(9)?,\n          ))\n      })?;\n      let mut sites = Vec::new();\n      for (scanned, row) in entries.enumerate() {\n          let (path, line, column, language, kind, digest, provider, end_line, end_column, encoding) =\n              row?;\n          if sites.len() >= max || scanned >= MAX_TYPED_RESULTS {\n              report.truncated = true;\n              break;\n          }\n          if !currently_admitted(indexed, &path, &digest) || !verify_path(project, &path, &digest) {\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~553/1200 estimated tokens (characters/4, not model-tokenized); complete for the indexed files\n"
+    },
+    {
+      "task": "Where is `load_symbol_sites` defined?",
+      "budget": 2000,
+      "chars": 2178,
+      "seconds": 0.02721689999998489,
+      "has_source": true,
+      "text": "intent: definition `load_symbol_sites`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\ndefinition crates/findex-relations/src/lib.rs:580-641 [function load_symbol_sites]\n  fn load_symbol_sites(\n      conn: &Connection,\n      symbol: &str,\n      max: usize,\n      indexed: &Connection,\n      project: &Path,\n      report: &mut SymbolEvidenceReport,\n  ) -> Result<Vec<SymbolSite>> {\n      let mut stmt = conn.prepare(\n          \"SELECT s.path, s.line, s.column, s.language, s.kind,\n                  e.digest, COALESCE(p.source, 'unattributed'), s.end_line, s.end_column, s.position_encoding\n           FROM semantic_sites s\n           JOIN evidence_files e ON e.path=s.path\n           LEFT JOIN symbol_provenance p ON p.symbol=s.symbol\n           WHERE s.symbol=?1\n           ORDER BY s.path, s.line, s.column, s.kind LIMIT ?2\",\n      )?;\n      let entries = stmt.query_map(params![symbol, (MAX_TYPED_RESULTS + 1) as i64], |r| {\n          Ok((\n              r.get::<_, String>(0)?,\n              r.get::<_, i64>(1)?,\n              r.get::<_, i64>(2)?,\n              r.get::<_, String>(3)?,\n              r.get::<_, String>(4)?,\n              r.get::<_, String>(5)?,\n              r.get::<_, String>(6)?,\n              r.get::<_, Option<i64>>(7)?,\n              r.get::<_, Option<i64>>(8)?,\n              r.get::<_, i32>(9)?,\n          ))\n      })?;\n      let mut sites = Vec::new();\n      for (scanned, row) in entries.enumerate() {\n          let (path, line, column, language, kind, digest, provider, end_line, end_column, encoding) =\n              row?;\n          if sites.len() >= max || scanned >= MAX_TYPED_RESULTS {\n              report.truncated = true;\n              break;\n          }\n          if !currently_admitted(indexed, &path, &digest) || !verify_path(project, &path, &digest) {\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~553/2000 estimated tokens (characters/4, not model-tokenized); complete for the indexed files\n"
+    },
+    {
+      "task": "Where is `search_ranked_in_db` defined?",
+      "budget": 200,
+      "chars": 484,
+      "seconds": 0.027574000001550303,
+      "has_source": false,
+      "text": "intent: definition `search_ranked_in_db`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\nshown: 0 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~126/200 estimated tokens (characters/4, not model-tokenized); TRUNCATED: raise budget or narrow the task\n"
+    },
+    {
+      "task": "Where is `search_ranked_in_db` defined?",
+      "budget": 500,
+      "chars": 484,
+      "seconds": 0.02805420000004233,
+      "has_source": false,
+      "text": "intent: definition `search_ranked_in_db`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\nshown: 0 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~126/500 estimated tokens (characters/4, not model-tokenized); TRUNCATED: raise budget or narrow the task\n"
+    },
+    {
+      "task": "Where is `search_ranked_in_db` defined?",
+      "budget": 1200,
+      "chars": 2027,
+      "seconds": 0.029052599998976802,
+      "has_source": true,
+      "text": "intent: definition `search_ranked_in_db`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\ndefinition crates/findex-index/src/lib.rs:662-949 [function search_ranked_in_db]\n  fn search_ranked_in_db(\n      project: &Path,\n      database: &Path,\n      query: &str,\n      limit: usize,\n      sync: SyncStats,\n      concept: bool,\n  ) -> Result<SearchReport> {\n      let mut report = SearchReport {\n          hits: Vec::new(),\n          sync,\n          stale_results_discarded: 0,\n          truncated: false,\n          retrieval: \"sqlite-fts5-bm25\",\n      };\n      let Some((expression, terms)) = fts_query(query) else {\n          return Ok(report);\n      };\n      let conn = cached_connect(database)?;\n      let conn = conn.lock().unwrap_or_else(|poisoned| poisoned.into_inner());\n      let canonical_root = project.canonicalize()?;\n      let count = limit.clamp(1, 32);\n      let mut seen_paths = HashSet::new();\n      // Cache live_source results within a single search call so a file that\n      // appears as both a definition hit and a BM25 candidate is read from\n      // disk at most once.\n      let mut source_cache: HashMap<String, Option<String>> = HashMap::new();\n      let cached_live_source = |root: &Path,\n                                path: &str,\n                                hash: &str,\n                                cache: &mut HashMap<String, Option<String>>|\n        -> Option<String> {\n          if let Some(cached) = cache.get(path) {\n              return cached.clone();\n          }\n          let result = live_source(root, path, hash);\n          cache.insert(path.to_string(), result.clone());\n          result\n      };\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~515/1200 estimated tokens (characters/4, not model-tokenized); complete for the indexed files\n"
+    },
+    {
+      "task": "Where is `search_ranked_in_db` defined?",
+      "budget": 2000,
+      "chars": 2027,
+      "seconds": 0.02933599999960279,
+      "has_source": true,
+      "text": "intent: definition `search_ranked_in_db`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\ndefinition crates/findex-index/src/lib.rs:662-949 [function search_ranked_in_db]\n  fn search_ranked_in_db(\n      project: &Path,\n      database: &Path,\n      query: &str,\n      limit: usize,\n      sync: SyncStats,\n      concept: bool,\n  ) -> Result<SearchReport> {\n      let mut report = SearchReport {\n          hits: Vec::new(),\n          sync,\n          stale_results_discarded: 0,\n          truncated: false,\n          retrieval: \"sqlite-fts5-bm25\",\n      };\n      let Some((expression, terms)) = fts_query(query) else {\n          return Ok(report);\n      };\n      let conn = cached_connect(database)?;\n      let conn = conn.lock().unwrap_or_else(|poisoned| poisoned.into_inner());\n      let canonical_root = project.canonicalize()?;\n      let count = limit.clamp(1, 32);\n      let mut seen_paths = HashSet::new();\n      // Cache live_source results within a single search call so a file that\n      // appears as both a definition hit and a BM25 candidate is read from\n      // disk at most once.\n      let mut source_cache: HashMap<String, Option<String>> = HashMap::new();\n      let cached_live_source = |root: &Path,\n                                path: &str,\n                                hash: &str,\n                                cache: &mut HashMap<String, Option<String>>|\n        -> Option<String> {\n          if let Some(cached) = cache.get(path) {\n              return cached.clone();\n          }\n          let result = live_source(root, path, hash);\n          cache.insert(path.to_string(), result.clone());\n          result\n      };\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~515/2000 estimated tokens (characters/4, not model-tokenized); complete for the indexed files\n"
+    }
+  ],
+  "scope": "Candidate MCP on its own working source. Small budgets may omit whole definition bodies, with explicit truncation."
+}

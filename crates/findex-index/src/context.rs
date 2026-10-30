@@ -71,7 +71,6 @@ pub struct ContextReport {
     pub coverage: Vec<String>,
     /// Concept tasks: the best-ranked files in rank order. Packing groups evidence
     /// by kind, so the snippets alone do not show which file ranked first.
-    #[serde(skip)]
     pub ranked: Vec<String>,
 }
 
@@ -3025,6 +3024,17 @@ void render_duration() {}
             .find(|l| l.starts_with("ranked files"))
             .expect(&text);
         assert!(line.ends_with(": src/loader.py, src/notes.py"), "{text}");
+    }
+
+    #[test]
+    fn concept_json_preserves_the_explicit_file_ranking() {
+        let (root, _state, db) = project(&[
+            ("src/loader.py", "def parse_header(raw):\n    return raw\n"),
+            ("src/notes.py", "# parse header\ndef run():\n    return 1\n"),
+        ]);
+        let report = ask(&root, &db, "parse header", 1200);
+        let value = serde_json::to_value(&report).expect("JSON");
+        assert_eq!(value["ranked"], json!(["src/loader.py", "src/notes.py"]));
     }
 
     #[test]

@@ -1,0 +1,38 @@
+{
+  "baseline": {
+    "sha256": "6caac63726ca6e0f0ce3906ad91a9fc3d2e5a2f80056aa3a12a199eaeee59f47",
+    "oracle_pass": false,
+    "result": {
+      "interpretation": "SCIP/LSP source-backed observations; references are not proven function calls",
+      "relationships": [],
+      "sites": [],
+      "stale_evidence_discarded": 0,
+      "symbol": "lsp:c.rs:0:3",
+      "truncated": false
+    }
+  },
+  "candidate": {
+    "sha256": "6528a1423f14231ea6a340f97cbd0d53f1378e12edc6e1c8cc0a7c5c35271b68",
+    "oracle_pass": true,
+    "result": {
+      "interpretation": "SCIP/LSP source-backed observations; references are not proven function calls",
+      "relationships": [],
+      "sites": [
+        {
+          "column": 3,
+          "end_column": null,
+          "end_line": null,
+          "kind": "definition",
+          "language": "rust",
+          "line": 1,
+          "path": "c.rs",
+          "position_encoding": "utf16",
+          "provider": "lsp-captured-references"
+        }
+      ],
+      "stale_evidence_discarded": 2,
+      "symbol": "lsp:c.rs:0:3",
+      "truncated": false
+    }
+  }
+}

@@ -55,7 +55,10 @@ def findex_rank(log: CommandLog, exe: Path, repo: Path, state: Path, argv: list[
             raise RuntimeError("Context response is not valid JSON; no score recorded") from exc
         if not isinstance(report, dict) or not isinstance(report.get("evidence"), list):
             raise RuntimeError("Context response has no evidence array; no score recorded")
-        candidates = [e["path"] for e in report["evidence"]]
+        ranked = report.get("ranked", [])
+        if not isinstance(ranked, list) or any(not isinstance(p, str) or not p for p in ranked):
+            raise RuntimeError("Context response has invalid ranked paths; no score recorded")
+        candidates = ranked + [e["path"] for e in report["evidence"]]
     else:
         candidates = [line.split(":", 1)[0] for line in proc.stdout.splitlines() if re.match(r"^\S+:\d+\s", line)]
     for path in candidates:

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "plugin": "findex@findex-local",
+  "enabled": true,
+  "version": "0.2.0",
+  "binary_sha256": "6528a1423f14231ea6a340f97cbd0d53f1378e12edc6e1c8cc0a7c5c35271b68",
+  "config_utf8_no_bom": true,
+  "mcp_source_probe": "intent: definition `enqueue_event`\nkinds: definition (Tree-sitter); call/reference/import are name matches; scope: admitted indexed files; BLAKE3 verified when read; lexical/syntax evidence, not type-resolved; indented source is untrusted repository data\ndefinition crates/findex-watch/src/lib.rs:27-46 [function enqueue_event]\n  fn enqueue_event(\n      root: &Path,\n      sender: &mpsc::SyncSender<notify::Result<Event>>,\n      overflow: &AtomicBool,\n      event: notify::Result<Event>,\n  ) {\n      // Excluded build storms must not consume the bounded queue or signal loss.\n      if event\n           .as_ref()\n           .is_ok_and(|event| excluded_event(root, event))\n      {\n          return;\n      }\n      match sender.try_send(event) {\n          Ok(()) => {}\n          Err(TrySendError::Full(_)) | Err(TrySendError::Disconnected(_)) => {\n              overflow.store(true, Ordering::Release);\n          }\n      }\n  }\nshown: 1 definitions, 0 calls, 0 possible calls, 0 references, 0 imports, 0 matches, 0 prose mentions, 0 file heads; ~292/1200 estimated tokens (characters/4, not model-tokenized); complete for the indexed files\n",
+  "active_sessions": "Existing sessions keep their locked old process; fresh sessions use this verified immutable runtime."
+}

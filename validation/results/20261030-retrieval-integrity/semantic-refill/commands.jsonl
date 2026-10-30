@@ -1,0 +1,2 @@
+{"utc": "20261030T133239Z", "argv": ["%REPO%\\target\\retrieval-integrity\\baseline\\findex.exe", "graph-import-lsp", "capture.json"], "cwd": "%REPO%\\target\\retrieval-integrity\\semantic-refill\\baseline", "exit_code": 0, "duration_s": 0.2058, "timed_out": false}
+{"utc": "20261030T133239Z", "argv": ["%REPO%\\target\\release\\findex.exe", "graph-import-lsp", "capture.json"], "cwd": "%REPO%\\target\\retrieval-integrity\\semantic-refill\\candidate", "exit_code": 0, "duration_s": 0.1999, "timed_out": false}

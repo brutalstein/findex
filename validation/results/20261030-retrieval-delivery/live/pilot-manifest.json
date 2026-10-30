@@ -1,0 +1,76 @@
+{
+  "authorization": "User instructed direct delivery after the four omitted delivery actions; at most four new subscription starts.",
+  "profile": {
+    "model": "gpt-5.6-sol",
+    "model_reasoning_effort": "high",
+    "service_tier": "priority"
+  },
+  "max_sessions": 4,
+  "timeout_seconds": 300,
+  "semantic_preparation": "not_requested",
+  "frozen_tools": {
+    "codex": "%LOCALAPPDATA%\\OpenAI\\Codex\\bin\\22cfb1d302613eae\\codex.exe",
+    "findex": "target/retrieval-delivery-live/bin/findex/findex.exe",
+    "baseline": "target/retrieval-delivery-live/bin/baseline/findex.exe"
+  },
+  "tool_sha256": {
+    "codex": "3097c909fb6d5cd63510d44aceb1d42df9f6e85722a3e447e477def1ecf60e16",
+    "findex": "6528a1423f14231ea6a340f97cbd0d53f1378e12edc6e1c8cc0a7c5c35271b68",
+    "baseline": "6caac63726ca6e0f0ce3906ad91a9fc3d2e5a2f80056aa3a12a199eaeee59f47"
+  },
+  "trials": [
+    {
+      "key": "requests-5223:baseline",
+      "task": "requests-5223",
+      "tool": "findex",
+      "arm": "baseline",
+      "binary": "target/retrieval-delivery-live/bin/baseline/findex.exe",
+      "root": "target/retrieval-delivery-live/requests-5223/baseline/project",
+      "baseline_head": "53ff10b4a0f945064cc8e323e3d8fe45774ab2de",
+      "source_tree": "2ffa13e28e9967f0a5d443f50923b9f1938af87b",
+      "repro_sha256": "12a6ec32987dd3efb5b42eda49635706b710bb3d03c6e5065d8fc007ee62ad4d",
+      "setup_seconds": 1.936
+    },
+    {
+      "key": "requests-5223:candidate",
+      "task": "requests-5223",
+      "tool": "findex",
+      "arm": "candidate",
+      "binary": "target/retrieval-delivery-live/bin/findex/findex.exe",
+      "root": "target/retrieval-delivery-live/requests-5223/candidate/project",
+      "baseline_head": "d60d671852d27776d926441808b8d73529ab0d94",
+      "source_tree": "2ffa13e28e9967f0a5d443f50923b9f1938af87b",
+      "repro_sha256": "12a6ec32987dd3efb5b42eda49635706b710bb3d03c6e5065d8fc007ee62ad4d",
+      "setup_seconds": 1.752
+    },
+    {
+      "key": "ripgrep-2659:candidate",
+      "task": "ripgrep-2659",
+      "tool": "findex",
+      "arm": "candidate",
+      "binary": "target/retrieval-delivery-live/bin/findex/findex.exe",
+      "root": "target/retrieval-delivery-live/ripgrep-2659/candidate/project",
+      "baseline_head": "aa026814ef266e257e9f8badf2eea02ad8beedfe",
+      "source_tree": "d35de67f67b3ca10760dd6543e66cbb0e4677dc3",
+      "repro_sha256": "c9298cb65e300316e30f32e6325597beff6ee577167dd1fa8d6cb6d3e9426d6f",
+      "setup_seconds": 14.478
+    },
+    {
+      "key": "ripgrep-2659:baseline",
+      "task": "ripgrep-2659",
+      "tool": "findex",
+      "arm": "baseline",
+      "binary": "target/retrieval-delivery-live/bin/baseline/findex.exe",
+      "root": "target/retrieval-delivery-live/ripgrep-2659/baseline/project",
+      "baseline_head": "43fb5df6ba220c9b854d6a9adcee5317b2b8b5fd",
+      "source_tree": "d35de67f67b3ca10760dd6543e66cbb0e4677dc3",
+      "repro_sha256": "c9298cb65e300316e30f32e6325597beff6ee577167dd1fa8d6cb6d3e9426d6f",
+      "setup_seconds": 12.265
+    }
+  ],
+  "limits": [
+    "Two reused curated tasks; not a fresh holdout or broad superiority test.",
+    "One run per task and binary, no retries, no API billing or model fallback.",
+    "Compiler-backed semantic and 100k native tests remain separate evidence."
+  ]
+}

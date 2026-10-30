@@ -1,0 +1,11 @@
+{
+  "seconds": 6.91,
+  "timed_out": false,
+  "events": 5,
+  "malformed_lines": 0,
+  "last_phase": "turn_failed",
+  "pending_tools": [],
+  "completed_mcp_calls": 0,
+  "failed_mcp_calls": 0,
+  "usage_complete": false
+}

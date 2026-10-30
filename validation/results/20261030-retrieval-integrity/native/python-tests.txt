@@ -1,0 +1,8 @@
+PASS: negative fish options use -l and do not inherit short aliases
+PASS: negative fish options use -l and do not inherit short aliases
+PASS: negative fish options use -l and do not inherit short aliases
+...............................................................
+----------------------------------------------------------------------
+Ran 63 tests in 38.250s
+
+OK

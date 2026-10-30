@@ -41,7 +41,7 @@ First release candidate. No earlier version was published.
   raw issue title. Targets 0.60 overall / 0.90 recall@10 are not yet met.
 - Concept-task text output opens with `ranked files, most likely first: ...`
   (five files, rank order); packing groups snippets by kind, so the rank was
-  not visible. JSON output is unchanged. In a live Claude Haiku study on eight
+  not visible. The JSON report carries the same list in a `ranked` field. In a live Claude Haiku study on eight
   held-out issues, Findex-only sessions went from 4/8 to 6/8 correct and from
   420k to 143k tokens each (same issues the change was designed on; not an
   independent test).
