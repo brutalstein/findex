@@ -68,6 +68,14 @@
         "localization": "validation/results/20261030-localization-weights/localization.json"
       },
       "note": "Concept ranking demotes vendored copies (factor 0.5) and docs, examples and support scripts (0.7) on the BM25 score. Five tasks moved up, none down."
+    },
+    {
+      "id": "R8",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization": "validation/results/20261030-localization-length/localization.json"
+      },
+      "note": "Concept ranking relaxes FTS5's fixed BM25 length normalisation (b 0.75 to 0.3, set in advance, not fitted) so large central files are no longer penalised. Dev and test both improve; 19 tasks moved up, 5 down (none beyond rank 13)."
     }
   ]
 }

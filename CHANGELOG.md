@@ -29,6 +29,11 @@ First release candidate. No earlier version was published.
   outranks them on comparable matches. Issue localization (65 tasks): hit@1
   0.446 to 0.462, recall@10 0.808 to 0.823; five tasks improved, none worsened.
   A nested `packages` directory counts as vendored; a top-level one does not.
+- Concept ranking also relaxes FTS5's fixed BM25 length normalisation (b 0.75
+  to 0.3), so large central files are not penalised for their size. Together
+  with the path weights: hit@1 0.446 to 0.538, recall@10 0.808 to 0.869 on 65
+  issues (held-out half 0.464 to 0.536); 19 tasks improved, 5 worsened by one
+  to three ranks. Targets 0.60 / 0.90 are still unmet.
 
 ### Added
 - Optional lossless `format="compact"` for MCP lexical and exact-symbol results;
