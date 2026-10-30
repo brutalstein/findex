@@ -24,6 +24,12 @@ First release candidate. No earlier version was published.
   and hits are unchanged; the 17-digit tail cost about six model tokens per hit
   (mean raw tokens per query on the 115 frozen lookups: 263.8 to 243.0).
 
+- Natural-language (concept) ranking demotes vendored copies (×0.5) and
+  docs/examples/support scripts (×0.7) on the BM25 score, so project source
+  outranks them on comparable matches. Issue localization (65 tasks): hit@1
+  0.446 to 0.462, recall@10 0.808 to 0.823; five tasks improved, none worsened.
+  A nested `packages` directory counts as vendored; a top-level one does not.
+
 ### Added
 - Optional lossless `format="compact"` for MCP lexical and exact-symbol results;
   the existing JSON object format remains the default.
