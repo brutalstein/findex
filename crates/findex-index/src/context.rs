@@ -239,6 +239,25 @@ pub fn context_in_db(
             concept(&root, database, &words, &conn, &mut report, &mut related)?;
             related.extend(candidates);
             candidates = related;
+        } else if !asks_where_defined(&words)
+            && descriptive_words(&words, &report.identifiers) >= REPORT_WORDS
+        {
+            // A report around an identifier names where it is defined, not where it
+            // goes wrong: the definition leads, the text search covers the rest.
+            let mut related = Vec::new();
+            concept(&root, database, &words, &conn, &mut report, &mut related)?;
+            let defined = candidates
+                .iter()
+                .filter(|e| e.kind == "definition")
+                .map(|e| e.path.clone());
+            let mut ranked = Vec::new();
+            for path in defined.chain(std::mem::take(&mut report.ranked)) {
+                if ranked.len() < 5 && !ranked.contains(&path) {
+                    ranked.push(path);
+                }
+            }
+            report.ranked = ranked;
+            candidates.extend(related);
         }
     }
     pack(candidates, &mut report);
@@ -391,12 +410,7 @@ fn route(task: &str) -> &'static str {
         .join(" ");
     let terms = words(&prose);
     let intent = classify(&terms);
-    let explicit_definition = terms.iter().any(|word| {
-        matches!(
-            word.as_str(),
-            "where" | "defined" | "definition" | "locate" | "nerede" | "tanımı" | "tanımını"
-        )
-    });
+    let explicit_definition = asks_where_defined(&terms);
     let defect = terms.iter().any(|word| {
         matches!(
             word.as_str(),
@@ -421,6 +435,35 @@ fn route(task: &str) -> &'static str {
         _ => "file",
     }
 }
+
+fn asks_where_defined(words: &[String]) -> bool {
+    words.iter().any(|word| {
+        matches!(
+            word.as_str(),
+            "where" | "defined" | "definition" | "locate" | "nerede" | "tanımı" | "tanımını"
+        )
+    })
+}
+
+/// Words a problem report adds around the code it names: `MissingSchema error
+/// raised when schema present` has four, a bare lookup has none.
+fn descriptive_words(words: &[String], identifiers: &[String]) -> usize {
+    let named: Vec<String> = identifiers.iter().map(|name| name.to_lowercase()).collect();
+    words
+        .iter()
+        .flat_map(|word| word.split('_'))
+        .filter(|word| word.chars().count() > 1)
+        .filter(|w| !STOPWORDS.contains(w) && !CALLER_WORDS.contains(w) && !TEST_WORDS.contains(w))
+        .filter(|word| {
+            !named
+                .iter()
+                .any(|name| name.split('_').any(|part| part == *word))
+        })
+        .count()
+}
+
+/// A task with at least this many descriptive words is a report, not a lookup.
+const REPORT_WORDS: usize = 2;
 
 fn classify(words: &[String]) -> &'static str {
     // Turkish passive `implement edilmiş` asks how it is built, not who implements it.
@@ -3035,6 +3078,52 @@ void render_duration() {}
         let report = ask(&root, &db, "parse header", 1200);
         let value = serde_json::to_value(&report).expect("JSON");
         assert_eq!(value["ranked"], json!(["src/loader.py", "src/notes.py"]));
+    }
+
+    const REPORT_PROJECT: [(&str, &str); 2] = [
+        ("src/exceptions.py", "class MissingSchema(ValueError):\n    pass\n"),
+        (
+            "src/models.py",
+            "def prepare_url(url):\n    # error raised when the schema is not present\n    raise MissingSchema(url)\n",
+        ),
+    ];
+
+    #[test]
+    fn a_problem_report_around_an_identifier_also_searches_its_words() {
+        let (root, _state, db) = project(&REPORT_PROJECT);
+        let report = ask(
+            &root,
+            &db,
+            "MissingSchema error raised when schema present",
+            1200,
+        );
+        let paths: Vec<_> = report.evidence.iter().map(|e| e.path.as_str()).collect();
+        assert!(paths.contains(&"src/exceptions.py"), "{report:?}");
+        assert!(paths.contains(&"src/models.py"), "{report:?}");
+        assert_eq!(
+            report.ranked.first().map(String::as_str),
+            Some("src/exceptions.py")
+        );
+        assert!(
+            report.ranked.contains(&"src/models.py".to_string()),
+            "{report:?}"
+        );
+    }
+
+    #[test]
+    fn an_explicit_definition_lookup_stays_a_lookup() {
+        let (root, _state, db) = project(&REPORT_PROJECT);
+        for task in ["MissingSchema", "where is MissingSchema defined"] {
+            let report = ask(&root, &db, task, 1200);
+            assert!(
+                report
+                    .evidence
+                    .iter()
+                    .all(|e| e.path == "src/exceptions.py"),
+                "{task}: {report:?}"
+            );
+            assert!(report.ranked.is_empty(), "{task}: {report:?}");
+        }
     }
 
     #[test]
