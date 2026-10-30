@@ -2976,6 +2976,22 @@ void render_duration() {}
     }
 
     #[test]
+    fn concept_ranking_prefers_the_file_that_defines_the_named_symbol() {
+        let (root, _state, db) = project(&[
+            (
+                "src/loader.py",
+                "def parse_header(raw):\n    return raw\n",
+            ),
+            (
+                "src/notes.py",
+                "# parse header\n# parse header again\n# parse header once more\ndef run():\n    return 1\n",
+            ),
+        ]);
+        let report = ask(&root, &db, "parse header", 1200);
+        assert_eq!(report.evidence[0].path, "src/loader.py", "{report:?}");
+    }
+
+    #[test]
     fn concept_ranking_prefers_project_source_over_docs_and_support_scripts() {
         let (root, _state, db) = project(&[
             ("src/engine.py", "# render chart legend\ndef draw():\n    return 1\n"),

@@ -100,3 +100,26 @@ already-built Windows artifacts; it does not run Findex.
 not a support claim.
 
 **Commit:** this change
+
+## FX-DEC-20261030-002 — Localization ranking: structure and size signals, no git-history prior yet
+
+**Problem:** Issue localization (65 tasks) sat at hit@1 0.446. Misses were dominated by
+vendored copies and docs/support scripts outranking project source, and by FTS5's fixed BM25
+length normalisation (b = 0.75) penalising the large central files that fixes touch.
+
+**Decision:** Concept ranking multiplies the BM25 score by path weights (vendored 0.5,
+docs/examples/support 0.7) and relaxes length normalisation toward b = 0.3. Both values were
+fixed before measuring; no published sweep of b for source files was found. A bug-fix-history
+prior (files fixed often are fixed again; BugLocator/AmaLgam) is deferred: obtaining it means
+running `git` inside an untrusted repository, where repository-local configuration such as
+`core.fsmonitor` can execute commands, which conflicts with the threat boundaries in SECURITY.md.
+It needs a parser of the object store or a hardened, reviewed invocation first.
+
+**Evidence:** FX-BM-012 and FX-BM-013 in BENCHMARKS.md (hit@1 0.446 to 0.538; held-out half
+0.464 to 0.536; 19 tasks up, 5 down).
+
+**Repository hygiene found:** ten remote feature branches already have merged PRs and are stale;
+PR #27 (`feat/section3-adaptive-context`) conflicts with main in `context.rs` and `ci.yml` and
+predates the Windows-only pipeline. Neither was deleted or closed here.
+
+**Commit:** this change

@@ -76,6 +76,14 @@
         "localization": "validation/results/20261030-localization-length/localization.json"
       },
       "note": "Concept ranking relaxes FTS5's fixed BM25 length normalisation (b 0.75 to 0.3, set in advance, not fitted) so large central files are no longer penalised. Dev and test both improve; 19 tasks moved up, 5 down (none beyond rank 13)."
+    },
+    {
+      "id": "R9",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization": "validation/results/20261030-localization-symbols/localization.json"
+      },
+      "note": "Concept ranking adds a symbol-name field: the share of query words that name a definition in the file. Chosen on dev (one candidate; a proximity feature was tried and dropped), confirmed once on the held-out half. First round with Graphify and codebase-memory measured offline on the same 65 tasks."
     }
   ]
 }

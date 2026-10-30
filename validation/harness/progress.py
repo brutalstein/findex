@@ -36,7 +36,10 @@ def definition(path: str) -> dict:
 
 
 def localization(path: str) -> dict:
-    systems = read(path)["systems"]
+    systems = dict(read(path)["systems"])
+    rivals = (REPO / path).with_name("localization-rivals.json")  # measured offline on the same tasks
+    if rivals.exists():
+        systems.update(json.loads(rivals.read_text(encoding="utf-8"))["systems"])
     out: dict = {}
     for src, row in systems.items():
         tool = {"gitgrep-words": "gitgrep", "findex-context": "findex"}.get(src) or (

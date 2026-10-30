@@ -765,6 +765,9 @@ fn search_ranked_in_db(
     // Stage 2: BM25 candidates over source text and identifier/path words.
     let mut stmt = conn.prepare_cached(FTS_CANDIDATES_SQL)?;
     let mut bodies = conn.prepare_cached("SELECT body FROM docs WHERE rowid = ?1")?;
+    let mut symbol_names = conn
+        .prepare_cached("SELECT name FROM symbols WHERE path = ?1")
+        .ok();
     // Collect a bounded but generous window before reranking. An extra
     // candidate makes truncation explicit rather than silently claiming
     // completeness after stale-result rejection or multi-term reranking.
@@ -851,6 +854,27 @@ fn search_ranked_in_db(
             .split_whitespace()
             .filter(|word| word.chars().count() >= 3 && terms.iter().any(|term| term == word))
             .count();
+        let mut symbol_ratio = 0.0_f64;
+        if concept {
+            if let Some(names) = symbol_names.as_mut() {
+                let mut words = HashSet::new();
+                if let Ok(rows) = names.query_map(params![path], |row| row.get::<_, String>(0)) {
+                    for name in rows.flatten() {
+                        words.extend(
+                            identifier_terms(&name, "")
+                                .split_whitespace()
+                                .map(str::to_owned)
+                                .collect::<Vec<_>>(),
+                        );
+                    }
+                }
+                symbol_ratio = terms
+                    .iter()
+                    .filter(|term| words.contains(term.as_str()))
+                    .count() as f64
+                    / terms.len().max(1) as f64;
+            }
+        }
         candidates.push((
             (coverage, best.0, filename_matches),
             SearchHit {
@@ -861,11 +885,11 @@ fn search_ranked_in_db(
                 match_kind: "lexical",
             },
             indexed_hash,
-            body.len(),
+            (body.len(), symbol_ratio),
         ));
     }
     let mean_length =
-        candidates.iter().map(|c| c.3 as f64).sum::<f64>() / candidates.len().max(1) as f64;
+        candidates.iter().map(|c| c.3 .0 as f64).sum::<f64>() / candidates.len().max(1) as f64;
     // File coverage first, then same-line co-occurrence (proximity), then BM25.
     candidates.sort_by(|left, right| {
         if concept {
@@ -880,11 +904,13 @@ fn search_ranked_in_db(
                     1.0
                 }
             };
-            let score = |bm25: f64, filename_matches: usize, path: &str, length: usize| {
-                // Filename matches are an additional field, not substring hits.
+            let score = |bm25: f64, filename_matches: usize, path: &str, shape: (usize, f64)| {
+                // Filename matches and symbol names are additional fields, not substring
+                // hits: the share of query words that name a definition in the file.
                 bm25 * (1.0 + 2.0 * filename_matches as f64)
+                    * (1.0 + shape.1)
                     * weight(path)
-                    * length_adjustment(length as f64, mean_length)
+                    * length_adjustment(shape.0 as f64, mean_length)
             };
             return role(&left.1.path)
                 .cmp(&role(&right.1.path))
