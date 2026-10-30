@@ -39,6 +39,13 @@ First release candidate. No earlier version was published.
   half 0.536 to 0.607); 11 tasks improved, 2 worsened by one rank. Measured on
   the same tasks, Graphify reaches 0.123 and codebase-memory 0.246 hit@1 from the
   raw issue title. Targets 0.60 overall / 0.90 recall@10 are not yet met.
+- A task that names an identifier and adds at least two descriptive words (a problem report such as
+  `MissingSchema error raised when schema present`) now also runs the concept search: identifier
+  evidence stays first, `ranked` lists definition files first, and the concept matches fill the remaining
+  budget. Bare lookups and "where ... defined" questions are unchanged. On the 65 development tasks this
+  removes four cases where the gold file was missing from the output. Fresh 55-issue holdout: gold
+  recall@10 0.706 to 0.761, hit@10 0.745 to 0.800, hit@3 0.691 to 0.727, hit@1 0.364 to 0.345; the
+  60% / 90% targets remain unmet (FX-DEC-20261030-004).
 - Concept-task text output opens with `ranked files, most likely first: ...`
   (five files, rank order); packing groups snippets by kind, so the rank was
   not visible. The JSON report carries the same list in a `ranked` field. In a live Claude Haiku study on eight

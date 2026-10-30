@@ -108,6 +108,22 @@
         "navigation_codex": "validation/results/20261030-codex-live-r12/live-usage-summary.json"
       },
       "note": "Codex subscription reopened after the usage limit that blocked the earlier luna pilot. Four fresh single-definition tasks (ripgrep x2, fmt, requests), gpt-5.6-luna at low effort, three tools, one repetition. Findex 4/4 correct; Graphify 3/4; codebase-memory 3/4 valid and correct 3/4."
+    },
+    {
+      "id": "R13",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization_fresh": "validation/results/20261030-localization-v2-baseline/localization.json"
+      },
+      "note": "Fresh 55-issue holdout frozen before scoring, previous binary (6528a14). Findex hit@1 0.364 and recall@10 0.706, against 0.585 / 0.869 on the exposed 65."
+    },
+    {
+      "id": "R14",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization_fresh": "validation/results/20261030-localization-v2-hybrid/localization.json"
+      },
+      "note": "A problem report around an identifier also runs the concept search (d4718e9). Fresh 55: recall@10 0.761, hit@10 0.800, hit@1 0.345. Exposed 65: recall@10 0.900, hit@1 0.585."
     }
   ]
 }

@@ -52,6 +52,7 @@ def main() -> int:
     parser.add_argument("--out", default=None)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--split", choices=("dev", "test"), default=None)
+    parser.add_argument("--dataset", type=Path, default=VALIDATION / "golden" / "issue_localization.jsonl")
     parser.add_argument("--graphify", type=Path, default=Path("C:/Users/cenke/.local/bin/graphify.exe"))
     parser.add_argument("--cbm", type=Path, default=Path("C:/Users/cenke/.cbm-bin/codebase-memory-mcp.exe"))
     parser.add_argument("--budget-tokens", type=int, default=8000, help="Graphify query budget (as for Findex context)")
@@ -59,7 +60,7 @@ def main() -> int:
     out = results_dir(args.out)
     if (out / "localization-rivals.json").exists():
         raise ValueError("Preserve attempted measurements; select a new output directory")
-    tasks = [json.loads(line) for line in (VALIDATION / "golden" / "issue_localization.jsonl").open(encoding="utf-8")]
+    tasks = [json.loads(line) for line in args.dataset.open(encoding="utf-8")]
     tasks = [t for t in tasks if args.split in (None, split(t))]
     tasks = tasks[: args.limit] if args.limit else tasks
     scratch = (WORK / "localization-rivals" / out.name).resolve()

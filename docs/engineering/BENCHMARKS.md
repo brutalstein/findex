@@ -51,6 +51,30 @@ preserved.
   [binary identities, measurements and limits](RETRIEVAL_INTEGRITY_20261030.md)
   and [raw evidence](../../validation/results/20261030-retrieval-integrity).
 
+- **FX-BM-019, 2026-10-30 fresh localization holdout (frozen at 3046902, previous
+  binary `6528a1423f14`):** 55 real closed issues (requests 19, ripgrep 25, fmt 11; zod
+  exhausted), disjoint from the 65 exposed tasks, 8,000-token budget. `findex context`: hit@1
+  0.364, hit@3 0.691, hit@10 0.745, gold recall@10 0.706, MRR 0.529; dev half 0.250 / test
+  half 0.481 hit@1 (n=28/27, standard error about 6 points at n=55). The same binary scores
+  0.585 / 0.869 on the exposed 65. Targets (60% / 90%) unmet. Raw evidence and protocol:
+  [v2 baseline](../../validation/results/20261030-localization-v2-baseline).
+- **FX-BM-020, 2026-10-30 report-routing change (commit d4718e9, binary `b767d40c2b`):**
+  paired against `6528a1423f14` on the same tasks. Fresh 55: recall@10 0.706 to 0.761, hit@10
+  0.745 to 0.800, hit@3 0.691 to 0.727, hit@1 0.364 to 0.345, MRR 0.529 to 0.538; the held-out
+  test half is unchanged (no test task routes differently). Exposed 65: recall@10 0.869 to
+  0.900, hit@10 0.892 to 0.923, hit@1 0.585 unchanged. Candidate decomposition on the 65 dev
+  tasks: 0 gold files outside the 128-candidate window, 2 never matched, 14 deeper than rank
+  10. Term coverage, term proximity and weight sweeps were rejected. See
+  [fresh](../../validation/results/20261030-localization-v2-hybrid),
+  [exposed](../../validation/results/20261030-localization-v1-hybrid) and
+  [dev experiments](../../validation/results/20261030-recall-dev-experiments).
+
+- **FX-BM-021, 2026-10-30 rivals on the fresh holdout (offline, no model calls):** same 55 frozen issue
+  titles, file-ranking proxy. hit@1 / gold recall@10: Findex 0.345 / 0.761, git grep words 0.164 / 0.606,
+  codebase-memory 0.127 / 0.461, Graphify 0.036 / 0.461. Findex leads on every metric of this proxy; it is
+  not a verdict on graph questions the rivals target. See
+  [rivals](../../validation/results/20261030-localization-v2-rivals).
+
 - FX-BM-001/002 are historical reported measurements from commit 501bbae; they
   have not been re-verified on HEAD (0490018). See ISSUE FX-20261029-001.
 - FX-BM-005/006/007 are placeholders for HEAD benchmarks; no profiling or

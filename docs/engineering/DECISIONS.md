@@ -144,3 +144,38 @@ those failures, so the re-run is a regression check, not an independent test; ri
 re-run. Two losses remain (ripgrep-2122: the model overrode the ranking; zod-2184: gold ranks 16th).
 
 **Commit:** this change
+
+## FX-DEC-20261030-004 — A problem report around an identifier also runs the concept search
+
+**Problem:** The 65 exposed localization tasks had been tuned against for many rounds, so a fresh
+holdout was frozen first (`issue_localization_v2.jsonl`, 55 tasks, disjoint, commit 3046902).
+The previous binary scores hit@1 0.364 and gold recall@10 0.706 there, against 0.585 / 0.869 on the
+exposed set: the exposed numbers overstated generalization by about 20 points. Decomposing the
+65 development tasks (`candidate_recall.py`) showed no gold file outside the 128-candidate window and
+two that never matched a query term, so recall of candidates is not the limit; ordering is. Thirteen of
+the 65 contained an identifier (`MissingSchema`, `.extend`) and were routed to the identifier lookup,
+which returns definitions and call sites only and leaves `ranked` empty: hit@10 0.62 against 0.79 for the
+rest, and four gold files were missing from the output although raw BM25 had them at rank 2-18.
+
+**Decision:** When the identifier route finds evidence, the task has at least two descriptive words
+(content words that are not the identifier, a stopword, or a caller/test marker) and does not ask
+"where ... defined", the concept search also runs. Identifier evidence stays first; `ranked` lists
+definition files first, then the concept ranking; the concept evidence fills the remaining budget after
+the identifier evidence. Bare lookups (`MissingSchema`, `callers of x`, `where is x defined`) have no
+descriptive words and are unchanged. No ranking weight changed.
+
+**Rejected on dev (kept in `validation/results/20261030-recall-dev-experiments`):** IDF-weighted or plain term
+coverage, term proximity, and sweeps of the BM25 length parameter, filename, symbol-name and path
+multipliers. None moved both development halves the same way by more than one or two tasks, so none is
+adopted; at 28-37 tasks per half they cannot be told from noise. The remaining hit@1 misses are mostly large
+hub files outranking a small file that holds the fix, which title-only lexical signals do not separate.
+A version-history prior (BugLocator style) stays deferred for the reason in FX-DEC-20261030-002.
+
+**Evidence:** FX-BM-019/020. Fresh set: recall@10 0.706 to 0.761, hit@10 0.745 to 0.800, hit@3 0.691 to 0.727,
+hit@1 0.364 to 0.345 (one task lost). Exposed set: recall@10 0.869 to 0.900, hit@1 unchanged 0.585. The
+held-out test half of the fresh set (27 tasks) is unchanged because none of its tasks routes
+differently, so it neither supports nor contradicts the change; the support is the development halves.
+Against the targets: recall@10 is exactly 0.900 on the exposed set (58.5 of 65) and 0.761 on the fresh
+set; hit@1 is 0.585 and 0.345. The exposed-set figure is the one the design was informed by.
+
+**Commit:** d4718e9

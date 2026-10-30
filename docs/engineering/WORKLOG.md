@@ -235,3 +235,20 @@ Format: `## [UTC timestamp] [Event ID] Short description`
   pilot is recorded in validation/results/20261030-retrieval-delivery/NOTE.md.
 - Evidence and next gates: RETRIEVAL_INTEGRITY_20261030.md and
   validation/results/20261030-retrieval-integrity/.
+
+## 2026-10-30 — fresh holdout, candidate-recall decomposition, report routing
+
+- Froze `issue_localization_v2.jsonl` (55 tasks, disjoint from the 65 exposed; zod exhausted) before scoring.
+  Previous binary: hit@1 0.364, recall@10 0.706 against 0.585 / 0.869 on the exposed set.
+- `candidate_recall.py` on the 65 dev tasks: 0 gold files outside the 128-candidate window, 2 never matched,
+  14 deeper than rank 10. Four of those were missing from the output although raw BM25 had them at rank 2-18;
+  all four were identifier-routed reports with an empty `ranked`.
+- Shipped one change (d4718e9): a task with an identifier plus at least two descriptive words also runs the
+  concept search. TDD: the new Rust regression failed first. Paired runs: fresh recall@10 0.706 to 0.761,
+  exposed 0.869 to 0.900; hit@1 0.364 to 0.345 and 0.585 unchanged.
+- Rejected on dev, no code kept: term coverage, term proximity, b / filename / symbol / path weight sweeps.
+- Harness: `freeze_binary` shared by the localization scripts after `target/release/findex.exe` returned
+  access denied outside the checkout (the content-addressed copy under the validation home works);
+  `--dataset` for localization and rivals.
+- Not done: compiler-backed context adapter, bounded dirty-path scheduling, snapshot generations.
+

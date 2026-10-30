@@ -74,6 +74,7 @@ PURPOSE = {
     "validation/test-matrix.md": "test matrix of the first campaign",
     "validation/golden/symbol_navigation.jsonl": "642 symbol queries; labels by the same author (bias noted in REMAINING_LIMITATIONS #1)",
     "validation/golden/issue_localization.jsonl": "65 real fixed issues (title -> changed non-test files), dev/test split by parity",
+    "validation/golden/issue_localization_v2.jsonl": "55 fresh issues disjoint from the 65 (mined from older history before any system was scored), dev/test split by parity",
     "validation/research/ENGINEERING_DECISIONS.md": "decision log D1-D9 with evidence",
     "validation/harness/ab_stats.py": "paired bootstrap statistics for A/B runs",
     "validation/harness/bootstrap.py": "paired bootstrap for localization",

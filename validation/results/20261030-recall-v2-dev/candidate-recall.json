@@ -1,0 +1,715 @@
+{
+  "status": "EXECUTED",
+  "split": "dev",
+  "window": 128,
+  "tasks": 28,
+  "causes": {
+    "ok@10": 9,
+    "in-window-misordered": 10,
+    "ok@1": 7,
+    "never-matched": 2
+  },
+  "per_task": [
+    {
+      "id": "requests-2247",
+      "query": "requests sends HTTP auth details in Host header",
+      "terms": [
+        "requests",
+        "sends",
+        "http",
+        "auth",
+        "details",
+        "host",
+        "header"
+      ],
+      "matches": 112,
+      "raw_rank": 6,
+      "in_window": true,
+      "final_rank": 4,
+      "gold": [
+        "requests/adapters.py",
+        "requests/utils.py"
+      ],
+      "top3": [
+        "requests/auth.py",
+        "requests/sessions.py",
+        "requests/models.py"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "requests-2207",
+      "query": "TooManyRedirects not working in 2.4.0",
+      "terms": [
+        "toomanyredirects",
+        "not",
+        "working"
+      ],
+      "matches": 89,
+      "raw_rank": 5,
+      "in_window": true,
+      "final_rank": null,
+      "gold": [
+        "requests/sessions.py"
+      ],
+      "top3": [
+        "requests/exceptions.py"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "requests-2045",
+      "query": "Uncaught socket.timeout during post",
+      "terms": [
+        "uncaught",
+        "socket",
+        "timeout",
+        "during",
+        "post"
+      ],
+      "matches": 33,
+      "raw_rank": 32,
+      "in_window": true,
+      "final_rank": 16,
+      "gold": [
+        "requests/compat.py",
+        "requests/models.py"
+      ],
+      "top3": [
+        "requests/packages/urllib3/util/timeout.py",
+        "requests/sessions.py",
+        "requests/packages/urllib3/connectionpool.py"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "requests-1711",
+      "query": "Regression 2.0.1: Using MozillaCookieJar does not work",
+      "terms": [
+        "regression",
+        "using",
+        "mozillacookiejar",
+        "not",
+        "work"
+      ],
+      "matches": 86,
+      "raw_rank": 5,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "requests/cookies.py",
+        "requests/sessions.py"
+      ],
+      "top3": [
+        "requests/cookies.py",
+        "requests/utils.py",
+        "requests/models.py"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "requests-1723",
+      "query": "Unicode method names cause UnicodeDecodeError for some requests in Python 2.7.2",
+      "terms": [
+        "unicode",
+        "names",
+        "cause",
+        "unicodedecodeerror",
+        "some",
+        "requests",
+        "python"
+      ],
+      "matches": 101,
+      "raw_rank": 74,
+      "in_window": true,
+      "final_rank": 20,
+      "gold": [
+        "requests/sessions.py"
+      ],
+      "top3": [
+        "requests/models.py",
+        "requests/cookies.py",
+        "requests/utils.py"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "requests-1293",
+      "query": "MissingSchema error raised when schema present",
+      "terms": [
+        "missingschema",
+        "error",
+        "raised",
+        "schema",
+        "present"
+      ],
+      "matches": 39,
+      "raw_rank": 2,
+      "in_window": true,
+      "final_rank": null,
+      "gold": [
+        "requests/models.py"
+      ],
+      "top3": [
+        "requests/exceptions.py"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "requests-1287",
+      "query": "Cookies won't get deleted after update to 1.X",
+      "terms": [
+        "cookies",
+        "won",
+        "deleted",
+        "after",
+        "update"
+      ],
+      "matches": 27,
+      "raw_rank": 2,
+      "in_window": true,
+      "final_rank": 3,
+      "gold": [
+        "requests/sessions.py"
+      ],
+      "top3": [
+        "requests/cookies.py",
+        "requests/models.py",
+        "requests/sessions.py"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "requests-1079",
+      "query": "r.reason is always None (1.0.4)",
+      "terms": [
+        "reason",
+        "always",
+        "none"
+      ],
+      "matches": 40,
+      "raw_rank": 6,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "requests/adapters.py"
+      ],
+      "top3": [
+        "requests/models.py",
+        "requests/adapters.py",
+        "requests/utils.py"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "requests-785",
+      "query": "Allow lists in the dict values of the hooks argument",
+      "terms": [
+        "allow",
+        "lists",
+        "dict",
+        "values",
+        "hooks",
+        "argument"
+      ],
+      "matches": 40,
+      "raw_rank": 3,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "requests/models.py"
+      ],
+      "top3": [
+        "requests/models.py",
+        "requests/hooks.py",
+        "requests/packages/urllib3/packages/ordered_dict.py"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-2243",
+      "query": "Strange behavior of `--sort modified`, giving incorrect order",
+      "terms": [
+        "strange",
+        "behavior",
+        "sort",
+        "modified",
+        "giving",
+        "incorrect",
+        "order"
+      ],
+      "matches": 47,
+      "raw_rank": 3,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "crates/core/args.rs",
+        "crates/core/main.rs"
+      ],
+      "top3": [
+        "crates/core/args.rs",
+        "crates/core/app.rs",
+        "FAQ.md"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-1941",
+      "query": "result and error output mixing up",
+      "terms": [
+        "result",
+        "error",
+        "output",
+        "mixing",
+        "up"
+      ],
+      "matches": 88,
+      "raw_rank": 20,
+      "in_window": true,
+      "final_rank": 19,
+      "gold": [
+        "crates/core/logger.rs",
+        "crates/core/main.rs",
+        "crates/core/messages.rs"
+      ],
+      "top3": [
+        "crates/core/args.rs",
+        "crates/matcher/src/lib.rs",
+        "crates/printer/src/standard.rs"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "ripgrep-1857",
+      "query": "python as alias for py file type",
+      "terms": [
+        "python",
+        "alias",
+        "py",
+        "type"
+      ],
+      "matches": 49,
+      "raw_rank": 5,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "crates/ignore/src/default_types.rs",
+        "crates/ignore/src/types.rs"
+      ],
+      "top3": [
+        "crates/core/app.rs",
+        "crates/ignore/src/types.rs",
+        "crates/ignore/src/default_types.rs"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "ripgrep-2195",
+      "query": "shell completion '-t' for extensions prompt",
+      "terms": [
+        "shell",
+        "completion",
+        "extensions",
+        "prompt"
+      ],
+      "matches": 25,
+      "raw_rank": null,
+      "in_window": false,
+      "final_rank": null,
+      "gold": [
+        "crates/cli/src/decompress.rs",
+        "crates/globset/src/pathutil.rs"
+      ],
+      "top3": [
+        "build.rs",
+        "crates/ignore/src/default_types.rs",
+        "crates/globset/src/lib.rs"
+      ],
+      "cause": "never-matched"
+    },
+    {
+      "id": "ripgrep-2095",
+      "query": "`--multiline` with `--replace` causes duplicate output",
+      "terms": [
+        "multiline",
+        "replace",
+        "causes",
+        "duplicate",
+        "output"
+      ],
+      "matches": 50,
+      "raw_rank": 23,
+      "in_window": true,
+      "final_rank": 12,
+      "gold": [
+        "crates/printer/src/util.rs"
+      ],
+      "top3": [
+        "crates/core/app.rs",
+        "crates/core/args.rs",
+        "crates/searcher/src/searcher/mod.rs"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "ripgrep-1939",
+      "query": "Default value documentation for --field-match-separator should be colon instead of hyphen",
+      "terms": [
+        "default",
+        "value",
+        "documentation",
+        "field",
+        "match",
+        "separator",
+        "should",
+        "colon",
+        "instead",
+        "hyphen"
+      ],
+      "matches": 137,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "crates/core/app.rs"
+      ],
+      "top3": [
+        "crates/core/app.rs",
+        "crates/printer/src/standard.rs",
+        "crates/core/args.rs"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "ripgrep-1911",
+      "query": "MS Windows 32bit binary does not work properly for files bigger than 4 gigabyte",
+      "terms": [
+        "ms",
+        "windows",
+        "32bit",
+        "binary",
+        "not",
+        "work",
+        "properly",
+        "bigger",
+        "than",
+        "gigabyte"
+      ],
+      "matches": 109,
+      "raw_rank": 85,
+      "in_window": true,
+      "final_rank": null,
+      "gold": [
+        "crates/searcher/src/searcher/mmap.rs"
+      ],
+      "top3": [
+        "crates/ignore/src/walk.rs",
+        "crates/printer/src/standard.rs",
+        "crates/core/app.rs"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "ripgrep-1891",
+      "query": "panic with -w and empty string",
+      "terms": [
+        "panic",
+        "empty",
+        "string"
+      ],
+      "matches": 73,
+      "raw_rank": 12,
+      "in_window": true,
+      "final_rank": 5,
+      "gold": [
+        "crates/matcher/src/lib.rs",
+        "crates/regex/src/word.rs"
+      ],
+      "top3": [
+        "crates/searcher/src/testutil.rs",
+        "crates/core/args.rs",
+        "crates/ignore/src/dir.rs"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "ripgrep-1739",
+      "query": "rg outputs wrong matches when everything is matched and replaced with custom string",
+      "terms": [
+        "rg",
+        "outputs",
+        "wrong",
+        "matches",
+        "everything",
+        "matched",
+        "replaced",
+        "custom",
+        "string"
+      ],
+      "matches": 109,
+      "raw_rank": 8,
+      "in_window": true,
+      "final_rank": 12,
+      "gold": [
+        "crates/printer/src/util.rs"
+      ],
+      "top3": [
+        "crates/core/app.rs",
+        "crates/ignore/src/dir.rs",
+        "crates/matcher/src/lib.rs"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "ripgrep-1401",
+      "query": "Ending newline character of a line seems to be exposed to the regex engine with -P option",
+      "terms": [
+        "ending",
+        "newline",
+        "character",
+        "line",
+        "seems",
+        "exposed",
+        "regex",
+        "engine",
+        "option"
+      ],
+      "matches": 108,
+      "raw_rank": 18,
+      "in_window": true,
+      "final_rank": 11,
+      "gold": [
+        "crates/printer/src/standard.rs",
+        "crates/printer/src/util.rs"
+      ],
+      "top3": [
+        "crates/core/app.rs",
+        "crates/regex/src/matcher.rs",
+        "crates/core/args.rs"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "ripgrep-1311",
+      "query": "Unexpected (or incorrect?) multiline replace behavior",
+      "terms": [
+        "unexpected",
+        "incorrect",
+        "multiline",
+        "replace",
+        "behavior"
+      ],
+      "matches": 36,
+      "raw_rank": 29,
+      "in_window": true,
+      "final_rank": 10,
+      "gold": [
+        "crates/printer/src/standard.rs",
+        "crates/searcher/src/searcher/glue.rs"
+      ],
+      "top3": [
+        "crates/core/app.rs",
+        "crates/core/args.rs",
+        "crates/searcher/src/searcher/mod.rs"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "fmt-1369",
+      "query": "Detect if type is formattable in SFINAE-friendly way?",
+      "terms": [
+        "detect",
+        "type",
+        "formattable",
+        "sfinae",
+        "friendly",
+        "way"
+      ],
+      "matches": 76,
+      "raw_rank": 7,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "include/fmt/core.h"
+      ],
+      "top3": [
+        "include/fmt/format.h",
+        "include/fmt/core.h",
+        "include/fmt/chrono.h"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "fmt-993",
+      "query": "Allow fmt::format and friends to use colors",
+      "terms": [
+        "allow",
+        "fmt",
+        "format",
+        "friends",
+        "colors"
+      ],
+      "matches": 79,
+      "raw_rank": 6,
+      "in_window": true,
+      "final_rank": 11,
+      "gold": [
+        "include/fmt/color.h"
+      ],
+      "top3": [
+        "include/fmt/chrono.h",
+        "include/fmt/core.h",
+        "include/fmt/format.h"
+      ],
+      "cause": "in-window-misordered"
+    },
+    {
+      "id": "fmt-873",
+      "query": "Remove basic_fixed_buffer",
+      "terms": [
+        "remove",
+        "basic",
+        "fixed",
+        "buffer"
+      ],
+      "matches": 64,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/format-inl.h",
+        "include/fmt/format.h",
+        "src/format.cc"
+      ],
+      "top3": [
+        "include/fmt/format.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-687",
+      "query": "Missing fmt::make_printf_args",
+      "terms": [
+        "missing",
+        "fmt",
+        "make",
+        "printf",
+        "args"
+      ],
+      "matches": 80,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "include/fmt/printf.h"
+      ],
+      "top3": [
+        "include/fmt/printf.h",
+        "include/fmt/format.h",
+        "include/fmt/core.h"
+      ],
+      "cause": "ok@1"
+    },
+    {
+      "id": "fmt-505",
+      "query": "A conflict of name lookup when building with Visual Studio 2015",
+      "terms": [
+        "conflict",
+        "name",
+        "lookup",
+        "building",
+        "visual",
+        "studio",
+        "2015"
+      ],
+      "matches": 35,
+      "raw_rank": 21,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "fmt/format.h"
+      ],
+      "top3": [
+        "support/appveyor-build.py",
+        "fmt/format.h",
+        "doc/conf.py"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "fmt-491",
+      "query": "MemoryWriter allocation issue",
+      "terms": [
+        "memorywriter",
+        "allocation",
+        "issue"
+      ],
+      "matches": 25,
+      "raw_rank": null,
+      "in_window": false,
+      "final_rank": null,
+      "gold": [
+        "fmt/ostream.h"
+      ],
+      "top3": [
+        "fmt/format.cc",
+        "fmt/format.h",
+        "fmt/printf.cc"
+      ],
+      "cause": "never-matched"
+    },
+    {
+      "id": "fmt-413",
+      "query": "Missing explicit instantiation for format_float<double> and <long double>",
+      "terms": [
+        "missing",
+        "explicit",
+        "instantiation",
+        "format",
+        "float",
+        "double",
+        "long",
+        "double"
+      ],
+      "matches": 71,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 2,
+      "gold": [
+        "fmt/format.h"
+      ],
+      "top3": [
+        "fmt/format.cc",
+        "fmt/format.h"
+      ],
+      "cause": "ok@10"
+    },
+    {
+      "id": "fmt-125",
+      "query": "Cannot document ctor taking an array with size which is a template parameter",
+      "terms": [
+        "cannot",
+        "document",
+        "ctor",
+        "taking",
+        "array",
+        "size",
+        "template",
+        "parameter"
+      ],
+      "matches": 61,
+      "raw_rank": 1,
+      "in_window": true,
+      "final_rank": 1,
+      "gold": [
+        "format.h"
+      ],
+      "top3": [
+        "format.h",
+        "gmock/gmock-gtest-all.cc",
+        "format.cc"
+      ],
+      "cause": "ok@1"
+    }
+  ]
+}

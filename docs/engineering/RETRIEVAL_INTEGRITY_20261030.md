@@ -146,3 +146,13 @@ bug-fixing improvement is claimed by this checkpoint.
 An independent final reviewer examined the changed code and immediate callers
 and reported no actionable introduced defect. This bounded review is separate
 from the measured gates and is not a whole-repository audit.
+
+## Update — gate 1 (fresh issue set and candidate recall), same day
+
+Gate 1 above is done: a fresh 55-issue set was frozen (`issue_localization_v2.jsonl`) and candidate recall was
+decomposed on the 65 development tasks. Candidate recall is not the limit (0 gold files outside the window);
+ordering is. One routing defect was fixed (FX-DEC-20261030-004), and the ranking weights stay unchanged:
+coverage, proximity and weight sweeps did not move both development halves consistently. Fresh-set result:
+hit@1 0.345, hit@3 0.727, recall@10 0.761. Targets remain unmet. Gates 2 (compiler-backed context adapter)
+and 3 (bounded dirty-path scheduling, snapshot generations) are untouched.
+

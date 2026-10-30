@@ -19,20 +19,24 @@ the evidence; name matches do not prove type-resolved calls.
 Findex retrieves locally without API keys. The official assistant may send
 selected excerpts to its provider.
 
-**Current source (2026-10-29):** native Windows checks pass 188 Rust tests on
-stable and MSRV plus 49 offline Python tests. Native syntax extraction covers
-Rust, Python, JavaScript, TypeScript/TSX, C, C++, Go, Java and C#.
-Imported compiler identities can now be resolved from a source position, including
-aliases and same-named methods. This requires a SCIP/LSP snapshot; ordinary
-context retrieval remains lexical/syntactic. Context ranking separates conceptual tasks from exact
-symbol lookup, checks local Rust receiver annotations and states its evidence
-scope explicitly. Exact filename words and nearby evidence now contribute to
-task retrieval. On 65 reused historical issues, this iteration raises hit@1
-from **40.0% to 44.6%**, and gold recall@10 from **79.2% to 80.8%**, at the same 1,200-token
-rendered budget. The 60% / 90% targets remain unmet. Higher conditional call
-precision comes with substantially fewer confident calls; it does not establish
-general semantic resolution or better bugfix outcomes.
-[Measured changes, remaining gaps and tradeoffs](docs/engineering/COMPETITIVE_GAPS_20261029.md).
+**Current source (2026-10-30):** native Windows checks pass 250 of 251 Rust tests and 63
+offline Python tests on the development machine (the one failure is a `findex-core` ACL test that
+depends on that machine's inherited permissions; it passed in CI on the previous commit). Native syntax extraction covers Rust, Python, JavaScript, TypeScript/TSX, C,
+C++, Go, Java and C#. Imported compiler identities can be resolved from a source position,
+including aliases and same-named methods; this requires a SCIP/LSP snapshot, and ordinary
+context retrieval remains lexical/syntactic. Concept tasks open with a `ranked files, most
+likely first` line, and a problem report that names an identifier now also searches its
+words instead of returning the definition alone.
+
+**Localization accuracy, stated against unseen data.** On 55 real issues frozen before any system
+was scored (requests, ripgrep, fmt), Findex puts a gold file first in **34.5%** of cases, in the
+top three in **72.7%**, and finds **76.1%** of gold files in its top ten. The 65 older
+issues used while tuning score 58.5% and 90.0%, so they overstate how the ranking generalizes by
+about 20 points. The 60% / 90% targets are **not met** on fresh data. Title-only lexical signals
+are close to exhausted: candidate recall is not the limit, ordering is. On the same fresh issues, the
+offline file-ranking proxy gives hit@1 0.345 for Findex against 0.164 for git grep, 0.127 for codebase-memory and
+0.036 for Graphify.
+[Protocol and per-run evidence](docs/engineering/BENCHMARKS.md) (FX-BM-019/020).
 
 **Previously packaged 0.2.0 preview:** Claude and Codex plugin integration,
 extracted packages, Cloud Files, loopback SMB and 100k-file synthetic scaling
