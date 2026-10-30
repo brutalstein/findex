@@ -1,0 +1,23 @@
+{
+  "tasks": [
+    "ripgrep:NoIgnoreFiles:exact",
+    "fmt:utf8_system_category:exact",
+    "requests:TLSServer:exact",
+    "ripgrep:NoIgnoreMessages:exact"
+  ],
+  "tools": [
+    "findex",
+    "graphify",
+    "codebase-memory"
+  ],
+  "max_sessions": 12,
+  "codex_profile": {
+    "model": "gpt-5.6-luna",
+    "model_reasoning_effort": "low"
+  },
+  "claude_model": "haiku",
+  "blocked": {
+    "codex": null,
+    "claude": "NOT_RUN: Codex-only study"
+  }
+}

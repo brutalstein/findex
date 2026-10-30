@@ -100,3 +100,46 @@ already-built Windows artifacts; it does not run Findex.
 not a support claim.
 
 **Commit:** this change
+
+## FX-DEC-20261030-002 — Localization ranking: structure and size signals, no git-history prior yet
+
+**Problem:** Issue localization (65 tasks) sat at hit@1 0.446. Misses were dominated by
+vendored copies and docs/support scripts outranking project source, and by FTS5's fixed BM25
+length normalisation (b = 0.75) penalising the large central files that fixes touch.
+
+**Decision:** Concept ranking multiplies the BM25 score by path weights (vendored 0.5,
+docs/examples/support 0.7) and relaxes length normalisation toward b = 0.3. Both values were
+fixed before measuring; no published sweep of b for source files was found. A bug-fix-history
+prior (files fixed often are fixed again; BugLocator/AmaLgam) is deferred: obtaining it means
+running `git` inside an untrusted repository, where repository-local configuration such as
+`core.fsmonitor` can execute commands, which conflicts with the threat boundaries in SECURITY.md.
+It needs a parser of the object store or a hardened, reviewed invocation first.
+
+**Evidence:** FX-BM-012 and FX-BM-013 in BENCHMARKS.md (hit@1 0.446 to 0.538; held-out half
+0.464 to 0.536; 19 tasks up, 5 down).
+
+**Repository hygiene found:** ten remote feature branches already have merged PRs and are stale;
+PR #27 (`feat/section3-adaptive-context`) conflicts with main in `context.rs` and `ci.yml` and
+predates the Windows-only pipeline. Neither was deleted or closed here.
+
+**Commit:** this change
+
+## FX-DEC-20261030-003 — Concept output names the ranked files
+
+**Problem:** The first live localization study (FX-BM-015) showed Findex losing sessions it should
+win: offline `findex context` ranks the gold file first on seven of the eight issues, yet three live
+Haiku sessions ran out of turns and one answered other files. The text output grouped snippets by
+kind (definitions first), so the rank order was invisible, and doc-comment snippets of the top file
+often looked unrelated to the issue.
+
+**Decision:** Concept output opens with `ranked files, most likely first: a, b, c, d, e` (five
+files, rank order, tests behind source as in the ranking). It is rendered text only; `--json` and the
+MCP structured output are unchanged, so offline localization numbers do not move. The line is
+counted in the token budget.
+
+**Evidence:** FX-BM-016. Same eight issues, Findex only: 4/8 to 6/8 correct, 5/8 to 7/8 valid,
+mean turns 13.1 to 5.0, tokens per session 420,352 to 143,014. The change was designed after reading
+those failures, so the re-run is a regression check, not an independent test; rivals were not
+re-run. Two losses remain (ripgrep-2122: the model overrode the ranking; zod-2184: gold ranks 16th).
+
+**Commit:** this change

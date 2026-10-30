@@ -141,8 +141,9 @@ def usage_summary(results: dict) -> dict:
 
 
 @contextmanager
-def trial_attempt(saved: Path, results: dict, record: dict, cap: int, halt_on_invalid: bool = True):
-    if results.get("stopped") or results["started"] >= cap or cap > 12:
+def trial_attempt(saved: Path, results: dict, record: dict, cap: int, halt_on_invalid: bool = True,
+                  hard_cap: int = 12):
+    if results.get("stopped") or results["started"] >= cap or cap > hard_cap:
         raise SystemExit("Session cap or stopped study; no additional calls authorized")
     if any(s["key"] == record["key"] for s in results["sessions"]):
         raise SystemExit("Trial already attempted; no repeat authorized")

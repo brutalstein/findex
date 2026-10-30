@@ -36,7 +36,10 @@ def definition(path: str) -> dict:
 
 
 def localization(path: str) -> dict:
-    systems = read(path)["systems"]
+    systems = dict(read(path)["systems"])
+    rivals = (REPO / path).with_name("localization-rivals.json")  # measured offline on the same tasks
+    if rivals.exists():
+        systems.update(json.loads(rivals.read_text(encoding="utf-8"))["systems"])
     out: dict = {}
     for src, row in systems.items():
         tool = {"gitgrep-words": "gitgrep", "findex-context": "findex"}.get(src) or (
@@ -76,6 +79,8 @@ LANES = {
 for _lane, _title, _sub in (
         ("navigation_claude", "Live navigation, Claude Code",
          "Claude Haiku via subscription; tokens include cache reads; success counts invalid sessions as failures"),
+        ("localization_claude", "Live issue localization, Claude Code",
+         "Claude Haiku via subscription names the files to change from an issue title; hit@1 counts invalid sessions as failures"),
         ("navigation_codex", "Live navigation, Codex",
          "Codex via ChatGPT subscription; success counts invalid sessions as failures"),
         ("bugfix_codex", "Live bugfix, Codex",

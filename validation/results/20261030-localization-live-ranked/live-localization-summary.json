@@ -1,0 +1,38 @@
+{
+  "summary": {
+    "findex": {
+      "sessions": 8,
+      "valid": 7,
+      "correct": 6,
+      "hit1": 6,
+      "hit3": 6,
+      "total_tokens": 1144111
+    },
+    "graphify": {
+      "sessions": 0,
+      "valid": 0,
+      "correct": 0,
+      "hit1": 0,
+      "hit3": 0,
+      "total_tokens": 0
+    },
+    "codebase-memory": {
+      "sessions": 0,
+      "valid": 0,
+      "correct": 0,
+      "hit1": 0,
+      "hit3": 0,
+      "total_tokens": 0
+    },
+    "none": {
+      "sessions": 0,
+      "valid": 0,
+      "correct": 0,
+      "hit1": 0,
+      "hit3": 0,
+      "total_tokens": 0
+    }
+  },
+  "stopped": null,
+  "limits": "8 test-split tasks, one repetition per arm; invalid sessions count as failures; cache differences included. Not evidence of general superiority or monetary savings."
+}

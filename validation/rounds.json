@@ -76,6 +76,38 @@
         "localization": "validation/results/20261030-localization-length/localization.json"
       },
       "note": "Concept ranking relaxes FTS5's fixed BM25 length normalisation (b 0.75 to 0.3, set in advance, not fitted) so large central files are no longer penalised. Dev and test both improve; 19 tasks moved up, 5 down (none beyond rank 13)."
+    },
+    {
+      "id": "R9",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization": "validation/results/20261030-localization-symbols/localization.json"
+      },
+      "note": "Concept ranking adds a symbol-name field: the share of query words that name a definition in the file. Chosen on dev (one candidate; a proximity feature was tried and dropped), confirmed once on the held-out half. First round with Graphify and codebase-memory measured offline on the same 65 tasks."
+    },
+    {
+      "id": "R10",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization_claude": "validation/results/20261030-localization-live/live-localization-summary.json"
+      },
+      "note": "First live issue-localization study: 8 held-out issues, four arms (Findex, Graphify, codebase-memory, no tool), Claude Haiku via subscription, 20-turn cap. Findex ties codebase-memory at 4/8 with the fewest tokens, but three Findex sessions ran out of turns although offline Findex ranks the right file first on 7 of the 8 issues."
+    },
+    {
+      "id": "R11",
+      "date": "2026-10-30",
+      "lanes": {
+        "localization_claude": "validation/results/20261030-localization-live-ranked/live-localization-summary.json"
+      },
+      "note": "Concept output now opens with a `ranked files, most likely first` line. Findex-only re-run on the same 8 issues: 6/8 correct (was 4/8), 7/8 valid (was 5/8), 143k tokens per session (was 420k). The change was designed after seeing the R10 failures on these issues, so this is not an independent test; rivals were not re-run."
+    },
+    {
+      "id": "R12",
+      "date": "2026-10-30",
+      "lanes": {
+        "navigation_codex": "validation/results/20261030-codex-live-r12/live-usage-summary.json"
+      },
+      "note": "Codex subscription reopened after the usage limit that blocked the earlier luna pilot. Four fresh single-definition tasks (ripgrep x2, fmt, requests), gpt-5.6-luna at low effort, three tools, one repetition. Findex 4/4 correct; Graphify 3/4; codebase-memory 3/4 valid and correct 3/4."
     }
   ]
 }

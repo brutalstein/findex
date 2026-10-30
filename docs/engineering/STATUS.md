@@ -21,7 +21,7 @@ Correctness stabilization in progress. All 211 workspace tests pass, clippy
 `-D warnings` clean, cargo fmt clean, release build passes on Windows.
 Windows-only CI restored (Linux/macOS removed, FX-DEC-20261030-001). Property-based tests added to
 `findex-core` and `findex-index`. CLI integration tests added to `findex-cli`.
-The 60% hit@1 / 90% recall@10 targets remain unmet (current ~53.8% / ~86.9% after path weights and BM25 length relaxation, FX-BM-012/013).
+The 60% hit@1 / 90% recall@10 targets remain unmet (current ~58.5% / ~86.9% after path weights, BM25 length relaxation and the symbol-name field, FX-BM-012/013/014).
 
 ## Milestone Status Table
 
@@ -50,11 +50,11 @@ The 60% hit@1 / 90% recall@10 targets remain unmet (current ~53.8% / ~86.9% afte
 | Resolved issues | 12 (per COMPLETE_REPOSITORY_AUDIT.md findings A1-A12, D1-D4) |
 | Latest test outcomes | 211 pass, 0 fail (workspace, all-targets) |
 | Last benchmark run | Historical (2026-10-27/28 runs under validation/results/) |
-| Retrieval quality vs baseline | hit@1 ~53.8% (baseline 40.0%), recall@10 ~86.9% (baseline 79.2%); targets 60%/90% unmet |
+| Retrieval quality vs baseline | hit@1 ~58.5% (baseline 40.0%), recall@10 ~86.9% (baseline 79.2%); targets 60%/90% unmet |
 | Performance regressions | NOT MEASURED on HEAD |
 | Security concerns | None open; threat model documented |
 | Platform coverage | Windows x64 only (Linux/macOS unsupported) |
-| Live-agent evaluation status | PARTIAL (2026-10-30): harness repaired; Claude Haiku (claude.ai Pro) rounds R4/R5 on four single-definition tasks: Findex 4/4 correct in both, 78,951 then 54,853 tokens/session vs Graphify 80,991 / 74,736 and codebase-memory 3/4 at 96,272 / 89,419. Four tasks, one repetition; the R5 saving is the avoided tool-search turn. Codex gpt-5.6-luna still blocked by the ChatGPT usage limit. Codex bugfix pilot: Findex trails codebase-memory on tokens. Per-round charts: docs/PROGRESS.md |
+| Live-agent evaluation status | PARTIAL (2026-10-30): harness repaired; Claude Haiku (claude.ai Pro) rounds R4/R5 on four single-definition tasks: Findex 4/4 correct in both, 78,951 then 54,853 tokens/session vs Graphify 80,991 / 74,736 and codebase-memory 3/4 at 96,272 / 89,419. Four tasks, one repetition; the R5 saving is the avoided tool-search turn. Codex gpt-5.6-luna (low effort) unblocked 2026-10-30: R12, four fresh definition tasks, Findex 4/4 correct at 62,825 tokens per session vs Graphify 3/4 at 165,062 and codebase-memory 3/4 (one invalid) at 181,407 (FX-BM-017). Codex bugfix pilot (R2, older build): Findex trails codebase-memory on tokens; not re-run. Live issue localization (2026-10-30, Claude Haiku, 8 held-out issues, 4 arms, 32 sessions): Findex 4/8 correct = codebase-memory 4/8, Graphify 3/8, no tool 3/8, at 420k vs 632-716k tokens per session; a `ranked files` line in concept output then took Findex-only sessions to 6/8 correct and 143k tokens (designed on the same issues, rivals not re-run; FX-BM-015/016). Per-round charts: docs/PROGRESS.md |
 
 ## Immediate Next Actions
 

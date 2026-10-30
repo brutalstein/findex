@@ -1,0 +1,245 @@
+{
+  "sessions": [
+    {
+      "key": "codex:ripgrep:NoIgnoreFiles:exact:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "ripgrep:NoIgnoreFiles:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 57350,
+        "cached_input_tokens": 36992,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 202,
+        "reasoning_output_tokens": 76
+      },
+      "mcp_calls": 1,
+      "final": "{\"path\":\"crates/core/flags/defs.rs\",\"line\":4394}",
+      "fatal": false
+    },
+    {
+      "key": "codex:ripgrep:NoIgnoreFiles:exact:graphify",
+      "client": "codex",
+      "tool": "graphify",
+      "task": "ripgrep:NoIgnoreFiles:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": false,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 185644,
+        "cached_input_tokens": 162432,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1735,
+        "reasoning_output_tokens": 1017
+      },
+      "mcp_calls": 1,
+      "final": "{\"path\":\"crates/core/src/args.rs\",\"line\":1}",
+      "fatal": false
+    },
+    {
+      "key": "codex:ripgrep:NoIgnoreFiles:exact:codebase-memory",
+      "client": "codex",
+      "tool": "codebase-memory",
+      "task": "ripgrep:NoIgnoreFiles:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 144700,
+        "cached_input_tokens": 116480,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 566,
+        "reasoning_output_tokens": 186
+      },
+      "mcp_calls": 3,
+      "final": "{\"path\":\"crates/core/flags/defs.rs\",\"line\":4394}",
+      "fatal": false
+    },
+    {
+      "key": "codex:fmt:utf8_system_category:exact:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "fmt:utf8_system_category:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 77490,
+        "cached_input_tokens": 56832,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 412,
+        "reasoning_output_tokens": 179
+      },
+      "mcp_calls": 2,
+      "final": "{\"path\":\"src/os.cc\",\"line\":117}",
+      "fatal": false
+    },
+    {
+      "key": "codex:fmt:utf8_system_category:exact:graphify",
+      "client": "codex",
+      "tool": "graphify",
+      "task": "fmt:utf8_system_category:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 119706,
+        "cached_input_tokens": 97536,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 621,
+        "reasoning_output_tokens": 225
+      },
+      "mcp_calls": 2,
+      "final": "{\"path\":\"src/os.cc\",\"line\":117}",
+      "fatal": false
+    },
+    {
+      "key": "codex:fmt:utf8_system_category:exact:codebase-memory",
+      "client": "codex",
+      "tool": "codebase-memory",
+      "task": "fmt:utf8_system_category:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 191735,
+        "cached_input_tokens": 157440,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 586,
+        "reasoning_output_tokens": 190
+      },
+      "mcp_calls": 3,
+      "final": "{\"path\":\"src/os.cc\",\"line\":117}",
+      "fatal": false
+    },
+    {
+      "key": "codex:requests:TLSServer:exact:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "requests:TLSServer:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 57566,
+        "cached_input_tokens": 36992,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 247,
+        "reasoning_output_tokens": 90
+      },
+      "mcp_calls": 2,
+      "final": "{\"path\":\"tests/testserver/server.py\",\"line\":138}",
+      "fatal": false
+    },
+    {
+      "key": "codex:requests:TLSServer:exact:graphify",
+      "client": "codex",
+      "tool": "graphify",
+      "task": "requests:TLSServer:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 174695,
+        "cached_input_tokens": 143232,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 966,
+        "reasoning_output_tokens": 335
+      },
+      "mcp_calls": 2,
+      "final": "{\"path\":\"tests/testserver/server.py\",\"line\":138}",
+      "fatal": false
+    },
+    {
+      "key": "codex:requests:TLSServer:exact:codebase-memory",
+      "client": "codex",
+      "tool": "codebase-memory",
+      "task": "requests:TLSServer:exact",
+      "status": "invalid",
+      "valid": false,
+      "correct": false,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 241732,
+        "cached_input_tokens": 210304,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1199,
+        "reasoning_output_tokens": 564
+      },
+      "mcp_calls": 2,
+      "final": "{\"path\":\"tests/testserver/server.py\",\"line\":89}",
+      "fatal": false
+    },
+    {
+      "key": "codex:ripgrep:NoIgnoreMessages:exact:findex",
+      "client": "codex",
+      "tool": "findex",
+      "task": "ripgrep:NoIgnoreMessages:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 57780,
+        "cached_input_tokens": 36992,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 251,
+        "reasoning_output_tokens": 103
+      },
+      "mcp_calls": 1,
+      "final": "{\"path\":\"crates/core/flags/defs.rs\",\"line\":4488}",
+      "fatal": false
+    },
+    {
+      "key": "codex:ripgrep:NoIgnoreMessages:exact:graphify",
+      "client": "codex",
+      "tool": "graphify",
+      "task": "ripgrep:NoIgnoreMessages:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 176226,
+        "cached_input_tokens": 161408,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 654,
+        "reasoning_output_tokens": 189
+      },
+      "mcp_calls": 2,
+      "final": "{\"path\":\"crates/core/flags/defs.rs\",\"line\":4488}",
+      "fatal": false
+    },
+    {
+      "key": "codex:ripgrep:NoIgnoreMessages:exact:codebase-memory",
+      "client": "codex",
+      "tool": "codebase-memory",
+      "task": "ripgrep:NoIgnoreMessages:exact",
+      "status": "complete",
+      "valid": true,
+      "correct": true,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 144554,
+        "cached_input_tokens": 131584,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 556,
+        "reasoning_output_tokens": 198
+      },
+      "mcp_calls": 3,
+      "final": "{\"path\":\"crates/core/flags/defs.rs\",\"line\":4488}",
+      "fatal": false
+    }
+  ],
+  "started": 12
+}

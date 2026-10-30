@@ -1,0 +1,41 @@
+{
+  "summary": {
+    "findex": {
+      "sessions": 4,
+      "valid": 4,
+      "correct": 4,
+      "mcp_calls": 6,
+      "input_tokens": 250186,
+      "cached_input_tokens": 167808,
+      "output_tokens": 1112,
+      "reasoning_output_tokens": 448,
+      "total_tokens": 251298,
+      "uncached_input_tokens": 82378
+    },
+    "graphify": {
+      "sessions": 4,
+      "valid": 4,
+      "correct": 3,
+      "mcp_calls": 7,
+      "input_tokens": 656271,
+      "cached_input_tokens": 564608,
+      "output_tokens": 3976,
+      "reasoning_output_tokens": 1766,
+      "total_tokens": 660247,
+      "uncached_input_tokens": 91663
+    },
+    "codebase-memory": {
+      "sessions": 4,
+      "valid": 3,
+      "correct": 3,
+      "mcp_calls": 11,
+      "input_tokens": 722721,
+      "cached_input_tokens": 615808,
+      "output_tokens": 2907,
+      "reasoning_output_tokens": 1138,
+      "total_tokens": 725628,
+      "uncached_input_tokens": 106913
+    }
+  },
+  "limits": "4 tasks, one repetition per arm; cache differences included. Not evidence of general superiority or monetary savings."
+}

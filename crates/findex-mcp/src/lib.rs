@@ -1205,6 +1205,7 @@ mod tests {
                     stale_results_discarded: 0,
                     sync: findex_index::SyncStats::default(),
                     coverage: Vec::new(),
+                    ranked: Vec::new(),
                 })
             },
         )

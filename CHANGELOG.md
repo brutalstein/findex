@@ -33,7 +33,18 @@ First release candidate. No earlier version was published.
   to 0.3), so large central files are not penalised for their size. Together
   with the path weights: hit@1 0.446 to 0.538, recall@10 0.808 to 0.869 on 65
   issues (held-out half 0.464 to 0.536); 19 tasks improved, 5 worsened by one
-  to three ranks. Targets 0.60 / 0.90 are still unmet.
+  to three ranks.
+- Concept ranking scores a file higher when query words name its definitions
+  (symbol-name field, weight 1). hit@1 0.538 to 0.585 on 65 issues (held-out
+  half 0.536 to 0.607); 11 tasks improved, 2 worsened by one rank. Measured on
+  the same tasks, Graphify reaches 0.123 and codebase-memory 0.246 hit@1 from the
+  raw issue title. Targets 0.60 overall / 0.90 recall@10 are not yet met.
+- Concept-task text output opens with `ranked files, most likely first: ...`
+  (five files, rank order); packing groups snippets by kind, so the rank was
+  not visible. JSON output is unchanged. In a live Claude Haiku study on eight
+  held-out issues, Findex-only sessions went from 4/8 to 6/8 correct and from
+  420k to 143k tokens each (same issues the change was designed on; not an
+  independent test).
 
 ### Added
 - Optional lossless `format="compact"` for MCP lexical and exact-symbol results;
